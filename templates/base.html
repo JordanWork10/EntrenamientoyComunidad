@@ -1,0 +1,247 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="EntrenamientoyComunidad - Plataforma de entrenamiento, salud y espacios deportivos."
+    >
+
+    <title>
+        {% block title %}
+        EntrenamientoyComunidad
+        {% endblock %}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/styles.css' %}?v=95"
+    >
+
+</head>
+
+
+<body>
+
+    <!-- =========================
+         NAVEGACIÓN PRINCIPAL
+    ========================== -->
+
+    <header class="site-header">
+
+        <div class="navbar-container">
+
+            <a
+                href="{% url 'core:home' %}"
+                class="brand"
+                aria-label="EntrenamientoyComunidad"
+            >
+
+                <span class="brand-main">
+                    Entrenamiento
+                </span>
+
+                <span class="brand-accent">
+                    yComunidad
+                </span>
+
+            </a>
+
+
+            <nav class="main-nav">
+
+                <a href="{% url 'core:home' %}">
+                    Inicio
+                </a>
+
+                <a href="{% url 'core:explore' %}">
+                    Explorar
+                </a>
+
+            </nav>
+
+
+            <div class="navbar-account">
+
+                {% if request.user.is_authenticated %}
+
+                    <a
+                        href="{% url 'accounts:dashboard' %}"
+                        class="nav-account-link"
+                    >
+                        Mi cuenta
+                    </a>
+
+                    <a
+                        href="{% url 'accounts:logout' %}"
+                        class="button button-primary button-small"
+                    >
+                        Cerrar sesión
+                    </a>
+
+                {% else %}
+
+                    <a
+                        href="{% url 'accounts:login' %}"
+                        class="nav-account-link"
+                    >
+                        Iniciar sesión
+                    </a>
+
+                    <a
+                        href="{% url 'accounts:register' %}"
+                        class="button button-primary button-small"
+                    >
+                        Crear cuenta
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         CONTENIDO DE CADA PÁGINA
+    ========================== -->
+
+    <main class="site-main">
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+
+    <!-- =========================
+         PIE DE PÁGINA
+    ========================== -->
+
+    <footer class="site-footer">
+
+        <div class="footer-container">
+
+            <div class="footer-brand">
+
+                <div class="brand footer-logo">
+
+                    <span class="brand-main">
+                        Entrenamiento
+                    </span>
+
+                    <span class="brand-accent">
+                        yComunidad
+                    </span>
+
+                </div>
+
+                <p>
+                    Infraestructura que conecta entrenamiento,
+                    salud y espacios deportivos.
+                </p>
+
+            </div>
+
+
+            <div class="footer-column">
+
+                <h4>
+                    Plataforma
+                </h4>
+
+                <a href="{% url 'core:home' %}">
+                    Inicio
+                </a>
+
+                <a href="{% url 'core:explore' %}">
+                    Explorar
+                </a>
+
+                <a href="{% url 'professionals:public_service_catalog' %}">
+                    Profesionales
+                </a>
+
+                <a href="{% url 'spaces:public_catalog' %}">
+                    Espacios
+                </a>
+
+            </div>
+
+
+            <div class="footer-column">
+
+                <h4>
+                    Cuenta
+                </h4>
+
+                {% if request.user.is_authenticated %}
+
+                    <a href="{% url 'accounts:dashboard' %}">
+                        Mi cuenta
+                    </a>
+
+                {% else %}
+
+                    <a href="{% url 'accounts:login' %}">
+                        Iniciar sesión
+                    </a>
+
+                    <a href="{% url 'accounts:register' %}">
+                        Crear cuenta
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="footer-column">
+
+                <h4>
+                    Legal
+                </h4>
+
+                <span>
+                    Términos y condiciones
+                </span>
+
+                <span>
+                    Política de privacidad
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <p>
+                © {% now "Y" %} EntrenamientoyComunidad.
+                Todos los derechos reservados.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    {% block extra_js %}
+    {% endblock %}
+
+</body>
+
+</html>

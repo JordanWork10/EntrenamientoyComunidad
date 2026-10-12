@@ -1,0 +1,664 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+Publicar disponibilidad | {{ space.name }}
+{% endblock %}
+
+
+{% block content %}
+
+<section class="space-exact-availability-page">
+
+    <div class="space-exact-availability-container">
+
+
+        <!-- =========================
+             CABECERA
+        ========================== -->
+
+        <header class="space-exact-availability-hero">
+
+            <div>
+
+                <span class="space-exact-availability-overline">
+                    DISPONIBILIDAD DEL ESPACIO
+                </span>
+
+                <h1>
+                    Publica un horario
+                    <span>
+                        disponible.
+                    </span>
+                </h1>
+
+                <p>
+                    Elige una fecha y un rango horario.
+                    Esta disponibilidad se aplicará solamente a ese día.
+                </p>
+
+            </div>
+
+
+            <div class="space-exact-availability-space-card">
+
+                <span>
+                    ESPACIO
+                </span>
+
+                <strong>
+                    {{ space.name }}
+                </strong>
+
+                <p>
+                    {{ space.hourly_price_clp|clp }}
+                    por cada 60 minutos
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             RESUMEN DEL ESPACIO
+        ========================== -->
+
+        <section class="space-exact-summary-grid">
+
+            <article>
+
+                <span>
+                    ESPACIO
+                </span>
+
+                <strong>
+                    {{ space.name }}
+                </strong>
+
+                <p>
+                    {{ space.space_type.name }}
+                </p>
+
+            </article>
+
+
+            <article>
+
+                <span>
+                    PRECIO
+                </span>
+
+                <strong>
+                    {{ space.hourly_price_clp|clp }}
+                </strong>
+
+                <p>
+                    Por bloque de 60 minutos
+                </p>
+
+            </article>
+
+
+            <article>
+
+                <span>
+                    UBICACIÓN
+                </span>
+
+                <strong>
+                    {{ space.commune.name }}
+                </strong>
+
+                <p>
+                    {{ space.commune.region.name }}
+                </p>
+
+            </article>
+
+
+            <article>
+
+                <span>
+                    ESTADO
+                </span>
+
+                <strong class="space-exact-status-positive">
+                    {{ space.get_publication_status_display }}
+                </strong>
+
+                <p>
+                    Estado del espacio
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <form
+            method="post"
+            class="space-exact-availability-form"
+            id="exact-availability-form"
+        >
+
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="exception_type"
+                value="special_hours"
+            >
+
+
+            {% if form.non_field_errors %}
+
+                <div class="space-exact-form-error">
+
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- =========================
+                 01 FECHA
+            ========================== -->
+
+            <section class="space-exact-step">
+
+                <div class="space-exact-step-heading">
+
+                    <span>
+                        01
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            ¿Qué día estará disponible?
+                        </h2>
+
+                        <p>
+                            Este horario afectará únicamente a la fecha que elijas.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="space-exact-date-fields">
+
+                    {{ form.date }}
+
+                </div>
+
+
+                {% for error in form.date.errors %}
+                    <span class="space-exact-field-error">
+                        {{ error }}
+                    </span>
+                {% endfor %}
+
+            </section>
+
+
+            <!-- =========================
+                 02 HORARIO
+            ========================== -->
+
+            <section class="space-exact-step">
+
+                <div class="space-exact-step-heading">
+
+                    <span>
+                        02
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            ¿En qué horario estará disponible?
+                        </h2>
+
+                        <p>
+                            El sistema convertirá el rango en bloques
+                            reservables de 60 minutos.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="space-exact-time-grid">
+
+                    <div class="space-exact-field">
+
+                        <label for="{{ form.start_time.id_for_label }}">
+                            Hora de inicio
+                        </label>
+
+                        {{ form.start_time }}
+
+                        {% for error in form.start_time.errors %}
+                            <span class="space-exact-field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <span class="space-exact-time-arrow">
+                        →
+                    </span>
+
+
+                    <div class="space-exact-field">
+
+                        <label for="{{ form.end_time.id_for_label }}">
+                            Hora de término
+                        </label>
+
+                        {{ form.end_time }}
+
+                        {% for error in form.end_time.errors %}
+                            <span class="space-exact-field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 03 RESUMEN
+            ========================== -->
+
+            <section class="space-exact-step space-exact-review-step">
+
+                <div class="space-exact-step-heading">
+
+                    <span>
+                        03
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Revisa y publica
+                        </h2>
+
+                        <p>
+                            Comprueba la fecha y el horario antes de publicarlo.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="space-exact-review-card">
+
+                    <span>
+                        RESUMEN
+                    </span>
+
+                    <h3 id="exact-summary-main">
+                        Selecciona una fecha y un horario
+                    </h3>
+
+                    <p>
+                        {{ space.name }} · Solo esta fecha
+                    </p>
+
+                </div>
+
+
+                <div class="space-exact-review-grid">
+
+                    <article>
+
+                        <span>
+                            DURACIÓN
+                        </span>
+
+                        <strong id="exact-summary-duration">
+                            —
+                        </strong>
+
+                    </article>
+
+
+                    <article>
+
+                        <span>
+                            BLOQUES
+                        </span>
+
+                        <strong id="exact-summary-blocks">
+                            —
+                        </strong>
+
+                    </article>
+
+
+                    <article>
+
+                        <span>
+                            REPETICIÓN
+                        </span>
+
+                        <strong>
+                            Solo esta fecha
+                        </strong>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 ACCIONES
+            ========================== -->
+
+            <section class="space-exact-actions">
+
+                <div>
+
+                    <strong>
+                        ¿Horario listo?
+                    </strong>
+
+                    <p>
+                        Podrás revisarlo después desde el Calendario de arriendos.
+                    </p>
+
+                </div>
+
+
+                <div class="space-exact-actions-buttons">
+
+                    <a
+                        href="{% url 'spaces:provider_calendar' %}?month={{ focus_date|date:'Y-m' }}&date={{ focus_date|date:'Y-m-d' }}&space={{ space.id }}"
+                        class="space-exact-back-button"
+                    >
+                        Volver
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        class="space-exact-publish-button"
+                    >
+                        Publicar disponibilidad
+                        <span>
+                            →
+                        </span>
+                    </button>
+
+                </div>
+
+            </section>
+
+        </form>
+
+
+        <a
+            href="{% url 'spaces:availability' space.id %}?date={{ focus_date|date:'Y-m-d' }}"
+            class="space-exact-advanced-link"
+        >
+            Gestionar disponibilidad habitual →
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const dateYear = document.getElementById(
+            'id_date_year'
+        );
+
+        const dateMonth = document.getElementById(
+            'id_date_month'
+        );
+
+        const dateDay = document.getElementById(
+            'id_date_day'
+        );
+
+        const startTime = document.getElementById(
+            'id_start_time'
+        );
+
+        const endTime = document.getElementById(
+            'id_end_time'
+        );
+
+        const summaryMain = document.getElementById(
+            'exact-summary-main'
+        );
+
+        const summaryDuration = document.getElementById(
+            'exact-summary-duration'
+        );
+
+        const summaryBlocks = document.getElementById(
+            'exact-summary-blocks'
+        );
+
+
+        const monthNames = [
+            '',
+            'enero',
+            'febrero',
+            'marzo',
+            'abril',
+            'mayo',
+            'junio',
+            'julio',
+            'agosto',
+            'septiembre',
+            'octubre',
+            'noviembre',
+            'diciembre'
+        ];
+
+
+        const weekdayNames = [
+            'domingo',
+            'lunes',
+            'martes',
+            'miércoles',
+            'jueves',
+            'viernes',
+            'sábado'
+        ];
+
+
+        function minutesFromTime(value) {
+
+            if (!value || !value.includes(':')) {
+                return null;
+            }
+
+            const parts = value.split(':');
+
+            return (
+                Number(parts[0]) * 60
+                + Number(parts[1])
+            );
+        }
+
+
+        function updateSummary() {
+
+            const year = Number(
+                dateYear ? dateYear.value : 0
+            );
+
+            const month = Number(
+                dateMonth ? dateMonth.value : 0
+            );
+
+            const day = Number(
+                dateDay ? dateDay.value : 0
+            );
+
+            const start = (
+                startTime
+                ? startTime.value
+                : ''
+            );
+
+            const end = (
+                endTime
+                ? endTime.value
+                : ''
+            );
+
+            const startMinutes = minutesFromTime(
+                start
+            );
+
+            const endMinutes = minutesFromTime(
+                end
+            );
+
+            let duration = null;
+
+            if (
+                startMinutes !== null
+                && endMinutes !== null
+                && endMinutes > startMinutes
+            ) {
+                duration = (
+                    endMinutes
+                    - startMinutes
+                );
+            }
+
+
+            if (
+                year
+                && month
+                && day
+                && start
+                && end
+                && duration
+            ) {
+
+                const dateValue = new Date(
+                    year,
+                    month - 1,
+                    day
+                );
+
+                const weekday = weekdayNames[
+                    dateValue.getDay()
+                ];
+
+                summaryMain.textContent = (
+                    weekday.charAt(0).toUpperCase()
+                    + weekday.slice(1)
+                    + ' '
+                    + day
+                    + ' de '
+                    + monthNames[month]
+                    + ' de '
+                    + year
+                    + ' · '
+                    + start
+                    + ' → '
+                    + end
+                );
+
+                summaryDuration.textContent = (
+                    duration
+                    + ' minutos'
+                );
+
+                if (
+                    duration >= 60
+                    && duration % 60 === 0
+                ) {
+                    const blocks = (
+                        duration / 60
+                    );
+
+                    summaryBlocks.textContent = (
+                        blocks
+                        + (
+                            blocks === 1
+                            ? ' bloque de 60 min'
+                            : ' bloques de 60 min'
+                        )
+                    );
+                } else {
+                    summaryBlocks.textContent = (
+                        'Usa bloques completos de 60 min'
+                    );
+                }
+
+            } else {
+
+                summaryMain.textContent = (
+                    'Selecciona una fecha y un horario'
+                );
+
+                summaryDuration.textContent = '—';
+                summaryBlocks.textContent = '—';
+            }
+        }
+
+
+        [
+            dateYear,
+            dateMonth,
+            dateDay,
+            startTime,
+            endTime
+        ].forEach(
+            function (field) {
+
+                if (field) {
+                    field.addEventListener(
+                        'change',
+                        updateSummary
+                    );
+                }
+            }
+        );
+
+
+        updateSummary();
+
+    }
+);
+
+</script>
+
+{% endblock %}

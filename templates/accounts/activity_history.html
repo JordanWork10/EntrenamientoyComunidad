@@ -1,0 +1,1820 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+Mi actividad | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page activity-history-page">
+
+    <div class="account-container">
+
+
+        <!-- =========================
+             CABECERA
+        ========================== -->
+
+        <header class="activity-history-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    MI CUENTA
+                </span>
+
+                <h1>
+                    Mi
+                    <span>
+                        actividad.
+                    </span>
+                </h1>
+
+                <p>
+                    Revisa tus próximas reservas, arriendos y actividades,
+                    y consulta también lo que ya ocurrió o cambió de estado.
+                </p>
+
+            </div>
+
+
+            <div class="activity-history-hero-actions">
+
+                <span>
+                    {{ result_count }}
+                    resultado{{ result_count|pluralize }}
+                </span>
+
+                <a href="{% url 'accounts:dashboard' %}">
+                    Mi cuenta
+                    <span>→</span>
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             RESUMEN
+        ========================== -->
+
+        <div class="activity-history-stats">
+
+            <article class="activity-history-stat-upcoming">
+
+                <span>
+                    PRÓXIMAS
+                </span>
+
+                <strong>
+                    {{ upcoming_count }}
+                </strong>
+
+                <small>
+                    Pendientes, confirmadas o inscritas
+                </small>
+
+            </article>
+
+
+            <article class="activity-history-stat-history">
+
+                <span>
+                    HISTORIAL
+                </span>
+
+                <strong>
+                    {{ history_count }}
+                </strong>
+
+                <small>
+                    Actividad anterior
+                </small>
+
+            </article>
+
+
+            <article class="activity-history-stat-professional">
+
+                <span>
+                    PROFESIONALES
+                </span>
+
+                <strong>
+                    {{ filtered_professional_count }}
+                </strong>
+
+                <small>
+                    Según los filtros actuales
+                </small>
+
+            </article>
+
+
+            <article class="activity-history-stat-space">
+
+                <span>
+                    ESPACIOS
+                </span>
+
+                <strong>
+                    {{ filtered_space_count }}
+                </strong>
+
+                <small>
+                    Según los filtros actuales
+                </small>
+
+            </article>
+
+
+            <article class="activity-history-stat-activity">
+
+                <span>
+                    ACTIVIDADES
+                </span>
+
+                <strong>
+                    {{ filtered_activity_count }}
+                </strong>
+
+                <small>
+                    Según los filtros actuales
+                </small>
+
+            </article>
+
+        </div>
+
+
+        <!-- =========================
+             FILTROS
+        ========================== -->
+
+        <section class="account-panel activity-filter-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        01
+                    </span>
+
+                    <h2>
+                        Buscar y filtrar
+                    </h2>
+
+                </div>
+
+
+                <span class="account-panel-tag">
+                    MI ACTIVIDAD
+                </span>
+
+            </div>
+
+
+            <form
+                method="get"
+                class="activity-filter-form"
+            >
+
+                <div class="activity-filter-primary">
+
+                    <label class="activity-filter-field activity-filter-search">
+
+                        <span>
+                            ¿QUÉ BUSCAS?
+                        </span>
+
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ filters.q }}"
+                            placeholder="Ej: Juan Moraga, bicicleta, entrenamiento, gimnasio..."
+                        >
+
+                    </label>
+
+
+                    <label class="activity-filter-field">
+
+                        <span>
+                            TIPO
+                        </span>
+
+                        <select name="type">
+
+                            <option
+                                value="all"
+                                {% if filters.type == 'all' %}selected{% endif %}
+                            >
+                                Todo
+                            </option>
+
+                            <option
+                                value="professional"
+                                {% if filters.type == 'professional' %}selected{% endif %}
+                            >
+                                Profesionales
+                            </option>
+
+                            <option
+                                value="space"
+                                {% if filters.type == 'space' %}selected{% endif %}
+                            >
+                                Espacios
+                            </option>
+
+                            <option
+                                value="activity"
+                                {% if filters.type == 'activity' %}selected{% endif %}
+                            >
+                                Actividades
+                            </option>
+
+                        </select>
+
+                    </label>
+
+
+                    <label class="activity-filter-field">
+
+                        <span>
+                            ESTADO
+                        </span>
+
+                        <select name="status">
+
+                            <option
+                                value="all"
+                                {% if filters.status == 'all' %}selected{% endif %}
+                            >
+                                Todos los estados
+                            </option>
+
+                            <option
+                                value="pending"
+                                {% if filters.status == 'pending' %}selected{% endif %}
+                            >
+                                Pendiente
+                            </option>
+
+                            <option
+                                value="confirmed"
+                                {% if filters.status == 'confirmed' %}selected{% endif %}
+                            >
+                                Confirmada
+                            </option>
+
+                            <option
+                                value="registered"
+                                {% if filters.status == 'registered' %}selected{% endif %}
+                            >
+                                Inscrito
+                            </option>
+
+                            <option
+                                value="organized"
+                                {% if filters.status == 'organized' %}selected{% endif %}
+                            >
+                                Organizas
+                            </option>
+
+                            <option
+                                value="rejected"
+                                {% if filters.status == 'rejected' %}selected{% endif %}
+                            >
+                                No aceptada
+                            </option>
+
+                            <option
+                                value="cancelled"
+                                {% if filters.status == 'cancelled' %}selected{% endif %}
+                            >
+                                Cancelada
+                            </option>
+
+                            <option
+                                value="completed"
+                                {% if filters.status == 'completed' %}selected{% endif %}
+                            >
+                                Completada
+                            </option>
+
+                        </select>
+
+                    </label>
+
+                </div>
+
+
+                <div
+                    class="activity-date-filter activity-date-filter-clean"
+                    data-initial-mode="{% if filters.date_from or filters.date_to %}range{% else %}exact{% endif %}"
+                >
+
+                    <div class="activity-date-filter-heading">
+
+                        <span>
+                            FECHA
+                        </span>
+
+
+                        <div
+                            class="activity-date-mode-switch"
+                            role="group"
+                            aria-label="Modo de búsqueda por fecha"
+                        >
+
+                            <button
+                                type="button"
+                                class="activity-date-mode-button"
+                                data-date-mode="exact"
+                            >
+                                Un día
+                            </button>
+
+                            <button
+                                type="button"
+                                class="activity-date-mode-button"
+                                data-date-mode="range"
+                            >
+                                Rango de fechas
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="activity-date-filter-row">
+
+                        <!-- FECHA EXACTA -->
+
+                        <div
+                            class="activity-date-panel"
+                            data-date-panel="exact"
+                        >
+
+                            <div class="activity-friendly-date">
+
+                                <span class="activity-friendly-date-title">
+                                    SELECCIONA UNA FECHA
+                                </span>
+
+
+                                <div
+                                    class="activity-friendly-date-selects"
+                                    data-friendly-date
+                                    data-target="activity-exact-date"
+                                >
+
+                                    <label>
+
+                                        <span>
+                                            DÍA
+                                        </span>
+
+                                        <select data-date-part="day">
+                                            <option value="">
+                                                Día
+                                            </option>
+                                        </select>
+
+                                    </label>
+
+
+                                    <label>
+
+                                        <span>
+                                            MES
+                                        </span>
+
+                                        <select data-date-part="month">
+                                            <option value="">
+                                                Mes
+                                            </option>
+                                        </select>
+
+                                    </label>
+
+
+                                    <label>
+
+                                        <span>
+                                            AÑO
+                                        </span>
+
+                                        <select data-date-part="year">
+                                            <option value="">
+                                                Año
+                                            </option>
+                                        </select>
+
+                                    </label>
+
+                                </div>
+
+
+                                <input
+                                    type="hidden"
+                                    id="activity-exact-date"
+                                    name="date"
+                                    value="{{ filters.date }}"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- RANGO -->
+
+                        <div
+                            class="activity-date-panel activity-date-range-panel"
+                            data-date-panel="range"
+                        >
+
+                            <div class="activity-friendly-date activity-friendly-date-range">
+
+                                <span class="activity-friendly-date-title">
+                                    DESDE
+                                </span>
+
+
+                                <div
+                                    class="activity-friendly-date-selects"
+                                    data-friendly-date
+                                    data-target="activity-date-from"
+                                >
+
+                                    <label>
+
+                                        <span>
+                                            DÍA
+                                        </span>
+
+                                        <select data-date-part="day">
+                                            <option value="">
+                                                Día
+                                            </option>
+                                        </select>
+
+                                    </label>
+
+
+                                    <label>
+
+                                        <span>
+                                            MES
+                                        </span>
+
+                                        <select data-date-part="month">
+                                            <option value="">
+                                                Mes
+                                            </option>
+                                        </select>
+
+                                    </label>
+
+
+                                    <label>
+
+                                        <span>
+                                            AÑO
+                                        </span>
+
+                                        <select data-date-part="year">
+                                            <option value="">
+                                                Año
+                                            </option>
+                                        </select>
+
+                                    </label>
+
+                                </div>
+
+
+                                <input
+                                    type="hidden"
+                                    id="activity-date-from"
+                                    name="date_from"
+                                    value="{{ filters.date_from }}"
+                                >
+
+                            </div>
+
+
+                            <div class="activity-friendly-date activity-friendly-date-range">
+
+                                <span class="activity-friendly-date-title">
+                                    HASTA
+                                </span>
+
+
+                                <div
+                                    class="activity-friendly-date-selects"
+                                    data-friendly-date
+                                    data-target="activity-date-to"
+                                >
+
+                                    <label>
+
+                                        <span>
+                                            DÍA
+                                        </span>
+
+                                        <select data-date-part="day">
+                                            <option value="">
+                                                Día
+                                            </option>
+                                        </select>
+
+                                    </label>
+
+
+                                    <label>
+
+                                        <span>
+                                            MES
+                                        </span>
+
+                                        <select data-date-part="month">
+                                            <option value="">
+                                                Mes
+                                            </option>
+                                        </select>
+
+                                    </label>
+
+
+                                    <label>
+
+                                        <span>
+                                            AÑO
+                                        </span>
+
+                                        <select data-date-part="year">
+                                            <option value="">
+                                                Año
+                                            </option>
+                                        </select>
+
+                                    </label>
+
+                                </div>
+
+
+                                <input
+                                    type="hidden"
+                                    id="activity-date-to"
+                                    name="date_to"
+                                    value="{{ filters.date_to }}"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="activity-filter-actions activity-date-actions">
+
+                            <button type="submit">
+
+                                Aplicar filtros
+
+                                <span>
+                                    →
+                                </span>
+
+                            </button>
+
+
+                            <a href="{% url 'accounts:activity_history' %}">
+                                Limpiar
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- =========================
+             PRÓXIMAS
+        ========================== -->
+
+        <section class="account-panel activity-results-panel activity-upcoming-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        02
+                    </span>
+
+                    <h2>
+                        Próximas reservas y actividades
+                    </h2>
+
+                </div>
+
+
+                <span class="account-panel-tag">
+
+                    {{ upcoming_count }}
+
+                    PRÓXIMA{{ upcoming_count|pluralize:"S" }}
+
+                </span>
+
+            </div>
+
+
+            {% if upcoming_items %}
+
+                <div class="activity-history-list activity-upcoming-list">
+
+                    {% for item in upcoming_items %}
+
+                        <article class="activity-history-card activity-history-card-{{ item.module }}">
+
+                            <div class="activity-history-card-identity">
+
+                                <div class="activity-history-card-image">
+
+                                    {% if item.image %}
+
+                                        <img
+                                            src="{{ item.image.url }}"
+                                            alt="{{ item.title }}"
+                                        >
+
+
+                                    {% else %}
+
+                                        <span>
+
+                                            {% if item.module == 'professional' %}
+
+                                                PRO
+
+                                            {% elif item.module == 'space' %}
+
+                                                ESP
+
+                                            {% else %}
+
+                                                ACT
+
+                                            {% endif %}
+
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="activity-history-card-copy">
+
+                                    <span>
+                                        {{ item.module_label }}
+                                    </span>
+
+                                    <h3>
+                                        {{ item.title }}
+                                    </h3>
+
+                                    <p>
+
+                                        {{ item.person_label }}:
+
+                                        <strong>
+                                            {{ item.person }}
+                                        </strong>
+
+                                    </p>
+
+
+                                    {% if item.subtitle %}
+
+                                        <small>
+                                            {{ item.subtitle }}
+                                        </small>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="activity-history-card-date">
+
+                                <span>
+                                    FECHA Y HORARIO
+                                </span>
+
+                                <strong>
+                                    {{ item.session_date|date:"d M Y"|upper }}
+                                </strong>
+
+                                <small>
+
+                                    {{ item.start_time|time:"H:i" }}
+
+                                    –
+
+                                    {{ item.end_time|time:"H:i" }}
+
+                                </small>
+
+                            </div>
+
+
+                            <div class="activity-history-card-price">
+
+                                <span>
+                                    PRECIO
+                                </span>
+
+                                <strong>
+
+                                    {% if item.module == 'activity' and item.price_clp == 0 %}
+
+                                        Gratis
+
+                                    {% else %}
+
+                                        {{ item.price_clp|clp }}
+
+                                    {% endif %}
+
+                                </strong>
+
+                                <small>
+                                    {{ item.duration_minutes }} min
+                                </small>
+
+                            </div>
+
+
+                            <div class="activity-history-card-status">
+
+                                <span class="activity-status activity-status-{{ item.status_key }}">
+                                    {{ item.status_label }}
+                                </span>
+
+
+                                <a href="{{ item.detail_url }}">
+
+                                    Ver detalle
+
+                                    <span>
+                                        →
+                                    </span>
+
+                                </a>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+
+            {% else %}
+
+                <div class="activity-section-empty activity-section-empty-upcoming">
+
+                    <div>
+                        ✓
+                    </div>
+
+                    <h3>
+                        No tienes próximas actividades con estos filtros
+                    </h3>
+
+                    <p>
+                        Tus próximas sesiones, arriendos y actividades aparecerán aquí.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- =========================
+             HISTORIAL
+        ========================== -->
+
+        <section class="account-panel activity-results-panel activity-history-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        03
+                    </span>
+
+                    <h2>
+                        Historial
+                    </h2>
+
+                </div>
+
+
+                <span class="account-panel-tag">
+
+                    {{ history_count }}
+
+                    REGISTRO{{ history_count|pluralize:"S" }}
+
+                </span>
+
+            </div>
+
+
+            {% if history_page_obj.object_list %}
+
+                <div class="activity-history-list">
+
+                    {% for item in history_page_obj.object_list %}
+
+                        <article class="activity-history-card activity-history-card-{{ item.module }} activity-history-card-past">
+
+                            <div class="activity-history-card-identity">
+
+                                <div class="activity-history-card-image">
+
+                                    {% if item.image %}
+
+                                        <img
+                                            src="{{ item.image.url }}"
+                                            alt="{{ item.title }}"
+                                        >
+
+
+                                    {% else %}
+
+                                        <span>
+
+                                            {% if item.module == 'professional' %}
+
+                                                PRO
+
+                                            {% elif item.module == 'space' %}
+
+                                                ESP
+
+                                            {% else %}
+
+                                                ACT
+
+                                            {% endif %}
+
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="activity-history-card-copy">
+
+                                    <span>
+                                        {{ item.module_label }}
+                                    </span>
+
+                                    <h3>
+                                        {{ item.title }}
+                                    </h3>
+
+                                    <p>
+
+                                        {{ item.person_label }}:
+
+                                        <strong>
+                                            {{ item.person }}
+                                        </strong>
+
+                                    </p>
+
+
+                                    {% if item.subtitle %}
+
+                                        <small>
+                                            {{ item.subtitle }}
+                                        </small>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="activity-history-card-date">
+
+                                <span>
+                                    FECHA Y HORARIO
+                                </span>
+
+                                <strong>
+                                    {{ item.session_date|date:"d M Y"|upper }}
+                                </strong>
+
+                                <small>
+
+                                    {{ item.start_time|time:"H:i" }}
+
+                                    –
+
+                                    {{ item.end_time|time:"H:i" }}
+
+                                </small>
+
+                            </div>
+
+
+                            <div class="activity-history-card-price">
+
+                                <span>
+                                    PRECIO
+                                </span>
+
+                                <strong>
+
+                                    {% if item.module == 'activity' and item.price_clp == 0 %}
+
+                                        Gratis
+
+                                    {% else %}
+
+                                        {{ item.price_clp|clp }}
+
+                                    {% endif %}
+
+                                </strong>
+
+                                <small>
+                                    {{ item.duration_minutes }} min
+                                </small>
+
+                            </div>
+
+
+                            <div class="activity-history-card-status">
+
+                                <span class="activity-status activity-status-{{ item.status_key }}">
+                                    {{ item.status_label }}
+                                </span>
+
+
+                                <a href="{{ item.detail_url }}">
+
+                                    Ver detalle
+
+                                    <span>
+                                        →
+                                    </span>
+
+                                </a>
+
+                            </div>
+
+
+                            {% if item.reason %}
+
+                                <div class="activity-history-card-reason">
+
+                                    <span>
+                                        MOTIVO
+                                    </span>
+
+                                    <strong>
+                                        {{ item.reason }}
+                                    </strong>
+
+                                </div>
+
+                            {% endif %}
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+
+                {% if history_page_obj.paginator.num_pages > 1 %}
+
+                    <nav class="activity-pagination">
+
+                        <div>
+
+                            {% if history_page_obj.has_previous %}
+
+                                <a
+                                    href="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ history_page_obj.previous_page_number }}"
+                                >
+                                    ← Anterior
+                                </a>
+
+
+                            {% else %}
+
+                                <span>
+                                    ← Anterior
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <strong>
+
+                            Página {{ history_page_obj.number }}
+
+                            de {{ history_page_obj.paginator.num_pages }}
+
+                        </strong>
+
+
+                        <div>
+
+                            {% if history_page_obj.has_next %}
+
+                                <a
+                                    href="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ history_page_obj.next_page_number }}"
+                                >
+                                    Siguiente →
+                                </a>
+
+
+                            {% else %}
+
+                                <span>
+                                    Siguiente →
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </nav>
+
+                {% endif %}
+
+
+            {% else %}
+
+                <div class="activity-section-empty">
+
+                    <div>
+                        ↻
+                    </div>
+
+                    <h3>
+                        Todavía no tienes actividad anterior
+                    </h3>
+
+                    <p>
+                        Cuando una reserva o actividad se complete, se cancele,
+                        no sea aceptada o su fecha ya haya pasado,
+                        aparecerá aquí.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- =========================
+             ACCESOS INFERIORES
+        ========================== -->
+
+        <div class="activity-history-footer">
+
+            <a href="{% url 'accounts:dashboard' %}">
+                ← Volver a Mi cuenta
+            </a>
+
+
+            <div>
+
+                <a
+                    href="{% url 'bookings:my_bookings' %}"
+                    class="activity-history-footer-professional"
+                >
+                    Reservas profesionales →
+                </a>
+
+
+                <a
+                    href="{% url 'spaces:my_bookings' %}"
+                    class="activity-history-footer-space"
+                >
+                    Arriendos de espacios →
+                </a>
+
+
+                <a
+                    href="{% url 'activities:my_activities' %}"
+                    class="activity-history-footer-activity"
+                >
+                    Mis actividades →
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function () {
+
+            const dateFilter =
+                document.querySelector(
+                    '.activity-date-filter'
+                );
+
+
+            if (!dateFilter) {
+                return;
+            }
+
+
+            const form =
+                dateFilter.closest(
+                    'form'
+                );
+
+
+            const exactDate =
+                document.getElementById(
+                    'activity-exact-date'
+                );
+
+
+            const dateFrom =
+                document.getElementById(
+                    'activity-date-from'
+                );
+
+
+            const dateTo =
+                document.getElementById(
+                    'activity-date-to'
+                );
+
+
+            const modeButtons =
+                dateFilter.querySelectorAll(
+                    '[data-date-mode]'
+                );
+
+
+            const panels =
+                dateFilter.querySelectorAll(
+                    '[data-date-panel]'
+                );
+
+
+            const friendlyDates =
+                dateFilter.querySelectorAll(
+                    '[data-friendly-date]'
+                );
+
+
+            const monthNames = [
+                'Enero',
+                'Febrero',
+                'Marzo',
+                'Abril',
+                'Mayo',
+                'Junio',
+                'Julio',
+                'Agosto',
+                'Septiembre',
+                'Octubre',
+                'Noviembre',
+                'Diciembre'
+            ];
+
+
+            let currentMode =
+                dateFilter.dataset.initialMode
+                || 'exact';
+
+
+            function pad(value) {
+
+                return String(
+                    value
+                ).padStart(
+                    2,
+                    '0'
+                );
+
+            }
+
+
+            function daysInMonth(
+                year,
+                month
+            ) {
+
+                if (
+                    !year
+                    || !month
+                ) {
+                    return 31;
+                }
+
+
+                return new Date(
+                    Number(year),
+                    Number(month),
+                    0
+                ).getDate();
+
+            }
+
+
+            function rebuildDays(
+                container,
+                selectedDay = ''
+            ) {
+
+                const daySelect =
+                    container.querySelector(
+                        '[data-date-part="day"]'
+                    );
+
+
+                const monthSelect =
+                    container.querySelector(
+                        '[data-date-part="month"]'
+                    );
+
+
+                const yearSelect =
+                    container.querySelector(
+                        '[data-date-part="year"]'
+                    );
+
+
+                const maxDays =
+                    daysInMonth(
+                        yearSelect.value,
+                        monthSelect.value
+                    );
+
+
+                const previous =
+                    selectedDay
+                    || daySelect.value;
+
+
+                daySelect.innerHTML =
+                    '<option value="">Día</option>';
+
+
+                for (
+                    let day = 1;
+                    day <= maxDays;
+                    day += 1
+                ) {
+
+                    const option =
+                        document.createElement(
+                            'option'
+                        );
+
+                    option.value =
+                        String(day);
+
+                    option.textContent =
+                        String(day);
+
+                    daySelect.appendChild(
+                        option
+                    );
+
+                }
+
+
+                if (
+                    previous
+                    && Number(previous)
+                    <= maxDays
+                ) {
+
+                    daySelect.value =
+                        String(
+                            Number(previous)
+                        );
+
+                }
+
+            }
+
+
+            function syncHiddenDate(
+                container
+            ) {
+
+                const daySelect =
+                    container.querySelector(
+                        '[data-date-part="day"]'
+                    );
+
+
+                const monthSelect =
+                    container.querySelector(
+                        '[data-date-part="month"]'
+                    );
+
+
+                const yearSelect =
+                    container.querySelector(
+                        '[data-date-part="year"]'
+                    );
+
+
+                const target =
+                    document.getElementById(
+                        container.dataset.target
+                    );
+
+
+                if (!target) {
+                    return;
+                }
+
+
+                if (
+                    daySelect.value
+                    && monthSelect.value
+                    && yearSelect.value
+                ) {
+
+                    target.value =
+                        yearSelect.value
+                        + '-'
+                        + pad(
+                            monthSelect.value
+                        )
+                        + '-'
+                        + pad(
+                            daySelect.value
+                        );
+
+                } else {
+
+                    target.value = '';
+
+                }
+
+            }
+
+
+            function clearFriendlyDate(
+                container
+            ) {
+
+                container
+                    .querySelector(
+                        '[data-date-part="day"]'
+                    )
+                    .value = '';
+
+
+                container
+                    .querySelector(
+                        '[data-date-part="month"]'
+                    )
+                    .value = '';
+
+
+                container
+                    .querySelector(
+                        '[data-date-part="year"]'
+                    )
+                    .value = '';
+
+
+                const target =
+                    document.getElementById(
+                        container.dataset.target
+                    );
+
+
+                if (target) {
+                    target.value = '';
+                }
+
+            }
+
+
+            function setupFriendlyDate(
+                container
+            ) {
+
+                const daySelect =
+                    container.querySelector(
+                        '[data-date-part="day"]'
+                    );
+
+
+                const monthSelect =
+                    container.querySelector(
+                        '[data-date-part="month"]'
+                    );
+
+
+                const yearSelect =
+                    container.querySelector(
+                        '[data-date-part="year"]'
+                    );
+
+
+                const target =
+                    document.getElementById(
+                        container.dataset.target
+                    );
+
+
+                monthSelect.innerHTML =
+                    '<option value="">Mes</option>';
+
+
+                monthNames.forEach(
+                    function (
+                        name,
+                        index
+                    ) {
+
+                        const option =
+                            document.createElement(
+                                'option'
+                            );
+
+                        option.value =
+                            String(
+                                index + 1
+                            );
+
+                        option.textContent =
+                            name;
+
+                        monthSelect.appendChild(
+                            option
+                        );
+
+                    }
+                );
+
+
+                yearSelect.innerHTML =
+                    '<option value="">Año</option>';
+
+
+                const currentYear =
+                    new Date().getFullYear();
+
+
+                const firstYear =
+                    currentYear - 5;
+
+
+                const lastYear =
+                    currentYear + 3;
+
+
+                for (
+                    let year = lastYear;
+                    year >= firstYear;
+                    year -= 1
+                ) {
+
+                    const option =
+                        document.createElement(
+                            'option'
+                        );
+
+                    option.value =
+                        String(year);
+
+                    option.textContent =
+                        String(year);
+
+                    yearSelect.appendChild(
+                        option
+                    );
+
+                }
+
+
+                rebuildDays(
+                    container
+                );
+
+
+                if (
+                    target
+                    && target.value
+                    && /^\d{4}-\d{2}-\d{2}$/.test(
+                        target.value
+                    )
+                ) {
+
+                    const parts =
+                        target.value.split(
+                            '-'
+                        );
+
+
+                    yearSelect.value =
+                        String(
+                            Number(
+                                parts[0]
+                            )
+                        );
+
+
+                    monthSelect.value =
+                        String(
+                            Number(
+                                parts[1]
+                            )
+                        );
+
+
+                    rebuildDays(
+                        container,
+                        String(
+                            Number(
+                                parts[2]
+                            )
+                        )
+                    );
+
+
+                    daySelect.value =
+                        String(
+                            Number(
+                                parts[2]
+                            )
+                        );
+
+                }
+
+
+                monthSelect.addEventListener(
+                    'change',
+                    function () {
+
+                        rebuildDays(
+                            container
+                        );
+
+                        syncHiddenDate(
+                            container
+                        );
+
+                    }
+                );
+
+
+                yearSelect.addEventListener(
+                    'change',
+                    function () {
+
+                        rebuildDays(
+                            container
+                        );
+
+                        syncHiddenDate(
+                            container
+                        );
+
+                    }
+                );
+
+
+                daySelect.addEventListener(
+                    'change',
+                    function () {
+
+                        syncHiddenDate(
+                            container
+                        );
+
+                    }
+                );
+
+            }
+
+
+            friendlyDates.forEach(
+                setupFriendlyDate
+            );
+
+
+            function setMode(
+                mode,
+                clearOther = false
+            ) {
+
+                currentMode =
+                    mode;
+
+
+                modeButtons.forEach(
+                    function (button) {
+
+                        const active =
+                            button.dataset.dateMode
+                            === mode;
+
+
+                        button.classList.toggle(
+                            'is-active',
+                            active
+                        );
+
+
+                        button.setAttribute(
+                            'aria-pressed',
+                            active
+                                ? 'true'
+                                : 'false'
+                        );
+
+                    }
+                );
+
+
+                panels.forEach(
+                    function (panel) {
+
+                        const active =
+                            panel.dataset.datePanel
+                            === mode;
+
+
+                        panel.hidden =
+                            !active;
+
+                    }
+                );
+
+
+                if (clearOther) {
+
+                    if (
+                        mode
+                        === 'exact'
+                    ) {
+
+                        friendlyDates.forEach(
+                            function (
+                                container
+                            ) {
+
+                                if (
+                                    container.dataset.target
+                                    === 'activity-date-from'
+                                    ||
+                                    container.dataset.target
+                                    === 'activity-date-to'
+                                ) {
+
+                                    clearFriendlyDate(
+                                        container
+                                    );
+
+                                }
+
+                            }
+                        );
+
+
+                    } else {
+
+                        friendlyDates.forEach(
+                            function (
+                                container
+                            ) {
+
+                                if (
+                                    container.dataset.target
+                                    === 'activity-exact-date'
+                                ) {
+
+                                    clearFriendlyDate(
+                                        container
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                    }
+
+                }
+
+            }
+
+
+            modeButtons.forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        'click',
+                        function () {
+
+                            setMode(
+                                button.dataset.dateMode,
+                                true
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+
+            form.addEventListener(
+                'submit',
+                function () {
+
+                    friendlyDates.forEach(
+                        syncHiddenDate
+                    );
+
+
+                    if (
+                        currentMode
+                        === 'exact'
+                    ) {
+
+                        dateFrom.value = '';
+                        dateTo.value = '';
+
+                    } else {
+
+                        exactDate.value = '';
+
+                    }
+
+                }
+            );
+
+
+            setMode(
+                currentMode
+            );
+
+        }
+    );
+
+</script>
+
+{% endblock %}

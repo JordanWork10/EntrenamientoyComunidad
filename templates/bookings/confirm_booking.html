@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+Confirmar Reserva | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page">
+
+    <div class="account-container">
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    RESERVA
+                </span>
+
+                <h1>
+                    Confirmar
+                    <span>
+                        sesión
+                    </span>
+                </h1>
+
+                <p>
+                    Revisa los datos antes de crear la reserva.
+                    La sesión volverá a validarse al confirmar.
+                </p>
+
+            </div>
+
+
+            <div class="account-status">
+
+                <span class="account-status-dot"></span>
+
+                Confirmación segura
+
+            </div>
+
+        </header>
+
+
+        <section class="account-summary-grid">
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    SERVICIO
+                </span>
+
+                <strong>
+                    {{ service.name }}
+                </strong>
+
+                <p>
+                    {{ service.professional_profile.user.get_full_name }}
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    FECHA
+                </span>
+
+                <strong>
+                    {% if session_date %}
+                        {{ session_date|date:"d/m/Y" }}
+                    {% else %}
+                        No disponible
+                    {% endif %}
+                </strong>
+
+                <p>
+                    Fecha seleccionada
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    HORARIO
+                </span>
+
+                <strong>
+                    {% if start_time and end_time %}
+                        {{ start_time|time:"H:i" }}
+                        –
+                        {{ end_time|time:"H:i" }}
+                    {% else %}
+                        No disponible
+                    {% endif %}
+                </strong>
+
+                <p>
+                    {{ service.duration_minutes }} minutos
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    PRECIO
+                </span>
+
+                <strong>
+                    {{ service.price|clp }}
+                </strong>
+
+                <p>
+                    Precio actual del servicio
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        01
+                    </span>
+
+                    <h2>
+                        Detalle de la reserva
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    REVISIÓN
+                </span>
+
+            </div>
+
+
+            <div class="account-data-grid">
+
+                <div class="account-data-item">
+
+                    <span>
+                        Profesional
+                    </span>
+
+                    <strong>
+                        {{ service.professional_profile.user.get_full_name }}
+                    </strong>
+
+                </div>
+
+
+                <div class="account-data-item">
+
+                    <span>
+                        Modalidad
+                    </span>
+
+                    <strong>
+                        {{ service.get_mode_display }}
+                    </strong>
+
+                </div>
+
+
+                <div class="account-data-item">
+
+                    <span>
+                        Lugar de atención
+                    </span>
+
+                    <strong>
+                        {% if location_summary %}
+                            {{ location_summary }}
+                        {% elif service.mode == 'online' %}
+                            Atención online
+                        {% else %}
+                            Por definir
+                        {% endif %}
+                    </strong>
+
+                </div>
+
+
+                <div class="account-data-item">
+
+                    <span>
+                        Estado inicial
+                    </span>
+
+                    <strong>
+                        Pendiente
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            {% if booking_error %}
+
+                <div class="account-professional-message account-professional-message-error">
+
+                    <strong>
+                        No se puede confirmar esta sesión
+                    </strong>
+
+                    <p>
+                        {{ booking_error }}
+                    </p>
+
+                </div>
+
+            {% else %}
+
+                <div class="account-professional-message">
+
+                    <strong>
+                        La reserva quedará registrada
+                    </strong>
+
+                    <p>
+                        Al confirmar, el sistema guardará la fecha,
+                        horario, duración, precio, modalidad y lugar
+                        correspondientes a este momento.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+
+            {% if form.non_field_errors %}
+
+                <div class="account-professional-message account-professional-message-error">
+
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <form method="post">
+
+                {% csrf_token %}
+
+                {{ form.session_date }}
+                {{ form.start_time }}
+                {{ form.end_time }}
+
+
+                <div class="booking-confirm-actions">
+
+                    <button
+                        type="submit"
+                        class="account-professional-action booking-confirm-button {% if booking_error %}booking-confirm-button-disabled{% endif %}"
+                        {% if booking_error %}disabled{% endif %}
+                    >
+                        Confirmar reserva
+                        <span>→</span>
+                    </button>
+
+
+                    <a
+                        href="{% url 'core:home' %}"
+                        class="account-logout booking-confirm-cancel"
+                    >
+                        Cancelar
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        02
+                    </span>
+
+                    <h2>
+                        Trazabilidad de la reserva
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    PROTECCIÓN
+                </span>
+
+            </div>
+
+
+            <div class="account-professional-message">
+
+                <strong>
+                    Los datos importantes quedarán congelados
+                </strong>
+
+                <p>
+                    Si el Profesional modifica posteriormente el precio,
+                    duración, modalidad o información del lugar, esta
+                    reserva conservará los datos existentes al momento
+                    de confirmar.
+                </p>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</section>
+
+{% endblock %}

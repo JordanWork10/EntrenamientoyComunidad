@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Actividades | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page activities-page">
+    <div class="account-container">
+
+        <header class="activities-hero">
+            <div>
+                <span class="activities-overline">
+                    ACTIVIDADES
+                </span>
+
+                <h1>
+                    Muévete con otros.
+                    <span>
+                        Organiza, participa y comparte actividad física.
+                    </span>
+                </h1>
+
+                <p>
+                    Encuentra actividades comunitarias creadas por Miembros
+                    y actividades dirigidas por Profesionales verificados.
+                </p>
+            </div>
+
+            <div class="activities-hero-actions">
+
+                {% if request.user.is_authenticated %}
+
+                    <a
+                        href="{% url 'activities:create_community' %}"
+                        class="activities-button activities-button-primary"
+                    >
+                        + Crear actividad comunitaria
+                    </a>
+
+                    {% if can_create_professional %}
+
+                        <a
+                            href="{% url 'activities:create_professional' %}"
+                            class="activities-button activities-button-secondary"
+                        >
+                            + Crear actividad profesional
+                        </a>
+
+                    {% endif %}
+
+                    <a
+                        href="{% url 'activities:my_activities' %}"
+                        class="activities-button activities-button-secondary"
+                    >
+                        Mis actividades →
+                    </a>
+
+                {% else %}
+
+                    <a
+                        href="{% url 'accounts:login' %}"
+                        class="activities-button activities-button-primary"
+                    >
+                        Inicia sesión para participar
+                    </a>
+
+                {% endif %}
+
+            </div>
+        </header>
+
+
+        <section class="activities-summary-grid">
+
+            <article class="activities-summary-card">
+                <span>
+                    PUBLICADAS
+                </span>
+
+                <strong>
+                    {{ published_count }}
+                </strong>
+
+                <p>
+                    Próximas actividades visibles.
+                </p>
+            </article>
+
+
+            <article class="activities-summary-card">
+                <span>
+                    COMUNITARIAS
+                </span>
+
+                <strong>
+                    {{ community_count }}
+                </strong>
+
+                <p>
+                    Organizadas por Miembros.
+                </p>
+            </article>
+
+
+            <article class="activities-summary-card">
+                <span>
+                    PROFESIONALES
+                </span>
+
+                <strong>
+                    {{ professional_count }}
+                </strong>
+
+                <p>
+                    Dirigidas por Profesionales verificados.
+                </p>
+            </article>
+
+        </section>
+
+
+        <section class="activities-type-grid">
+
+            <article class="activities-type-card activities-type-card-community">
+
+                <span class="activities-type-badge">
+                    COMUNITARIA
+                </span>
+
+                <h2>
+                    Organiza algo con la comunidad.
+                </h2>
+
+                <p>
+                    Salidas en bicicleta, trote, fútbol, caminatas
+                    y otras actividades gratuitas.
+                    Cada Miembro puede publicar una actividad
+                    comunitaria por semana.
+                </p>
+
+                {% if request.user.is_authenticated %}
+
+                    <a href="{% url 'activities:create_community' %}">
+                        Crear una actividad →
+                    </a>
+
+                {% endif %}
+
+            </article>
+
+
+            <article class="activities-type-card activities-type-card-professional is-enabled">
+
+                <span class="activities-type-badge">
+                    PROFESIONAL
+                </span>
+
+                <h2>
+                    Clases y experiencias profesionales.
+                </h2>
+
+                <p>
+                    Actividades gratuitas o pagadas dirigidas por
+                    Profesionales verificados, con cupos, modalidad
+                    presencial, online o híbrida.
+                </p>
+
+                {% if can_create_professional %}
+
+                    <a href="{% url 'activities:create_professional' %}">
+                        Crear actividad profesional →
+                    </a>
+
+                {% elif request.user.is_authenticated %}
+
+                    <span class="activities-professional-locked">
+                        Requiere Perfil Profesional verificado
+                    </span>
+
+                {% else %}
+
+                    <a href="{% url 'accounts:login' %}">
+                        Inicia sesión para continuar →
+                    </a>
+
+                {% endif %}
+
+            </article>
+
+        </section>
+
+
+        <section class="activities-list-section">
+
+            <div class="activities-section-heading">
+
+                <div>
+                    <span>
+                        01
+                    </span>
+
+                    <h2>
+                        Próximas actividades
+                    </h2>
+                </div>
+
+                <small>
+                    {{ published_count }}
+                    publicada{{ published_count|pluralize:"s" }}
+                </small>
+
+            </div>
+
+
+            {% if activities %}
+
+                <div class="activities-card-grid">
+
+                    {% for activity in activities %}
+
+                        <article class="activities-card {% if activity.activity_type == 'professional' %}activities-card-professional{% endif %}">
+
+                            <div class="activities-card-media">
+
+                                {% if activity.image %}
+
+                                    <img
+                                        src="{{ activity.image.url }}"
+                                        alt="{{ activity.title }}"
+                                    >
+
+                                {% else %}
+
+                                    <div class="activities-card-placeholder">
+                                        ACT
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="activities-card-body">
+
+                                <div class="activities-card-topline">
+
+                                    <span class="activities-chip {% if activity.activity_type == 'professional' %}activities-chip-professional{% endif %}">
+                                        {{ activity.get_activity_type_display }}
+                                    </span>
+
+                                    <span class="activities-card-status">
+                                        {{ activity.available_spots }}
+                                        cupo{{ activity.available_spots|pluralize:"s" }}
+                                    </span>
+
+                                </div>
+
+
+                                {% if activity.activity_type == 'professional' %}
+
+                                    <span class="activities-professional-mark">
+                                        PROFESIONAL VERIFICADO
+                                    </span>
+
+                                {% endif %}
+
+
+                                <span class="activities-card-category">
+                                    {{ activity.category.name }}
+                                </span>
+
+
+                                <h3>
+                                    {{ activity.title }}
+                                </h3>
+
+
+                                <p>
+                                    {{ activity.date|date:"d M Y" }}
+                                    ·
+                                    {{ activity.start_time|time:"H:i" }}–{{ activity.end_time|time:"H:i" }}
+                                </p>
+
+
+                                <div class="activities-card-meta">
+
+                                    <span>
+                                        {{ activity.get_modality_display }}
+                                    </span>
+
+                                    <span>
+                                        {% if activity.commune %}
+                                            {{ activity.commune.name }}
+                                        {% else %}
+                                            Online
+                                        {% endif %}
+                                    </span>
+
+                                    <span class="{% if activity.price %}activities-card-price-paid{% endif %}">
+                                        {% if activity.price %}
+                                            {{ activity.price|clp }}
+                                        {% else %}
+                                            Gratis
+                                        {% endif %}
+                                    </span>
+
+                                </div>
+
+
+                                <a
+                                    href="{% url 'activities:detail' activity.id %}"
+                                    class="activities-card-action"
+                                >
+                                    Ver actividad
+                                    <span>→</span>
+                                </a>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="activities-empty-state">
+
+                    <span>
+                        🟣
+                    </span>
+
+                    <h3>
+                        Todavía no hay actividades publicadas.
+                    </h3>
+
+                    <p>
+                        Puedes crear una actividad comunitaria o,
+                        si tienes Perfil Profesional verificado,
+                        publicar una actividad profesional.
+                    </p>
+
+                    {% if request.user.is_authenticated %}
+
+                        <a
+                            href="{% url 'activities:create_community' %}"
+                            class="activities-button activities-button-primary"
+                        >
+                            Crear actividad comunitaria
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,518 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+Editar Disponibilidad | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page">
+
+    <div class="account-container">
+
+
+        <!-- =========================
+             CABECERA
+        ========================== -->
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    CENTRO PROFESIONAL
+                </span>
+
+                <h1>
+                    Editar
+                    <span>
+                        disponibilidad
+                    </span>
+                </h1>
+
+                <p>
+                    Actualiza el día, horario o período de vigencia
+                    de esta disponibilidad profesional.
+                </p>
+
+            </div>
+
+
+            <div class="account-status">
+
+                <span class="account-status-dot"></span>
+
+                {% if availability.is_active %}
+                    Disponibilidad activa
+                {% else %}
+                    Disponibilidad inactiva
+                {% endif %}
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             RESUMEN
+        ========================== -->
+
+        <section class="account-summary-grid">
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    SERVICIO
+                </span>
+
+                <strong>
+                    {{ service.name }}
+                </strong>
+
+                <p>
+                    Servicio asociado
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    DÍA ACTUAL
+                </span>
+
+                <strong>
+                    {{ availability.get_weekday_display }}
+                </strong>
+
+                <p>
+                    Antes de guardar cambios
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    HORARIO ACTUAL
+                </span>
+
+                <strong>
+                    {{ availability.start_time|time:"H:i" }}
+                    –
+                    {{ availability.end_time|time:"H:i" }}
+                </strong>
+
+                <p>
+                    Bloque registrado
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    ESTADO
+                </span>
+
+                <strong>
+                    {% if availability.is_active %}
+                        Activa
+                    {% else %}
+                        Inactiva
+                    {% endif %}
+                </strong>
+
+                <p>
+                    Estado conservado al editar
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <!-- =========================
+             FORMULARIO
+        ========================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        01
+                    </span>
+
+                    <h2>
+                        Editar horario recurrente
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    EDICIÓN
+                </span>
+
+            </div>
+
+
+            <form method="post">
+
+                {% csrf_token %}
+
+
+                {% if form.non_field_errors %}
+
+                    <div class="account-professional-message account-professional-message-error">
+
+                        <strong>
+                            Revisa la disponibilidad ingresada
+                        </strong>
+
+                        {% for error in form.non_field_errors %}
+
+                            <p>
+                                {{ error }}
+                            </p>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+
+                <div class="account-data-grid">
+
+
+                    <!-- DÍA -->
+
+                    <div class="account-data-item">
+
+                        <label for="{{ form.weekday.id_for_label }}">
+                            Día de la semana
+                        </label>
+
+                        {{ form.weekday }}
+
+                        {% if form.weekday.errors %}
+
+                            {% for error in form.weekday.errors %}
+
+                                <p class="form-error">
+                                    {{ error }}
+                                </p>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- HORA INICIO -->
+
+                    <div class="account-data-item">
+
+                        <label for="{{ form.start_time.id_for_label }}">
+                            Disponible desde
+                        </label>
+
+                        {{ form.start_time }}
+
+                        {% if form.start_time.errors %}
+
+                            {% for error in form.start_time.errors %}
+
+                                <p class="form-error">
+                                    {{ error }}
+                                </p>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- HORA TÉRMINO -->
+
+                    <div class="account-data-item">
+
+                        <label for="{{ form.end_time.id_for_label }}">
+                            Disponible hasta
+                        </label>
+
+                        {{ form.end_time }}
+
+                        <span class="account-form-help">
+                            La ventana debe permitir al menos una sesión completa
+                            de {{ service.duration_minutes }} minutos.
+                        </span>
+
+                        {% if form.end_time.errors %}
+
+                            {% for error in form.end_time.errors %}
+
+                                <p class="form-error">
+                                    {{ error }}
+                                </p>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- VIGENTE DESDE -->
+
+                    <div class="account-data-item">
+
+                        <label for="{{ form.valid_from.id_for_label }}">
+                            Vigente desde
+                        </label>
+
+                        {{ form.valid_from }}
+
+                        {% if form.valid_from.errors %}
+
+                            {% for error in form.valid_from.errors %}
+
+                                <p class="form-error">
+                                    {{ error }}
+                                </p>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- VIGENTE HASTA -->
+
+                    <div class="account-data-item">
+
+                        <label for="{{ form.valid_until.id_for_label }}">
+                            Vigente hasta
+                        </label>
+
+                        {{ form.valid_until }}
+
+                        <span class="account-form-help">
+                            Opcional. Déjalo vacío si el horario
+                            no tiene una fecha de término definida.
+                        </span>
+
+                        {% if form.valid_until.errors %}
+
+                            {% for error in form.valid_until.errors %}
+
+                                <p class="form-error">
+                                    {{ error }}
+                                </p>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     TRAZABILIDAD
+                ========================== -->
+
+                <div class="account-professional-message">
+
+                    <strong>
+                        Los cambios quedarán registrados
+                    </strong>
+
+                    <p>
+                        La versión anterior del horario se conservará
+                        en el historial junto con la nueva versión,
+                        la fecha del cambio y el usuario responsable.
+                    </p>
+
+                </div>
+
+
+                <div class="account-professional-message">
+
+                    <strong>
+                        Editar no cambia el estado
+                    </strong>
+
+                    <p>
+                        Si la disponibilidad está activa seguirá activa.
+                        Si está inactiva seguirá inactiva. La activación
+                        o desactivación se realiza desde el Centro Profesional.
+                    </p>
+
+                </div>
+
+
+                <!-- =========================
+                     ACCIONES
+                ========================== -->
+
+                <div
+                    style="
+                        display: flex;
+                        gap: 12px;
+                        flex-wrap: wrap;
+                        margin-top: 24px;
+                    "
+                >
+
+                    <button
+                        type="submit"
+                        class="account-professional-action"
+                        style="
+                            cursor: pointer;
+                            justify-content: center;
+                        "
+                    >
+                        Guardar cambios
+                        <span>→</span>
+                    </button>
+
+
+                    <a
+                        href="{% url 'professionals:dashboard' %}"
+                        class="account-logout"
+                        style="
+                            margin: 0;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        "
+                    >
+                        Cancelar
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- =========================
+             DATOS DEL REGISTRO
+        ========================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        02
+                    </span>
+
+                    <h2>
+                        Información del registro
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    TRAZABILIDAD
+                </span>
+
+            </div>
+
+
+            <div class="account-data-grid">
+
+                <div class="account-data-item">
+
+                    <span>
+                        Creada
+                    </span>
+
+                    <strong>
+                        {{ availability.created_at|date:"d/m/Y H:i" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="account-data-item">
+
+                    <span>
+                        Última actualización
+                    </span>
+
+                    <strong>
+                        {{ availability.updated_at|date:"d/m/Y H:i" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="account-data-item">
+
+                    <span>
+                        Servicio
+                    </span>
+
+                    <strong>
+                        {{ service.name }}
+                    </strong>
+
+                </div>
+
+
+                <div class="account-data-item">
+
+                    <span>
+                        Estado
+                    </span>
+
+                    <strong>
+                        {% if availability.is_active %}
+                            Activa
+                        {% else %}
+                            Inactiva
+                        {% endif %}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <div style="margin-top: 24px;">
+
+            <a
+                href="{% url 'professionals:dashboard' %}"
+                class="account-professional-action"
+            >
+                ← Volver al Centro Profesional
+            </a>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,871 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+Agregar Disponibilidad | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page professional-availability-page">
+
+    <div class="account-container">
+
+        <header class="professional-availability-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    DISPONIBILIDAD PROFESIONAL
+                </span>
+
+                <h1>
+                    Publica un
+                    <span>horario disponible.</span>
+                </h1>
+
+                <p>
+                    Elige una fecha y una hora de inicio.
+                    Este bloque estará disponible solamente para ese día.
+                </p>
+
+            </div>
+
+
+            <div class="professional-availability-hero-status">
+
+                <span>
+                    SERVICIO
+                </span>
+
+                <strong>
+                    {{ service.name }}
+                </strong>
+
+                <small>
+                    {{ service.duration_minutes }} minutos por sesión
+                    · {{ service.get_mode_display }}
+                </small>
+
+            </div>
+
+        </header>
+
+
+        <section class="professional-availability-summary">
+
+            <article>
+
+                <span>SERVICIO</span>
+
+                <strong>
+                    {{ service.name }}
+                </strong>
+
+                <small>
+                    Servicio seleccionado
+                </small>
+
+            </article>
+
+
+            <article>
+
+                <span>MODALIDAD</span>
+
+                <strong>
+                    {{ service.get_mode_display }}
+                </strong>
+
+                <small>
+                    Modalidad registrada
+                </small>
+
+            </article>
+
+
+            <article>
+
+                <span>DURACIÓN</span>
+
+                <strong>
+                    {{ service.duration_minutes }} minutos
+                </strong>
+
+                <small>
+                    Duración por sesión
+                </small>
+
+            </article>
+
+
+            <article>
+
+                <span>ESTADO</span>
+
+                <strong>
+                    {{ service.get_publication_status_display }}
+                </strong>
+
+                <small>
+                    Estado del servicio
+                </small>
+
+            </article>
+
+        </section>
+
+
+        <form
+            method="post"
+            class="professional-availability-form"
+            id="professional-availability-form"
+        >
+
+            {% csrf_token %}
+
+
+            {% if form.non_field_errors %}
+
+                <div class="account-professional-message account-professional-message-error">
+
+                    <strong>
+                        Revisa la disponibilidad
+                    </strong>
+
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <section class="professional-availability-section">
+
+                <div class="professional-availability-section-heading">
+
+                    <span class="professional-availability-number">
+                        01
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            ¿Qué día estarás disponible?
+                        </h2>
+
+                        <p>
+                            Este horario se publicará únicamente para la fecha que elijas.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <input
+                    type="hidden"
+                    name="availability_date"
+                    id="id_availability_date"
+                    value="{{ availability_date_value }}"
+                >
+
+
+                <div class="professional-availability-date-grid">
+
+                    <div class="professional-availability-field">
+
+                        <label for="id_availability_day">
+                            Día
+                        </label>
+
+                        <select id="id_availability_day">
+                            <option value="">Día</option>
+                        </select>
+
+                    </div>
+
+
+                    <div class="professional-availability-field professional-availability-month">
+
+                        <label for="id_availability_month">
+                            Mes
+                        </label>
+
+                        <select id="id_availability_month">
+                            <option value="">Mes</option>
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+
+                    </div>
+
+
+                    <div class="professional-availability-field">
+
+                        <label for="id_availability_year">
+                            Año
+                        </label>
+
+                        <select id="id_availability_year">
+                            <option value="">Año</option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                {% if availability_date_error %}
+
+                    <span class="field-error professional-availability-date-error">
+                        {{ availability_date_error }}
+                    </span>
+
+                {% endif %}
+</section>
+
+
+            <section class="professional-availability-section">
+
+                <div class="professional-availability-section-heading">
+
+                    <span class="professional-availability-number">
+                        02
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            ¿A qué hora comienza?
+                        </h2>
+
+                        <p>
+                            Selecciona solamente la hora de inicio.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="professional-availability-time-grid">
+
+                    <div class="professional-availability-field">
+
+                        <label for="{{ form.start_time.id_for_label }}">
+                            Hora de inicio
+                        </label>
+
+                        {{ form.start_time }}
+
+                        {% for error in form.start_time.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div
+                        class="professional-availability-time-arrow"
+                        aria-hidden="true"
+                    >
+                        →
+                    </div>
+
+
+                    <div class="professional-availability-field professional-availability-auto-field">
+
+                        <label>
+                            Hora de término
+                        </label>
+
+                        <div
+                            class="professional-availability-auto-result"
+                            aria-live="polite"
+                        >
+                            <strong id="automatic-end-time">
+                                {% if automatic_end_time_value %}
+                                    {{ automatic_end_time_value }}
+                                {% else %}
+                                    --:--
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {% if automatic_end_time_error %}
+
+                    <span class="field-error">
+                        {{ automatic_end_time_error }}
+                    </span>
+
+                {% endif %}
+
+            </section>
+
+
+            <section class="professional-availability-section professional-availability-review">
+
+                <div class="professional-availability-section-heading">
+
+                    <span class="professional-availability-number">
+                        03
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Revisa y publica
+                        </h2>
+
+                        <p>
+                            Comprueba la fecha y el horario antes de dejarlo disponible.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="professional-availability-preview">
+
+                    <span class="page-overline">
+                        RESUMEN
+                    </span>
+
+                    <strong id="availability-preview-title">
+                        Selecciona una fecha y una hora
+                    </strong>
+
+                    <p id="availability-preview-period">
+                        {{ service.name }}
+                    </p>
+
+                </div>
+
+
+                <div class="professional-availability-review-grid">
+
+                    <div>
+
+                        <span>
+                            DURACIÓN
+                        </span>
+
+                        <strong>
+                            {{ service.duration_minutes }} minutos
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            REPETICIÓN
+                        </span>
+
+                        <strong>
+                            Solo esta fecha
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            ESTADO AL PUBLICAR
+                        </span>
+
+                        <strong>
+                            Disponible
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <div class="professional-availability-savebar">
+
+                <div>
+
+                    <strong>
+                        ¿Horario listo?
+                    </strong>
+
+                    <span>
+                        Podrás verlo después en tu agenda profesional.
+                    </span>
+
+                </div>
+
+
+                <div class="professional-availability-savebar-actions">
+
+                    <a
+                        href="{% url 'professionals:dashboard' %}"
+                        class="professional-availability-cancel"
+                    >
+                        Volver
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        class="professional-availability-save"
+                    >
+                        Publicar disponibilidad
+                        <span>→</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+
+        <a
+            href="{% url 'professionals:dashboard' %}"
+            class="account-professional-action professional-availability-back"
+        >
+            ← Volver al Centro Profesional
+        </a>
+
+    </div>
+
+</section>
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const form = document.getElementById(
+        'professional-availability-form'
+    );
+
+    const hiddenDate = document.getElementById(
+        'id_availability_date'
+    );
+
+    const daySelect = document.getElementById(
+        'id_availability_day'
+    );
+
+    const monthSelect = document.getElementById(
+        'id_availability_month'
+    );
+
+    const yearSelect = document.getElementById(
+        'id_availability_year'
+    );
+
+    const startTime = document.getElementById(
+        '{{ form.start_time.id_for_label }}'
+    );
+
+    const automaticEnd = document.getElementById(
+        'automatic-end-time'
+    );
+
+    const previewTitle = document.getElementById(
+        'availability-preview-title'
+    );
+
+    const previewPeriod = document.getElementById(
+        'availability-preview-period'
+    );
+
+    const durationMinutes = Number(
+        '{{ service.duration_minutes|default:0 }}'
+    );
+
+    const currentYear = Number(
+        '{{ current_year }}'
+    );
+
+    const monthNames = [
+        '',
+        'enero',
+        'febrero',
+        'marzo',
+        'abril',
+        'mayo',
+        'junio',
+        'julio',
+        'agosto',
+        'septiembre',
+        'octubre',
+        'noviembre',
+        'diciembre'
+    ];
+
+    const weekdayNames = [
+        'domingo',
+        'lunes',
+        'martes',
+        'miércoles',
+        'jueves',
+        'viernes',
+        'sábado'
+    ];
+
+
+    function pad(number) {
+        return String(number).padStart(2, '0');
+    }
+
+
+    function parseIsoDate(value) {
+
+        if (!value) {
+            return null;
+        }
+
+        const parts = value.split('-');
+
+        if (parts.length !== 3) {
+            return null;
+        }
+
+        return {
+            year: Number(parts[0]),
+            month: Number(parts[1]),
+            day: Number(parts[2])
+        };
+    }
+
+
+    function buildYears() {
+
+        const initial = parseIsoDate(
+            hiddenDate.value
+        );
+
+        const selectedYear = initial
+            ? initial.year
+            : currentYear;
+
+        yearSelect.innerHTML = '';
+
+        for (
+            let year = currentYear;
+            year <= currentYear + 10;
+            year += 1
+        ) {
+
+            const option = document.createElement(
+                'option'
+            );
+
+            option.value = String(year);
+            option.textContent = String(year);
+
+            yearSelect.appendChild(
+                option
+            );
+        }
+
+        yearSelect.value = String(
+            selectedYear
+        );
+    }
+
+
+    function buildDays(preferredDay) {
+
+        const month = Number(
+            monthSelect.value
+        );
+
+        const year = Number(
+            yearSelect.value
+        );
+
+        const previousDay = (
+            preferredDay
+            || Number(daySelect.value)
+            || null
+        );
+
+        daySelect.innerHTML = '';
+
+        const placeholder = document.createElement(
+            'option'
+        );
+
+        placeholder.value = '';
+        placeholder.textContent = 'Día';
+
+        daySelect.appendChild(
+            placeholder
+        );
+
+        if (!month || !year) {
+            return;
+        }
+
+        const daysInMonth = new Date(
+            year,
+            month,
+            0
+        ).getDate();
+
+        for (
+            let day = 1;
+            day <= daysInMonth;
+            day += 1
+        ) {
+
+            const option = document.createElement(
+                'option'
+            );
+
+            option.value = String(day);
+            option.textContent = String(day);
+
+            daySelect.appendChild(
+                option
+            );
+        }
+
+        if (
+            previousDay
+            && previousDay <= daysInMonth
+        ) {
+            daySelect.value = String(
+                previousDay
+            );
+        }
+    }
+
+
+    function syncHiddenDate() {
+
+        const day = Number(
+            daySelect.value
+        );
+
+        const month = Number(
+            monthSelect.value
+        );
+
+        const year = Number(
+            yearSelect.value
+        );
+
+        if (
+            !day
+            || !month
+            || !year
+        ) {
+            hiddenDate.value = '';
+            updatePreview();
+            return;
+        }
+
+        hiddenDate.value = (
+            String(year)
+            + '-'
+            + pad(month)
+            + '-'
+            + pad(day)
+        );
+
+        updatePreview();
+    }
+
+
+    function calculateEndTime() {
+
+        if (
+            !startTime
+            || !startTime.value
+        ) {
+            automaticEnd.textContent = '--:--';
+            return '';
+        }
+
+        const parts = startTime.value.split(':');
+
+        if (parts.length !== 2) {
+            automaticEnd.textContent = '--:--';
+            return '';
+        }
+
+        const startMinutes = (
+            Number(parts[0]) * 60
+            + Number(parts[1])
+        );
+
+        const endMinutes = (
+            startMinutes
+            + durationMinutes
+        );
+
+        if (
+            Number.isNaN(endMinutes)
+            || endMinutes >= (24 * 60)
+        ) {
+            automaticEnd.textContent = 'No disponible';
+            return '';
+        }
+
+        const result = (
+            pad(Math.floor(endMinutes / 60))
+            + ':'
+            + pad(endMinutes % 60)
+        );
+
+        automaticEnd.textContent = result;
+
+        return result;
+    }
+
+
+    function updatePreview() {
+
+        const dateValue = parseIsoDate(
+            hiddenDate.value
+        );
+
+        const endTime = calculateEndTime();
+
+        if (
+            !dateValue
+            || !startTime
+            || !startTime.value
+            || !endTime
+        ) {
+
+            previewTitle.textContent = (
+                'Selecciona una fecha y una hora'
+            );
+
+            previewPeriod.textContent = (
+                '{{ service.name|escapejs }}'
+            );
+
+            return;
+        }
+
+        const jsDate = new Date(
+            dateValue.year,
+            dateValue.month - 1,
+            dateValue.day
+        );
+
+        previewTitle.textContent = (
+            weekdayNames[jsDate.getDay()]
+            + ' '
+            + dateValue.day
+            + ' de '
+            + monthNames[dateValue.month]
+            + ' · '
+            + startTime.value
+            + ' → '
+            + endTime
+        );
+
+        previewPeriod.textContent = (
+            '{{ service.name|escapejs }}'
+            + ' · Solo esta fecha'
+        );
+    }
+
+
+    const initialDate = parseIsoDate(
+        hiddenDate.value
+    );
+
+    buildYears();
+
+    if (initialDate) {
+
+        monthSelect.value = String(
+            initialDate.month
+        );
+
+        buildDays(
+            initialDate.day
+        );
+
+        daySelect.value = String(
+            initialDate.day
+        );
+
+    } else {
+
+        buildDays();
+
+    }
+
+
+    monthSelect.addEventListener(
+        'change',
+        function () {
+            buildDays();
+            syncHiddenDate();
+        }
+    );
+
+    yearSelect.addEventListener(
+        'change',
+        function () {
+            buildDays();
+            syncHiddenDate();
+        }
+    );
+
+    daySelect.addEventListener(
+        'change',
+        syncHiddenDate
+    );
+
+    if (startTime) {
+        startTime.addEventListener(
+            'change',
+            updatePreview
+        );
+    }
+
+
+    form.addEventListener(
+        'submit',
+        function () {
+            syncHiddenDate();
+        }
+    );
+
+
+    updatePreview();
+});
+</script>
+
+{% endblock %}

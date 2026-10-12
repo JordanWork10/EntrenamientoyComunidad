@@ -1,0 +1,496 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+Reservas Recibidas | EntrenamientoyComunidad
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<style>
+/* Estado completado: verde de identidad de EntrenamientoyComunidad */
+.professional-received-status-completed {
+    color: #c6ff33 !important;
+    background: rgba(198, 255, 51, 0.08) !important;
+    border-color: rgba(198, 255, 51, 0.42) !important;
+}
+</style>
+
+
+<section class="account-page">
+
+    <div class="account-container">
+
+
+        <!-- CABECERA -->
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    CENTRO PROFESIONAL
+                </span>
+
+                <h1>
+                    Reservas
+                    <span>
+                        recibidas
+                    </span>
+                </h1>
+
+                <p>
+                    Consulta las solicitudes asociadas a tus servicios
+                    profesionales y revisa su estado actual.
+                </p>
+
+            </div>
+
+
+            <div class="account-status">
+
+                <span class="account-status-dot"></span>
+
+                Gestión profesional
+
+            </div>
+
+        </header>
+
+
+        <!-- RESUMEN -->
+
+        <section class="account-summary-grid">
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    PENDIENTES
+                </span>
+
+                <strong>
+                    {{ pending_count }}
+                </strong>
+
+                <p>
+                    Esperando gestión
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    CONFIRMADAS
+                </span>
+
+                <strong>
+                    {{ confirmed_count }}
+                </strong>
+
+                <p>
+                    Próximas sesiones
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    HISTORIAL
+                </span>
+
+                <strong>
+                    {{ history_count }}
+                </strong>
+
+                <p>
+                    No aceptadas, canceladas, completadas o pasadas
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    PROFESIONAL
+                </span>
+
+                <strong>
+                    {{ request.user.get_full_name }}
+                </strong>
+
+                <p>
+                    Perfil verificado
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <!-- PRÓXIMAS -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        01
+                    </span>
+
+                    <h2>
+                        Solicitudes y próximas sesiones
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    GESTIÓN
+                </span>
+
+            </div>
+
+
+            {% if upcoming_bookings %}
+
+                {% for booking in upcoming_bookings %}
+
+                    <a
+                        href="{% url 'bookings:professional_detail' booking.id %}"
+                        class="professional-received-card-link"
+                    >
+
+                        <article class="professional-received-card">
+
+                            <div class="professional-received-card-header">
+
+                                <div class="professional-received-member">
+
+                                    <div class="professional-received-avatar">
+
+                                        {% if booking.booked_by.profile_image %}
+
+                                            <img
+                                                src="{{ booking.booked_by.profile_image.url }}"
+                                                alt="Foto de {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}"
+                                            >
+
+                                        {% else %}
+
+                                            <span>
+                                                {{ booking.booked_by.first_name|first|upper }}{{ booking.booked_by.last_name|first|upper }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <div class="professional-received-member-copy">
+
+                                        <span class="professional-received-eyebrow">
+                                            MIEMBRO
+                                        </span>
+
+                                        <h3>
+                                            {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}
+                                        </h3>
+
+                                        <p>
+                                            Quiere reservar
+                                        </p>
+
+                                        <strong class="professional-received-service">
+                                            {{ booking.service_name_snapshot }}
+                                        </strong>
+
+                                        <p>
+                                            {{ booking.get_mode_snapshot_display }}
+
+                                            {% if booking.location_name_snapshot %}
+                                                · {{ booking.location_name_snapshot }}
+                                            {% elif booking.location_type_snapshot == 'user_home' %}
+                                                · Domicilio del miembro
+                                            {% elif booking.location_type_snapshot == 'agreed_place' %}
+                                                · Lugar acordado
+                                            {% elif booking.mode_snapshot == 'online' %}
+                                                · Atención online
+                                            {% endif %}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <span class="professional-received-status professional-received-status-{{ booking.status }}">
+                                    {{ booking.get_status_display }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="professional-received-details">
+
+                                <div class="professional-received-detail professional-received-detail-date">
+
+                                    <span>
+                                        FECHA
+                                    </span>
+
+                                    <strong>
+                                        {{ booking.session_date|date:"d M"|upper }}
+                                    </strong>
+
+                                    <small>
+                                        {{ booking.session_date|date:"Y" }}
+                                    </small>
+
+                                </div>
+
+
+                                <div class="professional-received-detail">
+
+                                    <span>
+                                        HORARIO
+                                    </span>
+
+                                    <strong>
+                                        {{ booking.start_time|time:"H:i" }}
+                                        –
+                                        {{ booking.end_time|time:"H:i" }}
+                                    </strong>
+
+                                    <small>
+                                        Sesión programada
+                                    </small>
+
+                                </div>
+
+
+                                <div class="professional-received-detail">
+
+                                    <span>
+                                        DURACIÓN
+                                    </span>
+
+                                    <strong>
+                                        {{ booking.duration_minutes }} min
+                                    </strong>
+
+                                    <small>
+                                        Duración registrada
+                                    </small>
+
+                                </div>
+
+
+                                <div class="professional-received-detail professional-received-detail-price">
+
+                                    <span>
+                                        PRECIO
+                                    </span>
+
+                                    <strong>
+                                        {{ booking.price_clp|clp }}
+                                    </strong>
+
+                                    <small>
+                                        Precio de la reserva
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="professional-received-card-footer">
+
+                                <span>
+                                    {% if booking.status == 'pending' %}
+                                        Esta solicitud está esperando tu respuesta.
+                                    {% elif booking.status == 'confirmed' %}
+                                        Esta sesión está confirmada.
+                                    {% else %}
+                                        Revisa y gestiona esta sesión.
+                                    {% endif %}
+                                </span>
+
+                                <strong>
+                                    Ver y gestionar reserva
+                                    <span>→</span>
+                                </strong>
+
+                            </div>
+
+                        </article>
+
+                    </a>
+
+                {% endfor %}
+
+
+            {% else %}
+
+                <div class="account-empty">
+
+                    <strong>
+                        No tienes solicitudes ni sesiones próximas
+                    </strong>
+
+                    <p>
+                        Cuando un miembro solicite uno de tus servicios o tenga una sesión confirmada,
+                        aparecerá en esta sección.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- HISTORIAL -->
+
+        <section class="account-panel received-history-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+                    <span class="account-panel-number">02</span>
+                    <h2>Historial de solicitudes y sesiones</h2>
+                </div>
+
+                <span class="account-panel-tag">ANTERIORES</span>
+
+            </div>
+
+
+            {% if history_bookings %}
+
+                <details class="received-history-details">
+
+                    <summary class="received-history-summary">
+
+                        <div class="received-history-summary-icon" aria-hidden="true">
+                            ↺
+                        </div>
+
+                        <div class="received-history-summary-copy">
+                            <strong>
+                                {{ history_count }} registro{{ history_count|pluralize:"s" }} anterior{{ history_count|pluralize:"es" }}
+                            </strong>
+                            <span>
+                                Consulta solicitudes no aceptadas, sesiones canceladas, completadas o cuya fecha ya pasó.
+                            </span>
+                        </div>
+
+                        <div class="received-history-summary-button">
+                            <span class="received-history-text-closed">Ver registros anteriores</span>
+                            <span class="received-history-text-open">Ocultar registros anteriores</span>
+                            <span class="received-history-chevron" aria-hidden="true">⌄</span>
+                        </div>
+
+                    </summary>
+
+
+                    <div class="received-history-list">
+
+                        {% for booking in history_bookings %}
+
+                            <a
+                                href="{% url 'bookings:professional_detail' booking.id %}"
+                                class="received-history-card"
+                            >
+
+                                <div class="received-history-member">
+
+                                    <div class="received-history-avatar">
+                                        {% if booking.booked_by.profile_image %}
+                                            <img
+                                                src="{{ booking.booked_by.profile_image.url }}"
+                                                alt="Foto de {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}"
+                                            >
+                                        {% else %}
+                                            <span>
+                                                {{ booking.booked_by.first_name|first|upper }}{{ booking.booked_by.last_name|first|upper }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="received-history-member-copy">
+                                        <span>MIEMBRO</span>
+                                        <strong>
+                                            {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}
+                                        </strong>
+                                        <small>{{ booking.service_name_snapshot }}</small>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="received-history-when">
+                                    <span>FECHA Y HORARIO</span>
+                                    <strong>{{ booking.session_date|date:"d M Y"|upper }}</strong>
+                                    <small>
+                                        {{ booking.start_time|time:"H:i" }} – {{ booking.end_time|time:"H:i" }}
+                                    </small>
+                                </div>
+
+
+                                <div class="received-history-card-end">
+                                    <span class="professional-received-status professional-received-status-{{ booking.ui_status_key }}">
+                                        {{ booking.ui_status_label }}
+                                    </span>
+                                    <span class="received-history-link">
+                                        Ver detalles <span>→</span>
+                                    </span>
+                                </div>
+
+                            </a>
+
+                        {% endfor %}
+
+                    </div>
+
+                </details>
+
+            {% else %}
+
+                <div class="account-empty">
+                    <strong>Aún no tienes registros anteriores</strong>
+                    <p>Cuando una solicitud no se acepte, una sesión se cancele, se complete o pase de fecha, aparecerá aquí.</p>
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <div style="margin-top: 24px;">
+
+            <a
+                href="{% url 'professionals:dashboard' %}"
+                class="account-professional-action"
+            >
+                ← Volver al Centro Profesional
+            </a>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+{% endblock %}

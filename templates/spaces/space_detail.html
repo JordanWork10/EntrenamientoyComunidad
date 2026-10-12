@@ -1,0 +1,564 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+{{ space.name }} | Centro de Espacios
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page space-owner-detail-page">
+
+    <div class="account-container">
+
+        <section class="owner-space-hero">
+
+            <div class="owner-space-hero-media">
+
+                {% if cover_image %}
+
+                    <img
+                        src="{{ cover_image.image.url }}"
+                        alt="{{ space.name }}"
+                    >
+
+                {% else %}
+
+                    <div class="owner-space-hero-placeholder">
+                        <span>{{ space.space_type.name|slice:":2"|upper }}</span>
+                        <small>Sin fotografía de portada</small>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="owner-space-hero-content">
+
+                <div>
+
+                    <span class="page-overline">
+                        MI ESPACIO
+                    </span>
+
+                    <h1>
+                        {{ space.name }}
+                    </h1>
+
+                    <p>
+                        {{ space.space_type.name }}
+                        · {{ space.commune.name }}
+                        · {{ space.commune.region.name }}
+                    </p>
+
+                </div>
+
+
+                <span class="account-status">
+
+                    <span class="account-status-dot"></span>
+
+                    {{ space.get_publication_status_display }}
+
+                </span>
+
+
+                <div class="owner-space-hero-facts">
+
+                    <div>
+                        <span>Capacidad</span>
+                        <strong>{{ space.capacity }} personas</strong>
+                    </div>
+
+                    <div>
+                        <span>Precio</span>
+                        <strong>{{ space.hourly_price_clp|clp }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Disponibilidad</span>
+                        <strong>{{ active_availability_count }} ventanas</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="space-management-actions">
+
+            <a
+                href="{% url 'spaces:edit_space' space.id %}"
+                class="space-management-card space-management-card-edit"
+            >
+
+                <span class="space-management-code">
+                    EDITAR
+                </span>
+
+                <strong>
+                    Información del espacio
+                </strong>
+
+                <p>
+                    Cambia nombre, ubicación, precio, fotografía
+                    y características del recinto.
+                </p>
+
+                <span class="space-management-link">
+                    Editar información →
+                </span>
+
+            </a>
+
+
+            <a
+                href="{% url 'spaces:availability' space.id %}"
+                class="space-management-card space-management-card-calendar"
+            >
+
+                <span class="space-management-code">
+                    DISPONIBILIDAD
+                </span>
+
+                <strong>
+                    Horarios y calendario
+                </strong>
+
+                <p>
+                    Define horarios recurrentes y excepciones
+                    para fechas específicas.
+                </p>
+
+                <div class="space-management-stat">
+                    {{ active_availability_count }} ventanas activas
+                </div>
+
+                <span class="space-management-link">
+                    Gestionar disponibilidad →
+                </span>
+
+            </a>
+
+
+            <a
+                href="{% url 'spaces:provider_received_bookings' %}"
+                class="space-management-card space-management-card-bookings"
+            >
+
+                <span class="space-management-code">
+                    RESERVAS
+                </span>
+
+                <strong>
+                    Reservas recibidas
+                </strong>
+
+                <p>
+                    Revisa solicitudes pendientes y próximos
+                    arriendos confirmados.
+                </p>
+
+                <div class="space-management-mini-stats">
+
+                    <span>
+                        <b>{{ pending_space_booking_count }}</b>
+                        pendientes
+                    </span>
+
+                    <span>
+                        <b>{{ confirmed_space_booking_count }}</b>
+                        confirmadas
+                    </span>
+
+                </div>
+
+                <span class="space-management-link">
+                    Ver reservas →
+                </span>
+
+            </a>
+
+        </section>
+
+
+        <div class="account-layout">
+
+            <div class="account-main-column">
+
+                <section class="account-panel">
+
+                    <div class="account-panel-header">
+
+                        <div>
+
+                            <span class="account-panel-number">
+                                01
+                            </span>
+
+                            <h2>
+                                Sobre tu espacio
+                            </h2>
+
+                        </div>
+
+                        <span class="account-panel-tag">
+                            RESUMEN
+                        </span>
+
+                    </div>
+
+
+                    <div class="account-data-grid">
+
+                        <div class="account-data-item">
+                            <span>Dirección</span>
+                            <strong>{{ space.address }}</strong>
+                        </div>
+
+                        <div class="account-data-item">
+                            <span>Referencia</span>
+                            <strong>{{ space.location_reference|default:"No registrada" }}</strong>
+                        </div>
+
+                        <div class="account-data-item">
+                            <span>Superficie aproximada</span>
+                            <strong>
+                                {% if space.surface_m2 %}
+                                    {{ space.surface_m2 }} m²
+                                {% else %}
+                                    No informada
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <div class="account-data-item">
+                            <span>Estado</span>
+                            <strong>{{ space.get_publication_status_display }}</strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-professional-message">
+
+                        <strong>
+                            Descripción
+                        </strong>
+
+                        <p>
+                            {{ space.description }}
+                        </p>
+
+                    </div>
+
+
+                    {% if space.additional_features %}
+
+                        <div class="account-professional-message">
+
+                            <strong>
+                                Características adicionales
+                            </strong>
+
+                            <p>
+                                {{ space.additional_features }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <section class="account-panel">
+
+                    <div class="account-panel-header">
+
+                        <div>
+
+                            <span class="account-panel-number">
+                                02
+                            </span>
+
+                            <h2>
+                                Qué ofrece
+                            </h2>
+
+                        </div>
+
+                        <span class="account-panel-tag">
+                            EQUIPAMIENTO
+                        </span>
+
+                    </div>
+
+
+                    <div class="account-panel-body">
+
+                        <span class="account-summary-label">
+                            EQUIPAMIENTO
+                        </span>
+
+                        <div class="account-interest-list">
+
+                            {% for item in space.equipments.all %}
+                                <span>{{ item.name }}</span>
+                            {% empty %}
+                                <span>Sin equipamiento registrado</span>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <span class="account-summary-label">
+                            COMODIDADES
+                        </span>
+
+                        <div class="account-interest-list">
+
+                            {% for item in space.amenities.all %}
+                                <span>{{ item.name }}</span>
+                            {% empty %}
+                                <span>Sin comodidades registradas</span>
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <section class="account-panel">
+
+                    <div class="account-panel-header">
+
+                        <div>
+
+                            <span class="account-panel-number">
+                                03
+                            </span>
+
+                            <h2>
+                                Uso y acceso
+                            </h2>
+
+                        </div>
+
+                        <span class="account-panel-tag">
+                            INFORMACIÓN
+                        </span>
+
+                    </div>
+
+
+                    <div class="account-data-grid">
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Reglas de uso
+                            </span>
+
+                            <strong>
+                                {{ space.rules|default:"No registradas" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Indicaciones de acceso
+                            </span>
+
+                            <strong>
+                                {{ space.access_instructions|default:"No registradas" }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <aside class="account-side-column">
+
+                <section class="account-side-card space-publish-card">
+
+                    <span class="page-overline">
+                        ESTADO
+                    </span>
+
+                    {% if space.publication_status == 'draft' %}
+
+                        <h3>
+                            Espacio en borrador
+                        </h3>
+
+                        <p>
+                            Revisa la información antes de habilitarlo
+                            públicamente.
+                        </p>
+
+                        {% if can_publish %}
+
+                            <div class="account-professional-message account-professional-message-active space-publish-ready">
+
+                                <strong>
+                                    Listo para publicar
+                                </strong>
+
+                                <p>
+                                    La portada y los datos mínimos ya están completos.
+                                </p>
+
+                            </div>
+
+                            <form
+                                method="post"
+                                action="{% url 'spaces:publish_space' space.id %}"
+                                class="space-publish-form"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="space-publish-primary-button"
+                                    aria-label="Publicar {{ space.name }}"
+                                >
+                                    <span class="space-publish-primary-button-copy">
+
+                                        <small>
+                                            PUBLICAR AHORA
+                                        </small>
+
+                                        <strong>
+                                            Publicar {{ space.name }}
+                                        </strong>
+
+                                    </span>
+
+                                    <span class="space-publish-primary-button-arrow">
+                                        →
+                                    </span>
+
+                                </button>
+
+                            </form>
+
+                        {% else %}
+
+                            <div class="account-professional-message">
+
+                                <strong>
+                                    Antes de publicar
+                                </strong>
+
+                                {% for item in publication_missing %}
+                                    <p>{{ item }}</p>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    {% elif space.publication_status == 'published' %}
+
+                        <h3>
+                            Tu espacio está publicado
+                        </h3>
+
+                        <p>
+                            Los usuarios pueden encontrarlo en el catálogo
+                            y consultar su disponibilidad.
+                        </p>
+
+                        <div class="account-professional-message account-professional-message-active">
+
+                            <strong>
+                                Visible en catálogo
+                            </strong>
+
+                            <p>
+                                Publicado el {{ space.published_at|date:"d/m/Y H:i" }}.
+                            </p>
+
+                        </div>
+
+                        <a
+                            href="{% url 'spaces:public_detail' space.id %}"
+                            class="account-professional-action"
+                        >
+                            Ver como usuario
+                            <span>→</span>
+                        </a>
+
+                    {% else %}
+
+                        <h3>
+                            Espacio {{ space.get_publication_status_display|lower }}
+                        </h3>
+
+                        <p>
+                            Actualmente no está visible en el catálogo.
+                        </p>
+
+                    {% endif %}
+
+                </section>
+
+
+                <section class="account-side-card space-history-shortcut">
+
+                    <span class="page-overline">
+                        TRAZABILIDAD
+                    </span>
+
+                    <h3>
+                        Historial del espacio
+                    </h3>
+
+                    <p>
+                        Consulta cambios, publicaciones y responsables
+                        cuando realmente lo necesites.
+                    </p>
+
+                    <a
+                        href="{% url 'spaces:space_history' space.id %}"
+                        class="account-professional-action"
+                    >
+                        Ver historial completo
+                        <span>→</span>
+                    </a>
+
+                </section>
+
+
+                <a
+                    href="{% url 'spaces:dashboard' %}"
+                    class="account-professional-action"
+                >
+                    ← Volver al Centro de Espacios
+                </a>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

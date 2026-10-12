@@ -1,0 +1,2415 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Disponibilidad | {{ space.name }}
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page space-availability-management-page">
+
+    <div class="account-container">
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    DISPONIBILIDAD DEL ESPACIO
+                </span>
+
+                <h1>
+                    Gestiona la disponibilidad
+                    <span>de tu espacio.</span>
+                </h1>
+
+                <p>
+                    Define horarios semanales habituales y administra
+                    cambios para fechas específicas desde una vista avanzada.
+                </p>
+
+            </div>
+
+            <div class="account-status">
+
+                <span class="account-status-dot"></span>
+
+                {{ active_count }}
+
+                {% if active_count == 1 %}
+                    horario habitual activo
+                {% else %}
+                    horarios habituales activos
+                {% endif %}
+
+            </div>
+
+        </header>
+
+
+        <!-- ESPACIO EN GESTIÓN -->
+
+        <section class="space-management-selector">
+
+            <div class="space-management-selector-copy">
+
+                <span>
+                    ESPACIO EN GESTIÓN
+                </span>
+
+                <strong>
+                    {{ space.name }}
+                </strong>
+
+                <p>
+                    {% if provider_space_count == 1 %}
+                        Estás administrando tu único espacio registrado.
+                    {% else %}
+                        Gestionando uno de tus {{ provider_space_count }} espacios registrados.
+                    {% endif %}
+                </p>
+
+            </div>
+
+
+            <div class="space-management-selector-actions">
+
+                {% if provider_space_count > 1 %}
+
+                    <label for="space-management-switcher">
+                        CAMBIAR ESPACIO
+                    </label>
+
+                    <select
+                        id="space-management-switcher"
+                        onchange="if (this.value) window.location.href=this.value;"
+                    >
+
+                        {% for provider_space in provider_spaces %}
+
+                            <option
+                                value="{% url 'spaces:availability' provider_space.id %}"
+                                {% if provider_space.id == space.id %}selected{% endif %}
+                            >
+                                {{ provider_space.name }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                {% endif %}
+
+
+                <a
+                    href="{% url 'spaces:provider_calendar' %}?space={{ space.id }}"
+                    class="space-management-calendar-button"
+                >
+                    Ver en Calendario de arriendos →
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- RESUMEN -->
+
+        <section class="account-summary-grid">
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    ESPACIO
+                </span>
+
+                <strong>
+                    {{ space.name }}
+                </strong>
+
+                <p>
+                    {{ space.space_type.name }}
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    ESTADO
+                </span>
+
+                <strong>
+                    {{ space.get_publication_status_display }}
+                </strong>
+
+                <p>
+                    Estado del recinto
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    PRECIO
+                </span>
+
+                <strong>
+                    {{ space.hourly_price_clp|clp }}
+                </strong>
+
+                <p>
+                    Por cada 60 minutos
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    UBICACIÓN
+                </span>
+
+                <strong>
+                    {{ space.commune.name }}
+                </strong>
+
+                <p>
+                    {{ space.commune.region.name }}
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <!-- =====================================================
+             01 · HORARIO HABITUAL
+        ====================================================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        01
+                    </span>
+
+                    <h2>
+                        Horario habitual
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    SEMANAL
+                </span>
+
+            </div>
+
+
+            <div class="availability-friendly-intro">
+
+                <span class="availability-friendly-icon">
+                    01
+                </span>
+
+                <div>
+
+                    <strong>
+                        ¿Cuándo comenzará este horario semanal?
+                    </strong>
+
+                    <p>
+                        Elige la primera fecha real en que ofrecerás
+                        el espacio. A partir de esa fecha, el horario
+                        se repetirá automáticamente cada semana.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if form.non_field_errors %}
+
+                <div class="account-professional-message account-professional-message-error">
+
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <form
+                method="post"
+                class="registration-form"
+                id="weekly-availability-form"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="form_type"
+                    value="weekly"
+                >
+
+
+                <div class="availability-weekly-start-grid">
+
+                    <div class="form-field availability-first-date-field">
+
+                        <label>
+                            Primera fecha disponible
+                        </label>
+
+                        <div class="friendly-date-selects">
+                            {{ form.valid_from }}
+                        </div>
+
+                        <span class="field-help">
+                            Esta será la primera fecha real en que
+                            el espacio estará disponible con este horario.
+                        </span>
+
+                        {% for error in form.valid_from.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid form-grid-2 availability-weekly-time-grid">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.start_time.id_for_label }}">
+                            Hora de inicio
+                        </label>
+
+                        {{ form.start_time }}
+
+                        {% for error in form.start_time.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.end_time.id_for_label }}">
+                            Hora de término
+                        </label>
+
+                        {{ form.end_time }}
+
+                        {% for error in form.end_time.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid availability-weekly-end-grid">
+
+                    <div class="form-field">
+
+                        <label>
+                            Vigente hasta
+                            <span class="field-optional">
+                                (opcional)
+                            </span>
+                        </label>
+
+                        <div class="friendly-date-selects">
+                            {{ form.valid_until }}
+                        </div>
+
+                        <span class="field-help">
+                            Si este horario no tiene fecha de término,
+                            deja Día, Mes y Año sin seleccionar.
+                        </span>
+
+                        {% for error in form.valid_until.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="availability-weekly-preview"
+                    id="availability-weekly-preview"
+                >
+
+                    <span class="availability-weekly-preview-icon">
+                        ↻
+                    </span>
+
+                    <div class="availability-weekly-preview-copy">
+
+                        <span>
+                            REPETICIÓN SEMANAL
+                        </span>
+
+                        <strong id="availability-weekly-preview-title">
+                            Selecciona la primera fecha y el horario.
+                        </strong>
+
+                        <p id="availability-weekly-preview-text">
+                            Aquí podrás revisar cómo quedará configurado
+                            tu horario antes de guardarlo.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-professional-message">
+
+                    <strong>
+                        ¿Cómo funciona?
+                    </strong>
+
+                    <p>
+                        El horario se repetirá cada semana desde la fecha
+                        seleccionada. Cada horario debe durar al menos
+                        60 minutos y no puede coincidir con otro horario
+                        activo del mismo período.
+                    </p>
+
+                </div>
+
+
+                <div class="registration-actions">
+
+                    <button
+                        type="submit"
+                        class="availability-save-button"
+                    >
+                        Guardar horario habitual
+                        <span>→</span>
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            {% if active_windows %}
+
+                <div class="availability-weekly-configured">
+
+                    <div class="availability-human-heading">
+
+                        <div class="availability-human-heading-copy">
+
+                            <span>
+                                HORARIO GUARDADO
+                            </span>
+
+                            <strong>
+                                Tu horario habitual
+                            </strong>
+
+                            <p>
+                                Estos horarios se repiten automáticamente
+                                desde su primera fecha disponible.
+                            </p>
+
+                        </div>
+
+                        <span class="availability-human-count">
+
+                            {{ active_count }}
+
+                            {% if active_count == 1 %}
+                                horario activo
+                            {% else %}
+                                horarios activos
+                            {% endif %}
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="availability-rule-grid">
+
+                        {% for item in active_windows %}
+
+                            <article class="availability-rule-card">
+
+                                <div class="availability-rule-day">
+
+                                    <span>
+                                        {{ item.get_weekday_display }}
+                                    </span>
+
+                                    <small>
+                                        Se repite semanalmente
+                                    </small>
+
+                                </div>
+
+
+                                <div class="availability-rule-time">
+
+                                    <strong>
+                                        {{ item.start_time|time:"H:i" }}
+                                    </strong>
+
+                                    <span>
+                                        →
+                                    </span>
+
+                                    <strong>
+                                        {{ item.end_time|time:"H:i" }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="availability-rule-validity">
+
+                                    <span>
+                                        PRIMERA FECHA
+                                    </span>
+
+                                    <strong>
+                                        {{ item.valid_from|date:"d/m/Y" }}
+                                    </strong>
+
+                                    {% if item.valid_until %}
+
+                                        <small>
+                                            hasta {{ item.valid_until|date:"d/m/Y" }}
+                                        </small>
+
+                                    {% else %}
+
+                                        <small>
+                                            sin fecha de término
+                                        </small>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="availability-rule-actions">
+
+                                    <span class="role-status role-status-active">
+                                        Activo
+                                    </span>
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'spaces:availability_status' space.id item.id %}"
+                                    >
+
+                                        {% csrf_token %}
+
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="deactivate"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="availability-secondary-button"
+                                        >
+                                            Desactivar
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+
+            {% if inactive_windows %}
+
+                <details class="availability-inactive-details">
+
+                    <summary class="availability-inactive-summary">
+
+                        <div>
+
+                            <strong>
+                                Ver horarios habituales inactivos
+                            </strong>
+
+                            <small>
+                                Se conservan en el historial.
+                            </small>
+
+                        </div>
+
+                        <span>
+                            {{ inactive_windows|length }}
+                        </span>
+
+                    </summary>
+
+
+                    <div class="booking-list">
+
+                        {% for item in inactive_windows %}
+
+                            <article class="booking-list-card">
+
+                                <div class="booking-list-main">
+
+                                    <span class="booking-list-label">
+                                        {{ item.get_weekday_display }}
+                                    </span>
+
+                                    <strong>
+                                        {{ item.start_time|time:"H:i" }}
+                                        –
+                                        {{ item.end_time|time:"H:i" }}
+                                    </strong>
+
+                                    <p>
+                                        Horario inactivo
+                                    </p>
+
+                                </div>
+
+
+                                <div class="booking-list-status">
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'spaces:availability_status' space.id item.id %}"
+                                    >
+
+                                        {% csrf_token %}
+
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="activate"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="account-professional-action"
+                                        >
+                                            Reactivar
+                                            <span>→</span>
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                </details>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- =====================================================
+             02 · DISPONIBILIDAD POR FECHA
+        ====================================================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        02
+                    </span>
+
+                    <h2>
+                        Disponibilidad por fecha
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    {{ exact_date_count }} ACTIVAS
+                </span>
+
+            </div>
+
+
+            <div class="availability-date-calendar-callout">
+
+                <div>
+
+                    <span>
+                        CALENDARIO DE ARRIENDOS
+                    </span>
+
+                    <strong>
+                        Horarios publicados para días específicos
+                    </strong>
+
+                    <p>
+                        Estas disponibilidades no se repiten semanalmente.
+                        Se aplican únicamente a la fecha indicada.
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="{% url 'spaces:provider_calendar' %}?space={{ space.id }}"
+                    class="availability-calendar-open-button"
+                >
+                    Abrir calendario →
+                </a>
+
+            </div>
+
+
+            {% if exact_date_exceptions %}
+
+                <div class="availability-date-cards">
+
+                    {% for item in exact_date_exceptions %}
+
+                        <article class="availability-date-card-active">
+
+                            <div class="availability-date-card-main">
+
+                                <span class="availability-date-weekday">
+                                    {{ item.date|date:"l"|upper }}
+                                </span>
+
+                                <strong class="availability-date-display">
+                                    {{ item.date|date:"d M Y"|upper }}
+                                </strong>
+
+                                <p>
+                                    Publicada desde el Calendario de arriendos
+                                </p>
+
+                            </div>
+
+
+                            <div class="availability-date-card-time">
+
+                                <span>
+                                    HORARIO
+                                </span>
+
+                                <strong>
+                                    {{ item.start_time|time:"H:i" }}
+                                    →
+                                    {{ item.end_time|time:"H:i" }}
+                                </strong>
+
+                                <small>
+                                    Bloques de 60 minutos
+                                </small>
+
+                            </div>
+
+
+                            <div class="booking-list-status">
+
+                                <span class="availability-date-status-badge">
+                                    <i></i>
+                                    DISPONIBLE
+                                </span>
+
+                                <form
+                                    method="post"
+                                    action="{% url 'spaces:availability_exception_status' space.id item.id %}"
+                                >
+
+                                    {% csrf_token %}
+
+                                    <input
+                                        type="hidden"
+                                        name="action"
+                                        value="deactivate"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="availability-secondary-button"
+                                    >
+                                        Desactivar
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="account-empty">
+
+                    <strong>
+                        No hay disponibilidades por fecha activas
+                    </strong>
+
+                    <p>
+                        Puedes publicarlas directamente desde
+                        el Calendario de arriendos.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+
+            {% if inactive_exact_date_exceptions %}
+
+                <details class="availability-inactive-details">
+
+                    <summary class="availability-inactive-summary">
+
+                        <div>
+
+                            <strong>
+                                Ver disponibilidades por fecha inactivas
+                            </strong>
+
+                            <small>
+                                Se conservan en el historial.
+                            </small>
+
+                        </div>
+
+                        <span>
+                            {{ inactive_exact_date_exceptions|length }}
+                        </span>
+
+                    </summary>
+
+
+                    <div class="booking-list">
+
+                        {% for item in inactive_exact_date_exceptions %}
+
+                            <article class="booking-list-card">
+
+                                <div class="booking-list-main">
+
+                                    <span class="booking-list-label">
+                                        {{ item.date|date:"d/m/Y" }}
+                                    </span>
+
+                                    <strong>
+                                        {{ item.start_time|time:"H:i" }}
+                                        –
+                                        {{ item.end_time|time:"H:i" }}
+                                    </strong>
+
+                                    <p>
+                                        Disponibilidad por fecha inactiva
+                                    </p>
+
+                                </div>
+
+
+                                <div class="booking-list-status">
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'spaces:availability_exception_status' space.id item.id %}"
+                                    >
+
+                                        {% csrf_token %}
+
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="activate"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="account-professional-action"
+                                        >
+                                            Reactivar
+                                            <span>→</span>
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                </details>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- =====================================================
+             03 · CAMBIOS PARA UNA FECHA
+        ====================================================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        03
+                    </span>
+
+                    <h2>
+                        Cambios para una fecha
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+
+                    {% if manual_exception_count == 1 %}
+                        1 ACTIVO
+                    {% else %}
+                        {{ manual_exception_count }} ACTIVOS
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+
+            <div class="availability-exception-intro">
+
+                <strong>
+                    Ajusta solo el día que necesitas.
+                </strong>
+
+                <p>
+                    Puedes bloquear una fecha o utilizar un horario diferente
+                    sin modificar tu horario habitual de las demás semanas.
+                </p>
+
+            </div>
+
+
+            {% if exception_form.non_field_errors %}
+
+                <div class="account-professional-message account-professional-message-error">
+
+                    {% for error in exception_form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            {% if exception_error == 'conflict' %}
+
+                <div class="account-professional-message account-professional-message-error">
+
+                    <strong>
+                        No se pudo reactivar
+                    </strong>
+
+                    <p>
+                        El cambio entra en conflicto con una reserva
+                        o con otro cambio activo para esa fecha.
+                    </p>
+
+                </div>
+
+            {% elif exception_error == 'past' %}
+
+                <div class="account-professional-message account-professional-message-error">
+
+                    <strong>
+                        Fecha pasada
+                    </strong>
+
+                    <p>
+                        No se puede reactivar un cambio correspondiente
+                        a una fecha que ya pasó.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+
+            <form
+                method="post"
+                class="registration-form"
+                id="manual-change-form"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="form_type"
+                    value="exception"
+                >
+
+
+                <div class="availability-exception-workflow">
+
+                    <div class="availability-exception-date">
+
+                        <div>
+
+                            <span class="availability-step-number">
+                                01
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Elige la fecha
+                                </strong>
+
+                                <p>
+                                    Este cambio afectará solamente a ese día.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="friendly-date-selects friendly-date-selects-large">
+
+                            {{ exception_form.date }}
+
+                        </div>
+
+
+                        {% for error in exception_form.date.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="availability-exception-action">
+
+                        <div class="availability-exception-action-heading">
+
+                            <span class="availability-step-number">
+                                02
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    ¿Qué quieres hacer ese día?
+                                </strong>
+
+                                <p>
+                                    Elige una de estas dos opciones.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="friendly-exception-options">
+
+                            <label class="friendly-exception-option">
+
+                                <input
+                                    type="radio"
+                                    name="exception_type"
+                                    value="blocked"
+                                    {% if exception_form.exception_type.value == 'blocked' %}checked{% endif %}
+                                    required
+                                >
+
+                                <span class="friendly-exception-radio"></span>
+
+                                <span class="friendly-exception-option-copy">
+
+                                    <strong>
+                                        No estará disponible
+                                    </strong>
+
+                                    <small>
+                                        Nadie podrá reservar el espacio
+                                        durante esta fecha.
+                                    </small>
+
+                                </span>
+
+                            </label>
+
+
+                            <label class="friendly-exception-option">
+
+                                <input
+                                    type="radio"
+                                    name="exception_type"
+                                    value="special_hours"
+                                    {% if exception_form.exception_type.value == 'special_hours' %}checked{% endif %}
+                                    required
+                                >
+
+                                <span class="friendly-exception-radio"></span>
+
+                                <span class="friendly-exception-option-copy">
+
+                                    <strong>
+                                        Usar otro horario
+                                    </strong>
+
+                                    <small>
+                                        Ese día tendrá horas diferentes
+                                        al horario habitual.
+                                    </small>
+
+                                </span>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="availability-exception-step availability-special-hours"
+                    id="special-hours-fields"
+                >
+
+                    <div class="availability-special-hours-heading">
+
+                        <strong>
+                            Horario especial
+                        </strong>
+
+                        <span>
+                            Selecciona desde qué hora y hasta qué hora
+                            estará disponible.
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-grid form-grid-2">
+
+                        <div class="form-field">
+
+                            <label for="{{ exception_form.start_time.id_for_label }}">
+                                Desde
+                            </label>
+
+                            {{ exception_form.start_time }}
+
+                        </div>
+
+
+                        <div class="form-field">
+
+                            <label for="{{ exception_form.end_time.id_for_label }}">
+                                Hasta
+                            </label>
+
+                            {{ exception_form.end_time }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="availability-reason-row">
+
+                    <div class="form-field">
+
+                        <label for="{{ exception_form.reason.id_for_label }}">
+
+                            Motivo
+
+                            <span class="field-optional">
+                                (opcional)
+                            </span>
+
+                        </label>
+
+                        {{ exception_form.reason }}
+
+                        <span class="field-help">
+                            Por ejemplo: mantenimiento,
+                            feriado o evento privado.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="availability-save-row">
+
+                    <button
+                        type="submit"
+                        class="availability-save-button"
+                    >
+                        Guardar cambio
+                        <span>→</span>
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            {% if manual_active_exceptions %}
+
+                <div class="availability-exceptions-configured">
+
+                    <div class="availability-human-heading">
+
+                        <div class="availability-human-heading-copy">
+
+                            <span>
+                                CAMBIOS GUARDADOS
+                            </span>
+
+                            <strong>
+                                Fechas con un ajuste especial
+                            </strong>
+
+                            <p>
+                                Estos cambios afectan únicamente la fecha indicada
+                                y no modifican tu horario habitual.
+                            </p>
+
+                        </div>
+
+                        <span class="availability-human-count">
+
+                            {{ manual_exception_count }}
+
+                            {% if manual_exception_count == 1 %}
+                                cambio activo
+                            {% else %}
+                                cambios activos
+                            {% endif %}
+
+                        </span>
+
+                    </div>
+
+
+                    <!-- MENSAJE V80 -->
+
+                    <div
+                        id="manual-change-feedback"
+                        class="availability-feedback availability-feedback-success availability-section-feedback"
+                        hidden
+                    >
+
+                        <span class="availability-feedback-icon">
+                            ✓
+                        </span>
+
+                        <div>
+
+                            <span>
+                                CAMBIO GUARDADO
+                            </span>
+
+                            <strong id="manual-change-feedback-title">
+                                Cambio guardado correctamente
+                            </strong>
+
+                            <p id="manual-change-feedback-text">
+                                La disponibilidad de esa fecha fue actualizada.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="availability-change-list">
+
+                        {% for item in manual_active_exceptions %}
+
+                            <article class="availability-change-card">
+
+                                <div class="availability-change-card-main">
+
+                                    <span>
+                                        FECHA AJUSTADA
+                                    </span>
+
+                                    <strong>
+                                        {{ item.date|date:"l d \d\e F \d\e Y" }}
+                                    </strong>
+
+                                    <p>
+                                        {{ item.reason|default:"Sin motivo registrado" }}
+                                    </p>
+
+                                </div>
+
+
+                                <div class="availability-change-card-result">
+
+                                    <span>
+                                        ESE DÍA
+                                    </span>
+
+                                    {% if item.exception_type == 'special_hours' %}
+
+                                        <strong>
+                                            {{ item.start_time|time:"H:i" }}
+                                            →
+                                            {{ item.end_time|time:"H:i" }}
+                                        </strong>
+
+                                    {% else %}
+
+                                        <strong class="is-blocked">
+                                            No disponible
+                                        </strong>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="availability-change-card-actions">
+
+                                    <span class="availability-change-active-badge">
+                                        Activo
+                                    </span>
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'spaces:availability_exception_status' space.id item.id %}"
+                                    >
+
+                                        {% csrf_token %}
+
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="deactivate"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="availability-secondary-button"
+                                        >
+                                            Desactivar
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+
+            {% if manual_inactive_exceptions %}
+
+                <details class="availability-inactive-details">
+
+                    <summary class="availability-inactive-summary">
+
+                        <div>
+
+                            <strong>
+                                Ver cambios inactivos
+                            </strong>
+
+                            <small>
+                                Se conservan en el historial.
+                            </small>
+
+                        </div>
+
+                        <span>
+                            {{ manual_inactive_exceptions|length }}
+                        </span>
+
+                    </summary>
+
+
+                    <div class="booking-list">
+
+                        {% for item in manual_inactive_exceptions %}
+
+                            <article class="booking-list-card">
+
+                                <div class="booking-list-main">
+
+                                    <span class="booking-list-label">
+                                        {{ item.date|date:"d/m/Y" }}
+                                    </span>
+
+                                    <strong>
+
+                                        {% if item.exception_type == 'blocked' %}
+                                            No disponible
+                                        {% else %}
+                                            Horario especial
+                                        {% endif %}
+
+                                    </strong>
+
+                                    <p>
+                                        {{ item.reason|default:"Sin motivo registrado" }}
+                                    </p>
+
+                                </div>
+
+
+                                <div class="booking-list-status">
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'spaces:availability_exception_status' space.id item.id %}"
+                                    >
+
+                                        {% csrf_token %}
+
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="activate"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="account-professional-action"
+                                        >
+                                            Reactivar
+                                            <span>→</span>
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                </details>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- =====================================================
+             04 · HISTORIAL
+        ====================================================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        04
+                    </span>
+
+                    <h2>
+                        Historial de disponibilidad
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    {{ total_history_count }} REGISTROS
+                </span>
+
+            </div>
+
+
+            <div class="availability-history-summary-grid">
+
+                <article>
+
+                    <span>
+                        HORARIO HABITUAL
+                    </span>
+
+                    <strong>
+                        {{ history_count }}
+                    </strong>
+
+                    <small>
+                        cambios registrados
+                    </small>
+
+                </article>
+
+
+                <article>
+
+                    <span>
+                        DISPONIBILIDAD POR FECHA
+                    </span>
+
+                    <strong>
+                        {{ exact_date_history_count }}
+                    </strong>
+
+                    <small>
+                        cambios registrados
+                    </small>
+
+                </article>
+
+
+                <article>
+
+                    <span>
+                        CAMBIOS PARA UNA FECHA
+                    </span>
+
+                    <strong>
+                        {{ manual_exception_history_count }}
+                    </strong>
+
+                    <small>
+                        cambios registrados
+                    </small>
+
+                </article>
+
+            </div>
+
+
+            {% if history or exception_history %}
+
+                <details class="availability-history-details">
+
+                    <summary>
+
+                        <div>
+
+                            <strong>
+                                Ver historial completo
+                            </strong>
+
+                            <small>
+                                Consulta quién realizó cada cambio
+                                y cuándo ocurrió.
+                            </small>
+
+                        </div>
+
+                        <span>
+                            {{ total_history_count }}
+                        </span>
+
+                    </summary>
+
+
+                    {% if history %}
+
+                        <div class="booking-history-list">
+
+                            {% for event in history %}
+
+                                <article class="booking-history-entry">
+
+                                    <div class="booking-history-heading">
+
+                                        <div>
+
+                                            <span class="account-summary-label">
+                                                EVENTO
+                                            </span>
+
+                                            <strong>
+                                                {{ event.get_action_display }}
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <span class="account-summary-label">
+                                                FECHA DEL CAMBIO
+                                            </span>
+
+                                            <strong>
+                                                {{ event.created_at|date:"d/m/Y H:i" }}
+                                            </strong>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="account-data-grid">
+
+                                        <div class="account-data-item">
+
+                                            <span>
+                                                Horario
+                                            </span>
+
+                                            <strong>
+                                                {{ event.availability.get_weekday_display }}
+                                                ·
+                                                {{ event.availability.start_time|time:"H:i" }}
+                                                –
+                                                {{ event.availability.end_time|time:"H:i" }}
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div class="account-data-item">
+
+                                            <span>
+                                                Responsable
+                                            </span>
+
+                                            <strong>
+
+                                                {% if event.changed_by %}
+                                                    {{ event.changed_by.get_full_name|default:event.changed_by.email }}
+                                                {% else %}
+                                                    Sistema
+                                                {% endif %}
+
+                                            </strong>
+
+                                        </div>
+
+                                    </div>
+
+                                </article>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if exception_history %}
+
+                        <div class="booking-history-list">
+
+                            {% for event in exception_history %}
+
+                                <article class="booking-history-entry">
+
+                                    <div class="booking-history-heading">
+
+                                        <div>
+
+                                            <span class="account-summary-label">
+                                                CAMBIO PARA UNA FECHA
+                                            </span>
+
+                                            <strong>
+                                                {{ event.get_action_display }}
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <span class="account-summary-label">
+                                                FECHA DEL CAMBIO
+                                            </span>
+
+                                            <strong>
+                                                {{ event.created_at|date:"d/m/Y H:i" }}
+                                            </strong>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="account-data-grid">
+
+                                        <div class="account-data-item">
+
+                                            <span>
+                                                Fecha afectada
+                                            </span>
+
+                                            <strong>
+                                                {{ event.exception.date|date:"d/m/Y" }}
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div class="account-data-item">
+
+                                            <span>
+                                                Responsable
+                                            </span>
+
+                                            <strong>
+
+                                                {% if event.changed_by %}
+                                                    {{ event.changed_by.get_full_name|default:event.changed_by.email }}
+                                                {% else %}
+                                                    Sistema
+                                                {% endif %}
+
+                                            </strong>
+
+                                        </div>
+
+                                    </div>
+
+                                </article>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </details>
+
+            {% else %}
+
+                <div class="account-empty">
+
+                    <strong>
+                        Sin historial todavía
+                    </strong>
+
+                    <p>
+                        Los cambios de disponibilidad aparecerán aquí.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <div class="registration-actions space-availability-management-actions">
+
+            <a
+                href="{% url 'spaces:provider_calendar' %}?space={{ space.id }}"
+                class="space-availability-calendar-link"
+            >
+                ← Calendario de arriendos
+            </a>
+
+            <a
+                href="{% url 'spaces:space_detail' space.id %}"
+                class="account-professional-action"
+            >
+                Volver al espacio →
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const weekdayNames = [
+            'Domingo',
+            'Lunes',
+            'Martes',
+            'Miércoles',
+            'Jueves',
+            'Viernes',
+            'Sábado'
+        ];
+
+
+        const feedbackStorageKey = (
+            'space-availability-feedback-{{ space.id }}'
+        );
+
+
+        function makeDate(
+            day,
+            month,
+            year
+        ) {
+
+            day = Number(day);
+            month = Number(month);
+            year = Number(year);
+
+
+            if (
+                !day
+                || !month
+                || !year
+            ) {
+                return null;
+            }
+
+
+            const selectedDate = new Date(
+                year,
+                month - 1,
+                day,
+                12,
+                0,
+                0
+            );
+
+
+            if (
+                selectedDate.getFullYear() !== year
+                || selectedDate.getMonth() !== month - 1
+                || selectedDate.getDate() !== day
+            ) {
+                return null;
+            }
+
+
+            return selectedDate;
+
+        }
+
+
+        function formatDate(
+            selectedDate,
+            includeWeekday
+        ) {
+
+            const options = {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            };
+
+
+            if (includeWeekday) {
+                options.weekday = 'long';
+            }
+
+
+            return selectedDate.toLocaleDateString(
+                'es-CL',
+                options
+            );
+
+        }
+
+
+        function setSelectValue(
+            id,
+            value
+        ) {
+
+            const element = document.getElementById(
+                id
+            );
+
+
+            if (element) {
+                element.value = String(
+                    value
+                );
+            }
+
+        }
+
+
+        function resetManualChangeDateToToday() {
+
+            const today = new Date();
+
+
+            setSelectValue(
+                'id_date_day',
+                today.getDate()
+            );
+
+            setSelectValue(
+                'id_date_month',
+                today.getMonth() + 1
+            );
+
+            setSelectValue(
+                'id_date_year',
+                today.getFullYear()
+            );
+
+        }
+
+
+        /* ===============================
+           HORARIO HABITUAL
+        =============================== */
+
+        const weeklyForm = document.getElementById(
+            'weekly-availability-form'
+        );
+
+        const validFromDay = document.getElementById(
+            'id_valid_from_day'
+        );
+
+        const validFromMonth = document.getElementById(
+            'id_valid_from_month'
+        );
+
+        const validFromYear = document.getElementById(
+            'id_valid_from_year'
+        );
+
+        const previewTitle = document.getElementById(
+            'availability-weekly-preview-title'
+        );
+
+        const previewText = document.getElementById(
+            'availability-weekly-preview-text'
+        );
+
+
+        function getWeeklyStartDate() {
+
+            return makeDate(
+                validFromDay ? validFromDay.value : '',
+                validFromMonth ? validFromMonth.value : '',
+                validFromYear ? validFromYear.value : ''
+            );
+
+        }
+
+
+        function getWeeklyTimeValue(
+            fieldName
+        ) {
+
+            if (!weeklyForm) {
+                return '';
+            }
+
+
+            const field = weeklyForm.querySelector(
+                '[name="' + fieldName + '"]'
+            );
+
+
+            return field
+                ? field.value
+                : '';
+
+        }
+
+
+        function updateWeeklyPreview() {
+
+            const selectedDate = getWeeklyStartDate();
+
+
+            if (!selectedDate) {
+
+                if (previewTitle) {
+                    previewTitle.textContent = (
+                        'Selecciona la primera fecha y el horario.'
+                    );
+                }
+
+
+                if (previewText) {
+                    previewText.textContent = (
+                        'Aquí podrás revisar cómo quedará '
+                        + 'configurado tu horario antes de guardarlo.'
+                    );
+                }
+
+
+                return;
+
+            }
+
+
+            const weekdayName = weekdayNames[
+                selectedDate.getDay()
+            ];
+
+
+            const startTime = getWeeklyTimeValue(
+                'start_time'
+            );
+
+            const endTime = getWeeklyTimeValue(
+                'end_time'
+            );
+
+
+            if (previewTitle) {
+
+                previewTitle.textContent = (
+                    'Todos los '
+                    + weekdayName.toLowerCase()
+                    + (
+                        startTime && endTime
+                        ? ' · '
+                            + startTime
+                            + ' → '
+                            + endTime
+                        : ''
+                    )
+                );
+
+            }
+
+
+            if (previewText) {
+
+                previewText.textContent = (
+                    'Primera fecha disponible: '
+                    + formatDate(
+                        selectedDate,
+                        false
+                    )
+                    + '. Desde ese día se repetirá semanalmente.'
+                );
+
+            }
+
+        }
+
+
+        [
+            validFromDay,
+            validFromMonth,
+            validFromYear
+        ].forEach(
+            function (element) {
+
+                if (element) {
+
+                    element.addEventListener(
+                        'change',
+                        updateWeeklyPreview
+                    );
+
+                }
+
+            }
+        );
+
+
+        if (weeklyForm) {
+
+            weeklyForm.querySelectorAll(
+                '[name="start_time"], [name="end_time"]'
+            ).forEach(
+                function (element) {
+
+                    element.addEventListener(
+                        'change',
+                        updateWeeklyPreview
+                    );
+
+                }
+            );
+
+        }
+
+
+        updateWeeklyPreview();
+
+
+        /* ===============================
+           CAMBIO PARA UNA FECHA
+        =============================== */
+
+        const manualChangeForm = document.getElementById(
+            'manual-change-form'
+        );
+
+        const specialHours = document.getElementById(
+            'special-hours-fields'
+        );
+
+        const exceptionOptions = document.querySelectorAll(
+            'input[name="exception_type"]'
+        );
+
+
+        function updateSpecialHoursVisibility() {
+
+            const selected = document.querySelector(
+                'input[name="exception_type"]:checked'
+            );
+
+
+            if (!specialHours) {
+                return;
+            }
+
+
+            if (
+                selected
+                && selected.value === 'special_hours'
+            ) {
+
+                specialHours.classList.add(
+                    'availability-special-hours-visible'
+                );
+
+            } else {
+
+                specialHours.classList.remove(
+                    'availability-special-hours-visible'
+                );
+
+            }
+
+        }
+
+
+        exceptionOptions.forEach(
+            function (option) {
+
+                option.addEventListener(
+                    'change',
+                    updateSpecialHoursVisibility
+                );
+
+            }
+        );
+
+
+        updateSpecialHoursVisibility();
+
+
+        if (manualChangeForm) {
+
+            manualChangeForm.addEventListener(
+                'submit',
+                function () {
+
+                    const dayField = document.getElementById(
+                        'id_date_day'
+                    );
+
+                    const monthField = document.getElementById(
+                        'id_date_month'
+                    );
+
+                    const yearField = document.getElementById(
+                        'id_date_year'
+                    );
+
+
+                    const selectedDate = makeDate(
+                        dayField ? dayField.value : '',
+                        monthField ? monthField.value : '',
+                        yearField ? yearField.value : ''
+                    );
+
+
+                    const selectedAction = manualChangeForm.querySelector(
+                        'input[name="exception_type"]:checked'
+                    );
+
+
+                    if (
+                        !selectedDate
+                        || !selectedAction
+                    ) {
+                        return;
+                    }
+
+
+                    const dateText = formatDate(
+                        selectedDate,
+                        true
+                    );
+
+
+                    const readableDate = (
+                        dateText.charAt(0).toUpperCase()
+                        + dateText.slice(1)
+                    );
+
+
+                    let message = '';
+
+
+                    if (
+                        selectedAction.value === 'blocked'
+                    ) {
+
+                        message = (
+                            readableDate
+                            + ' quedó como no disponible. '
+                            + 'Tu horario habitual continúa activo '
+                            + 'para las demás fechas.'
+                        );
+
+                    } else {
+
+                        const startField = manualChangeForm.querySelector(
+                            '[name="start_time"]'
+                        );
+
+                        const endField = manualChangeForm.querySelector(
+                            '[name="end_time"]'
+                        );
+
+
+                        const startTime = (
+                            startField
+                            ? startField.value
+                            : ''
+                        );
+
+                        const endTime = (
+                            endField
+                            ? endField.value
+                            : ''
+                        );
+
+
+                        message = (
+                            readableDate
+                            + ' tendrá un horario especial'
+                            + (
+                                startTime && endTime
+                                ? ' de '
+                                    + startTime
+                                    + ' a '
+                                    + endTime
+                                : ''
+                            )
+                            + '. Tu horario habitual continúa activo '
+                            + 'para las demás fechas.'
+                        );
+
+                    }
+
+
+                    sessionStorage.setItem(
+                        feedbackStorageKey,
+                        JSON.stringify(
+                            {
+                                type: 'manual_change',
+                                title: (
+                                    'Cambio guardado correctamente'
+                                ),
+                                text: message
+                            }
+                        )
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* ===============================
+           MENSAJE POST-GUARDADO
+        =============================== */
+
+        const serverHasErrors = document.querySelector(
+            '.field-error, .account-professional-message-error'
+        );
+
+
+        const savedFeedback = sessionStorage.getItem(
+            feedbackStorageKey
+        );
+
+
+        if (serverHasErrors) {
+
+            sessionStorage.removeItem(
+                feedbackStorageKey
+            );
+
+        } else if (savedFeedback) {
+
+            try {
+
+                const feedback = JSON.parse(
+                    savedFeedback
+                );
+
+
+                if (
+                    feedback.type === 'manual_change'
+                ) {
+
+                    const feedbackBox = document.getElementById(
+                        'manual-change-feedback'
+                    );
+
+                    const feedbackTitle = document.getElementById(
+                        'manual-change-feedback-title'
+                    );
+
+                    const feedbackText = document.getElementById(
+                        'manual-change-feedback-text'
+                    );
+
+
+                    if (
+                        feedbackBox
+                        && feedbackTitle
+                        && feedbackText
+                    ) {
+
+                        feedbackTitle.textContent = (
+                            feedback.title
+                        );
+
+                        feedbackText.textContent = (
+                            feedback.text
+                        );
+
+                        feedbackBox.hidden = false;
+
+
+                        /*
+                         * Dejamos el formulario listo para
+                         * un nuevo cambio usando la fecha de hoy.
+                         */
+                        resetManualChangeDateToToday();
+
+
+                        /*
+                         * Llevamos al usuario directamente
+                         * al resultado recién guardado.
+                         */
+                        window.setTimeout(
+                            function () {
+
+                                feedbackBox.scrollIntoView(
+                                    {
+                                        behavior: 'smooth',
+                                        block: 'center'
+                                    }
+                                );
+
+                            },
+                            120
+                        );
+
+                    }
+
+                }
+
+            } catch (error) {
+
+                console.log(
+                    error
+                );
+
+            }
+
+
+            sessionStorage.removeItem(
+                feedbackStorageKey
+            );
+
+        }
+
+    }
+);
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,463 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Mi Reserva | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page member-professional-booking-page">
+    <div class="account-container">
+
+        <!-- CABECERA -->
+        <header class="account-hero member-booking-hero">
+            <div>
+                <span class="page-overline">MI RESERVA</span>
+
+                <h1>
+                    Tu reserva con
+                    <span>
+                        {{ booking.professional_profile.user.first_name|default:booking.professional_profile.user.get_full_name }}
+                    </span>
+                </h1>
+
+                <p>
+                    Revisa tu sesión, su estado actual y las opciones disponibles.
+                </p>
+            </div>
+        </header>
+
+
+        <!-- RESERVA PRINCIPAL -->
+        <section class="account-panel">
+            <div class="account-panel-header">
+                <div>
+                    <span class="account-panel-number">01</span>
+                    <h2>Tu sesión reservada</h2>
+                </div>
+
+                <span class="account-panel-tag">SERVICIO PROFESIONAL</span>
+            </div>
+
+            <article class="professional-received-card member-booking-main-card">
+                <div class="professional-received-card-header">
+                    <div class="professional-received-member">
+                        <div class="professional-received-avatar">
+                            {% if booking.professional_profile.user.profile_image %}
+                                <img
+                                    src="{{ booking.professional_profile.user.profile_image.url }}"
+                                    alt="Foto de {{ booking.professional_profile.user.get_full_name|default:booking.professional_profile.user.email }}"
+                                >
+                            {% else %}
+                                <span>
+                                    {{ booking.professional_profile.user.first_name|first|upper }}{{ booking.professional_profile.user.last_name|first|upper }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="professional-received-member-copy">
+                            <span class="professional-received-eyebrow">PROFESIONAL</span>
+
+                            <h3>
+                                {{ booking.professional_profile.user.get_full_name|default:booking.professional_profile.user.email }}
+                            </h3>
+
+                            <p>Tu sesión con este profesional</p>
+
+                            <strong class="professional-received-service">
+                                {{ booking.service_name_snapshot }}
+                            </strong>
+
+                            <p>
+                                {{ booking.get_mode_snapshot_display }}
+                                ·
+                                {% if booking.location_name_snapshot %}
+                                    {{ booking.location_name_snapshot }}
+                                {% elif booking.location_type_snapshot == 'user_home' %}
+                                    Tu domicilio
+                                {% elif booking.location_type_snapshot == 'agreed_place' %}
+                                    Lugar acordado
+                                {% elif booking.mode_snapshot == 'online' %}
+                                    Atención online
+                                {% else %}
+                                    Lugar por definir
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <span class="professional-received-status professional-received-status-{{ booking.status }}">
+                        {{ booking.get_status_display }}
+                    </span>
+                </div>
+
+                <div class="professional-received-details">
+                    <div class="professional-received-detail professional-received-detail-date">
+                        <span>FECHA</span>
+                        <strong>{{ booking.session_date|date:"d M"|upper }}</strong>
+                        <small>{{ booking.session_date|date:"Y" }}</small>
+                    </div>
+
+                    <div class="professional-received-detail">
+                        <span>HORARIO</span>
+                        <strong>
+                            {{ booking.start_time|time:"H:i" }}
+                            –
+                            {{ booking.end_time|time:"H:i" }}
+                        </strong>
+                        <small>Horario de tu sesión</small>
+                    </div>
+
+                    <div class="professional-received-detail">
+                        <span>DURACIÓN</span>
+                        <strong>{{ booking.duration_minutes }} min</strong>
+                        <small>Duración reservada</small>
+                    </div>
+
+                    <div class="professional-received-detail professional-received-detail-price">
+                        <span>PRECIO</span>
+                        <strong>{{ booking.price_clp|clp }}</strong>
+                        <small>Precio de esta reserva</small>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+
+        <!-- ESTADO Y ACCIONES -->
+        <section class="account-panel">
+            <div class="account-panel-header">
+                <div>
+                    <span class="account-panel-number">02</span>
+                    <h2>Estado de tu reserva</h2>
+                </div>
+
+                <span class="account-panel-tag">SEGUIMIENTO</span>
+            </div>
+
+            <div class="member-booking-status member-booking-status-{{ booking.status }}">
+                <div class="member-booking-status-icon">
+                    {% if booking.status == 'pending' %}
+                        …
+                    {% elif booking.status == 'confirmed' %}
+                        ✓
+                    {% elif booking.status == 'cancelled' %}
+                        ×
+                    {% elif booking.status == 'expired' %}
+                        !
+                    {% else %}
+                        ✓
+                    {% endif %}
+                </div>
+
+                <div class="member-booking-status-copy">
+                    {% if booking.status == 'pending' %}
+                        <span>ESPERANDO RESPUESTA</span>
+                        <strong>
+                            Esperando confirmación de {{ booking.professional_profile.user.first_name|default:booking.professional_profile.user.get_full_name }}
+                        </strong>
+                        <p>
+                            Tu solicitud fue enviada correctamente. Cuando el profesional la acepte,
+                            esta reserva aparecerá como confirmada.
+                        </p>
+
+                    {% elif booking.status == 'confirmed' %}
+                        <span>RESERVA CONFIRMADA</span>
+                        <strong>
+                            {{ booking.professional_profile.user.first_name|default:booking.professional_profile.user.get_full_name }} confirmó tu sesión
+                        </strong>
+                        <p>
+                            Tu reserva está lista para el {{ booking.session_date|date:"d/m/Y" }}
+                            a las {{ booking.start_time|time:"H:i" }}.
+                        </p>
+
+                    {% elif booking.status == 'cancelled' %}
+                        <span>RESERVA CANCELADA</span>
+                        <strong>Esta sesión ya no se realizará</strong>
+                        <p>
+                            La cancelación quedó registrada y la reserva seguirá disponible en tu historial.
+                        </p>
+
+                    {% elif booking.status == 'expired' %}
+                        <span>ESTADO DE LA SOLICITUD</span>
+                        <strong>Vencida</strong>
+                        <p>
+                            La hora de inicio llegó sin que el profesional respondiera tu solicitud.
+                            Ya no puede confirmarse y permanece disponible en tu historial.
+                        </p>
+
+                    {% elif booking.status == 'completed' %}
+                        <span>SESIÓN REALIZADA</span>
+                        <strong>Completada</strong>
+                        <p>
+                            La sesión finalizó y quedó registrada en tu historial de reservas.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+
+            {% if booking.status == 'cancelled' and booking.cancellation_reason %}
+                <div class="member-booking-cancelled-reason">
+                    <span>MOTIVO DE CANCELACIÓN</span>
+                    <strong>{{ booking.cancellation_reason }}</strong>
+                </div>
+            {% endif %}
+
+
+            {% if can_cancel %}
+                <div class="member-booking-secondary-action">
+                    <div>
+                        <strong>¿Cambió tu disponibilidad?</strong>
+                        <p>
+                            Si ya no podrás asistir, puedes cancelar antes del inicio de la sesión.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="member-booking-cancel-trigger"
+                        id="member-booking-cancel-trigger"
+                        aria-controls="member-booking-cancel-panel"
+                        aria-expanded="false"
+                    >
+                        Necesito cancelar mi reserva
+                    </button>
+                </div>
+
+                <div
+                    class="member-booking-cancel-panel"
+                    id="member-booking-cancel-panel"
+                    hidden
+                >
+                    <div class="member-booking-cancel-copy">
+                        <span>CANCELAR RESERVA</span>
+                        <strong>
+                            Cuéntanos brevemente por qué no podrás asistir
+                        </strong>
+                        <p>
+                            La cancelación quedará registrada y el horario volverá a estar disponible.
+                        </p>
+                    </div>
+
+                    <form
+                        method="post"
+                        action="{% url 'bookings:cancel_my_booking' booking.id %}"
+                    >
+                        {% csrf_token %}
+
+                        <label for="my-cancellation-reason">
+                            Motivo de cancelación
+                        </label>
+
+                        <textarea
+                            id="my-cancellation-reason"
+                            name="cancellation_reason"
+                            rows="4"
+                            maxlength="255"
+                            placeholder="Ej: No podré asistir a la sesión en ese horario."
+                            required
+                        ></textarea>
+
+                        <div class="member-booking-cancel-actions">
+                            <button
+                                type="button"
+                                class="member-booking-cancel-back"
+                                id="member-booking-cancel-back"
+                            >
+                                Volver
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="member-booking-cancel-confirm"
+                            >
+                                Confirmar cancelación
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            {% elif booking.status == 'pending' or booking.status == 'confirmed' %}
+                <div class="member-booking-cancel-unavailable">
+                    <strong>La cancelación ya no está disponible</strong>
+                    <p>
+                        La sesión alcanzó su hora de inicio. El registro se conservará en tu historial.
+                    </p>
+                </div>
+            {% endif %}
+        </section>
+
+
+        <!-- INFORMACIÓN ADICIONAL -->
+        <section class="account-panel">
+            <div class="account-panel-header">
+                <div>
+                    <span class="account-panel-number">03</span>
+                    <h2>Información adicional</h2>
+                </div>
+
+                <span class="account-panel-tag">DETALLES</span>
+            </div>
+
+            <div class="member-booking-info-grid">
+                <div class="member-booking-info-item">
+                    <span>RESERVA CREADA</span>
+                    <strong>{{ booking.created_at|date:"d/m/Y H:i" }}</strong>
+                </div>
+
+                <div class="member-booking-info-item">
+                    <span>CÓDIGO INTERNO</span>
+                    <strong>#{{ booking.id }}</strong>
+                </div>
+
+                {% if booking.location_address_snapshot %}
+                    <div class="member-booking-info-item">
+                        <span>DIRECCIÓN REGISTRADA</span>
+                        <strong>{{ booking.location_address_snapshot }}</strong>
+                    </div>
+                {% endif %}
+
+                {% if booking.location_commune_snapshot %}
+                    <div class="member-booking-info-item">
+                        <span>COMUNA</span>
+                        <strong>{{ booking.location_commune_snapshot }}</strong>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+
+        <!-- HISTORIAL -->
+        <section class="account-panel member-booking-history-panel">
+            <div class="account-panel-header">
+                <div>
+                    <span class="account-panel-number">04</span>
+                    <h2>Historial de esta reserva</h2>
+                </div>
+
+                <span class="account-panel-tag">CAMBIOS</span>
+            </div>
+
+            {% if history_entries %}
+                <details class="member-booking-history-details">
+                    <summary class="member-booking-history-summary">
+                        <div class="member-booking-history-summary-icon">↻</div>
+
+                        <div class="member-booking-history-summary-copy">
+                            <strong>
+                                {{ history_entries|length }} cambio{{ history_entries|length|pluralize:"s" }} registrado{{ history_entries|length|pluralize:"s" }}
+                            </strong>
+                            <span>
+                                Consulta cuándo se creó la reserva y cualquier cambio posterior.
+                            </span>
+                        </div>
+
+                        <div class="member-booking-history-summary-button">
+                            <span class="member-booking-history-text-closed">Ver historial</span>
+                            <span class="member-booking-history-text-open">Ocultar historial</span>
+                            <span class="member-booking-history-chevron">⌄</span>
+                        </div>
+                    </summary>
+
+                    <div class="member-booking-history-list">
+                        {% for entry in history_entries %}
+                            <article class="member-booking-history-entry">
+                                <div class="member-booking-history-event">
+                                    <span>EVENTO</span>
+                                    <strong>{{ entry.get_action_display }}</strong>
+                                    <small>{{ entry.created_at|date:"d/m/Y H:i" }}</small>
+                                </div>
+
+                                <div class="member-booking-history-change">
+                                    <span>CAMBIO</span>
+                                    <strong>
+                                        {% if entry.previous_data.status_display %}
+                                            {{ entry.previous_data.status_display }} →
+                                        {% else %}
+                                            Registro inicial →
+                                        {% endif %}
+                                        {{ entry.new_data.status_display }}
+                                    </strong>
+                                    <small>
+                                        {% if entry.changed_by %}
+                                            Por {{ entry.changed_by.get_full_name|default:entry.changed_by.email }}
+                                        {% else %}
+                                            Por el sistema
+                                        {% endif %}
+                                    </small>
+                                </div>
+
+                                {% if entry.reason %}
+                                    <div class="member-booking-history-reason">
+                                        <span>MOTIVO / REGISTRO</span>
+                                        <p>{{ entry.reason }}</p>
+                                    </div>
+                                {% endif %}
+                            </article>
+                        {% endfor %}
+                    </div>
+                </details>
+
+            {% else %}
+                <div class="account-empty">
+                    <strong>Sin historial disponible</strong>
+                    <p>No existen cambios registrados para esta reserva.</p>
+                </div>
+            {% endif %}
+        </section>
+
+
+        <!-- NAVEGACIÓN -->
+        <div class="member-booking-navigation">
+            <a
+                href="{% url 'bookings:my_bookings' %}"
+                class="account-professional-action"
+            >
+                ← Volver a Mis reservas
+            </a>
+
+            <a
+                href="{% url 'accounts:dashboard' %}"
+                class="account-professional-action"
+            >
+                Mi cuenta
+                <span>→</span>
+            </a>
+        </div>
+
+    </div>
+</section>
+
+<script>
+    (function () {
+        const trigger = document.getElementById('member-booking-cancel-trigger');
+        const panel = document.getElementById('member-booking-cancel-panel');
+        const back = document.getElementById('member-booking-cancel-back');
+
+        if (!trigger || !panel) {
+            return;
+        }
+
+        function openPanel() {
+            panel.hidden = false;
+            trigger.setAttribute('aria-expanded', 'true');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function closePanel() {
+            panel.hidden = true;
+            trigger.setAttribute('aria-expanded', 'false');
+            trigger.focus();
+        }
+
+        trigger.addEventListener('click', openPanel);
+
+        if (back) {
+            back.addEventListener('click', closePanel);
+        }
+    })();
+</script>
+
+{% endblock %}

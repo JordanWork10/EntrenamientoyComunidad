@@ -1,0 +1,554 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+{{ space.name }} | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page public-space-detail-page">
+
+    <div class="account-container">
+
+        <header class="account-hero public-space-hero">
+
+            <div>
+
+                <span class="page-overline public-space-detail-overline">
+                    ESPACIO PUBLICADO
+                </span>
+
+                <h1>
+                    {{ space.name }}
+                </h1>
+
+                <p>
+                    {{ space.space_type.name }}
+                    ·
+                    {{ space.commune.name }}
+                    ·
+                    {{ space.commune.region.name }}
+                </p>
+
+            </div>
+
+
+            <div class="account-status">
+
+                <span class="account-status-dot"></span>
+
+                Disponible en catálogo
+
+            </div>
+
+        </header>
+
+
+        {% if cover_image %}
+
+            <section class="public-space-cover-wrap">
+
+                <img
+                    src="{{ cover_image.image.url }}"
+                    alt="{{ space.name }}"
+                    class="public-space-detail-cover"
+                >
+
+            </section>
+
+        {% endif %}
+
+
+        <section class="account-summary-grid">
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    TIPO
+                </span>
+
+                <strong>
+                    {{ space.space_type.name }}
+                </strong>
+
+                <p>
+                    Tipo de recinto
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    CAPACIDAD
+                </span>
+
+                <strong>
+                    {{ space.capacity }} personas
+                </strong>
+
+                <p>
+                    Capacidad registrada
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    SUPERFICIE
+                </span>
+
+                <strong>
+                    {% if space.surface_m2 %}
+                        {{ space.surface_m2 }} m²
+                    {% else %}
+                        No informada
+                    {% endif %}
+                </strong>
+
+                <p>
+                    Superficie aproximada
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    PRECIO / HORA
+                </span>
+
+                <strong>
+                    {{ space.hourly_price_clp|clp }}
+                </strong>
+
+                <p>
+                    Valor publicado
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <div class="account-layout">
+
+            <div class="account-main-column">
+
+                <section class="account-panel">
+
+                    <div class="account-panel-header">
+
+                        <div>
+
+                            <span class="account-panel-number">
+                                01
+                            </span>
+
+                            <h2>
+                                Sobre el espacio
+                            </h2>
+
+                        </div>
+
+                        <span class="account-panel-tag">
+                            INFORMACIÓN
+                        </span>
+
+                    </div>
+
+
+                    <div class="account-professional-message">
+
+                        <strong>
+                            Descripción
+                        </strong>
+
+                        <p>
+                            {{ space.description }}
+                        </p>
+
+                    </div>
+
+
+                    {% if space.additional_features %}
+
+                        <div class="account-professional-message">
+
+                            <strong>
+                                Características adicionales
+                            </strong>
+
+                            <p>
+                                {{ space.additional_features }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <section class="account-panel">
+
+                    <div class="account-panel-header">
+
+                        <div>
+
+                            <span class="account-panel-number">
+                                02
+                            </span>
+
+                            <h2>
+                                Ubicación
+                            </h2>
+
+                        </div>
+
+                        <span class="account-panel-tag">
+                            RECINTO
+                        </span>
+
+                    </div>
+
+
+                    <div class="account-data-grid">
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Comuna
+                            </span>
+
+                            <strong>
+                                {{ space.commune.name }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Región
+                            </span>
+
+                            <strong>
+                                {{ space.commune.region.name }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Dirección
+                            </span>
+
+                            <strong>
+                                {{ space.address }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Referencia
+                            </span>
+
+                            <strong>
+                                {{ space.location_reference|default:"No registrada" }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <section class="account-panel">
+
+                    <div class="account-panel-header">
+
+                        <div>
+
+                            <span class="account-panel-number">
+                                03
+                            </span>
+
+                            <h2>
+                                Equipamiento y comodidades
+                            </h2>
+
+                        </div>
+
+                        <span class="account-panel-tag">
+                            INVENTARIO
+                        </span>
+
+                    </div>
+
+
+                    <div class="account-panel-body">
+
+                        <span class="account-summary-label">
+                            EQUIPAMIENTO
+                        </span>
+
+                        <div class="account-interest-list">
+
+                            {% for item in space.equipments.all %}
+
+                                <span>
+                                    {{ item.name }}
+                                </span>
+
+                            {% empty %}
+
+                                <span>
+                                    Sin equipamiento registrado
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+
+                        <span class="account-summary-label">
+                            COMODIDADES
+                        </span>
+
+                        <div class="account-interest-list">
+
+                            {% for item in space.amenities.all %}
+
+                                <span>
+                                    {{ item.name }}
+                                </span>
+
+                            {% empty %}
+
+                                <span>
+                                    Sin comodidades registradas
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                {% if space.rules or space.access_instructions %}
+
+                    <section class="account-panel">
+
+                        <div class="account-panel-header">
+
+                            <div>
+
+                                <span class="account-panel-number">
+                                    04
+                                </span>
+
+                                <h2>
+                                    Reglas y acceso
+                                </h2>
+
+                            </div>
+
+                            <span class="account-panel-tag">
+                                CONDICIONES
+                            </span>
+
+                        </div>
+
+
+                        <div class="account-data-grid">
+
+                            <div class="account-data-item">
+
+                                <span>
+                                    Reglas de uso
+                                </span>
+
+                                <strong>
+                                    {{ space.rules|default:"No registradas" }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="account-data-item">
+
+                                <span>
+                                    Indicaciones de acceso
+                                </span>
+
+                                <strong>
+                                    {{ space.access_instructions|default:"No registradas" }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                {% endif %}
+
+            </div>
+
+
+            <aside class="account-side-column">
+
+                <section class="account-side-card">
+
+                    <span class="page-overline">
+                        PROVEEDOR
+                    </span>
+
+                    <h3>
+                        {{ space.provider_profile.display_name }}
+                    </h3>
+
+                    <p>
+                        Proveedor de Espacios verificado.
+                    </p>
+
+
+                    <div class="account-role">
+
+                        <div>
+
+                            <strong>
+                                Estado
+                            </strong>
+
+                            <span>
+                                Perfil Proveedor
+                            </span>
+
+                        </div>
+
+                        <span class="role-status role-status-active">
+                            Verificado
+                        </span>
+
+                    </div>
+
+                </section>
+
+
+                <section class="account-side-card public-space-booking-card">
+
+                    <div class="public-space-booking-card-top">
+
+                        <span class="public-space-booking-kicker">
+                            RESERVA
+                        </span>
+
+                        {% if has_active_availability %}
+                            <span class="public-space-booking-status">
+                                <i></i>
+                                Disponible
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+
+                    <h3>
+                        Reserva este espacio.
+                    </h3>
+
+
+                    {% if has_active_availability %}
+
+                        <p>
+                            Revisa el calendario, elige una fecha y reserva
+                            uno de los bloques disponibles.
+                        </p>
+
+
+                        <div class="public-space-booking-facts">
+
+                            <div>
+                                <span>Duración</span>
+                                <strong>60 minutos</strong>
+                            </div>
+
+                            <div>
+                                <span>Precio</span>
+                                <strong>{{ space.hourly_price_clp|clp }}</strong>
+                            </div>
+
+                        </div>
+
+
+                        <a
+                            href="{% url 'spaces:public_slots' space.id %}"
+                            class="public-space-booking-action"
+                        >
+                            <span>
+                                Ver disponibilidad y reservar
+                            </span>
+
+                            <b>→</b>
+                        </a>
+
+
+                        <small class="public-space-booking-note">
+                            Podrás revisar el horario antes de confirmar.
+                        </small>
+
+                    {% else %}
+
+                        <div class="public-space-booking-empty">
+
+                            <strong>
+                                Sin horarios disponibles por ahora
+                            </strong>
+
+                            <p>
+                                El proveedor aún no ha publicado bloques
+                                de arriendo para este espacio.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <a
+                    href="{% url 'spaces:public_catalog' %}"
+                    class="account-professional-action"
+                >
+                    ← Volver a Espacios
+                </a>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

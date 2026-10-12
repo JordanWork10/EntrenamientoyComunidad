@@ -1,0 +1,499 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+Sesiones Disponibles | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page">
+
+    <div class="account-container">
+
+
+        <!-- =========================
+             CABECERA
+        ========================== -->
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    CENTRO PROFESIONAL
+                </span>
+
+                <h1>
+                    Sesiones
+                    <span>
+                        disponibles
+                    </span>
+                </h1>
+
+                <p>
+                    Revisa cómo el sistema transforma tus ventanas de
+                    disponibilidad en bloques reservables según la
+                    duración real del servicio.
+                </p>
+
+            </div>
+
+
+            <div class="account-status">
+
+                <span class="account-status-dot"></span>
+
+                Vista previa
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             RESUMEN DEL SERVICIO
+        ========================== -->
+
+        <section class="account-summary-grid">
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    SERVICIO
+                </span>
+
+                <strong>
+                    {{ service.name }}
+                </strong>
+
+                <p>
+                    Servicio profesional
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    DURACIÓN
+                </span>
+
+                <strong>
+                    {{ service.duration_minutes }} minutos
+                </strong>
+
+                <p>
+                    Duración exacta por sesión
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    MODALIDAD
+                </span>
+
+                <strong>
+                    {{ service.get_mode_display }}
+                </strong>
+
+                <p>
+                    Modalidad registrada
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    ESTADO
+                </span>
+
+                <strong>
+                    {{ service.get_publication_status_display }}
+                </strong>
+
+                <p>
+                    Estado de publicación
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <!-- =========================
+             CONSULTAR FECHA
+        ========================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        01
+                    </span>
+
+                    <h2>
+                        Consultar una fecha
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    GENERACIÓN DINÁMICA
+                </span>
+
+            </div>
+
+
+            <div class="friendly-date-picker">
+
+                <div class="friendly-date-intro">
+
+                    <strong>
+                        Elige una fecha rápidamente
+                    </strong>
+
+                    <p>
+                        Selecciona uno de los próximos días o utiliza
+                        el calendario para consultar otra fecha.
+                    </p>
+
+                </div>
+
+
+                <div class="friendly-date-options">
+
+                    {% for quick_date in quick_dates %}
+
+                        <a
+                            href="?date={{ quick_date.value }}"
+                            class="friendly-date-option {% if quick_date.is_selected %}friendly-date-option-active{% endif %}"
+                        >
+
+                            <span>
+                                {{ quick_date.label }}
+                            </span>
+
+                            <strong>
+                                {{ quick_date.date_label }}
+                            </strong>
+
+                        </a>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <form method="get" class="friendly-date-custom">
+
+                    <div>
+
+                        <label for="service-slot-date">
+                            ¿Buscas otra fecha?
+                        </label>
+
+                        <input
+                            id="service-slot-date"
+                            type="date"
+                            name="date"
+                            min="{{ today_value }}"
+                            value="{{ selected_date_value }}"
+                            required
+                        >
+
+                        <span class="account-form-help">
+                            Puedes elegir cualquier fecha futura.
+                        </span>
+
+                        {% if date_error %}
+
+                            <p class="form-error">
+                                {{ date_error }}
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="account-professional-action"
+                    >
+                        Consultar fecha
+                        <span>→</span>
+                    </button>
+
+                </form>
+
+
+                <div class="friendly-date-rule">
+
+                    <span>
+                        REGLA DE GENERACIÓN
+                    </span>
+
+                    <strong>
+                        Bloques exactos de {{ service.duration_minutes }} minutos
+                    </strong>
+
+                    <p>
+                        El tiempo restante que no complete una sesión
+                        no se ofrecerá como bloque reservable.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             RESULTADO
+        ========================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        02
+                    </span>
+
+                    <h2>
+                        Sesiones generadas
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    PREVISUALIZACIÓN
+                </span>
+
+            </div>
+
+
+            {% if not selected_date %}
+
+                <div class="account-empty">
+
+                    <strong>
+                        Selecciona una fecha
+                    </strong>
+
+                    <p>
+                        El sistema mostrará aquí las sesiones que pueden
+                        generarse a partir de tus disponibilidades activas.
+                    </p>
+
+                </div>
+
+
+            {% elif date_error %}
+
+                <div class="account-empty">
+
+                    <strong>
+                        No se pudo consultar la fecha
+                    </strong>
+
+                    <p>
+                        Corrige la fecha seleccionada para continuar.
+                    </p>
+
+                </div>
+
+
+            {% elif not is_service_published %}
+
+                <div class="account-empty">
+
+                    <strong>
+                        Servicio no disponible para reservas
+                    </strong>
+
+                    <p>
+                        El servicio debe encontrarse publicado para generar
+                        sesiones reservables.
+                    </p>
+
+                </div>
+
+
+            {% elif slots %}
+
+                <div class="account-interests">
+
+                    <span class="account-subtitle">
+                        {{ weekday_label|upper }}
+                        ·
+                        {{ selected_date|date:"d/m/Y" }}
+                    </span>
+
+                    <p
+                        style="
+                            margin-bottom: 18px;
+                            color: var(--text-muted);
+                            font-size: 11px;
+                        "
+                    >
+                        {{ slot_count }}
+                        {% if slot_count == 1 %}
+                            sesión disponible
+                        {% else %}
+                            sesiones disponibles
+                        {% endif %}
+                    </p>
+
+
+                    <div
+                        style="
+                            display: grid;
+                            grid-template-columns:
+                                repeat(auto-fit, minmax(220px, 1fr));
+                            gap: 12px;
+                        "
+                    >
+
+                        {% for slot in slots %}
+
+                            <article class="account-data-item">
+
+                                <span>
+                                    SESIÓN {{ forloop.counter }}
+                                </span>
+
+                                <strong
+                                    style="
+                                        display: block;
+                                        margin-bottom: 6px;
+                                        color: var(--accent);
+                                        font-size: 15px;
+                                    "
+                                >
+                                    {{ slot.start_time|time:"H:i" }}
+                                    –
+                                    {{ slot.end_time|time:"H:i" }}
+                                </strong>
+
+                                <span class="account-form-help">
+                                    Duración:
+                                    {{ slot.duration_minutes }} minutos
+                                </span>
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+            {% else %}
+
+                <div class="account-empty">
+
+                    <strong>
+                        Sin sesiones disponibles
+                    </strong>
+
+                    <p>
+                        No existe una disponibilidad activa que permita
+                        generar una sesión completa de
+                        {{ service.duration_minutes }} minutos para
+                        {{ weekday_label }} {{ selected_date|date:"d/m/Y" }}.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- =========================
+             ACLARACIÓN
+        ========================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        03
+                    </span>
+
+                    <h2>
+                        Cómo funciona
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    SIN REGISTROS EXTRA
+                </span>
+
+            </div>
+
+
+            <div class="account-professional-message">
+
+                <strong>
+                    Las sesiones se calculan en el momento
+                </strong>
+
+                <p>
+                    Esta pantalla no crea horarios futuros en PostgreSQL.
+                    El sistema utiliza tus reglas de disponibilidad y la
+                    duración del servicio para calcular únicamente los
+                    bloques completos que podrían reservarse.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- VOLVER -->
+
+        <div
+            style="
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-top: 24px;
+            "
+        >
+
+            <a
+                href="{% url 'professionals:dashboard' %}"
+                class="account-professional-action"
+            >
+                ← Volver al Centro Profesional
+            </a>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Explorar | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page">
+
+    <div class="account-container">
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    EXPLORAR
+                </span>
+
+                <h1>
+                    Encuentra lo que
+                    <span>
+                        necesitas.
+                    </span>
+                </h1>
+
+                <p>
+                    Elige qué quieres buscar dentro de
+                    EntrenamientoyComunidad.
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <section class="home-section">
+
+            <div class="home-category-grid">
+
+                <article class="home-category-card home-category-card-active">
+
+                    <span class="home-category-number">
+                        01
+                    </span>
+
+                    <h3>
+                        Profesionales
+                    </h3>
+
+                    <p>
+                        Encuentra servicios publicados por profesionales
+                        verificados, compara modalidad, especialidad,
+                        ubicación, duración y precio.
+                    </p>
+
+                    <a
+                        href="{% url 'professionals:public_service_catalog' %}"
+                        class="home-category-link"
+                    >
+                        Explorar profesionales
+                        <span>→</span>
+                    </a>
+
+                </article>
+
+
+                <article class="home-category-card home-category-card-active">
+
+                    <span class="home-category-number">
+                        02
+                    </span>
+
+                    <h3>
+                        Espacios
+                    </h3>
+
+                    <p>
+                        Explora gimnasios, salas, estudios, canchas
+                        y otros recintos publicados por Proveedores
+                        de Espacios verificados.
+                    </p>
+
+                    <a
+                        href="{% url 'spaces:public_catalog' %}"
+                        class="home-category-link"
+                    >
+                        Explorar espacios
+                        <span>→</span>
+                    </a>
+
+                </article>
+
+
+                <article class="home-category-card home-category-card-active home-category-card-activities">
+
+                    <span class="home-category-number">
+                        03
+                    </span>
+
+                    <h3>
+                        Actividades
+                    </h3>
+
+                    <p>
+                        Descubre actividades comunitarias con cupos,
+                        fecha y punto de encuentro. También aquí vivirán
+                        las actividades creadas por Profesionales.
+                    </p>
+
+                    <a
+                        href="{% url 'activities:home' %}"
+                        class="home-category-link home-category-link-activities"
+                    >
+                        Explorar actividades
+                        <span>→</span>
+                    </a>
+
+                </article>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</section>
+
+{% endblock %}

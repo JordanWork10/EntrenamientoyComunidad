@@ -1,0 +1,462 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+Explorar Servicios | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page">
+
+    <div class="account-container">
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline market-overline-professional">
+                    SERVICIOS PROFESIONALES
+                </span>
+
+                <h1>
+                    Encuentra un servicio
+                    <span>
+                        listo para reservar.
+                    </span>
+                </h1>
+
+                <p>
+                    Compara profesionales verificados, modalidad,
+                    duración, ubicación y precio sin tener que
+                    entrar a múltiples pantallas.
+                </p>
+
+            </div>
+
+            <div class="account-status">
+
+                <span class="account-status-dot"></span>
+
+                {{ result_count }}
+                {% if result_count == 1 %}
+                    resultado
+                {% else %}
+                    resultados
+                {% endif %}
+
+            </div>
+
+        </header>
+
+
+        <section class="account-panel public-catalog-filter-panel public-catalog-filter-professional">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        01
+                    </span>
+
+                    <h2>
+                        Buscar y filtrar
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    CATÁLOGO
+                </span>
+
+            </div>
+
+
+            <form method="get">
+
+                {% if filters.professional %}
+                    <input
+                        type="hidden"
+                        name="professional"
+                        value="{{ filters.professional }}"
+                    >
+                {% endif %}
+
+                <div class="account-data-grid">
+
+                    <div class="account-data-item">
+
+                        <label for="catalog-q">
+                            ¿Qué estás buscando?
+                        </label>
+
+                        <input
+                            id="catalog-q"
+                            type="search"
+                            name="q"
+                            value="{{ filters.q }}"
+                            placeholder="Ej: entrenamiento, yoga, preparador físico..."
+                        >
+
+                    </div>
+
+
+                    <div class="account-data-item">
+
+                        <label for="catalog-mode">
+                            Modalidad
+                        </label>
+
+                        <select
+                            id="catalog-mode"
+                            name="mode"
+                        >
+                            <option value="">
+                                Todas las modalidades
+                            </option>
+
+                            {% for value, label in mode_choices %}
+
+                                <option
+                                    value="{{ value }}"
+                                    {% if filters.mode == value %}selected{% endif %}
+                                >
+                                    {{ label }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="account-data-item">
+
+                        <label for="catalog-category">
+                            Categoría
+                        </label>
+
+                        <select
+                            id="catalog-category"
+                            name="category"
+                        >
+                            <option value="">
+                                Todas las categorías
+                            </option>
+
+                            {% for category in categories %}
+
+                                <option
+                                    value="{{ category.id }}"
+                                    {% if filters.category == category.id|stringformat:"s" %}selected{% endif %}
+                                >
+                                    {{ category.name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="account-data-item">
+
+                        <label for="catalog-specialty">
+                            Especialidad
+                        </label>
+
+                        <select
+                            id="catalog-specialty"
+                            name="specialty"
+                        >
+                            <option value="">
+                                Todas las especialidades
+                            </option>
+
+                            {% for specialty in specialties %}
+
+                                <option
+                                    value="{{ specialty.id }}"
+                                    {% if filters.specialty == specialty.id|stringformat:"s" %}selected{% endif %}
+                                >
+                                    {{ specialty.name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="account-data-item">
+
+                        <label for="catalog-region">
+                            Región
+                        </label>
+
+                        <select
+                            id="catalog-region"
+                            name="region"
+                        >
+                            <option value="">
+                                Todas las regiones
+                            </option>
+
+                            {% for region in regions %}
+
+                                <option
+                                    value="{{ region.id }}"
+                                    {% if filters.region == region.id|stringformat:"s" %}selected{% endif %}
+                                >
+                                    {{ region.name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="account-data-item">
+
+                        <label for="catalog-commune">
+                            Comuna
+                        </label>
+
+                        <select
+                            id="catalog-commune"
+                            name="commune"
+                        >
+                            <option value="">
+                                Todas las comunas
+                            </option>
+
+                            {% for commune in communes %}
+
+                                <option
+                                    value="{{ commune.id }}"
+                                    {% if filters.commune == commune.id|stringformat:"s" %}selected{% endif %}
+                                >
+                                    {{ commune.name }}
+                                    ·
+                                    {{ commune.region.name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <div class="catalog-filter-actions">
+
+                    <button
+                        type="submit"
+                        class="account-professional-action catalog-filter-button"
+                    >
+                        Aplicar filtros
+                        <span>→</span>
+                    </button>
+
+
+                    <a
+                        href="{% url 'professionals:public_service_catalog' %}"
+                        class="account-professional-action"
+                    >
+                        Limpiar
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <section class="account-panel public-market-results">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        02
+                    </span>
+
+                    <h2>
+                        Servicios disponibles
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    PUBLICADOS
+                </span>
+
+            </div>
+
+
+            {% if services %}
+
+                <div class="catalog-service-list">
+
+                    {% for service in services %}
+
+                        <article class="catalog-service-card-v2">
+
+                            <div class="catalog-service-provider-v2">
+
+                                <a
+                                    href="{% url 'professionals:public_professional_detail' service.professional_profile.id %}"
+                                    class="catalog-service-avatar-v2"
+                                    aria-label="Ver perfil de {{ service.professional_profile.user.get_full_name }}"
+                                >
+
+                                    {% if service.professional_profile.user.profile_image %}
+
+                                        <img
+                                            src="{{ service.professional_profile.user.profile_image.url }}"
+                                            alt="Foto de {{ service.professional_profile.user.get_full_name }}"
+                                        >
+
+                                    {% else %}
+
+                                        <span>
+                                            {{ service.professional_profile.user.first_name|first|upper }}{{ service.professional_profile.user.last_name|first|upper }}
+                                        </span>
+
+                                    {% endif %}
+
+                                </a>
+
+
+                                <div class="catalog-service-provider-copy-v2">
+
+                                    <span>
+                                        PROFESIONAL VERIFICADO
+                                    </span>
+
+                                    <strong>
+                                        {{ service.professional_profile.user.get_full_name }}
+                                        <b>✓</b>
+                                    </strong>
+
+                                    <small>
+                                        {{ service.professional_profile.specialty.name }}
+                                    </small>
+
+                                    <a
+                                        href="{% url 'professionals:public_professional_detail' service.professional_profile.id %}"
+                                    >
+                                        Ver perfil profesional →
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="catalog-service-main-v2">
+
+                                <div class="catalog-service-heading-v2">
+
+                                    <div>
+
+                                        <span class="catalog-service-mode-v2">
+                                            {{ service.get_mode_display }}
+                                        </span>
+
+                                        <h3>
+                                            {{ service.name }}
+                                        </h3>
+
+                                    </div>
+
+
+                                    <span class="catalog-service-ready-v2">
+                                        Disponible
+                                    </span>
+
+                                </div>
+
+
+                                <div class="catalog-service-metrics-v2">
+
+                                    <div>
+                                        <span>DURACIÓN</span>
+                                        <strong>{{ service.duration_minutes }} min</strong>
+                                    </div>
+
+                                    <div>
+                                        <span>PRECIO</span>
+                                        <strong>{{ service.price_display }}</strong>
+                                    </div>
+
+                                    <div>
+                                        <span>UBICACIÓN</span>
+
+                                        <strong>
+                                            {% if service.location_commune %}
+                                                {{ service.location_commune.name }}
+                                            {% elif service.mode == 'online' %}
+                                                Online
+                                            {% else %}
+                                                Según modalidad
+                                            {% endif %}
+                                        </strong>
+                                    </div>
+
+                                </div>
+
+
+                                <a
+                                    href="{% url 'professionals:public_service_detail' service.id %}"
+                                    class="catalog-service-cta-v2"
+                                >
+                                    Ver horarios y reservar
+                                    <span>→</span>
+                                </a>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+
+            {% else %}
+
+                <div class="account-empty">
+
+                    <strong>
+                        No encontramos servicios
+                    </strong>
+
+                    <p>
+                        Prueba modificando los filtros.
+                        Solo se muestran servicios publicados
+                        de Profesionales verificados.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</section>
+
+{% endblock %}

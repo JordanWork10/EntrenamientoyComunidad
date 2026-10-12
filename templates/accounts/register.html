@@ -1,0 +1,745 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}
+Crear Cuenta | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="registration-page">
+
+    <div class="registration-container">
+
+        <div class="registration-intro">
+
+            <span class="page-overline">
+                CUENTA ÚNICA UNIVERSAL
+            </span>
+
+            <h1>
+                Crea tu cuenta.
+                <span>Empieza a moverte.</span>
+            </h1>
+
+            <p>
+                Una sola cuenta para acceder a profesionales,
+                espacios deportivos, actividades, reservas y
+                futuros perfiles especializados dentro de la plataforma.
+            </p>
+
+        </div>
+
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+            class="registration-form"
+            id="registration-form"
+            novalidate
+        >
+
+            {% csrf_token %}
+
+
+            {% if form.non_field_errors %}
+
+                <div class="form-global-errors">
+
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- ========================================
+                 01 IDENTIFICACIÓN Y CREDENCIALES
+            ========================================= -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            01
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Identificación y credenciales
+                            </h2>
+
+                            <p>
+                                Datos principales asociados a tu
+                                Cuenta Única Universal.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        ID
+                    </span>
+
+                </div>
+
+
+                <div class="form-grid form-grid-2">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.first_name.id_for_label }}">
+                            Nombres
+                        </label>
+
+                        {{ form.first_name }}
+
+                        {% for error in form.first_name.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.last_name.id_for_label }}">
+                            Apellidos
+                        </label>
+
+                        {{ form.last_name }}
+
+                        {% for error in form.last_name.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.rut.id_for_label }}">
+                            RUT
+                        </label>
+
+                        {{ form.rut }}
+
+                        <span class="field-help">
+                            Ejemplo: 12345678-9
+                        </span>
+
+                        {% for error in form.rut.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.birth_date.id_for_label }}">
+                            Fecha de nacimiento
+                        </label>
+
+                        {{ form.birth_date }}
+
+                        <span class="field-help">
+                            Debes tener 18 años o más.
+                        </span>
+
+                        {% for error in form.birth_date.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.gender.id_for_label }}">
+                            Género
+                            <span class="field-optional">
+                                (opcional)
+                            </span>
+                        </label>
+
+                        {{ form.gender }}
+
+                        <span class="field-help">
+                            Puedes elegir una opción o dejar este campo sin responder.
+                        </span>
+
+                        {% for error in form.gender.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.profile_image.id_for_label }}">
+                            Foto de perfil
+                            <span class="field-optional">
+                                (opcional)
+                            </span>
+                        </label>
+
+                        {{ form.profile_image }}
+
+                        <span class="field-help">
+                            JPG, JPEG, PNG o WEBP. Máximo 5 MB.
+                            Si no subes una foto, utilizaremos tus iniciales como avatar.
+                        </span>
+
+                        {% for error in form.profile_image.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.email.id_for_label }}">
+                            Correo electrónico
+                        </label>
+
+                        {{ form.email }}
+
+                        {% for error in form.email.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.phone.id_for_label }}">
+                            Teléfono
+                        </label>
+
+                        {{ form.phone }}
+
+                        <span class="field-help">
+                            Ejemplo: +56 9 1234 5678
+                        </span>
+
+                        {% for error in form.phone.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.password1.id_for_label }}">
+                            Contraseña
+                        </label>
+
+                        {{ form.password1 }}
+
+                        {% for error in form.password1.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.password2.id_for_label }}">
+                            Confirmar contraseña
+                        </label>
+
+                        {{ form.password2 }}
+
+                        {% for error in form.password2.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="password-rules">
+
+                    <span>
+                        Mínimo 8 caracteres
+                    </span>
+
+                    <span>
+                        Evita contraseñas comunes
+                    </span>
+
+                    <span>
+                        No uses solo números
+                    </span>
+
+                </div>
+
+            </section>
+
+
+            <!-- ========================================
+                 02 FICHA INICIAL
+            ========================================= -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            02
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Ficha técnica y actividad física inicial
+                            </h2>
+
+                            <p>
+                                Información utilizada para personalizar
+                                búsquedas y recomendaciones dentro de la plataforma.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        FIT
+                    </span>
+
+                </div>
+
+
+                <div class="form-grid form-grid-3">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.region.id_for_label }}">
+                            Región
+                        </label>
+
+                        {{ form.region }}
+
+                        {% for error in form.region.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.commune.id_for_label }}">
+                            Comuna
+                        </label>
+
+                        {{ form.commune }}
+
+                        {% for error in form.commune.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.activity_level.id_for_label }}">
+                            Nivel de actividad física
+                        </label>
+
+                        {{ form.activity_level }}
+
+                        {% for error in form.activity_level.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-field interests-field">
+
+                    <label>
+                        Intereses principales
+                    </label>
+
+                    <p class="field-description">
+                        Puedes seleccionar más de una opción.
+                    </p>
+
+
+                    <div class="interest-grid">
+
+                        {% for choice in form.interests %}
+
+                            <label class="interest-option">
+
+                                {{ choice.tag }}
+
+                                <span>
+                                    {{ choice.choice_label }}
+                                </span>
+
+                            </label>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    {% for error in form.interests.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+
+            <!-- ========================================
+                 03 CONTACTO DE EMERGENCIA
+            ========================================= -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            03
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Contacto de emergencia
+                            </h2>
+
+                            <p>
+                                Información de resguardo asociada
+                                a actividades físicas presenciales.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol registration-symbol-alert">
+                        SOS
+                    </span>
+
+                </div>
+
+
+                <div class="form-grid form-grid-3">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.emergency_contact_name.id_for_label }}">
+                            Nombre y apellido
+                        </label>
+
+                        {{ form.emergency_contact_name }}
+
+                        {% for error in form.emergency_contact_name.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.emergency_contact_relationship.id_for_label }}">
+                            Relación o parentesco
+                        </label>
+
+                        {{ form.emergency_contact_relationship }}
+
+                        {% for error in form.emergency_contact_relationship.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.emergency_contact_phone.id_for_label }}">
+                            Teléfono de emergencia
+                        </label>
+
+                        {{ form.emergency_contact_phone }}
+
+                        {% for error in form.emergency_contact_phone.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ========================================
+                 04 DECLARACIONES
+            ========================================= -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            04
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Declaraciones y consentimientos
+                            </h2>
+
+                            <p>
+                                Confirmaciones necesarias para utilizar
+                                las funciones transaccionales de la plataforma.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        OK
+                    </span>
+
+                </div>
+
+
+                <div class="consent-list">
+
+                    <label class="consent-option">
+
+                        {{ form.fitness_declaration_accepted }}
+
+                        <div>
+
+                            <strong>
+                                Declaración de aptitud física
+                            </strong>
+
+                            <p>
+                                Declaro que la información proporcionada
+                                es correcta y conozco mi condición física
+                                para participar en actividades deportivas.
+                            </p>
+
+                        </div>
+
+                    </label>
+
+                    {% for error in form.fitness_declaration_accepted.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+
+
+                    <label class="consent-option">
+
+                        {{ form.protected_payment_accepted }}
+
+                        <div>
+
+                            <strong>
+                                Condiciones de reservas y pagos protegidos
+                            </strong>
+
+                            <p>
+                                Acepto las condiciones asociadas al futuro
+                                sistema transaccional de reservas y pagos
+                                de EntrenamientoyComunidad.
+                            </p>
+
+                        </div>
+
+                    </label>
+
+                    {% for error in form.protected_payment_accepted.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+
+
+                    <label class="consent-option">
+
+                        {{ form.terms_accepted }}
+
+                        <div>
+
+                            <strong>
+                                Términos y condiciones
+                            </strong>
+
+                            <p>
+                                Confirmo que he leído y acepto los
+                                términos de uso de la plataforma.
+                            </p>
+
+                        </div>
+
+                    </label>
+
+                    {% for error in form.terms_accepted.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+
+
+                    <label class="consent-option">
+
+                        {{ form.privacy_accepted }}
+
+                        <div>
+
+                            <strong>
+                                Política de privacidad
+                            </strong>
+
+                            <p>
+                                Autorizo el tratamiento de los datos
+                                necesarios para operar mi cuenta y
+                                los servicios asociados.
+                            </p>
+
+                        </div>
+
+                    </label>
+
+                    {% for error in form.privacy_accepted.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+
+            <!-- ========================================
+                 ENVÍO
+            ========================================= -->
+
+            <div class="registration-submit-area">
+
+                <div>
+
+                    <span class="page-overline">
+                        REGISTRO SEGURO
+                    </span>
+
+                    <p>
+                        Los datos del formulario serán almacenados
+                        directamente en PostgreSQL.
+                    </p>
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="button registration-submit"
+                >
+                    Crear mi cuenta
+                    <span>→</span>
+                </button>
+
+            </div>
+
+
+            <p class="registration-login">
+
+                ¿Ya tienes una cuenta?
+
+                <a href="{% url 'accounts:login' %}">
+                    Inicia sesión
+                </a>
+
+            </p>
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script
+    src="{% static 'js/register.js' %}"
+></script>
+
+{% endblock %}

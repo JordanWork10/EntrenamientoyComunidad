@@ -1,0 +1,695 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+Solicitar Perfil Proveedor de Espacios | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="registration-page">
+
+    <div class="registration-container">
+
+        <div class="registration-intro">
+
+            <span class="page-overline">
+                PROVEEDOR DE ESPACIOS
+            </span>
+
+            <h1>
+                {% if is_editing %}
+                    Completa tu solicitud.
+                    <span>
+                        Presenta tu operación.
+                    </span>
+                {% else %}
+                    Habilita tu perfil.
+                    <span>
+                        Publica infraestructura.
+                    </span>
+                {% endif %}
+            </h1>
+
+            <p>
+                El Perfil Proveedor identifica a la persona u organización
+                que administra los espacios. Más adelante cada recinto
+                tendrá su propia ubicación, capacidad, equipamiento,
+                fotografías, precio y disponibilidad.
+            </p>
+
+        </div>
+
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+            class="registration-form"
+            id="space-provider-form"
+            novalidate
+        >
+
+            {% csrf_token %}
+
+
+            {% if form.non_field_errors %}
+
+                <div class="form-global-errors">
+
+                    {% for error in form.non_field_errors %}
+
+                        <p>
+                            {{ error }}
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- ============================================
+                 01 IDENTIDAD DEL PROVEEDOR
+            ============================================= -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            01
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Identidad del proveedor
+                            </h2>
+
+                            <p>
+                                Identifica quién administrará o representará
+                                los espacios publicados.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        ID
+                    </span>
+
+                </div>
+
+
+                <div class="form-grid form-grid-2">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.provider_type.id_for_label }}">
+                            Tipo de proveedor
+                        </label>
+
+                        {{ form.provider_type }}
+
+                        {% for error in form.provider_type.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.public_name.id_for_label }}">
+                            Nombre público o comercial
+                        </label>
+
+                        {{ form.public_name }}
+
+                        <span class="field-help">
+                            {{ form.public_name.help_text }}
+                        </span>
+
+                        {% for error in form.public_name.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="organization-fields"
+                    class="form-grid form-grid-2"
+                >
+
+                    <div class="form-field">
+
+                        <label for="{{ form.business_legal_name.id_for_label }}">
+                            Razón social
+                        </label>
+
+                        {{ form.business_legal_name }}
+
+                        {% for error in form.business_legal_name.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.business_rut.id_for_label }}">
+                            RUT de la organización
+                        </label>
+
+                        {{ form.business_rut }}
+
+                        {% for error in form.business_rut.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ============================================
+                 02 UBICACIÓN BASE
+            ============================================= -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            02
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Ubicación base
+                            </h2>
+
+                            <p>
+                                Registra la base de operación del proveedor.
+                                No reemplaza la dirección de cada espacio.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        MAP
+                    </span>
+
+                </div>
+
+
+                <div class="form-grid form-grid-2">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.base_region.id_for_label }}">
+                            Región
+                        </label>
+
+                        {{ form.base_region }}
+
+                        {% for error in form.base_region.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.base_commune.id_for_label }}">
+                            Comuna
+                        </label>
+
+                        {{ form.base_commune }}
+
+                        {% for error in form.base_commune.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.base_address.id_for_label }}">
+                            Dirección base o comercial
+                        </label>
+
+                        {{ form.base_address }}
+
+                        <span class="field-help">
+                            {{ form.base_address.help_text }}
+                        </span>
+
+                        {% for error in form.base_address.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ============================================
+                 03 PRESENTACIÓN E IMAGEN
+            ============================================= -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            03
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Presentación e imagen
+                            </h2>
+
+                            <p>
+                                Describe tu operación y el tipo de
+                                infraestructura que administras.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        INFO
+                    </span>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.description.id_for_label }}">
+                            Descripción del proveedor
+                        </label>
+
+                        {{ form.description }}
+
+                        <span class="field-help">
+                            Mínimo 40 caracteres.
+                        </span>
+
+                        {% for error in form.description.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="interests-field">
+
+                    <div class="form-field">
+
+                        <label>
+                            Tipo de infraestructura que administras
+                        </label>
+
+                    </div>
+
+
+                    <div class="interest-grid">
+
+                        {% for checkbox in form.managed_infrastructure_types %}
+
+                            <label class="interest-option">
+                                {{ checkbox.tag }}
+                                <span>
+                                    {{ checkbox.choice_label }}
+                                </span>
+                            </label>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    {% for error in form.managed_infrastructure_types.errors %}
+
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="form-grid form-grid-2">
+
+                    <div class="form-field profile-image-field">
+
+                        <label for="{{ form.provider_image.id_for_label }}">
+                            Logo o imagen del proveedor
+                            <span class="field-optional">
+                                (opcional)
+                            </span>
+                        </label>
+
+
+                        {% if existing_profile and existing_profile.provider_image %}
+
+                            <div class="profile-photo-preview">
+
+                                <img
+                                    src="{{ existing_profile.provider_image.url }}"
+                                    alt="Imagen actual del proveedor"
+                                    class="profile-photo-image"
+                                >
+
+                                <div>
+
+                                    <strong>
+                                        Imagen actual
+                                    </strong>
+
+                                    <p>
+                                        Puedes reemplazarla seleccionando
+                                        un nuevo archivo.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {{ form.provider_image }}
+
+                        <span class="field-help">
+                            {{ form.provider_image.help_text }}
+                        </span>
+
+                        {% for error in form.provider_image.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.website.id_for_label }}">
+                            Sitio web
+                            <span class="field-optional">
+                                (opcional)
+                            </span>
+                        </label>
+
+                        {{ form.website }}
+
+                        <span class="field-help">
+                            {{ form.website.help_text }}
+                        </span>
+
+                        {% for error in form.website.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ============================================
+                 04 DECLARACIÓN Y ENVÍO
+            ============================================= -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            04
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Declaración y envío
+                            </h2>
+
+                            <p>
+                                Confirma la veracidad de la información
+                                antes de enviar la solicitud.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        CHECK
+                    </span>
+
+                </div>
+
+
+                <div class="consent-list">
+
+                    <label class="consent-option">
+
+                        {{ form.information_declaration_accepted }}
+
+                        <span>
+                            {{ form.information_declaration_accepted.label }}
+                        </span>
+
+                    </label>
+
+
+                    {% for error in form.information_declaration_accepted.errors %}
+
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="account-professional-message">
+
+                    <strong>
+                        La publicación de espacios requiere una etapa posterior
+                    </strong>
+
+                    <p>
+                        La aprobación de este perfil identifica al proveedor.
+                        Cada espacio deberá registrarse después con sus propios
+                        datos, fotografías, ubicación, equipamiento,
+                        disponibilidad y antecedentes de respaldo.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <div class="registration-actions">
+
+                <a
+                    href="{% url 'accounts:dashboard' %}"
+                    class="account-logout"
+                >
+                    ← Volver a Mi Cuenta
+                </a>
+
+                <button
+                    type="submit"
+                    class="button button-primary"
+                >
+                    {% if is_editing %}
+                        Guardar y enviar solicitud
+                    {% else %}
+                        Enviar solicitud
+                    {% endif %}
+
+                    <span>→</span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const providerType = document.getElementById(
+            'id_provider_type'
+        );
+
+        const organizationFields = document.getElementById(
+            'organization-fields'
+        );
+
+        const regionSelect = document.getElementById(
+            'id_base_region'
+        );
+
+        const communeSelect = document.getElementById(
+            'id_base_commune'
+        );
+
+
+        function updateOrganizationFields() {
+
+            if (
+                !providerType
+                || !organizationFields
+            ) {
+                return;
+            }
+
+            if (
+                providerType.value === 'organization'
+            ) {
+
+                organizationFields.style.display = 'grid';
+
+            } else {
+
+                organizationFields.style.display = 'none';
+
+            }
+        }
+
+
+        async function loadCommunes() {
+
+            if (
+                !regionSelect
+                || !communeSelect
+            ) {
+                return;
+            }
+
+            const regionId = regionSelect.value;
+
+            communeSelect.innerHTML = (
+                '<option value="">Selecciona una comuna</option>'
+            );
+
+            if (!regionId) {
+                return;
+            }
+
+            try {
+
+                const response = await fetch(
+                    "{% url 'spaces:communes_by_region' %}?region="
+                    + encodeURIComponent(regionId)
+                );
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+
+                data.communes.forEach(
+                    function (commune) {
+
+                        const option = document.createElement(
+                            'option'
+                        );
+
+                        option.value = commune.id;
+                        option.textContent = commune.name;
+
+                        communeSelect.appendChild(
+                            option
+                        );
+                    }
+                );
+
+            } catch (error) {
+
+                console.error(
+                    'No fue posible cargar las comunas.',
+                    error
+                );
+            }
+        }
+
+
+        updateOrganizationFields();
+
+
+        if (providerType) {
+
+            providerType.addEventListener(
+                'change',
+                updateOrganizationFields
+            );
+        }
+
+
+        if (regionSelect) {
+
+            regionSelect.addEventListener(
+                'change',
+                loadCommunes
+            );
+        }
+
+    }
+);
+
+</script>
+
+{% endblock %}

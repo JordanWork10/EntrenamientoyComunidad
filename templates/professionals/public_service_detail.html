@@ -1,0 +1,601 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+{{ service.name }} | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page public-service-page">
+
+    <div class="account-container">
+
+        <section class="public-service-hero">
+
+            <div class="public-service-professional-side">
+
+                <div class="public-service-professional-avatar">
+
+                    {% if service.professional_profile.user.profile_image %}
+
+                        <img
+                            src="{{ service.professional_profile.user.profile_image.url }}"
+                            alt="Foto de {{ service.professional_profile.user.get_full_name }}"
+                        >
+
+                    {% else %}
+
+                        <span>
+                            {{ service.professional_profile.user.first_name|first|upper }}{{ service.professional_profile.user.last_name|first|upper }}
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <span class="public-service-verified">
+                    <i></i>
+                    Profesional verificado
+                </span>
+
+
+                <div class="public-service-professional-copy">
+
+                    <span>
+                        PROFESIONAL
+                    </span>
+
+                    <strong>
+                        {{ service.professional_profile.user.get_full_name }}
+                    </strong>
+
+                    <p>
+                        {{ service.professional_profile.professional_title|default:service.professional_profile.specialty.name }}
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="{% url 'professionals:public_professional_detail' service.professional_profile.id %}"
+                    class="public-service-profile-link"
+                >
+                    Ver perfil profesional
+                    <span>→</span>
+                </a>
+
+            </div>
+
+
+            <div class="public-service-hero-main">
+
+                <div>
+
+                    <span class="page-overline">
+                        SERVICIO PROFESIONAL
+                    </span>
+
+                    <h1>
+                        {{ service.name }}
+                    </h1>
+
+                    <p class="public-service-hero-description">
+                        {{ service.description }}
+                    </p>
+
+                </div>
+
+
+                <div class="public-service-hero-tags">
+
+                    <span>
+                        {{ service.get_mode_display }}
+                    </span>
+
+                    <span>
+                        {{ service.professional_profile.specialty.name }}
+                    </span>
+
+                </div>
+
+
+                <div class="public-service-hero-facts">
+
+                    <div>
+
+                        <span>
+                            DURACIÓN
+                        </span>
+
+                        <strong>
+                            {{ service.duration_minutes }} minutos
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            PRECIO
+                        </span>
+
+                        <strong>
+                            {{ price_display }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            UBICACIÓN
+                        </span>
+
+                        <strong>
+
+                            {% if service.location_commune %}
+
+                                {{ service.location_commune.name }}
+
+                            {% elif service.mode == 'online' %}
+
+                                Online
+
+                            {% else %}
+
+                                Según modalidad
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <div class="public-service-layout">
+
+            <div class="public-service-main-column">
+
+                <section class="account-panel">
+
+                    <div class="account-panel-header">
+
+                        <div>
+
+                            <span class="account-panel-number">
+                                01
+                            </span>
+
+                            <h2>
+                                Qué incluye este servicio
+                            </h2>
+
+                        </div>
+
+                        <span class="account-panel-tag">
+                            INFORMACIÓN
+                        </span>
+
+                    </div>
+
+
+                    <div class="public-service-about">
+
+                        <span class="account-subtitle">
+                            DESCRIPCIÓN
+                        </span>
+
+                        <p>
+                            {{ service.description }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="account-data-grid">
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Modalidad
+                            </span>
+
+                            <strong>
+                                {{ service.get_mode_display }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Duración
+                            </span>
+
+                            <strong>
+                                {{ service.duration_minutes }} minutos
+                            </strong>
+
+                        </div>
+
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Categoría
+                            </span>
+
+                            <strong>
+                                {{ service.professional_profile.category.name }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Especialidad
+                            </span>
+
+                            <strong>
+                                {{ service.professional_profile.specialty.name }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <section class="account-panel">
+
+                    <div class="account-panel-header">
+
+                        <div>
+
+                            <span class="account-panel-number">
+                                02
+                            </span>
+
+                            <h2>
+                                Atención y ubicación
+                            </h2>
+
+                        </div>
+
+                        <span class="account-panel-tag">
+                            MODALIDAD
+                        </span>
+
+                    </div>
+
+
+                    <div class="account-data-grid">
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Lugar de atención
+                            </span>
+
+                            <strong>
+
+                                {% if service.location_name %}
+
+                                    {{ service.location_name }}
+
+                                {% elif service.mode == 'online' %}
+
+                                    Atención online
+
+                                {% else %}
+
+                                    Según modalidad del servicio
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+                        {% if service.location_commune %}
+
+                            <div class="account-data-item">
+
+                                <span>
+                                    Comuna
+                                </span>
+
+                                <strong>
+                                    {{ service.location_commune.name }}
+                                    ·
+                                    {{ service.location_commune.region.name }}
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if service.location_address %}
+
+                            <div class="account-data-item">
+
+                                <span>
+                                    Dirección
+                                </span>
+
+                                <strong>
+                                    {{ service.location_address }}
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    {% if coverage_communes %}
+
+                        <div class="account-interests">
+
+                            <span class="account-subtitle">
+                                COBERTURA DEL PROFESIONAL
+                            </span>
+
+                            <div class="account-interest-list">
+
+                                {% for commune in coverage_communes %}
+
+                                    <span>
+                                        {{ commune.name }}
+                                        ·
+                                        {{ commune.region.name }}
+                                    </span>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <section class="account-panel">
+
+                    <div class="account-panel-header">
+
+                        <div>
+
+                            <span class="account-panel-number">
+                                03
+                            </span>
+
+                            <h2>
+                                Sobre el profesional
+                            </h2>
+
+                        </div>
+
+                        <span class="account-panel-tag">
+                            PERFIL VERIFICADO
+                        </span>
+
+                    </div>
+
+
+                    <div class="public-service-professional-summary">
+
+                        <div>
+
+                            <span>
+                                TÍTULO PROFESIONAL
+                            </span>
+
+                            <strong>
+                                {{ service.professional_profile.professional_title }}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                EXPERIENCIA
+                            </span>
+
+                            <strong>
+                                {{ service.professional_profile.years_experience }}
+                                {% if service.professional_profile.years_experience == 1 %}
+                                    año
+                                {% else %}
+                                    años
+                                {% endif %}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <a
+                        href="{% url 'professionals:public_professional_detail' service.professional_profile.id %}"
+                        class="account-professional-action"
+                    >
+                        Ver perfil completo de {{ service.professional_profile.user.first_name }}
+                        <span>→</span>
+                    </a>
+
+                </section>
+
+            </div>
+
+
+            <aside class="public-service-side-column">
+
+                <section class="public-service-booking-card">
+
+                    <div class="public-service-booking-top">
+
+                        <span class="public-service-booking-kicker">
+                            RESERVA
+                        </span>
+
+                        {% if active_availabilities %}
+
+                            <span class="public-service-booking-status">
+                                <i></i>
+                                Disponible
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <h3>
+                        Reserva una sesión.
+                    </h3>
+
+
+                    {% if active_availabilities %}
+
+                        <p>
+                            Revisa los días disponibles, elige un horario
+                            y continúa con la reserva.
+                        </p>
+
+
+                        <div class="public-service-booking-facts">
+
+                            <div>
+
+                                <span>
+                                    Duración
+                                </span>
+
+                                <strong>
+                                    {{ service.duration_minutes }} min
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    Precio
+                                </span>
+
+                                <strong>
+                                    {{ price_display }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <a
+                            href="{% url 'bookings:service_slots' service.id %}"
+                            class="public-service-booking-action"
+                        >
+                            <span>
+                                Ver horarios y reservar
+                            </span>
+
+                            <b>→</b>
+                        </a>
+
+
+                        <small>
+                            Podrás revisar la fecha y horario antes de confirmar.
+                        </small>
+
+                    {% else %}
+
+                        <div class="public-service-booking-empty">
+
+                            <strong>
+                                Sin horarios disponibles por ahora
+                            </strong>
+
+                            <p>
+                                El profesional aún no tiene bloques activos
+                                para este servicio.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <section class="account-side-card public-service-trust-card">
+
+                    <span class="page-overline">
+                        CONFIANZA
+                    </span>
+
+                    <h3>
+                        Profesional verificado.
+                    </h3>
+
+                    <p>
+                        Este perfil fue habilitado dentro de la plataforma
+                        antes de publicar servicios.
+                    </p>
+
+                    <div class="public-service-trust-row">
+
+                        <span>
+                            Especialidad
+                        </span>
+
+                        <strong>
+                            {{ service.professional_profile.specialty.name }}
+                        </strong>
+
+                    </div>
+
+                </section>
+
+
+                <a
+                    href="{% url 'professionals:public_service_catalog' %}"
+                    class="account-professional-action"
+                >
+                    ← Volver a Explorar
+                </a>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

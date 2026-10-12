@@ -1,0 +1,499 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+{{ professional.user.get_full_name }} | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page public-professional-page">
+
+    <div class="account-container">
+
+        <!-- =================================================
+             IDENTIDAD PROFESIONAL
+        ================================================== -->
+
+        <header class="public-professional-hero">
+
+            <div class="public-professional-hero-main">
+
+                <div class="public-professional-profile-avatar">
+
+                    {% if professional.user.profile_image %}
+
+                        <img
+                            src="{{ professional.user.profile_image.url }}"
+                            alt="Foto de {{ professional.user.get_full_name }}"
+                            class="public-professional-profile-image"
+                            width="140"
+                            height="140"
+                        >
+
+                    {% else %}
+
+                        <span>
+                            {{ professional.user.first_name|first|upper }}{{ professional.user.last_name|first|upper }}
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="public-professional-hero-copy">
+
+                    <span class="page-overline">
+                        PERFIL PROFESIONAL
+                    </span>
+
+                    <h1>
+                        {{ professional.user.get_full_name }}
+                    </h1>
+
+                    <p class="public-professional-headline">
+                        {{ professional.professional_title|default:professional.specialty.name }}
+                    </p>
+
+                    <span class="catalog-professional-verified public-professional-verification">
+                        <span class="catalog-verified-dot"></span>
+                        Profesional verificado
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="public-professional-hero-actions">
+
+                <a
+                    href="#servicios-profesional"
+                    class="public-service-primary-action"
+                >
+                    Ver servicios y horarios
+                    <span>→</span>
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             RESUMEN
+        ================================================== -->
+
+        <section class="account-summary-grid">
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    CATEGORÍA
+                </span>
+
+                <strong>
+                    {{ professional.category.name }}
+                </strong>
+
+                <p>
+                    Área profesional
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    ESPECIALIDAD
+                </span>
+
+                <strong>
+                    {{ professional.specialty.name }}
+                </strong>
+
+                <p>
+                    Especialidad principal
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    EXPERIENCIA
+                </span>
+
+                <strong>
+                    {{ professional.years_experience }}
+                    {% if professional.years_experience == 1 %}
+                        año
+                    {% else %}
+                        años
+                    {% endif %}
+                </strong>
+
+                <p>
+                    Experiencia declarada
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    SERVICIOS
+                </span>
+
+                <strong>
+                    {{ service_count }}
+                </strong>
+
+                <p>
+                    Publicados actualmente
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <!-- =================================================
+             SERVICIOS PUBLICADOS
+        ================================================== -->
+
+        <section
+            class="account-panel"
+            id="servicios-profesional"
+        >
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        01
+                    </span>
+
+                    <h2>
+                        Servicios publicados
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    {{ service_count }} DISPONIBLES
+                </span>
+
+            </div>
+
+
+            {% if services %}
+
+                <div class="public-professional-services-intro">
+
+                    <span class="page-overline">
+                        RESERVA DIRECTA
+                    </span>
+
+                    <p>
+                        Elige un servicio, revisa sus horarios disponibles
+                        y continúa con la reserva desde aquí.
+                    </p>
+
+                </div>
+
+                <div class="public-professional-services-grid">
+
+                    {% for service in services %}
+
+                        <article class="public-professional-service-card">
+
+                            <div class="public-professional-service-head">
+
+                                <div>
+
+                                    <span class="booking-list-label">
+                                        {{ service.get_mode_display }}
+                                    </span>
+
+                                    <h3>
+                                        {{ service.name }}
+                                    </h3>
+
+                                </div>
+
+
+                                {% if service.active_availability_count %}
+
+                                    <span class="public-professional-service-availability">
+                                        <span></span>
+                                        Disponibilidad activa
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="public-professional-service-no-availability">
+                                        Sin horarios activos
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <p class="public-professional-service-description">
+                                {{ service.description|truncatechars:180 }}
+                            </p>
+
+
+                            <div class="public-professional-service-data">
+
+                                <div>
+
+                                    <span>
+                                        DURACIÓN
+                                    </span>
+
+                                    <strong>
+                                        {{ service.duration_minutes }} minutos
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        PRECIO
+                                    </span>
+
+                                    <strong>
+                                        {{ service.price|clp }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        UBICACIÓN
+                                    </span>
+
+                                    <strong>
+
+                                        {% if service.location_commune %}
+
+                                            {{ service.location_commune.name }}
+
+                                        {% elif service.mode == 'online' %}
+
+                                            Online
+
+                                        {% else %}
+
+                                            Según modalidad
+
+                                        {% endif %}
+
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="public-professional-service-actions">
+
+                                <a
+                                    href="{% url 'professionals:public_service_detail' service.id %}"
+                                    class="account-professional-action"
+                                >
+                                    Ver servicio y horarios
+                                    <span>→</span>
+                                </a>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+
+            {% else %}
+
+                <div class="account-empty">
+
+                    <strong>
+                        Sin servicios publicados
+                    </strong>
+
+                    <p>
+                        Este Profesional está verificado y posee un
+                        Perfil Público, pero actualmente no tiene
+                        servicios disponibles.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- =================================================
+             SOBRE EL PROFESIONAL
+        ================================================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        02
+                    </span>
+
+                    <h2>
+                        Sobre el profesional
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    PERFIL PÚBLICO
+                </span>
+
+            </div>
+
+
+            <div class="public-professional-about">
+
+                <span class="account-subtitle">
+                    DESCRIPCIÓN PROFESIONAL
+                </span>
+
+                <p>
+                    {{ professional.bio }}
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ATENCIÓN Y COBERTURA
+        ================================================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        03
+                    </span>
+
+                    <h2>
+                        Atención y cobertura
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    MODALIDADES
+                </span>
+
+            </div>
+
+
+            <div class="public-professional-coverage-content">
+
+                <div>
+
+                    <span class="account-subtitle">
+                        MODALIDAD DE ATENCIÓN
+                    </span>
+
+                    <div class="account-interest-list public-professional-mode-list">
+
+                        {% for mode_label in mode_labels %}
+
+                            <span>
+                                {{ mode_label }}
+                            </span>
+
+                        {% empty %}
+
+                            <span>
+                                Por consultar
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <span class="account-subtitle">
+                        COBERTURA PROFESIONAL
+                    </span>
+
+                    <div class="account-interest-list public-professional-coverage-list">
+
+                        {% for commune in coverage_communes %}
+
+                            <span>
+                                {{ commune.name }}
+                                ·
+                                {{ commune.region.name }}
+                            </span>
+
+                        {% empty %}
+
+                            <span>
+                                Sin comunas publicadas
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <div class="public-professional-footer-actions">
+
+            <a
+                href="{% url 'professionals:public_service_catalog' %}"
+                class="account-professional-action"
+            >
+                ← Volver a Explorar
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

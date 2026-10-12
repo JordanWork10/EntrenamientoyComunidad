@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+Historial de {{ space.name }} | Centro de Espacios
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page">
+
+    <div class="account-container">
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    HISTORIAL DEL ESPACIO
+                </span>
+
+                <h1>
+                    Actividad de
+                    <span>{{ space.name }}.</span>
+                </h1>
+
+                <p>
+                    Aquí se conserva la trazabilidad de los cambios
+                    realizados sobre este recinto.
+                </p>
+
+            </div>
+
+
+            <div class="account-status">
+                {{ history_count }} registros
+            </div>
+
+        </header>
+
+
+        <section class="space-history-summary">
+
+            <div>
+                <span>Espacio</span>
+                <strong>{{ space.name }}</strong>
+            </div>
+
+            <div>
+                <span>Tipo</span>
+                <strong>{{ space.space_type.name }}</strong>
+            </div>
+
+            <div>
+                <span>Ubicación</span>
+                <strong>{{ space.commune.name }}</strong>
+            </div>
+
+            <div>
+                <span>Estado</span>
+                <strong>{{ space.get_publication_status_display }}</strong>
+            </div>
+
+        </section>
+
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        01
+                    </span>
+
+                    <h2>
+                        Registro de cambios
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    SOLO LECTURA
+                </span>
+
+            </div>
+
+
+            <div class="booking-history-list">
+
+                {% for event in history %}
+
+                    <article class="booking-history-entry">
+
+                        <div class="booking-history-heading">
+
+                            <div>
+
+                                <span class="account-summary-label">
+                                    EVENTO
+                                </span>
+
+                                <strong>
+                                    {{ event.get_action_display }}
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span class="account-summary-label">
+                                    FECHA DEL CAMBIO
+                                </span>
+
+                                <strong>
+                                    {{ event.created_at|date:"d/m/Y H:i" }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="account-data-grid">
+
+                            <div class="account-data-item">
+
+                                <span>
+                                    Responsable
+                                </span>
+
+                                <strong>
+                                    {% if event.changed_by %}
+                                        {{ event.changed_by.get_full_name|default:event.changed_by.email }}
+                                    {% else %}
+                                        Sistema
+                                    {% endif %}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="account-data-item">
+
+                                <span>
+                                    Registro
+                                </span>
+
+                                <strong>
+                                    {{ event.reason|default:"Sin observaciones" }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                {% empty %}
+
+                    <div class="account-empty">
+
+                        <strong>
+                            Sin historial registrado
+                        </strong>
+
+                        <p>
+                            Cuando se produzcan cambios relevantes,
+                            aparecerán aquí.
+                        </p>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <div class="registration-actions">
+
+            <a
+                href="{% url 'spaces:space_detail' space.id %}"
+                class="account-professional-action"
+            >
+                ← Volver al espacio
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

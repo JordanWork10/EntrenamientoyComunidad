@@ -1,0 +1,487 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+Explorar Espacios | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page space-catalog-page">
+
+    <div class="account-container">
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline market-overline-space">
+                    ESPACIOS DEPORTIVOS
+                </span>
+
+                <h1>
+                    Encuentra un recinto
+                    <span>
+                        disponible para ti.
+                    </span>
+                </h1>
+
+                <p>
+                    Compara ubicación, capacidad, precio por hora,
+                    equipamiento y comodidades antes de revisar
+                    la disponibilidad del espacio.
+                </p>
+
+            </div>
+
+
+            <div class="account-status">
+
+                <span class="account-status-dot"></span>
+
+                {{ result_count }}
+                {% if result_count == 1 %}
+                    resultado
+                {% else %}
+                    resultados
+                {% endif %}
+
+            </div>
+
+        </header>
+
+
+        <section class="account-panel public-catalog-filter-panel public-catalog-filter-space">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        01
+                    </span>
+
+                    <h2>
+                        Buscar y filtrar
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    CATÁLOGO
+                </span>
+
+            </div>
+
+
+            <form
+                method="get"
+                class="registration-form"
+            >
+
+                <div class="form-grid form-grid-2">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.q.id_for_label }}">
+                            ¿Qué estás buscando?
+                        </label>
+
+                        {{ form.q }}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.space_type.id_for_label }}">
+                            Tipo de espacio
+                        </label>
+
+                        {{ form.space_type }}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.region.id_for_label }}">
+                            Región
+                        </label>
+
+                        {{ form.region }}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.commune.id_for_label }}">
+                            Comuna
+                        </label>
+
+                        {{ form.commune }}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.min_capacity.id_for_label }}">
+                            Capacidad mínima
+                        </label>
+
+                        {{ form.min_capacity }}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.max_price.id_for_label }}">
+                            Precio máximo por hora
+                        </label>
+
+                        {{ form.max_price }}
+
+                    </div>
+
+                </div>
+
+
+                <details class="catalog-advanced-filters">
+
+                    <summary class="catalog-advanced-filters-summary">
+                        <div>
+                            <strong>Más filtros</strong>
+                            <span>
+                                Equipamiento y comodidades
+                            </span>
+                        </div>
+
+                        <span
+                            class="catalog-advanced-filters-chevron"
+                            aria-hidden="true"
+                        >
+                            ⌄
+                        </span>
+                    </summary>
+
+                    <div class="catalog-advanced-filters-body">
+
+                <div class="interests-field">
+
+                    <div class="form-field">
+                        <label>Equipamiento</label>
+                    </div>
+
+                    <div class="interest-grid">
+
+                        {% for checkbox in form.equipments %}
+
+                            <label class="interest-option">
+                                {{ checkbox.tag }}
+                                <span>
+                                    {{ checkbox.choice_label }}
+                                </span>
+                            </label>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="interests-field">
+
+                    <div class="form-field">
+                        <label>Comodidades</label>
+                    </div>
+
+                    <div class="interest-grid">
+
+                        {% for checkbox in form.amenities %}
+
+                            <label class="interest-option">
+                                {{ checkbox.tag }}
+                                <span>
+                                    {{ checkbox.choice_label }}
+                                </span>
+                            </label>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+
+                    </div>
+
+                </details>
+
+
+                <div class="registration-actions space-catalog-filter-actions">
+
+                    <button
+                        type="submit"
+                        class="space-catalog-filter-submit"
+                    >
+                        Aplicar filtros
+                    </button>
+
+
+                    <a
+                        href="{% url 'spaces:public_catalog' %}"
+                        class="space-catalog-filter-clear"
+                    >
+                        Limpiar filtros
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <section class="account-panel public-space-results-v2">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        02
+                    </span>
+
+                    <h2>
+                        Espacios disponibles
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    PUBLICADOS
+                </span>
+
+            </div>
+
+
+            <div class="account-panel-body">
+
+                {% if space_cards %}
+
+                    <div class="public-space-grid public-space-grid-market{% if space_cards|length == 1 %} public-space-grid-single{% endif %}">
+
+                        {% for card in space_cards %}
+
+                            <article class="catalog-space-card-v2">
+
+                                <a
+                                    href="{% url 'spaces:public_detail' card.space.id %}"
+                                    class="catalog-space-image-v2"
+                                >
+
+                                    {% if card.cover_image %}
+
+                                        <img
+                                            src="{{ card.cover_image.image.url }}"
+                                            alt="{{ card.space.name }}"
+                                        >
+
+                                    {% else %}
+
+                                        <div class="public-space-card-placeholder">
+                                            Sin fotografía
+                                        </div>
+
+                                    {% endif %}
+
+                                </a>
+
+
+                                <div class="catalog-space-main-v2">
+
+                                    <div class="catalog-space-heading-v2">
+
+                                        <div>
+
+                                            <span>
+                                                {{ card.space.space_type.name }}
+                                            </span>
+
+                                            <h3>
+                                                {{ card.space.name }}
+                                            </h3>
+
+                                            <p>
+                                                {{ card.space.commune.name }}
+                                                ·
+                                                {{ card.space.commune.region.name }}
+                                            </p>
+
+                                        </div>
+
+
+                                        <span class="catalog-space-ready-v2">
+                                            Disponible
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="catalog-space-metrics-v2">
+
+                                        <div>
+                                            <span>CAPACIDAD</span>
+                                            <strong>{{ card.space.capacity }} personas</strong>
+                                        </div>
+
+                                        <div>
+                                            <span>PRECIO / HORA</span>
+                                            <strong>{{ card.space.hourly_price_clp|clp }}</strong>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="catalog-space-features-v2">
+
+                                        {% for item in card.space.equipments.all|slice:":3" %}
+                                            <span>{{ item.name }}</span>
+                                        {% endfor %}
+
+                                        {% for item in card.space.amenities.all|slice:":3" %}
+                                            <span>{{ item.name }}</span>
+                                        {% endfor %}
+
+                                    </div>
+
+
+                                    <a
+                                        href="{% url 'spaces:public_detail' card.space.id %}"
+                                        class="catalog-space-cta-v2"
+                                    >
+                                        Ver espacio y disponibilidad
+                                        <span>→</span>
+                                    </a>
+
+                                </div>
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                {% else %}
+
+                    <div class="account-empty">
+
+                        <strong>
+                            No encontramos espacios con esos filtros
+                        </strong>
+
+                        <p>
+                            Prueba ampliando la ubicación, el precio
+                            o las características seleccionadas.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const regionSelect = document.getElementById(
+            'id_region'
+        );
+
+        const communeSelect = document.getElementById(
+            'id_commune'
+        );
+
+        async function loadCommunes() {
+
+            if (
+                !regionSelect
+                || !communeSelect
+            ) {
+                return;
+            }
+
+            const regionId = regionSelect.value;
+
+            communeSelect.innerHTML = (
+                '<option value="">Todas las comunas</option>'
+            );
+
+            if (!regionId) {
+                return;
+            }
+
+            const response = await fetch(
+                "{% url 'spaces:communes_by_region' %}?region="
+                + encodeURIComponent(regionId)
+            );
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json();
+
+            data.communes.forEach(
+                function (commune) {
+
+                    const option = document.createElement(
+                        'option'
+                    );
+
+                    option.value = commune.id;
+                    option.textContent = commune.name;
+
+                    communeSelect.appendChild(
+                        option
+                    );
+                }
+            );
+        }
+
+        if (regionSelect) {
+
+            regionSelect.addEventListener(
+                'change',
+                loadCommunes
+            );
+        }
+
+    }
+);
+
+</script>
+
+{% endblock %}

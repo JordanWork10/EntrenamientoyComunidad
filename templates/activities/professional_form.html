@@ -1,0 +1,953 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% if is_edit %}
+Editar actividad profesional
+{% else %}
+Crear actividad profesional
+{% endif %}
+| EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page activities-page">
+
+    <div class="account-container">
+
+        <header class="activities-form-hero">
+
+            <div>
+
+                <span class="activities-overline">
+                    ACTIVIDAD PROFESIONAL
+                </span>
+
+                <h1>
+                    {% if is_edit %}
+                        Ajusta tu actividad profesional.
+                    {% else %}
+                        Crea una experiencia dirigida por ti.
+                    {% endif %}
+                </h1>
+
+                <p>
+                    Define modalidad, cupos, precio y ubicación.
+                    Las actividades profesionales pueden ser presenciales,
+                    online o híbridas.
+                </p>
+
+            </div>
+
+
+            <div class="activities-form-rule activities-professional-rule">
+
+                <span>
+                    PERFIL PROFESIONAL
+                </span>
+
+                <strong>
+                    Verificado y activo
+                </strong>
+
+                <small>
+                    La actividad quedará asociada automáticamente
+                    a tu Perfil Profesional.
+                </small>
+
+            </div>
+
+        </header>
+
+
+        <div class="activities-professional-profile-card">
+
+            <span>
+                PROFESIONAL RESPONSABLE
+            </span>
+
+            <strong>
+                {{ request.user.get_full_name|default:request.user.email }}
+            </strong>
+
+            <small>
+                Solo tú puedes editar y publicar esta actividad.
+            </small>
+
+        </div>
+
+
+        <div class="activities-form-steps">
+
+            <div>
+                <span>01</span>
+                <strong>La actividad</strong>
+            </div>
+
+            <div>
+                <span>02</span>
+                <strong>Modalidad y cupos</strong>
+            </div>
+
+            <div>
+                <span>03</span>
+                <strong>Lugar o acceso</strong>
+            </div>
+
+            <div>
+                <span>04</span>
+                <strong>Recomendaciones</strong>
+            </div>
+
+        </div>
+
+
+        <form
+            method="post"
+            enctype="multipart/form-data"
+            class="activities-form"
+            id="professional-activity-form"
+        >
+            {% csrf_token %}
+
+
+            {% if form.non_field_errors %}
+
+                <div class="activities-message activities-message-error">
+
+                    <strong>
+                        Revisa esta información
+                    </strong>
+
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <section class="activities-form-section">
+
+                <div class="activities-form-section-title">
+
+                    <span>01</span>
+
+                    <div>
+                        <h2>
+                            ¿Qué actividad vas a dirigir?
+                        </h2>
+
+                        <p>
+                            Describe una experiencia concreta para que los Miembros
+                            entiendan qué harán y quién la dirige.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="activities-form-grid activities-form-grid-2">
+
+                    <div class="activities-field">
+
+                        <label for="{{ form.category.id_for_label }}">
+                            Categoría
+                        </label>
+
+                        {{ form.category }}
+
+                        {% for error in form.category.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="activities-field">
+
+                        <label for="{{ form.title.id_for_label }}">
+                            Nombre de la actividad
+                        </label>
+
+                        {{ form.title }}
+
+                        {% for error in form.title.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="activities-field">
+
+                    <label for="{{ form.description.id_for_label }}">
+                        Descripción
+                    </label>
+
+                    {{ form.description }}
+
+                    <span class="activities-help">
+                        Explica el objetivo, dinámica, intensidad y a quién
+                        está dirigida la actividad.
+                    </span>
+
+                    {% for error in form.description.errors %}
+                        <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="activities-field">
+
+                    <label for="{{ form.image.id_for_label }}">
+                        Foto opcional
+                    </label>
+
+                    {{ form.image }}
+
+                    <span class="activities-help">
+                        Una imagen clara ayuda a identificar la actividad
+                        dentro del catálogo.
+                    </span>
+
+                    {% for error in form.image.errors %}
+                        <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+
+            <section class="activities-form-section">
+
+                <div class="activities-form-section-title">
+
+                    <span>02</span>
+
+                    <div>
+                        <h2>
+                            Modalidad, fecha y cupos
+                        </h2>
+
+                        <p>
+                            Define cuándo se realizará, cuántas personas
+                            podrán participar y el valor por persona.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="activities-form-grid activities-form-grid-3">
+
+                    <div class="activities-field">
+
+                        <label for="{{ form.modality.id_for_label }}">
+                            Modalidad
+                        </label>
+
+                        {{ form.modality }}
+
+                        {% for error in form.modality.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="activities-field">
+
+                        <label for="{{ form.capacity.id_for_label }}">
+                            Cupos
+                        </label>
+
+                        {{ form.capacity }}
+
+                        <span class="activities-field-helper">
+                            Tú diriges la actividad y no consumes uno de estos cupos.
+                        </span>
+
+                        {% for error in form.capacity.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="activities-field">
+
+                        <label for="{{ form.level.id_for_label }}">
+                            Nivel
+                        </label>
+
+                        {{ form.level }}
+
+                        {% for error in form.level.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="activities-form-grid activities-form-grid-2">
+
+                    <div class="activities-field">
+
+                        <label>
+                            Fecha
+                        </label>
+
+                        <div class="activities-date-grid">
+                            {{ form.date }}
+                        </div>
+
+                        <span class="activities-field-helper">
+                            Selecciona Día, Mes y Año.
+                        </span>
+
+                        {% for error in form.date.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="activities-field">
+
+                        <label for="{{ form.price.id_for_label }}">
+                            Precio por participante
+                        </label>
+
+                        {{ form.price }}
+
+                        <span class="activities-field-helper">
+                            Usa 0 si será gratuita. El valor se registra en CLP.
+                        </span>
+
+                        {% for error in form.price.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="activities-form-grid activities-form-grid-2">
+
+                    <div class="activities-field">
+
+                        <label for="{{ form.start_time.id_for_label }}">
+                            Hora de inicio
+                        </label>
+
+                        {{ form.start_time }}
+
+                        {% for error in form.start_time.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="activities-field">
+
+                        <label for="{{ form.end_time.id_for_label }}">
+                            Hora de término
+                        </label>
+
+                        {{ form.end_time }}
+
+                        {% for error in form.end_time.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="activities-professional-note">
+
+                    <strong>
+                        Precio y pagos
+                    </strong>
+
+                    Puedes publicar desde ahora una actividad profesional
+                    con precio. Las actividades gratuitas permitirán inscripción
+                    inmediata. Las inscripciones pagadas se conectarán al módulo
+                    de Pagos para no registrar cobros ficticios.
+
+                </div>
+
+            </section>
+
+
+            <section class="activities-form-section">
+
+                <div class="activities-form-section-title">
+
+                    <span>03</span>
+
+                    <div>
+                        <h2>
+                            Lugar o acceso
+                        </h2>
+
+                        <p>
+                            Una actividad presencial puede usar un espacio reservado
+                            por ti o una ubicación indicada manualmente.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="activities-form-conditional"
+                    data-physical-section
+                >
+
+                    <div class="activities-field">
+
+                        <label for="{{ form.space_booking.id_for_label }}">
+                            Reserva de espacio confirmada
+                        </label>
+
+                        {{ form.space_booking }}
+
+                        <span class="activities-help">
+                            Es opcional. Solo aparecen reservas confirmadas
+                            y futuras pertenecientes a tu cuenta.
+                        </span>
+
+                        {% for error in form.space_booking.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="activities-professional-note activities-space-booking-note">
+
+                        <strong>
+                            Si eliges una reserva
+                        </strong>
+
+                        La fecha, horario y ubicación se precargarán.
+                        La actividad debe quedar completamente dentro
+                        del bloque de espacio confirmado.
+
+                    </div>
+
+
+                    <div class="activities-form-grid activities-form-grid-2">
+
+                        <div class="activities-field">
+
+                            <label for="{{ form.region.id_for_label }}">
+                                Región
+                            </label>
+
+                            {{ form.region }}
+
+                            <span class="activities-field-helper">
+                                Si no utilizas una reserva de espacio,
+                                selecciona la región manualmente.
+                            </span>
+
+                            {% for error in form.region.errors %}
+                                <span class="field-error">{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="activities-field">
+
+                            <label for="{{ form.commune.id_for_label }}">
+                                Comuna
+                            </label>
+
+                            {{ form.commune }}
+
+                            <span class="activities-field-helper">
+                                La comuna se completa automáticamente
+                                al elegir una reserva.
+                            </span>
+
+                            {% for error in form.commune.errors %}
+                                <span class="field-error">{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="activities-form-grid activities-form-grid-2">
+
+                        <div class="activities-field">
+
+                            <label for="{{ form.meeting_point.id_for_label }}">
+                                Punto de encuentro
+                            </label>
+
+                            {{ form.meeting_point }}
+
+                            {% for error in form.meeting_point.errors %}
+                                <span class="field-error">{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="activities-field">
+
+                            <label for="{{ form.location_reference.id_for_label }}">
+                                Dirección o referencia
+                            </label>
+
+                            {{ form.location_reference }}
+
+                            {% for error in form.location_reference.errors %}
+                                <span class="field-error">{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="activities-form-conditional activities-online-access-card"
+                    data-online-section
+                >
+
+                    <div class="activities-field">
+
+                        <label for="{{ form.online_access_info.id_for_label }}">
+                            Información de acceso online
+                        </label>
+
+                        {{ form.online_access_info }}
+
+                        <span class="activities-help">
+                            Esta información no se mostrará públicamente
+                            a cualquier visitante. La verán el organizador
+                            y las personas inscritas.
+                        </span>
+
+                        {% for error in form.online_access_info.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="activities-form-section">
+
+                <div class="activities-form-section-title">
+
+                    <span>04</span>
+
+                    <div>
+                        <h2>
+                            Recomendaciones para participar
+                        </h2>
+
+                        <p>
+                            Deja claras las condiciones, materiales o indicaciones
+                            que cada persona debería conocer.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="activities-field">
+
+                    <label for="{{ form.requirements.id_for_label }}">
+                        Requisitos o recomendaciones
+                    </label>
+
+                    {{ form.requirements }}
+
+                    <span class="activities-help">
+                        Ejemplo: ropa deportiva, botella de agua,
+                        experiencia previa o llegar 10 minutos antes.
+                    </span>
+
+                    {% for error in form.requirements.errors %}
+                        <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+
+            <div class="activities-form-savebar">
+
+                <div>
+
+                    <strong>
+                        {% if is_edit %}
+                            Guarda los cambios antes de salir.
+                        {% else %}
+                            Puedes comenzar como borrador.
+                        {% endif %}
+                    </strong>
+
+                    <span>
+                        Publicar deja la actividad visible en el catálogo.
+                    </span>
+
+                </div>
+
+
+                <div class="activities-form-actions">
+
+                    {% if is_edit %}
+
+                        <button
+                            type="submit"
+                            name="action"
+                            value="save"
+                            class="activities-button activities-button-secondary"
+                        >
+                            Guardar cambios
+                        </button>
+
+                        {% if activity.status == 'draft' %}
+
+                            <button
+                                type="submit"
+                                name="action"
+                                value="publish"
+                                class="activities-button activities-button-primary"
+                            >
+                                Guardar y publicar →
+                            </button>
+
+                        {% endif %}
+
+                    {% else %}
+
+                        <button
+                            type="submit"
+                            name="action"
+                            value="draft"
+                            class="activities-button activities-button-secondary"
+                        >
+                            Guardar borrador
+                        </button>
+
+                        <button
+                            type="submit"
+                            name="action"
+                            value="publish"
+                            class="activities-button activities-button-primary"
+                        >
+                            Publicar actividad →
+                        </button>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </form>
+
+
+        <div class="activities-bottom-actions">
+
+            {% if is_edit and activity %}
+
+                <a href="{% url 'activities:detail' activity.id %}">
+                    ← Volver a la actividad
+                </a>
+
+            {% else %}
+
+                <a href="{% url 'activities:home' %}">
+                    ← Volver a Actividades
+                </a>
+
+            {% endif %}
+
+            <a href="{% url 'activities:my_activities' %}">
+                Mis actividades →
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modalitySelect = document.getElementById('id_modality');
+    const bookingSelect = document.getElementById('id_space_booking');
+
+    const physicalSection = document.querySelector(
+        '[data-physical-section]'
+    );
+
+    const onlineSection = document.querySelector(
+        '[data-online-section]'
+    );
+
+    const regionSelect = document.getElementById('id_region');
+    const communeSelect = document.getElementById('id_commune');
+
+    const startTimeSelect = document.getElementById('id_start_time');
+    const endTimeSelect = document.getElementById('id_end_time');
+
+    const meetingPointInput = document.getElementById('id_meeting_point');
+    const locationReferenceInput = document.getElementById(
+        'id_location_reference'
+    );
+
+    const daySelect = document.getElementById('id_date_day');
+    const monthSelect = document.getElementById('id_date_month');
+    const yearSelect = document.getElementById('id_date_year');
+
+    const communesUrl = "{% url 'accounts:communes_by_region' %}";
+
+
+    function updateModalitySections() {
+        if (!modalitySelect) {
+            return;
+        }
+
+        const mode = modalitySelect.value;
+
+        const hasPhysical = (
+            mode === 'in_person'
+            || mode === 'hybrid'
+        );
+
+        const hasOnline = (
+            mode === 'online'
+            || mode === 'hybrid'
+        );
+
+        if (physicalSection) {
+            physicalSection.hidden = !hasPhysical;
+        }
+
+        if (onlineSection) {
+            onlineSection.hidden = !hasOnline;
+        }
+    }
+
+
+    async function loadCommunes(
+        regionId,
+        selectedCommuneId = ''
+    ) {
+        if (!communeSelect) {
+            return;
+        }
+
+        communeSelect.disabled = true;
+        communeSelect.innerHTML =
+            '<option value="">Cargando comunas...</option>';
+
+        if (!regionId) {
+            communeSelect.innerHTML =
+                '<option value="">Primero selecciona una región</option>';
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                communesUrl
+                + '?region='
+                + encodeURIComponent(regionId)
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    'No fue posible cargar las comunas.'
+                );
+            }
+
+            const data = await response.json();
+
+            communeSelect.innerHTML =
+                '<option value="">Selecciona una comuna</option>';
+
+            data.communes.forEach(function (commune) {
+                const option = document.createElement('option');
+
+                option.value = commune.id;
+                option.textContent = commune.name;
+
+                if (
+                    selectedCommuneId
+                    && String(commune.id)
+                    === String(selectedCommuneId)
+                ) {
+                    option.selected = true;
+                }
+
+                communeSelect.appendChild(option);
+            });
+
+            communeSelect.disabled = false;
+
+        } catch (error) {
+            communeSelect.innerHTML =
+                '<option value="">No se pudieron cargar las comunas</option>';
+        }
+    }
+
+
+    function setDateFromIso(value) {
+        if (
+            !value
+            || !daySelect
+            || !monthSelect
+            || !yearSelect
+        ) {
+            return;
+        }
+
+        const parts = value.split('-');
+
+        if (parts.length !== 3) {
+            return;
+        }
+
+        yearSelect.value = String(
+            Number(parts[0])
+        );
+
+        monthSelect.value = String(
+            Number(parts[1])
+        );
+
+        daySelect.value = String(
+            Number(parts[2])
+        );
+    }
+
+
+    async function applySelectedBooking() {
+        if (!bookingSelect) {
+            return;
+        }
+
+        const option = (
+            bookingSelect.options[
+                bookingSelect.selectedIndex
+            ]
+        );
+
+        if (
+            !option
+            || !option.value
+        ) {
+            return;
+        }
+
+        setDateFromIso(
+            option.dataset.date
+        );
+
+        if (
+            startTimeSelect
+            && option.dataset.start
+        ) {
+            startTimeSelect.value =
+                option.dataset.start;
+        }
+
+        if (
+            endTimeSelect
+            && option.dataset.end
+        ) {
+            endTimeSelect.value =
+                option.dataset.end;
+        }
+
+        if (
+            regionSelect
+            && option.dataset.region
+        ) {
+            regionSelect.value =
+                option.dataset.region;
+
+            await loadCommunes(
+                option.dataset.region,
+                option.dataset.commune
+            );
+        }
+
+        if (
+            meetingPointInput
+            && option.dataset.meeting
+        ) {
+            meetingPointInput.value =
+                option.dataset.meeting;
+        }
+
+        if (
+            locationReferenceInput
+            && option.dataset.reference
+        ) {
+            locationReferenceInput.value =
+                option.dataset.reference;
+        }
+    }
+
+
+    if (modalitySelect) {
+        modalitySelect.addEventListener(
+            'change',
+            updateModalitySections
+        );
+    }
+
+    if (regionSelect) {
+        regionSelect.addEventListener(
+            'change',
+            function () {
+                loadCommunes(
+                    regionSelect.value
+                );
+            }
+        );
+    }
+
+    if (bookingSelect) {
+        bookingSelect.addEventListener(
+            'change',
+            applySelectedBooking
+        );
+    }
+
+    updateModalitySections();
+});
+</script>
+
+{% endblock %}

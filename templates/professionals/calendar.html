@@ -1,0 +1,483 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Agenda profesional | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<section class="professional-calendar-page">
+
+    <div class="page-container professional-calendar-container">
+
+        <header class="professional-calendar-hero">
+
+            <div>
+                <span class="professional-calendar-overline">
+                    CENTRO PROFESIONAL
+                </span>
+
+                <h1>
+                    Agenda <span>profesional.</span>
+                </h1>
+
+                <p>
+                    Organiza tu disponibilidad, solicitudes y sesiones en un solo calendario.
+                </p>
+            </div>
+
+            <div class="professional-calendar-hero-actions">
+
+                {% if primary_service %}
+                    <a
+                        href="{% url 'professionals:create_service_availability' primary_service.id %}?date={{ today|date:'Y-m-d' }}"
+                        class="professional-calendar-primary-action"
+                    >
+                        + Agregar disponibilidad
+                    </a>
+                {% endif %}
+
+                <a
+                    href="{% url 'bookings:professional_received' %}"
+                    class="professional-calendar-secondary-action"
+                >
+                    Reservas recibidas →
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <section class="professional-calendar-summary-grid">
+
+            <article>
+                <span>DISPONIBILIDADES</span>
+                <strong>{{ monthly_availability_count }}</strong>
+                <small>Bloques visibles este mes</small>
+            </article>
+
+            <article class="professional-calendar-summary-pending">
+                <span>PENDIENTES</span>
+                <strong>{{ monthly_pending_count }}</strong>
+                <small>Solicitudes por responder</small>
+            </article>
+
+            <article class="professional-calendar-summary-confirmed">
+                <span>CONFIRMADAS</span>
+                <strong>{{ monthly_confirmed_count }}</strong>
+                <small>Sesiones confirmadas</small>
+            </article>
+
+            <article class="professional-calendar-summary-history">
+                <span>HISTORIAL</span>
+                <strong>{{ monthly_history_count }}</strong>
+                <small>Completadas o canceladas</small>
+            </article>
+
+        </section>
+
+
+        <section class="professional-calendar-shell">
+
+            <div class="professional-calendar-toolbar">
+
+                <div class="professional-calendar-month-controls">
+
+                    <a
+                        href="?month={{ previous_month|date:'Y-m' }}"
+                        class="professional-calendar-nav-button"
+                        aria-label="Mes anterior"
+                    >
+                        ←
+                    </a>
+
+                    <div>
+                        <span>MES</span>
+                        <strong>{{ display_month_label }}</strong>
+                    </div>
+
+                    <a
+                        href="?month={{ next_month|date:'Y-m' }}"
+                        class="professional-calendar-nav-button"
+                        aria-label="Mes siguiente"
+                    >
+                        →
+                    </a>
+
+                </div>
+
+                <a
+                    href="?month={{ today|date:'Y-m' }}&date={{ today|date:'Y-m-d' }}"
+                    class="professional-calendar-today-button"
+                >
+                    Ir a hoy
+                </a>
+
+            </div>
+
+
+            <div class="professional-calendar-year-strip">
+
+                <a
+                    href="?month={{ previous_year }}-{{ display_month.month|stringformat:'02d' }}"
+                    class="professional-calendar-year-arrow"
+                >
+                    ← {{ previous_year }}
+                </a>
+
+                <div class="professional-calendar-month-strip">
+                    {% for month in month_navigation %}
+                        <a
+                            href="?month={{ month.query_value }}"
+                            class="{% if month.is_active %}is-active{% endif %}"
+                            title="{{ month.full_name }} {{ selected_year }}"
+                        >
+                            {{ month.short_name }}
+                        </a>
+                    {% endfor %}
+                </div>
+
+                <a
+                    href="?month={{ next_year }}-{{ display_month.month|stringformat:'02d' }}"
+                    class="professional-calendar-year-arrow"
+                >
+                    {{ next_year }} →
+                </a>
+
+            </div>
+
+
+            <div class="professional-calendar-legend">
+                <span class="legend-available"><i></i> Disponible</span>
+                <span class="legend-pending"><i></i> Pendiente</span>
+                <span class="legend-confirmed"><i></i> Confirmada</span>
+                <span class="legend-history"><i></i> Historial</span>
+            </div>
+
+
+            <div class="professional-calendar-grid">
+
+                <div class="professional-calendar-weekday">LUN</div>
+                <div class="professional-calendar-weekday">MAR</div>
+                <div class="professional-calendar-weekday">MIÉ</div>
+                <div class="professional-calendar-weekday">JUE</div>
+                <div class="professional-calendar-weekday">VIE</div>
+                <div class="professional-calendar-weekday">SÁB</div>
+                <div class="professional-calendar-weekday">DOM</div>
+
+                {% for week in calendar_weeks %}
+                    {% for cell in week %}
+
+                        {% if cell.in_month %}
+                            <a
+                                href="?month={{ display_month|date:'Y-m' }}&date={{ cell.date|date:'Y-m-d' }}"
+                                class="professional-calendar-day{% if cell.is_today %} is-today{% endif %}{% if cell.is_selected %} is-selected{% endif %}{% if cell.has_activity %} has-activity{% endif %}"
+                            >
+                                <div class="professional-calendar-day-head">
+                                    <strong>{{ cell.date.day }}</strong>
+                                    {% if cell.is_today %}
+                                        <small>HOY</small>
+                                    {% endif %}
+                                </div>
+
+                                <div class="professional-calendar-day-events">
+
+                                    {% if cell.confirmed_count %}
+                                        <span class="calendar-event calendar-event-confirmed">
+                                            {{ cell.confirmed_count }} confirmada{{ cell.confirmed_count|pluralize:"s" }}
+                                        </span>
+                                    {% endif %}
+
+                                    {% if cell.pending_count %}
+                                        <span class="calendar-event calendar-event-pending">
+                                            {{ cell.pending_count }} pendiente{{ cell.pending_count|pluralize:"s" }}
+                                        </span>
+                                    {% endif %}
+
+                                    {% if cell.availability_count %}
+                                        <span class="calendar-event calendar-event-available">
+                                            {{ cell.availability_count }} bloque{{ cell.availability_count|pluralize:"s" }}
+                                        </span>
+                                    {% endif %}
+
+                                    {% if cell.history_count %}
+                                        <span class="calendar-event calendar-event-history">
+                                            Historial
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+                            </a>
+                        {% else %}
+                            <div class="professional-calendar-day is-outside">
+                                <div class="professional-calendar-day-head">
+                                    <strong>{{ cell.date.day }}</strong>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                    {% endfor %}
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <section class="professional-calendar-day-panel">
+
+            <header>
+                <div>
+                    <span class="professional-calendar-day-kicker">
+                        DÍA SELECCIONADO
+                    </span>
+
+                    <h2>
+                        {{ selected_date|date:"l j \d\e F \d\e Y"|capfirst }}
+                    </h2>
+                </div>
+
+                {% if primary_service %}
+                    <a
+                        href="{% url 'professionals:create_service_availability' primary_service.id %}?date={{ selected_date|date:'Y-m-d' }}"
+                        class="professional-calendar-inline-action"
+                    >
+                        + Agregar horario
+                    </a>
+                {% endif %}
+            </header>
+
+
+            <div class="professional-calendar-day-columns">
+
+                <div class="professional-calendar-day-column">
+
+                    <div class="professional-calendar-column-title">
+                        <span>DISPONIBILIDAD</span>
+                        <strong>{{ selected_availabilities|length }}</strong>
+                    </div>
+
+                    {% for availability in selected_availabilities %}
+
+                        <article class="professional-calendar-slot-card professional-calendar-slot-card-{{ availability.calendar_status }}">
+
+                            <div>
+                                <span class="professional-calendar-slot-type">
+                                    {{ availability.calendar_kind }}
+                                </span>
+
+                                <h3>{{ availability.service.name }}</h3>
+
+                                <strong class="professional-calendar-slot-time">
+                                    {{ availability.start_time|time:"H:i" }} → {{ availability.end_time|time:"H:i" }}
+                                </strong>
+                            </div>
+
+                            <div class="professional-calendar-slot-side">
+
+                                <span class="professional-calendar-slot-status professional-calendar-slot-status-{{ availability.calendar_status }}">
+                                    {{ availability.calendar_status_label }}
+                                </span>
+
+                                <div class="professional-calendar-slot-actions">
+
+                                    {% if availability.calendar_status == 'reserved' and availability.calendar_booking %}
+
+                                        <a
+                                            href="{% url 'bookings:professional_detail' availability.calendar_booking.id %}"
+                                            class="professional-calendar-slot-primary-action professional-calendar-slot-primary-action-reserved"
+                                        >
+                                            Ver sesión →
+                                        </a>
+
+                                    {% elif availability.calendar_status == 'pending' and availability.calendar_booking %}
+
+                                        <a
+                                            href="{% url 'bookings:professional_detail' availability.calendar_booking.id %}"
+                                            class="professional-calendar-slot-primary-action professional-calendar-slot-primary-action-pending"
+                                        >
+                                            Revisar solicitud →
+                                        </a>
+
+                                    {% else %}
+
+                                        <a
+                                            href="{% url 'professionals:edit_service_availability' availability.id %}"
+                                            class="professional-calendar-slot-primary-action"
+                                        >
+                                            Editar
+                                        </a>
+
+                                    {% endif %}
+
+                                    <a
+                                        href="{% url 'professionals:service_availability_history' availability.id %}"
+                                        class="professional-calendar-slot-history-action"
+                                    >
+                                        Historial →
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+                    {% empty %}
+
+                        <div class="professional-calendar-empty">
+                            <strong>Sin disponibilidad publicada</strong>
+                            <p>No tienes bloques activos para esta fecha.</p>
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="professional-calendar-day-column">
+
+                    <div class="professional-calendar-column-title">
+                        <span>SOLICITUDES Y SESIONES</span>
+                        <strong>{{ selected_active_bookings|length }}</strong>
+                    </div>
+
+                    {% for booking in selected_active_bookings %}
+
+                        <article class="professional-calendar-booking-card professional-calendar-booking-{{ booking.status }}">
+
+                            <div class="professional-calendar-booking-person">
+
+                                <div class="professional-calendar-booking-avatar">
+                                    {% if booking.booked_by.profile_image %}
+                                        <img
+                                            src="{{ booking.booked_by.profile_image.url }}"
+                                            alt="Foto de {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}"
+                                        >
+                                    {% else %}
+                                        {{ booking.booked_by.first_name|first|upper }}{{ booking.booked_by.last_name|first|upper }}
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <span>{{ booking.get_status_display|upper }}</span>
+                                    <h3>{{ booking.booked_by.get_full_name|default:booking.booked_by.email }}</h3>
+                                    <p>{{ booking.service_name_snapshot }}</p>
+                                </div>
+
+                            </div>
+
+                            <div class="professional-calendar-booking-meta">
+                                <strong>
+                                    {{ booking.start_time|time:"H:i" }} → {{ booking.end_time|time:"H:i" }}
+                                </strong>
+                                <span>{{ booking.duration_minutes }} min</span>
+                                <span>{{ booking.price_clp|clp }}</span>
+                            </div>
+
+                            <a
+                                href="{% url 'bookings:professional_detail' booking.id %}"
+                                class="professional-calendar-booking-action"
+                            >
+                                {% if booking.status == 'pending' %}
+                                    Revisar solicitud →
+                                {% elif booking.status == 'confirmed' %}
+                                    Ver sesión →
+                                {% else %}
+                                    Ver detalle →
+                                {% endif %}
+                            </a>
+
+                        </article>
+
+                    {% empty %}
+
+                        <div class="professional-calendar-empty">
+                            <strong>Sin solicitudes o sesiones activas</strong>
+                            <p>No tienes actividad pendiente o confirmada para esta fecha.</p>
+                        </div>
+
+                    {% endfor %}
+
+
+                    <div class="professional-calendar-history-block">
+
+                        <div class="professional-calendar-column-title professional-calendar-history-title">
+                            <span>HISTORIAL DEL DÍA</span>
+                            <strong>{{ selected_history_bookings|length }}</strong>
+                        </div>
+
+                        {% for booking in selected_history_bookings %}
+
+                            <article class="professional-calendar-booking-card professional-calendar-booking-history professional-calendar-booking-{{ booking.status }}">
+
+                                <div class="professional-calendar-booking-person">
+
+                                    <div class="professional-calendar-booking-avatar">
+                                        {% if booking.booked_by.profile_image %}
+                                            <img
+                                                src="{{ booking.booked_by.profile_image.url }}"
+                                                alt="Foto de {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}"
+                                            >
+                                        {% else %}
+                                            {{ booking.booked_by.first_name|first|upper }}{{ booking.booked_by.last_name|first|upper }}
+                                        {% endif %}
+                                    </div>
+
+                                    <div>
+                                        <span>{{ booking.get_status_display|upper }}</span>
+                                        <h3>{{ booking.booked_by.get_full_name|default:booking.booked_by.email }}</h3>
+                                        <p>{{ booking.service_name_snapshot }}</p>
+                                    </div>
+
+                                </div>
+
+                                <div class="professional-calendar-booking-meta">
+                                    <strong>
+                                        {{ booking.start_time|time:"H:i" }} → {{ booking.end_time|time:"H:i" }}
+                                    </strong>
+                                    <span>{{ booking.duration_minutes }} min</span>
+                                    <span>{{ booking.price_clp|clp }}</span>
+                                </div>
+
+                                <a
+                                    href="{% url 'bookings:professional_detail' booking.id %}"
+                                    class="professional-calendar-booking-action"
+                                >
+                                    Ver detalle →
+                                </a>
+
+                            </article>
+
+                        {% empty %}
+
+                            <div class="professional-calendar-empty professional-calendar-empty-history">
+                                <strong>Sin historial para este día</strong>
+                                <p>Las reservas finalizadas, canceladas o no aceptadas aparecerán aquí.</p>
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <a
+            href="{% url 'professionals:dashboard' %}"
+            class="professional-calendar-back"
+        >
+            ← Volver al Centro Profesional
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,883 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+Inicio | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<!-- =====================================================
+     HERO
+===================================================== -->
+
+<section class="market-home-hero">
+
+    <div class="home-container market-home-hero-grid">
+
+        <div class="market-home-hero-copy">
+
+            <span class="page-overline">
+                ENTRENAMIENTO · BIENESTAR · ESPACIOS
+            </span>
+
+            <h1>
+                Encuentra dónde entrenar.
+                <span>
+                    Encuentra quién te entrene.
+                </span>
+            </h1>
+
+            <p>
+                Descubre servicios profesionales y espacios deportivos
+                publicados por perfiles verificados. Compara precio,
+                modalidad, ubicación y disponibilidad desde un mismo lugar.
+            </p>
+
+
+            <div class="market-home-actions">
+
+                <a
+                    href="{% url 'professionals:public_service_catalog' %}"
+                    class="market-action market-action-professional"
+                >
+                    Explorar servicios
+                    <span>→</span>
+                </a>
+
+
+                <a
+                    href="{% url 'spaces:public_catalog' %}"
+                    class="market-action market-action-space"
+                >
+                    Explorar espacios
+                    <span>→</span>
+                </a>
+
+            </div>
+
+
+            <div class="market-home-account-link">
+
+                {% if request.user.is_authenticated %}
+
+                    <span>
+                        ¿Ya sabes qué buscas?
+                    </span>
+
+                    <a href="{% url 'accounts:dashboard' %}">
+                        Ir a Mi Cuenta →
+                    </a>
+
+                {% else %}
+
+                    <span>
+                        Reserva y gestiona tu actividad con una Cuenta Única.
+                    </span>
+
+                    <a href="{% url 'accounts:register' %}">
+                        Crear mi cuenta →
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <aside class="market-home-hero-visual">
+
+            <div class="market-home-hero-stat market-home-hero-stat-professional">
+
+                <span class="market-home-stat-label">
+                    PROFESIONALES
+                </span>
+
+                <strong>
+                    {{ verified_professional_count }}
+                </strong>
+
+                <p>
+                    Perfiles verificados con servicios publicados.
+                </p>
+
+            </div>
+
+
+            <div class="market-home-hero-stat market-home-hero-stat-service">
+
+                <span class="market-home-stat-label">
+                    SERVICIOS
+                </span>
+
+                <strong>
+                    {{ published_service_count }}
+                </strong>
+
+                <p>
+                    Alternativas disponibles para explorar.
+                </p>
+
+            </div>
+
+
+            <div class="market-home-hero-stat market-home-hero-stat-space">
+
+                <span class="market-home-stat-label">
+                    ESPACIOS
+                </span>
+
+                <strong>
+                    {{ published_space_count }}
+                </strong>
+
+                <p>
+                    Recintos publicados por proveedores verificados.
+                </p>
+
+            </div>
+
+        </aside>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     SERVICIOS DESTACADOS
+===================================================== -->
+
+<section class="market-home-section market-home-services">
+
+    <div class="home-container">
+
+        <div class="market-section-heading">
+
+            <div>
+
+                <span class="page-overline market-overline-professional">
+                    SERVICIOS DISPONIBLES
+                </span>
+
+                <h2>
+                    Reserva sin tener que buscar de más.
+                </h2>
+
+            </div>
+
+            <a
+                href="{% url 'professionals:public_service_catalog' %}"
+                class="market-section-link market-section-link-professional"
+            >
+                Ver todos los servicios
+                <span>→</span>
+            </a>
+
+        </div>
+
+
+        {% if featured_services %}
+
+            <div class="market-service-grid{% if featured_services|length == 1 %} market-grid-single{% endif %}">
+
+                {% for service in featured_services %}
+
+                    <article class="market-service-card">
+
+                        <div class="market-service-top">
+
+                            <a
+                                href="{% url 'professionals:public_professional_detail' service.professional_profile.id %}"
+                                class="market-service-avatar"
+                                aria-label="Ver perfil de {{ service.professional_profile.user.get_full_name }}"
+                            >
+
+                                {% if service.professional_profile.user.profile_image %}
+
+                                    <img
+                                        src="{{ service.professional_profile.user.profile_image.url }}"
+                                        alt="Foto de {{ service.professional_profile.user.get_full_name }}"
+                                    >
+
+                                {% else %}
+
+                                    <span>
+                                        {{ service.professional_profile.user.first_name|first|upper }}{{ service.professional_profile.user.last_name|first|upper }}
+                                    </span>
+
+                                {% endif %}
+
+                            </a>
+
+
+                            <div class="market-service-badges">
+
+                                <span class="market-service-verified">
+                                    Verificado
+                                </span>
+
+                                <span class="market-service-mode">
+                                    {{ service.get_mode_display }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <span class="market-service-specialty">
+                            {{ service.professional_profile.specialty.name }}
+                        </span>
+
+                        <h3>
+                            {{ service.name }}
+                        </h3>
+
+                        <p class="market-service-professional">
+                            {{ service.professional_profile.user.get_full_name }}
+                            <span>✓</span>
+                        </p>
+
+
+                        <div class="market-service-data">
+
+                            <div>
+                                <span>Duración</span>
+                                <strong>{{ service.duration_minutes }} min</strong>
+                            </div>
+
+                            <div>
+                                <span>Precio</span>
+                                <strong>{{ service.price|clp }}</strong>
+                            </div>
+
+                            <div>
+                                <span>Ubicación</span>
+
+                                <strong>
+                                    {% if service.location_commune %}
+                                        {{ service.location_commune.name }}
+                                    {% elif service.mode == 'online' %}
+                                        Online
+                                    {% else %}
+                                        Según modalidad
+                                    {% endif %}
+                                </strong>
+                            </div>
+
+                        </div>
+
+
+                        <a
+                            href="{% url 'professionals:public_service_detail' service.id %}"
+                            class="market-service-action"
+                        >
+                            Ver horarios y reservar
+                            <span>→</span>
+                        </a>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+
+        {% else %}
+
+            <div class="home-empty-state">
+
+                <span class="home-empty-code">
+                    00
+                </span>
+
+                <div>
+
+                    <strong>
+                        Aún no existen servicios publicados.
+                    </strong>
+
+                    <p>
+                        Los servicios de profesionales verificados
+                        aparecerán aquí automáticamente.
+                    </p>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ACCESOS RÁPIDOS
+===================================================== -->
+
+<section class="market-home-section market-home-discovery">
+
+    <div class="home-container">
+
+        <div class="market-section-heading">
+
+            <div>
+
+                <span class="page-overline">
+                    ¿QUÉ ESTÁS BUSCANDO?
+                </span>
+
+                <h2>
+                    Empieza por aquí.
+                </h2>
+
+            </div>
+
+            <p>
+                Menos vueltas: entra directamente al tipo de
+                solución que necesitas.
+            </p>
+
+        </div>
+
+
+        <div class="market-path-grid">
+
+            <a
+                href="{% url 'professionals:public_service_catalog' %}"
+                class="market-path-card market-path-professional"
+            >
+
+                <span class="market-path-number">
+                    01
+                </span>
+
+                <div class="market-path-icon">
+                    PF
+                </div>
+
+                <h3>
+                    Servicios profesionales
+                </h3>
+
+                <p>
+                    Entrenamiento, bienestar y atención profesional
+                    con precio, modalidad y disponibilidad visibles.
+                </p>
+
+                <span class="market-path-link">
+                    Ver servicios
+                    <strong>→</strong>
+                </span>
+
+            </a>
+
+
+            <a
+                href="{% url 'spaces:public_catalog' %}"
+                class="market-path-card market-path-space"
+            >
+
+                <span class="market-path-number">
+                    02
+                </span>
+
+                <div class="market-path-icon">
+                    ES
+                </div>
+
+                <h3>
+                    Espacios deportivos
+                </h3>
+
+                <p>
+                    Gimnasios, salas, estudios y otros recintos
+                    con fotografías, precio y características.
+                </p>
+
+                <span class="market-path-link">
+                    Ver espacios
+                    <strong>→</strong>
+                </span>
+
+            </a>
+
+
+            <a
+                href="{% url 'activities:home' %}"
+                class="market-path-card market-path-activity"
+            >
+
+                <span class="market-path-number">
+                    03
+                </span>
+
+                <div class="market-path-icon">
+                    AC
+                </div>
+
+                <h3>
+                    Actividades
+                </h3>
+
+                <p>
+                    Únete a actividades comunitarias con cupos, fecha y
+                    punto de encuentro, y descubre actividades profesionales.
+                </p>
+
+                <span class="market-path-link">
+                    Ver actividades
+                    <strong>→</strong>
+                </span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     PROFESIONALES DESTACADOS
+===================================================== -->
+
+<section class="market-home-section">
+
+    <div class="home-container">
+
+        <div class="market-section-heading">
+
+            <div>
+
+                <span class="page-overline market-overline-professional">
+                    PROFESIONALES
+                </span>
+
+                <h2>
+                    Conoce a quién está detrás del servicio.
+                </h2>
+
+            </div>
+
+            <div class="market-section-counter market-section-counter-professional">
+                {{ verified_professional_count }}
+                {% if verified_professional_count == 1 %}
+                    profesional
+                {% else %}
+                    profesionales
+                {% endif %}
+            </div>
+
+        </div>
+
+
+        {% if featured_professionals %}
+
+            <div class="home-professional-grid market-professional-grid{% if featured_professionals|length == 1 %} market-grid-single market-professional-single market-professional-horizontal{% endif %}">
+
+                {% for professional in featured_professionals %}
+
+                    <article class="home-professional-card market-professional-card">
+
+                        <div class="home-professional-card-top">
+
+                            <div class="home-professional-avatar">
+
+                                {% if professional.user.profile_image %}
+
+                                    <img
+                                        src="{{ professional.user.profile_image.url }}"
+                                        alt="Foto de {{ professional.user.get_full_name }}"
+                                        class="home-professional-avatar-image"
+                                        width="74"
+                                        height="74"
+                                    >
+
+                                {% else %}
+
+                                    <span class="home-professional-avatar-initials">
+                                        {{ professional.user.first_name|first|upper }}{{ professional.user.last_name|first|upper }}
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <span class="home-professional-verified">
+                                <span></span>
+                                Verificado
+                            </span>
+
+                        </div>
+
+
+                        <div class="home-professional-card-copy">
+
+                            <span class="home-professional-specialty">
+                                {{ professional.specialty.name }}
+                            </span>
+
+                            <h3>
+                                {{ professional.user.get_full_name }}
+                            </h3>
+
+                            {% if professional.professional_title %}
+
+                                <p class="home-professional-title">
+                                    {{ professional.professional_title }}
+                                </p>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="home-professional-card-data">
+
+                            <div>
+                                <span>MODALIDAD</span>
+                                <strong>{{ professional.home_modes }}</strong>
+                            </div>
+
+                            <div>
+                                <span>UBICACIÓN</span>
+                                <strong>{{ professional.home_location }}</strong>
+                            </div>
+
+                        </div>
+
+
+                        {% if professional.home_primary_service %}
+
+                            <div class="market-professional-primary-service">
+
+                                <span>
+                                    SERVICIO DESTACADO
+                                </span>
+
+                                <strong>
+                                    {{ professional.home_primary_service.name }}
+                                </strong>
+
+                                <p>
+                                    {{ professional.home_primary_service.duration_minutes }} min
+                                    ·
+                                    {{ professional.home_primary_service.get_mode_display }}
+                                </p>
+
+                                <b>
+                                    {{ professional.home_primary_service.price|clp }}
+                                </b>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        <div class="home-professional-card-footer">
+
+                            <span>
+                                {{ professional.published_service_count }}
+                                {% if professional.published_service_count == 1 %}
+                                    servicio
+                                {% else %}
+                                    servicios
+                                {% endif %}
+                            </span>
+
+                            <a
+                                href="{% url 'professionals:public_professional_detail' professional.id %}"
+                            >
+                                Ver perfil y servicios
+                                <span>→</span>
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="market-home-wide-action">
+
+                <a
+                    href="{% url 'professionals:public_service_catalog' %}"
+                    class="market-wide-link market-wide-link-professional"
+                >
+                    Explorar todos los servicios profesionales
+                    <span>→</span>
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ESPACIOS DESTACADOS
+===================================================== -->
+
+<section class="market-home-section market-home-spaces">
+
+    <div class="home-container">
+
+        <div class="market-section-heading">
+
+            <div>
+
+                <span class="page-overline market-overline-space">
+                    ESPACIOS
+                </span>
+
+                <h2>
+                    Recintos que puedes explorar ahora.
+                </h2>
+
+            </div>
+
+            <div class="market-section-counter market-section-counter-space">
+                {{ published_space_count }}
+                {% if published_space_count == 1 %}
+                    espacio
+                {% else %}
+                    espacios
+                {% endif %}
+            </div>
+
+        </div>
+
+
+        {% if featured_spaces %}
+
+            <div class="public-space-grid market-space-grid{% if featured_spaces|length == 1 %} market-grid-single market-space-single{% endif %}">
+
+                {% for space in featured_spaces %}
+
+                    <article class="public-space-card market-space-card">
+
+                        <a
+                            href="{% url 'spaces:public_detail' space.id %}"
+                            class="public-space-card-image-link"
+                        >
+
+                            {% if space.home_cover_image %}
+
+                                <img
+                                    src="{{ space.home_cover_image.image.url }}"
+                                    alt="{{ space.name }}"
+                                    class="public-space-card-image"
+                                >
+
+                            {% else %}
+
+                                <div class="public-space-card-placeholder">
+                                    Sin fotografía
+                                </div>
+
+                            {% endif %}
+
+                        </a>
+
+
+                        <div class="public-space-card-body">
+
+                            <div class="public-space-card-heading">
+
+                                <div>
+
+                                    <span class="page-overline market-overline-space">
+                                        {{ space.space_type.name }}
+                                    </span>
+
+                                    <h3>
+                                        {{ space.name }}
+                                    </h3>
+
+                                </div>
+
+
+                                <span class="market-space-status">
+                                    Disponible
+                                </span>
+
+                            </div>
+
+
+                            <p>
+                                {{ space.commune.name }}
+                                ·
+                                {{ space.commune.region.name }}
+                            </p>
+
+
+                            <div class="market-space-data">
+
+                                <div>
+                                    <span>CAPACIDAD</span>
+                                    <strong>{{ space.capacity }} personas</strong>
+                                </div>
+
+                                <div>
+                                    <span>PRECIO / HORA</span>
+                                    <strong>{{ space.hourly_price_clp|clp }}</strong>
+                                </div>
+
+                            </div>
+
+
+                            <div class="market-space-tags">
+
+                                {% for item in space.equipments.all|slice:":3" %}
+                                    <span>
+                                        {{ item.name }}
+                                    </span>
+                                {% endfor %}
+
+                                {% for item in space.amenities.all|slice:":2" %}
+                                    <span>
+                                        {{ item.name }}
+                                    </span>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <a
+                                href="{% url 'spaces:public_detail' space.id %}"
+                                class="market-space-action"
+                            >
+                                Ver espacio y disponibilidad
+                                <span>→</span>
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="market-home-wide-action">
+
+                <a
+                    href="{% url 'spaces:public_catalog' %}"
+                    class="market-wide-link market-wide-link-space"
+                >
+                    Explorar todos los espacios
+                    <span>→</span>
+                </a>
+
+            </div>
+
+
+        {% else %}
+
+            <div class="home-empty-state">
+
+                <span class="home-empty-code">
+                    00
+                </span>
+
+                <div>
+
+                    <strong>
+                        Aún no existen espacios publicados.
+                    </strong>
+
+                    <p>
+                        Los recintos publicados por proveedores
+                        verificados aparecerán aquí automáticamente.
+                    </p>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     CTA PROVEEDORES / PROFESIONALES
+===================================================== -->
+
+<section class="market-home-section market-home-join">
+
+    <div class="home-container">
+
+        <div class="market-join-card">
+
+            <div>
+
+                <span class="page-overline">
+                    ¿OFRECES UN SERVICIO O ADMINISTRAS UN ESPACIO?
+                </span>
+
+                <h2>
+                    Haz visible tu oferta dentro de la plataforma.
+                </h2>
+
+                <p>
+                    La Cuenta Única permite habilitar perfiles adicionales
+                    sin crear otra cuenta.
+                </p>
+
+            </div>
+
+
+            {% if request.user.is_authenticated %}
+
+                <a
+                    href="{% url 'accounts:dashboard' %}"
+                    class="market-join-action"
+                >
+                    Gestionar mis perfiles
+                    <span>→</span>
+                </a>
+
+            {% else %}
+
+                <a
+                    href="{% url 'accounts:register' %}"
+                    class="market-join-action"
+                >
+                    Crear Cuenta Única
+                    <span>→</span>
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock %}

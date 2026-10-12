@@ -1,0 +1,905 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+Centro de Espacios | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page">
+
+    <div class="account-container">
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    CENTRO DE ESPACIOS
+                </span>
+
+                <h1>
+                    Hola,
+                    <span>
+                        {{ request.user.first_name }}
+                    </span>
+                </h1>
+
+                <p>
+                    Administra progresivamente tu perfil proveedor,
+                    tus espacios y la operación asociada a cada recinto.
+                </p>
+
+            </div>
+
+
+            <div class="account-status">
+
+                <span class="account-status-dot"></span>
+
+                Proveedor verificado
+
+            </div>
+
+        </header>
+
+
+        <section class="account-summary-grid">
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    PERFIL
+                </span>
+
+                <strong>
+                    {{ provider_profile.get_provider_type_display }}
+                </strong>
+
+                <p>
+                    Tipo de proveedor
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    NOMBRE PÚBLICO
+                </span>
+
+                <strong>
+                    {{ provider_profile.display_name }}
+                </strong>
+
+                <p>
+                    Identidad visible
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    UBICACIÓN BASE
+                </span>
+
+                <strong>
+                    {% if provider_profile.base_commune %}
+                        {{ provider_profile.base_commune.name }}
+                    {% else %}
+                        No registrada
+                    {% endif %}
+                </strong>
+
+                <p>
+                    {% if provider_profile.base_commune %}
+                        {{ provider_profile.base_commune.region.name }}
+                    {% else %}
+                        Base de operación
+                    {% endif %}
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    ESTADO
+                </span>
+
+                <strong>
+                    Verificado
+                </strong>
+
+                <p>
+                    Perfil Proveedor activo
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <!-- =========================
+             CONTEXTO DE PERFIL
+        ========================== -->
+
+        <section class="role-context-strip">
+
+            <div class="role-context-main">
+
+                <span class="role-context-dot"></span>
+
+                <span class="role-context-label">
+                    MODO ACTUAL
+                </span>
+
+                <strong>
+                    Proveedor de espacios
+                </strong>
+
+            </div>
+
+
+            <div class="role-context-actions">
+
+                <a
+                    href="{% url 'accounts:dashboard' %}"
+                    class="role-context-switch"
+                >
+                    Mi Cuenta
+                    <span>→</span>
+                </a>
+
+
+                {% if request.user.professional_profile and request.user.professional_profile.verification_status == 'verified' %}
+
+                    <a
+                        href="{% url 'professionals:dashboard' %}"
+                        class="role-context-switch"
+                    >
+                        Centro Profesional
+                        <span>→</span>
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             GESTIÓN DE ESPACIOS
+        ========================== -->
+
+        <section class="provider-management-hub">
+
+            <div class="provider-management-copy">
+
+                <span class="provider-management-overline">
+                    GESTIÓN DE ESPACIOS
+                </span>
+
+                <h2>
+                    Organiza tus recintos.
+                </h2>
+
+                <p>
+                    Consulta disponibilidad, solicitudes y arriendos
+                    desde un solo lugar.
+                </p>
+
+            </div>
+
+
+            <div class="provider-management-actions">
+
+                <a
+                    href="{% url 'spaces:provider_calendar' %}"
+                    class="provider-management-card provider-management-card-calendar"
+                >
+                    <span>
+                        CALENDARIO DE ARRIENDOS
+                    </span>
+
+                    <strong>
+                        Abrir calendario
+                    </strong>
+
+                    <b>
+                        →
+                    </b>
+                </a>
+
+
+                <a
+                    href="{% url 'spaces:provider_received_bookings' %}"
+                    class="provider-management-card"
+                >
+                    <span>
+                        RESERVAS
+                    </span>
+
+                    <strong>
+                        Reservas recibidas
+                    </strong>
+
+                    <b>
+                        →
+                    </b>
+                </a>
+
+            </div>
+
+        </section>
+
+
+
+        {% if provider_pending_booking_count %}
+
+            <section class="account-next-section provider-request-preview-section">
+
+                <div class="account-next-heading">
+
+                    <div>
+
+                        <span class="page-overline">
+                            SOLICITUDES DE ARRIENDO
+                        </span>
+
+                        <h2>
+                            {% if provider_pending_booking_count == 1 %}
+                                Tienes 1 solicitud por revisar
+                            {% else %}
+                                Tienes {{ provider_pending_booking_count }} solicitudes por revisar
+                            {% endif %}
+                        </h2>
+
+                        <p>
+                            {% if provider_pending_booking_count == 1 %}
+                                Hay una persona esperando tu respuesta.
+                            {% else %}
+                                Hay personas esperando tu respuesta.
+                            {% endif %}
+                            Aquí puedes revisar primero las solicitudes más próximas.
+                        </p>
+
+                    </div>
+
+                    <span class="account-next-type account-next-type-space">
+                        Solicitud pendiente{% if provider_pending_booking_count != 1 %}s{% endif %}
+                    </span>
+
+                </div>
+
+
+                <div class="provider-request-preview-grid">
+
+                    {% for booking in provider_pending_bookings_preview %}
+
+                        <article class="provider-request-preview-card">
+
+                            <div class="provider-request-preview-head">
+
+                                <div class="provider-request-preview-person">
+
+                                    <div class="provider-request-preview-avatar">
+
+                                        {% if booking.booked_by.profile_image %}
+
+                                            <img
+                                                src="{{ booking.booked_by.profile_image.url }}"
+                                                alt="Foto de {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}"
+                                            >
+
+                                        {% else %}
+
+                                            <span>
+                                                {{ booking.booked_by.first_name|first|upper }}{{ booking.booked_by.last_name|first|upper }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <div class="provider-request-preview-copy">
+
+                                        <span>
+                                            NUEVA SOLICITUD
+                                        </span>
+
+                                        <h3>
+                                            {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}
+                                        </h3>
+
+                                        <p>
+                                            Quiere reservar
+                                            <strong>
+                                                {{ booking.space_name_snapshot }}
+                                            </strong>
+                                        </p>
+
+                                        <small>
+                                            {{ booking.space_type_snapshot }}
+                                            {% if booking.commune_snapshot %}
+                                                · {{ booking.commune_snapshot }}
+                                            {% endif %}
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+
+                                <span class="provider-request-preview-status">
+                                    Pendiente
+                                </span>
+
+                            </div>
+
+
+                            <div class="provider-request-preview-data">
+
+                                <div>
+                                    <span>FECHA</span>
+                                    <strong>
+                                        {{ booking.session_date|date:"d M"|upper }}
+                                    </strong>
+                                    <small>
+                                        {{ booking.session_date|date:"Y" }}
+                                    </small>
+                                </div>
+
+                                <div>
+                                    <span>HORARIO</span>
+                                    <strong>
+                                        {{ booking.start_time|time:"H:i" }}
+                                        –
+                                        {{ booking.end_time|time:"H:i" }}
+                                    </strong>
+                                    <small>Horario solicitado</small>
+                                </div>
+
+                                <div>
+                                    <span>PRECIO</span>
+                                    <strong class="provider-request-preview-price">
+                                        {{ booking.price_clp|clp }}
+                                    </strong>
+                                    <small>
+                                        {{ booking.duration_minutes }} min
+                                    </small>
+                                </div>
+
+                            </div>
+
+
+                            <div class="provider-request-preview-footer">
+
+                                <span>
+                                    Está esperando tu respuesta.
+                                </span>
+
+                                <a
+                                    href="{% url 'spaces:provider_booking_detail' booking.id %}"
+                                    class="provider-pending-review-cta"
+                                >
+                                    Revisar solicitud
+                                    <span>→</span>
+                                </a>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+
+                {% if provider_pending_remaining_count > 0 %}
+
+                    <div class="provider-request-preview-more">
+
+                        <div>
+                            <strong>
+                                También tienes
+                                {{ provider_pending_remaining_count }}
+                                solicitud{% if provider_pending_remaining_count != 1 %}es{% endif %}
+                                pendiente{% if provider_pending_remaining_count != 1 %}s{% endif %}.
+                            </strong>
+
+                            <span>
+                                Puedes revisarlas todas desde Reservas recibidas.
+                            </span>
+                        </div>
+
+                        <a href="{% url 'spaces:provider_received_bookings' %}">
+                            Ver todas las solicitudes
+                            <span>→</span>
+                        </a>
+
+                    </div>
+
+                {% elif provider_pending_booking_count > 1 %}
+
+                    <div class="provider-request-preview-more provider-request-preview-more-simple">
+
+                        <span>
+                            Estás viendo todas tus solicitudes pendientes.
+                        </span>
+
+                        <a href="{% url 'spaces:provider_received_bookings' %}">
+                            Ir a Reservas recibidas
+                            <span>→</span>
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+        {% endif %}
+
+
+        <div class="account-layout">
+
+            <div class="account-main-column">
+
+                <section class="account-panel">
+
+                    <div class="account-panel-header">
+
+                        <div>
+
+                            <span class="account-panel-number">
+                                01
+                            </span>
+
+                            <h2>
+                                Perfil del proveedor
+                            </h2>
+
+                        </div>
+
+                        <span class="account-panel-tag">
+                            VERIFICADO
+                        </span>
+
+                    </div>
+
+
+                    <div class="account-data-grid">
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Nombre visible
+                            </span>
+
+                            <strong>
+                                {{ provider_profile.display_name }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Tipo de proveedor
+                            </span>
+
+                            <strong>
+                                {{ provider_profile.get_provider_type_display }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Comuna base
+                            </span>
+
+                            <strong>
+                                {% if provider_profile.base_commune %}
+                                    {{ provider_profile.base_commune.name }}
+                                {% else %}
+                                    No registrada
+                                {% endif %}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="account-data-item">
+
+                            <span>
+                                Dirección base
+                            </span>
+
+                            <strong>
+                                {{ provider_profile.base_address|default:"No registrada" }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-professional-message account-professional-message-active">
+
+                        <strong>
+                            Perfil Proveedor habilitado
+                        </strong>
+
+                        <p>
+                            Tu identidad como Proveedor de Espacios
+                            fue verificada y ya puede utilizarse para
+                            administrar infraestructura dentro de la plataforma.
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+                <section class="account-panel">
+
+                    <div class="account-panel-header">
+
+                        <div>
+
+                            <span class="account-panel-number">
+                                02
+                            </span>
+
+                            <h2>
+                                Infraestructura administrada
+                            </h2>
+
+                        </div>
+
+                        <span class="account-panel-tag">
+                            PERFIL
+                        </span>
+
+                    </div>
+
+
+                    <div class="account-panel-body">
+
+                        <div class="account-interest-list">
+
+                            {% for label in infrastructure_labels %}
+
+                                <span>
+                                    {{ label }}
+                                </span>
+
+                            {% empty %}
+
+                                <span>
+                                    Sin tipos registrados
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <section class="account-panel spaces-showcase-panel">
+
+                    <div class="account-panel-header">
+
+                        <div>
+
+                            <span class="account-panel-number">
+                                03
+                            </span>
+
+                            <h2>
+                                Mis espacios
+                            </h2>
+
+                        </div>
+
+                        <span class="account-panel-tag">
+                            {{ space_count }} REGISTRADOS
+                        </span>
+
+                    </div>
+
+
+                    <div class="account-panel-body">
+
+                        <div class="spaces-showcase-intro">
+
+                            <div>
+
+                                <strong>
+                                    Tus recintos, de un vistazo.
+                                </strong>
+
+                                <p>
+                                    Cada espacio tiene su propia portada,
+                                    disponibilidad y reservas.
+                                </p>
+
+                            </div>
+
+                            <a
+                                href="{% url 'spaces:create_space' %}"
+                                class="spaces-create-button"
+                            >
+                                + Crear nuevo espacio
+                                <span>→</span>
+                            </a>
+
+                        </div>
+
+
+                        {% if spaces %}
+
+                            <div class="owner-space-grid">
+
+                                {% for space in spaces %}
+
+                                    <article class="owner-space-card">
+
+                                        <a
+                                            href="{% url 'spaces:space_detail' space.id %}"
+                                            class="owner-space-card-media"
+                                        >
+
+                                            {% if space.dashboard_cover %}
+
+                                                <img
+                                                    src="{{ space.dashboard_cover.image.url }}"
+                                                    alt="{{ space.name }}"
+                                                >
+
+                                            {% else %}
+
+                                                <div class="owner-space-card-placeholder">
+
+                                                    <span>
+                                                        {{ space.space_type.name|slice:":2"|upper }}
+                                                    </span>
+
+                                                    <small>
+                                                        Agrega una portada
+                                                    </small>
+
+                                                </div>
+
+                                            {% endif %}
+
+
+                                            <span class="owner-space-status owner-space-status-{{ space.publication_status }}">
+                                                {{ space.get_publication_status_display }}
+                                            </span>
+
+                                        </a>
+
+
+                                        <div class="owner-space-card-body">
+
+                                            <span class="owner-space-type">
+                                                {{ space.space_type.name }}
+                                            </span>
+
+                                            <h3>
+                                                {{ space.name }}
+                                            </h3>
+
+                                            <p class="owner-space-location">
+                                                {{ space.commune.name }}
+                                                · {{ space.commune.region.name }}
+                                            </p>
+
+
+                                            <div class="owner-space-facts">
+
+                                                <div>
+                                                    <span>Capacidad</span>
+                                                    <strong>{{ space.capacity }} personas</strong>
+                                                </div>
+
+                                                <div>
+                                                    <span>Precio</span>
+                                                    <strong>${{ space.hourly_price_clp }} CLP/h</strong>
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="owner-space-live-info">
+
+                                                <span>
+                                                    {{ space.dashboard_active_availability }}
+                                                    horarios activos
+                                                </span>
+
+                                                <span>
+                                                    {{ space.dashboard_pending_bookings }}
+                                                    pendientes
+                                                </span>
+
+                                                <span>
+                                                    {{ space.dashboard_confirmed_bookings }}
+                                                    confirmadas
+                                                </span>
+
+                                            </div>
+
+
+                                            <div class="owner-space-card-actions">
+
+                                                <a
+                                                    href="{% url 'spaces:space_detail' space.id %}"
+                                                    class="owner-space-primary-action"
+                                                >
+                                                    Gestionar espacio
+                                                    <span>→</span>
+                                                </a>
+
+                                                <a
+                                                    href="{% url 'spaces:availability' space.id %}"
+                                                    class="owner-space-secondary-action"
+                                                >
+                                                    Gestionar disponibilidad
+                                                </a>
+
+                                            </div>
+
+                                        </div>
+
+                                    </article>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% else %}
+
+                            <div class="account-empty">
+
+                                <strong>
+                                    Aún no has registrado espacios
+                                </strong>
+
+                                <p>
+                                    Crea tu primer recinto y agrega una fotografía
+                                    para reconocerlo rápidamente.
+                                </p>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <aside class="account-side-column">
+
+                <section class="account-side-card">
+
+                    <span class="page-overline">
+                        PROVEEDOR
+                    </span>
+
+                    <h3>
+                        Tu operación.
+                    </h3>
+
+                    <p>
+                        Información registrada para representar
+                        tu actividad como administrador de espacios.
+                    </p>
+
+
+                    {% if provider_profile.provider_image %}
+
+                        <div class="profile-photo-preview">
+
+                            <img
+                                src="{{ provider_profile.provider_image.url }}"
+                                alt="Imagen de {{ provider_profile.display_name }}"
+                                class="profile-photo-image"
+                            >
+
+                            <div>
+
+                                <strong>
+                                    {{ provider_profile.display_name }}
+                                </strong>
+
+                                <p>
+                                    Imagen del proveedor
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="account-role">
+
+                        <div>
+
+                            <strong>
+                                Estado
+                            </strong>
+
+                            <span>
+                                Perfil Proveedor
+                            </span>
+
+                        </div>
+
+                        <span class="role-status role-status-active">
+                            Activo
+                        </span>
+
+                    </div>
+
+                </section>
+
+
+                <section class="account-side-card">
+
+                    <span class="page-overline">
+                        GESTIÓN
+                    </span>
+
+                    <h3>
+                        Administra tus espacios.
+                    </h3>
+
+                    <p>
+                        Revisa tus recintos publicados, la disponibilidad
+                        configurada y las solicitudes de arriendo recibidas.
+                    </p>
+
+
+                    <a
+                        href="{% url 'spaces:provider_received_bookings' %}"
+                        class="account-professional-action"
+                    >
+                        Ver reservas recibidas
+                        <span>→</span>
+                    </a>
+
+                </section>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

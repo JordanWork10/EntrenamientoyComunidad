@@ -1,0 +1,1048 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Espacio | EntrenamientoyComunidad{% endblock %}
+
+{% block content %}
+<section class="registration-page space-create-page">
+    <div class="registration-container">
+
+        <div class="registration-intro">
+            <span class="page-overline">CENTRO DE ESPACIOS</span>
+            <h1>Crea un <span>nuevo espacio.</span></h1>
+            <p>
+                Registra la información principal del recinto.
+                Se guardará inicialmente como Borrador.
+            </p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="registration-form" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-global-errors">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- 01 · IDENTIFICACIÓN -->
+            <section class="registration-block">
+                <div class="registration-block-header">
+                    <div class="registration-block-title">
+                        <span class="registration-number">01</span>
+                        <div>
+                            <h2>Identificación del espacio</h2>
+                            <p>Define el recinto que registrarás.</p>
+                        </div>
+                    </div>
+                    <span class="registration-symbol">ID</span>
+                </div>
+
+                <div class="form-grid form-grid-2">
+                    <div class="form-field">
+                        <label for="{{ form.space_type.id_for_label }}">Tipo de espacio</label>
+                        {{ form.space_type }}
+
+                        {% for error in form.space_type.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-field">
+                        <label for="{{ form.name.id_for_label }}">Nombre del espacio</label>
+                        {{ form.name }}
+
+                        {% for error in form.name.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="{{ form.description.id_for_label }}">Descripción</label>
+                        {{ form.description }}
+
+                        <span class="field-help">
+                            Mínimo 40 caracteres.
+                        </span>
+
+                        {% for error in form.description.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- 02 · UBICACIÓN -->
+            <section class="registration-block">
+                <div class="registration-block-header">
+                    <div class="registration-block-title">
+                        <span class="registration-number">02</span>
+
+                        <div>
+                            <h2>Ubicación</h2>
+                            <p>Registra la ubicación propia del recinto.</p>
+                        </div>
+                    </div>
+
+                    <span class="registration-symbol">MAP</span>
+                </div>
+
+                <div class="form-grid form-grid-2">
+
+                    <div class="form-field">
+                        <label for="{{ form.region.id_for_label }}">
+                            Región
+                        </label>
+
+                        {{ form.region }}
+
+                        {% for error in form.region.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-field">
+                        <label for="{{ form.commune.id_for_label }}">
+                            Comuna
+                        </label>
+
+                        {{ form.commune }}
+
+                        {% for error in form.commune.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-field">
+                        <label for="{{ form.address.id_for_label }}">
+                            Dirección
+                        </label>
+
+                        {{ form.address }}
+
+                        {% for error in form.address.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-field">
+                        <label for="{{ form.location_reference.id_for_label }}">
+                            Referencia
+                            <span class="field-optional">(opcional)</span>
+                        </label>
+
+                        {{ form.location_reference }}
+
+                        {% for error in form.location_reference.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 03 · CAPACIDAD Y USO -->
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">03</span>
+
+                        <div>
+                            <h2>Capacidad, superficie y uso</h2>
+
+                            <p>
+                                Describe cómo es físicamente el espacio
+                                y qué actividades permite.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">DATA</span>
+
+                </div>
+
+                <div class="form-grid form-grid-3">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.capacity.id_for_label }}">
+                            Capacidad
+                        </label>
+
+                        {{ form.capacity }}
+
+                        <span class="field-help">
+                            Cantidad máxima de personas.
+                        </span>
+
+                        {% for error in form.capacity.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="form-field">
+
+                        <label for="{{ form.surface_m2.id_for_label }}">
+                            Superficie aproximada (m²)
+                            <span class="field-optional">(opcional)</span>
+                        </label>
+
+                        {{ form.surface_m2 }}
+
+                        <span class="field-help">
+                            Si conoces la superficie, indícala aquí.
+                        </span>
+
+                        {% for error in form.surface_m2.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="form-field">
+
+                        <label for="{{ form.hourly_price_clp.id_for_label }}">
+                            Precio por hora CLP
+                        </label>
+
+                        {{ form.hourly_price_clp }}
+
+                        <span class="field-help">
+                            Valor base por cada 60 minutos.
+                        </span>
+
+                        {% for error in form.hourly_price_clp.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+                <div class="space-create-physical-grid">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.environment.id_for_label }}">
+                            Entorno
+                            <span class="field-optional">(opcional)</span>
+                        </label>
+
+                        {{ form.environment }}
+
+                        <span class="field-help">
+                            Interior, exterior o mixto.
+                        </span>
+
+                        {% for error in form.environment.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="form-field">
+
+                        <label for="{{ form.surface_type.id_for_label }}">
+                            Tipo de superficie
+                            <span class="field-optional">(opcional)</span>
+                        </label>
+
+                        {{ form.surface_type }}
+
+                        <span class="field-help">
+                            Ej: pasto sintético, cemento, madera,
+                            arcilla o goma.
+                        </span>
+
+                        {% for error in form.surface_type.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.allowed_uses.id_for_label }}">
+                            Usos o actividades permitidas
+                            <span class="field-optional">(opcional)</span>
+                        </label>
+
+                        {{ form.allowed_uses }}
+
+                        <span class="field-help">
+                            Describe libremente las actividades que realmente
+                            admite este recinto.
+                        </span>
+
+                        {% for error in form.allowed_uses.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- 04 · EQUIPAMIENTO DINÁMICO -->
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">04</span>
+
+                        <div>
+                            <h2>Equipamiento y comodidades</h2>
+
+                            <p>
+                                Te sugerimos opciones según el tipo de espacio,
+                                pero puedes elegir cualquier otra.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">LIST</span>
+
+                </div>
+
+                <p
+                    class="space-catalog-selected-type-note"
+                    id="space-catalog-note"
+                >
+                    Selecciona un
+                    <strong>tipo de espacio</strong>
+                    para destacar las opciones recomendadas.
+                </p>
+
+                <div class="interests-field">
+
+                    <div class="form-field">
+
+                        <label>
+                            Equipamiento disponible
+                        </label>
+
+                        <span class="field-help">
+                            Las recomendaciones son orientativas.
+                            Ningún equipamiento queda bloqueado.
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="space-catalog-groups"
+                        data-catalog="equipments"
+                    >
+
+                        <div
+                            class="space-catalog-group space-catalog-suggested"
+                            id="equipment-suggested-block"
+                            hidden
+                        >
+
+                            <div class="space-catalog-group-heading">
+
+                                <div class="space-catalog-group-heading-copy">
+
+                                    <strong id="equipment-suggested-title">
+                                        Sugerido para este espacio
+                                    </strong>
+
+                                    <span>
+                                        Opciones habituales para el tipo seleccionado.
+                                    </span>
+
+                                </div>
+
+                                <span class="space-catalog-badge">
+                                    SUGERIDO
+                                </span>
+
+                            </div>
+
+                            <div
+                                class="interest-grid"
+                                id="equipment-suggested-grid"
+                            ></div>
+
+                        </div>
+
+                        <div class="space-catalog-group">
+
+                            <div class="space-catalog-group-heading">
+
+                                <div class="space-catalog-group-heading-copy">
+
+                                    <strong id="equipment-general-title">
+                                        Opciones disponibles
+                                    </strong>
+
+                                    <span>
+                                        Puedes seleccionar cualquier elemento
+                                        adicional que realmente tenga el recinto.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div
+                                class="interest-grid"
+                                id="equipment-general-grid"
+                            >
+
+                                {% for checkbox in form.equipments %}
+
+                                    <label
+                                        class="interest-option"
+                                        data-catalog-option="equipment"
+                                    >
+
+                                        {{ checkbox.tag }}
+
+                                        <span>
+                                            {{ checkbox.choice_label }}
+                                        </span>
+
+                                    </label>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="interests-field">
+
+                    <div class="form-field">
+                        <label>
+                            Comodidades y servicios
+                        </label>
+                    </div>
+
+                    <div
+                        class="space-catalog-groups"
+                        data-catalog="amenities"
+                    >
+
+                        <div
+                            class="space-catalog-group space-catalog-suggested"
+                            id="amenity-suggested-block"
+                            hidden
+                        >
+
+                            <div class="space-catalog-group-heading">
+
+                                <div class="space-catalog-group-heading-copy">
+
+                                    <strong id="amenity-suggested-title">
+                                        Sugerido para este espacio
+                                    </strong>
+
+                                    <span>
+                                        Servicios habituales para el tipo seleccionado.
+                                    </span>
+
+                                </div>
+
+                                <span class="space-catalog-badge">
+                                    SUGERIDO
+                                </span>
+
+                            </div>
+
+                            <div
+                                class="interest-grid"
+                                id="amenity-suggested-grid"
+                            ></div>
+
+                        </div>
+
+                        <div class="space-catalog-group">
+
+                            <div class="space-catalog-group-heading">
+
+                                <div class="space-catalog-group-heading-copy">
+
+                                    <strong id="amenity-general-title">
+                                        Opciones disponibles
+                                    </strong>
+
+                                    <span>
+                                        Agrega otras comodidades que realmente
+                                        ofrezca el recinto.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div
+                                class="interest-grid"
+                                id="amenity-general-grid"
+                            >
+
+                                {% for checkbox in form.amenities %}
+
+                                    <label
+                                        class="interest-option"
+                                        data-catalog-option="amenity"
+                                    >
+
+                                        {{ checkbox.tag }}
+
+                                        <span>
+                                            {{ checkbox.choice_label }}
+                                        </span>
+
+                                    </label>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- 05 · FOTOGRAFÍAS -->
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">05</span>
+
+                        <div>
+                            <h2>Fotografías, reglas y acceso</h2>
+                            <p>Completa la presentación inicial del recinto.</p>
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">MEDIA</span>
+
+                </div>
+
+                <div class="space-create-media-grid">
+
+                    <div class="form-field space-create-upload-card">
+
+                        <label for="{{ form.cover_image.id_for_label }}">
+                            Fotografía principal
+                            <span class="field-optional">(opcional)</span>
+                        </label>
+
+                        {{ form.cover_image }}
+
+                        <span class="field-help">
+                            {{ form.cover_image.help_text }}
+                            Será la portada visible del espacio.
+                        </span>
+
+                        {% for error in form.cover_image.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="form-field space-create-upload-card">
+
+                        <label for="{{ form.gallery_images.id_for_label }}">
+                            Fotografías adicionales
+                            <span class="field-optional">(opcional)</span>
+                        </label>
+
+                        {{ form.gallery_images }}
+
+                        <span class="field-help">
+                            {{ form.gallery_images.help_text }}
+                        </span>
+
+                        {% for error in form.gallery_images.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.additional_features.id_for_label }}">
+                            Características adicionales
+                            <span class="field-optional">(opcional)</span>
+                        </label>
+
+                        {{ form.additional_features }}
+
+                        <span class="field-help">
+                            Agrega cualquier característica no cubierta
+                            por equipamiento, comodidades, superficie o actividades.
+                        </span>
+
+                        {% for error in form.additional_features.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+                <div class="form-grid form-grid-2">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.rules.id_for_label }}">
+                            Reglas de uso
+                            <span class="field-optional">(opcional)</span>
+                        </label>
+
+                        {{ form.rules }}
+
+                        <span class="field-help">
+                            Ej: calzado permitido, puntualidad
+                            o cuidado de la superficie.
+                        </span>
+
+                        {% for error in form.rules.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="form-field">
+
+                        <label for="{{ form.access_instructions.id_for_label }}">
+                            Indicaciones de acceso
+                            <span class="field-optional">(opcional)</span>
+                        </label>
+
+                        {{ form.access_instructions }}
+
+                        <span class="field-help">
+                            Explica cómo llegar o ingresar al recinto.
+                        </span>
+
+                        {% for error in form.access_instructions.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <div class="registration-actions">
+
+                <a
+                    href="{% url 'spaces:dashboard' %}"
+                    class="account-logout"
+                >
+                    ← Volver al Centro de Espacios
+                </a>
+
+                <button
+                    type="submit"
+                    class="button button-primary"
+                >
+                    Guardar como borrador
+                    <span>→</span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</section>
+
+{{ equipment_recommendations|json_script:"equipment-recommendations-data" }}
+{{ amenity_recommendations|json_script:"amenity-recommendations-data" }}
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const regionSelect = document.getElementById(
+            'id_region'
+        );
+
+        const communeSelect = document.getElementById(
+            'id_commune'
+        );
+
+        const spaceTypeSelect = document.getElementById(
+            'id_space_type'
+        );
+
+
+        async function loadCommunes() {
+
+            if (
+                !regionSelect
+                || !communeSelect
+            ) {
+                return;
+            }
+
+            const regionId = regionSelect.value;
+
+            communeSelect.innerHTML = (
+                '<option value="">Selecciona una comuna</option>'
+            );
+
+            if (!regionId) {
+                return;
+            }
+
+            const response = await fetch(
+                "{% url 'spaces:communes_by_region' %}?region="
+                + encodeURIComponent(regionId)
+            );
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json();
+
+            data.communes.forEach(
+                function (commune) {
+
+                    const option = document.createElement(
+                        'option'
+                    );
+
+                    option.value = commune.id;
+                    option.textContent = commune.name;
+
+                    communeSelect.appendChild(
+                        option
+                    );
+
+                }
+            );
+
+        }
+
+
+        if (regionSelect) {
+
+            regionSelect.addEventListener(
+                'change',
+                loadCommunes
+            );
+
+        }
+
+
+        function readJsonScript(id) {
+
+            const element = document.getElementById(id);
+
+            if (!element) {
+                return {};
+            }
+
+            try {
+
+                return JSON.parse(
+                    element.textContent
+                );
+
+            } catch (error) {
+
+                return {};
+
+            }
+
+        }
+
+
+        const equipmentRecommendations = readJsonScript(
+            'equipment-recommendations-data'
+        );
+
+        const amenityRecommendations = readJsonScript(
+            'amenity-recommendations-data'
+        );
+
+
+        function organizeCatalog(config) {
+
+            const selectedTypeId = (
+                spaceTypeSelect
+                ? String(
+                    spaceTypeSelect.value || ''
+                )
+                : ''
+            );
+
+            const selectedOption = (
+                spaceTypeSelect
+                && spaceTypeSelect.selectedIndex >= 0
+                ? spaceTypeSelect.options[
+                    spaceTypeSelect.selectedIndex
+                ]
+                : null
+            );
+
+            const selectedTypeName = (
+                selectedOption
+                ? selectedOption.text.trim()
+                : ''
+            );
+
+            const suggestedBlock = document.getElementById(
+                config.suggestedBlockId
+            );
+
+            const suggestedGrid = document.getElementById(
+                config.suggestedGridId
+            );
+
+            const generalGrid = document.getElementById(
+                config.generalGridId
+            );
+
+            const suggestedTitle = document.getElementById(
+                config.suggestedTitleId
+            );
+
+            const generalTitle = document.getElementById(
+                config.generalTitleId
+            );
+
+            if (
+                !suggestedBlock
+                || !suggestedGrid
+                || !generalGrid
+            ) {
+                return;
+            }
+
+            const container = suggestedBlock.parentElement;
+
+            const items = Array.from(
+                container.querySelectorAll(
+                    '[data-catalog-option="'
+                    + config.optionType
+                    + '"]'
+                )
+            );
+
+            let suggestedCount = 0;
+
+            items.forEach(
+                function (item) {
+
+                    const input = item.querySelector(
+                        'input'
+                    );
+
+                    if (!input) {
+                        return;
+                    }
+
+                    const recommendedTypes = (
+                        config.map[
+                            String(input.value)
+                        ]
+                        || []
+                    );
+
+                    const isSuggested = (
+                        selectedTypeId
+                        && recommendedTypes.includes(
+                            selectedTypeId
+                        )
+                    );
+
+                    if (isSuggested) {
+
+                        suggestedGrid.appendChild(
+                            item
+                        );
+
+                        suggestedCount += 1;
+
+                    } else {
+
+                        generalGrid.appendChild(
+                            item
+                        );
+
+                    }
+
+                }
+            );
+
+            suggestedBlock.hidden = (
+                suggestedCount === 0
+            );
+
+            if (suggestedTitle) {
+
+                suggestedTitle.textContent = (
+                    selectedTypeId
+                    ? 'Sugerido para '
+                        + selectedTypeName
+                    : 'Sugerido para este espacio'
+                );
+
+            }
+
+            if (generalTitle) {
+
+                generalTitle.textContent = (
+                    selectedTypeId
+                    ? 'Otras opciones disponibles'
+                    : 'Opciones disponibles'
+                );
+
+            }
+
+        }
+
+
+        function refreshCatalogRecommendations() {
+
+            organizeCatalog(
+                {
+                    map: equipmentRecommendations,
+                    optionType: 'equipment',
+                    suggestedBlockId: (
+                        'equipment-suggested-block'
+                    ),
+                    suggestedGridId: (
+                        'equipment-suggested-grid'
+                    ),
+                    generalGridId: (
+                        'equipment-general-grid'
+                    ),
+                    suggestedTitleId: (
+                        'equipment-suggested-title'
+                    ),
+                    generalTitleId: (
+                        'equipment-general-title'
+                    )
+                }
+            );
+
+            organizeCatalog(
+                {
+                    map: amenityRecommendations,
+                    optionType: 'amenity',
+                    suggestedBlockId: (
+                        'amenity-suggested-block'
+                    ),
+                    suggestedGridId: (
+                        'amenity-suggested-grid'
+                    ),
+                    generalGridId: (
+                        'amenity-general-grid'
+                    ),
+                    suggestedTitleId: (
+                        'amenity-suggested-title'
+                    ),
+                    generalTitleId: (
+                        'amenity-general-title'
+                    )
+                }
+            );
+
+            const note = document.getElementById(
+                'space-catalog-note'
+            );
+
+            if (
+                note
+                && spaceTypeSelect
+            ) {
+
+                const selectedOption = (
+                    spaceTypeSelect.options[
+                        spaceTypeSelect.selectedIndex
+                    ]
+                );
+
+                if (
+                    spaceTypeSelect.value
+                    && selectedOption
+                ) {
+
+                    note.innerHTML = (
+                        'Mostrando primero opciones sugeridas para '
+                        + '<strong>'
+                        + selectedOption.text.trim()
+                        + '</strong>. '
+                        + 'Puedes seleccionar cualquier opción adicional.'
+                    );
+
+                } else {
+
+                    note.innerHTML = (
+                        'Selecciona un '
+                        + '<strong>tipo de espacio</strong> '
+                        + 'para destacar las opciones recomendadas.'
+                    );
+
+                }
+
+            }
+
+        }
+
+
+        if (spaceTypeSelect) {
+
+            spaceTypeSelect.addEventListener(
+                'change',
+                refreshCatalogRecommendations
+            );
+
+        }
+
+
+        refreshCatalogRecommendations();
+
+    }
+);
+
+</script>
+
+{% endblock %}

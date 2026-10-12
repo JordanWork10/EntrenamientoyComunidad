@@ -1,0 +1,802 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}
+Solicitar Perfil Profesional | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="professional-request-page">
+
+    <div class="professional-request-container">
+
+
+        <!-- =================================================
+             CABECERA
+        ================================================== -->
+
+        <header class="professional-request-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    PERFIL PROFESIONAL
+                </span>
+
+                <h1>
+                    Solicita tu
+                    <span>Perfil Profesional.</span>
+                </h1>
+
+                <p>
+                    Completa tu información profesional y adjunta
+                    al menos una acreditación para iniciar el
+                    proceso de revisión y verificación.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{% url 'accounts:dashboard' %}"
+                class="profile-back-link"
+            >
+                ← Volver a Mi Cuenta
+            </a>
+
+        </header>
+
+
+        <!-- =================================================
+             FORMULARIO
+        ================================================== -->
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+            class="professional-request-form"
+            id="professional-request-form"
+            novalidate
+        >
+
+            {% csrf_token %}
+
+
+            <!-- ERRORES GENERALES PERFIL -->
+
+            {% if form.non_field_errors %}
+
+                <div class="form-global-errors">
+
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- ERRORES GENERALES ACREDITACIÓN -->
+
+            {% if credential_form.non_field_errors %}
+
+                <div class="form-global-errors">
+
+                    {% for error in credential_form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+
+            <!-- =================================================
+                 01 IDENTIDAD PROFESIONAL
+            ================================================== -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            01
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Identidad profesional
+                            </h2>
+
+                            <p>
+                                Define tu categoría, especialidad
+                                y experiencia principal.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        PRO
+                    </span>
+
+                </div>
+
+
+                <div class="form-grid form-grid-2">
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.category.id_for_label }}">
+                            Categoría profesional
+                        </label>
+
+                        {{ form.category }}
+
+                        {% for error in form.category.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.specialty.id_for_label }}">
+                            Especialidad principal
+                        </label>
+
+                        {{ form.specialty }}
+
+                        {% for error in form.specialty.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.professional_title.id_for_label }}">
+                            Título profesional o denominación
+                        </label>
+
+                        {{ form.professional_title }}
+
+                        <span class="field-help">
+                            Ejemplo: Entrenador personal certificado,
+                            Kinesiólogo, Instructor de Yoga.
+                        </span>
+
+                        {% for error in form.professional_title.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.years_experience.id_for_label }}">
+                            Años de experiencia
+                        </label>
+
+                        {{ form.years_experience }}
+
+                        {% for error in form.years_experience.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="professional-bio-field form-field">
+
+                    <label for="{{ form.bio.id_for_label }}">
+                        Descripción profesional
+                    </label>
+
+                    {{ form.bio }}
+
+                    <span class="field-help">
+                        Describe tu experiencia, enfoque de trabajo
+                        y principales áreas profesionales.
+                    </span>
+
+                    {% for error in form.bio.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 02 MODALIDAD
+            ================================================== -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            02
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Modalidad de atención
+                            </h2>
+
+                            <p>
+                                Selecciona cómo ofrecerás tus futuros servicios.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        MOD
+                    </span>
+
+                </div>
+
+
+                <div class="professional-modality-grid">
+
+                    <label class="professional-modality-card">
+
+                        {{ form.offers_in_person }}
+
+                        <div>
+
+                            <strong>
+                                Atención presencial
+                            </strong>
+
+                            <p>
+                                Servicios realizados físicamente
+                                en espacios o recintos.
+                            </p>
+
+                        </div>
+
+                    </label>
+
+
+                    <label class="professional-modality-card">
+
+                        {{ form.offers_online }}
+
+                        <div>
+
+                            <strong>
+                                Atención online
+                            </strong>
+
+                            <p>
+                                Servicios o sesiones realizadas
+                                de forma remota.
+                            </p>
+
+                        </div>
+
+                    </label>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 03 COBERTURA TERRITORIAL
+            ================================================== -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            03
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Cobertura territorial
+                            </h2>
+
+                            <p>
+                                Indica dónde podrás realizar
+                                atenciones presenciales.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        GEO
+                    </span>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.region.id_for_label }}">
+                            Región
+                        </label>
+
+                        {{ form.region }}
+
+                        <span class="field-help">
+                            Obligatoria solo si ofrecerás atención presencial.
+                        </span>
+
+                        {% for error in form.region.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="professional-coverage-field form-field">
+
+                    <label>
+                        Comunas de cobertura
+                    </label>
+
+                    <p class="field-description">
+                        Puedes seleccionar más de una comuna.
+                    </p>
+
+
+                    <div
+                        class="professional-commune-grid"
+                        id="coverage-communes-container"
+                    >
+
+                        {% for choice in form.coverage_communes %}
+
+                            <label class="professional-commune-option">
+
+                                {{ choice.tag }}
+
+                                <span>
+                                    {{ choice.choice_label }}
+                                </span>
+
+                            </label>
+
+                        {% empty %}
+
+                            <p class="professional-coverage-empty">
+                                Selecciona primero una región.
+                            </p>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    {% for error in form.coverage_communes.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 04 ACREDITACIONES
+            ================================================== -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            04
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Acreditaciones y documentación
+                            </h2>
+
+                            <p>
+                                Adjunta un documento que respalde
+                                tu formación o certificación profesional.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        DOC
+                    </span>
+
+                </div>
+
+
+                <div class="professional-credential-notice">
+
+                    <span class="professional-credential-icon">
+                        ✓
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Primera acreditación obligatoria
+                        </strong>
+
+                        <p>
+                            Esta documentación será revisada antes
+                            de habilitar públicamente tu Perfil Profesional.
+                            Podrás agregar más acreditaciones posteriormente.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid form-grid-2">
+
+
+                    <div class="form-field">
+
+                        <label for="{{ credential_form.credential_type.id_for_label }}">
+                            Tipo de acreditación
+                        </label>
+
+                        {{ credential_form.credential_type }}
+
+                        {% for error in credential_form.credential_type.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ credential_form.name.id_for_label }}">
+                            Nombre de la acreditación
+                        </label>
+
+                        {{ credential_form.name }}
+
+                        {% for error in credential_form.name.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ credential_form.issuing_institution.id_for_label }}">
+                            Institución emisora
+                        </label>
+
+                        {{ credential_form.issuing_institution }}
+
+                        {% for error in credential_form.issuing_institution.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ credential_form.issue_date.id_for_label }}">
+                            Fecha de emisión
+                        </label>
+
+                        {{ credential_form.issue_date }}
+
+                        {% for error in credential_form.issue_date.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ credential_form.expiration_date.id_for_label }}">
+                            Fecha de vencimiento
+                        </label>
+
+                        {{ credential_form.expiration_date }}
+
+                        <span class="field-help">
+                            Déjala vacía si la acreditación no vence.
+                        </span>
+
+                        {% for error in credential_form.expiration_date.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field professional-document-field">
+
+                        <label for="{{ credential_form.document.id_for_label }}">
+                            Documento de respaldo
+                        </label>
+
+                        {{ credential_form.document }}
+
+                        <span class="field-help">
+                            Formatos permitidos: PDF, JPG, JPEG o PNG.
+                        </span>
+
+                        {% for error in credential_form.document.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="professional-document-security">
+
+                    <div>
+
+                        <span>
+                            DOCUMENTACIÓN PRIVADA
+                        </span>
+
+                        <strong>
+                            El archivo no será publicado automáticamente.
+                        </strong>
+
+                    </div>
+
+                    <p>
+                        Se utilizará como antecedente para el proceso
+                        administrativo de revisión del Perfil Profesional.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 05 VERIFICACIÓN
+            ================================================== -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            05
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Proceso de verificación
+                            </h2>
+
+                            <p>
+                                Tu perfil deberá ser revisado
+                                antes de publicarse.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        REV
+                    </span>
+
+                </div>
+
+
+                <div class="professional-verification-info">
+
+                    <div class="professional-verification-step">
+
+                        <span>
+                            01
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Envío de solicitud
+                            </strong>
+
+                            <p>
+                                Se registrarán tus antecedentes
+                                profesionales y acreditación.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="professional-verification-step">
+
+                        <span>
+                            02
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Revisión documental
+                            </strong>
+
+                            <p>
+                                La acreditación quedará inicialmente
+                                con estado Pendiente.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="professional-verification-step">
+
+                        <span>
+                            03
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Revisión del perfil
+                            </strong>
+
+                            <p>
+                                Un administrador revisará los
+                                antecedentes profesionales enviados.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="professional-verification-step">
+
+                        <span>
+                            04
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Habilitación
+                            </strong>
+
+                            <p>
+                                Cuando sea aprobado, se habilitarán
+                                las funciones profesionales.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 ENVÍO
+            ================================================== -->
+
+            <div class="profile-settings-actions">
+
+                <a
+                    href="{% url 'accounts:dashboard' %}"
+                    class="profile-cancel-button"
+                >
+                    Cancelar
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="button profile-save-button"
+                >
+                    Enviar solicitud profesional
+                    <span>→</span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script
+    src="{% static 'js/professional_request.js' %}"
+></script>
+
+{% endblock %}

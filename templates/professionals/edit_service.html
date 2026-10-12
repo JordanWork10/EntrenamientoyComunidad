@@ -1,0 +1,899 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+Editar Servicio | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page professional-service-edit-page">
+
+    <div class="account-container">
+
+        <!-- =========================
+             CABECERA
+        ========================== -->
+
+        <header class="professional-service-edit-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    EDITAR SERVICIO
+                </span>
+
+                <h1>
+                    Deja tu servicio
+                    <span>listo para reservar.</span>
+                </h1>
+
+                <p>
+                    Actualiza lo que verán las personas cuando exploren
+                    tu servicio profesional. Puedes volver y cambiarlo
+                    cuando lo necesites.
+                </p>
+
+            </div>
+
+
+            <div class="professional-service-edit-hero-side">
+
+                <span>
+                    ESTADO ACTUAL
+                </span>
+
+                <strong>
+                    {{ service.get_publication_status_display }}
+                </strong>
+
+                <small>
+                    Última actualización:
+                    {{ service.updated_at|date:"d/m/Y H:i" }}
+                </small>
+
+                {% if service.publication_status == 'published' %}
+
+                    <a
+                        href="{% url 'professionals:public_service_detail' service.id %}"
+                        class="professional-service-edit-preview"
+                    >
+                        Ver como público
+                        <span>→</span>
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             GUÍA VISUAL
+        ========================== -->
+
+        <div class="professional-service-edit-steps">
+
+            <div>
+                <span>01</span>
+                <strong>Tu servicio</strong>
+            </div>
+
+            <div>
+                <span>02</span>
+                <strong>Modalidad</strong>
+            </div>
+
+            <div>
+                <span>03</span>
+                <strong>Duración y precio</strong>
+            </div>
+
+            <div>
+                <span>04</span>
+                <strong>Lugar de atención</strong>
+            </div>
+
+            <div>
+                <span>05</span>
+                <strong>Guardar</strong>
+            </div>
+
+        </div>
+
+
+        <form
+            method="post"
+            class="professional-service-edit-form"
+        >
+
+            {% csrf_token %}
+
+
+            {% if form.non_field_errors %}
+
+                <div class="account-professional-message account-professional-message-error">
+
+                    <strong>
+                        Revisa la información ingresada
+                    </strong>
+
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- =========================
+                 01 TU SERVICIO
+            ========================== -->
+
+            <section class="professional-service-edit-section">
+
+                <div class="professional-service-edit-section-heading">
+
+                    <span class="professional-service-edit-number">
+                        01
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Cuéntanos qué servicio ofreces
+                        </h2>
+
+                        <p>
+                            El nombre y la descripción serán lo primero
+                            que verá una persona al explorar tu servicio.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="professional-service-edit-grid">
+
+                    <div class="professional-service-edit-field">
+
+                        <label for="{{ form.name.id_for_label }}">
+                            Nombre que verá el público
+                        </label>
+
+                        {{ form.name }}
+
+                        <span class="professional-service-edit-help">
+                            Ejemplo: Entrenamiento personalizado,
+                            evaluación física o asesoría online.
+                        </span>
+
+                        {% for error in form.name.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="professional-service-edit-field professional-service-edit-field-wide">
+
+                    <label for="{{ form.description.id_for_label }}">
+                        Describe el servicio con tus palabras
+                    </label>
+
+                    {{ form.description }}
+
+                    <span class="professional-service-edit-help">
+                        Cuenta qué incluye, para quién está pensado
+                        y cómo se desarrolla la sesión.
+                    </span>
+
+                    {% for error in form.description.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 02 MODALIDAD
+            ========================== -->
+
+            <section class="professional-service-edit-section">
+
+                <div class="professional-service-edit-section-heading">
+
+                    <span class="professional-service-edit-number">
+                        02
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            ¿Cómo atenderás?
+                        </h2>
+
+                        <p>
+                            Elige si este servicio se realiza de manera
+                            presencial, online o combinando ambas modalidades.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="professional-service-edit-grid">
+
+                    <div class="professional-service-edit-field">
+
+                        <label for="{{ form.mode.id_for_label }}">
+                            Modalidad del servicio
+                        </label>
+
+                        {{ form.mode }}
+
+                        {% for error in form.mode.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 03 DURACIÓN Y PRECIO
+            ========================== -->
+
+            <section class="professional-service-edit-section">
+
+                <div class="professional-service-edit-section-heading">
+
+                    <span class="professional-service-edit-number">
+                        03
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Duración y precio
+                        </h2>
+
+                        <p>
+                            Estos datos ayudan a que la persona sepa
+                            exactamente cuánto dura una sesión y cuánto cuesta.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="professional-service-edit-grid professional-service-edit-grid-2">
+
+                    <div class="professional-service-edit-field">
+
+                        <label for="{{ form.duration_minutes.id_for_label }}">
+                            ¿Cuánto dura una sesión?
+                        </label>
+
+                        <div class="professional-service-edit-input-suffix">
+
+                            {{ form.duration_minutes }}
+
+                            <span>
+                                minutos
+                            </span>
+
+                        </div>
+
+                        <span class="professional-service-edit-help">
+                            Entre 15 y 480 minutos.
+                        </span>
+
+                        {% for error in form.duration_minutes.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="professional-service-edit-field">
+
+                        <label for="{{ form.price.id_for_label }}">
+                            ¿Cuál es el precio?
+                        </label>
+
+                        <div class="professional-service-edit-input-suffix">
+
+                            {{ form.price }}
+
+                            <span>
+                                CLP
+                            </span>
+
+                        </div>
+
+                        <span class="professional-service-edit-help">
+                            Ingresa el valor de una sesión en pesos chilenos.
+                        </span>
+
+                        {% for error in form.price.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 04 LUGAR DE ATENCIÓN
+            ========================== -->
+
+            <section
+                id="in-person-location-section"
+                class="professional-service-edit-section"
+                style="display: none;"
+            >
+
+                <div class="professional-service-edit-section-heading">
+
+                    <span class="professional-service-edit-number">
+                        04
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            ¿Dónde realizarás el servicio?
+                        </h2>
+
+                        <p>
+                            Esta parte aparece solo cuando el servicio
+                            incluye atención presencial.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="professional-service-edit-grid professional-service-edit-grid-2">
+
+                    <div class="professional-service-edit-field">
+
+                        <label for="{{ form.in_person_location_type.id_for_label }}">
+                            ¿Cómo se definirá el lugar?
+                        </label>
+
+                        {{ form.in_person_location_type }}
+
+                        {% for error in form.in_person_location_type.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div
+                        id="location-region-wrapper"
+                        class="professional-service-edit-field"
+                        style="display: none;"
+                    >
+
+                        <label for="{{ form.location_region.id_for_label }}">
+                            Región
+                        </label>
+
+                        {{ form.location_region }}
+
+                        {% for error in form.location_region.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div
+                        id="location-commune-wrapper"
+                        class="professional-service-edit-field"
+                        style="display: none;"
+                    >
+
+                        <label for="{{ form.location_commune.id_for_label }}">
+                            Comuna
+                        </label>
+
+                        {{ form.location_commune }}
+
+                        {% for error in form.location_commune.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div
+                        id="location-name-wrapper"
+                        class="professional-service-edit-field"
+                        style="display: none;"
+                    >
+
+                        <label for="{{ form.location_name.id_for_label }}">
+                            Nombre del lugar
+                        </label>
+
+                        {{ form.location_name }}
+
+                        <span class="professional-service-edit-help">
+                            Ejemplo: Centro de entrenamiento,
+                            consulta privada o estudio.
+                        </span>
+
+                        {% for error in form.location_name.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div
+                        id="location-address-wrapper"
+                        class="professional-service-edit-field professional-service-edit-field-wide"
+                        style="display: none;"
+                    >
+
+                        <label for="{{ form.location_address.id_for_label }}">
+                            Dirección
+                        </label>
+
+                        {{ form.location_address }}
+
+                        {% for error in form.location_address.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="user-home-message"
+                    class="professional-service-edit-info"
+                    style="display: none;"
+                >
+
+                    <strong>
+                        Atención en el domicilio del usuario
+                    </strong>
+
+                    <p>
+                        No necesitas registrar una dirección fija.
+                        El lugar se definirá cuando la persona realice
+                        la reserva.
+                    </p>
+
+                </div>
+
+
+                <div
+                    id="agreed-place-message"
+                    class="professional-service-edit-info"
+                    style="display: none;"
+                >
+
+                    <strong>
+                        Lugar acordado con el usuario
+                    </strong>
+
+                    <p>
+                        La ubicación específica podrá coordinarse
+                        posteriormente entre ambas partes.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 05 GUARDAR
+            ========================== -->
+
+            <section class="professional-service-edit-section professional-service-edit-review">
+
+                <div class="professional-service-edit-section-heading">
+
+                    <span class="professional-service-edit-number">
+                        05
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Revisa y guarda
+                        </h2>
+
+                        <p>
+                            Guardar los cambios actualiza la información,
+                            pero no cambia automáticamente el estado
+                            de publicación del servicio.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="professional-service-edit-review-grid">
+
+                    <div>
+
+                        <span>
+                            ESTADO
+                        </span>
+
+                        <strong>
+                            {{ service.get_publication_status_display }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            PROFESIONAL
+                        </span>
+
+                        <strong>
+                            {{ request.user.get_full_name }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            CREADO
+                        </span>
+
+                        <strong>
+                            {{ service.created_at|date:"d/m/Y" }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================
+                 BARRA DE ACCIONES
+            ========================== -->
+
+            <div class="professional-service-edit-savebar">
+
+                <div>
+
+                    <strong>
+                        ¿Todo listo?
+                    </strong>
+
+                    <span>
+                        Guardaremos los cambios sin borrar
+                        el registro anterior.
+                    </span>
+
+                </div>
+
+
+                <div class="professional-service-edit-savebar-actions">
+
+                    <a
+                        href="{% url 'professionals:dashboard' %}"
+                        class="professional-service-edit-cancel"
+                    >
+                        Cancelar
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        class="professional-service-edit-save"
+                    >
+                        Guardar cambios
+                        <span>→</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+
+        <a
+            href="{% url 'professionals:dashboard' %}"
+            class="account-professional-action professional-service-edit-back"
+        >
+            ← Volver al Centro Profesional
+        </a>
+
+    </div>
+
+</section>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const modeSelect = document.getElementById(
+        '{{ form.mode.id_for_label }}'
+    );
+
+    const locationSection = document.getElementById(
+        'in-person-location-section'
+    );
+
+    const locationTypeSelect = document.getElementById(
+        '{{ form.in_person_location_type.id_for_label }}'
+    );
+
+    const regionSelect = document.getElementById(
+        '{{ form.location_region.id_for_label }}'
+    );
+
+    const communeSelect = document.getElementById(
+        '{{ form.location_commune.id_for_label }}'
+    );
+
+    const regionWrapper = document.getElementById(
+        'location-region-wrapper'
+    );
+
+    const communeWrapper = document.getElementById(
+        'location-commune-wrapper'
+    );
+
+    const nameWrapper = document.getElementById(
+        'location-name-wrapper'
+    );
+
+    const addressWrapper = document.getElementById(
+        'location-address-wrapper'
+    );
+
+    const userHomeMessage = document.getElementById(
+        'user-home-message'
+    );
+
+    const agreedPlaceMessage = document.getElementById(
+        'agreed-place-message'
+    );
+
+
+    function usesInPersonMode() {
+
+        if (!modeSelect) {
+            return false;
+        }
+
+        return (
+            modeSelect.value === 'in_person'
+            || modeSelect.value === 'hybrid'
+        );
+    }
+
+
+    function updateLocationSection() {
+
+        if (!locationSection) {
+            return;
+        }
+
+        locationSection.style.display = (
+            usesInPersonMode()
+                ? 'block'
+                : 'none'
+        );
+
+        updateLocationTypeFields();
+    }
+
+
+    function updateLocationTypeFields() {
+
+        if (!locationTypeSelect) {
+            return;
+        }
+
+        const locationType = locationTypeSelect.value;
+
+        const isProfessionalPlace = (
+            locationType === 'professional_place'
+        );
+
+        const isUserHome = (
+            locationType === 'user_home'
+        );
+
+        const isAgreedPlace = (
+            locationType === 'agreed_place'
+        );
+
+        regionWrapper.style.display = (
+            isProfessionalPlace
+                ? 'block'
+                : 'none'
+        );
+
+        communeWrapper.style.display = (
+            isProfessionalPlace
+                ? 'block'
+                : 'none'
+        );
+
+        nameWrapper.style.display = (
+            isProfessionalPlace
+                ? 'block'
+                : 'none'
+        );
+
+        addressWrapper.style.display = (
+            isProfessionalPlace
+                ? 'block'
+                : 'none'
+        );
+
+        userHomeMessage.style.display = (
+            isUserHome
+                ? 'block'
+                : 'none'
+        );
+
+        agreedPlaceMessage.style.display = (
+            isAgreedPlace
+                ? 'block'
+                : 'none'
+        );
+    }
+
+
+    async function loadCommunes() {
+
+        if (!regionSelect || !communeSelect) {
+            return;
+        }
+
+        const regionId = regionSelect.value;
+
+        communeSelect.innerHTML = (
+            '<option value="">Selecciona una comuna</option>'
+        );
+
+        if (!regionId) {
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                "{% url 'professionals:coverage_communes_by_region' %}"
+                + '?region='
+                + encodeURIComponent(regionId)
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    'No fue posible cargar las comunas.'
+                );
+            }
+
+            const data = await response.json();
+
+            const communes = Array.isArray(data)
+                ? data
+                : (
+                    data.communes
+                    || data.results
+                    || []
+                );
+
+            communes.forEach(function (commune) {
+
+                const option = document.createElement(
+                    'option'
+                );
+
+                option.value = commune.id;
+                option.textContent = (
+                    commune.name
+                    || commune.nombre
+                    || ''
+                );
+
+                communeSelect.appendChild(option);
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+    }
+
+
+    if (modeSelect) {
+
+        modeSelect.addEventListener(
+            'change',
+            updateLocationSection
+        );
+
+    }
+
+
+    if (locationTypeSelect) {
+
+        locationTypeSelect.addEventListener(
+            'change',
+            updateLocationTypeFields
+        );
+
+    }
+
+
+    if (regionSelect) {
+
+        regionSelect.addEventListener(
+            'change',
+            loadCommunes
+        );
+
+    }
+
+
+    updateLocationSection();
+
+});
+</script>
+
+{% endblock %}

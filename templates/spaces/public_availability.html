@@ -1,0 +1,703 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+Disponibilidad | {{ space.name }}
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page space-calendar-page">
+
+    <div class="account-container">
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline space-calendar-overline">
+                    RESERVA DE ESPACIO
+                </span>
+
+                <h1>
+                    Elige cuándo quieres
+                    <span>
+                        usar este espacio.
+                    </span>
+                </h1>
+
+                <p>
+                    Selecciona una fecha disponible y revisa los horarios
+                    que puedes reservar para {{ space.name }}.
+                </p>
+
+            </div>
+
+
+            <div class="account-status">
+
+                <span class="account-status-dot"></span>
+
+                Hasta 12 meses
+
+            </div>
+
+        </header>
+
+
+        <section class="account-summary-grid">
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    ESPACIO
+                </span>
+
+                <strong>
+                    {{ space.name }}
+                </strong>
+
+                <p>
+                    {{ space.space_type.name }}
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    UBICACIÓN
+                </span>
+
+                <strong>
+                    {{ space.commune.name }}
+                </strong>
+
+                <p>
+                    {{ space.commune.region.name }}
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    DURACIÓN
+                </span>
+
+                <strong>
+                    60 minutos
+                </strong>
+
+                <p>
+                    Por bloque de arriendo
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    PRECIO
+                </span>
+
+                <strong>
+                    {{ space.hourly_price_clp|clp }}
+                </strong>
+
+                <p>
+                    Por cada bloque
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <section class="account-panel space-calendar-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        01
+                    </span>
+
+                    <h2>
+                        Selecciona una fecha
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    DISPONIBILIDAD
+                </span>
+
+            </div>
+
+
+            <div class="account-panel-body">
+
+                <div class="space-calendar-toolbar">
+
+                    <div class="space-calendar-navigation">
+
+                        {% if previous_month %}
+
+                            <a
+                                href="?month={{ previous_month|date:'Y-m' }}"
+                                class="space-calendar-nav"
+                                aria-label="Mes anterior"
+                            >
+                                ←
+                            </a>
+
+                        {% else %}
+
+                            <span
+                                class="space-calendar-nav space-calendar-nav-disabled"
+                            >
+                                ←
+                            </span>
+
+                        {% endif %}
+
+
+                        <div class="space-calendar-month-title">
+
+                            <span>
+                                DISPONIBILIDAD
+                            </span>
+
+                            <strong>
+                                {{ display_month_label }}
+                            </strong>
+
+                        </div>
+
+
+                        {% if next_month %}
+
+                            <a
+                                href="?month={{ next_month|date:'Y-m' }}"
+                                class="space-calendar-nav"
+                                aria-label="Mes siguiente"
+                            >
+                                →
+                            </a>
+
+                        {% else %}
+
+                            <span
+                                class="space-calendar-nav space-calendar-nav-disabled"
+                            >
+                                →
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <a
+                        href="?month={{ today|date:'Y-m' }}&date={{ today|date:'Y-m-d' }}"
+                        class="space-calendar-today"
+                    >
+                        Hoy
+                    </a>
+
+                </div>
+
+
+                <div class="space-calendar-legend">
+
+                    <span>
+                        <i class="space-calendar-dot space-calendar-dot-available"></i>
+                        Disponible
+                    </span>
+
+                    <span>
+                        <i class="space-calendar-dot space-calendar-dot-unavailable"></i>
+                        Sin cupos
+                    </span>
+
+                    <span>
+                        <i class="space-calendar-dot space-calendar-dot-blocked"></i>
+                        Bloqueado
+                    </span>
+
+                    <span>
+                        <i class="space-calendar-dot space-calendar-dot-empty"></i>
+                        Sin horario
+                    </span>
+
+                </div>
+
+
+                <div class="space-calendar">
+
+                    <div class="space-calendar-weekdays">
+
+                        <span>LUN</span>
+                        <span>MAR</span>
+                        <span>MIÉ</span>
+                        <span>JUE</span>
+                        <span>VIE</span>
+                        <span>SÁB</span>
+                        <span>DOM</span>
+
+                    </div>
+
+
+                    <div class="space-calendar-grid">
+
+                        {% for week in calendar_weeks %}
+
+                            {% for day in week %}
+
+                                {% if day.status == 'available' %}
+
+                                    <a
+                                        href="?month={{ display_month|date:'Y-m' }}&date={{ day.date|date:'Y-m-d' }}"
+                                        class="space-calendar-day space-calendar-day-available {% if day.is_today %}space-calendar-day-today{% endif %} {% if day.is_selected %}space-calendar-day-selected{% endif %}"
+                                    >
+
+                                        <span>
+                                            {{ day.day_number }}
+                                        </span>
+
+                                        <small>
+                                            {{ day.available_slot_count }}
+                                            {% if day.available_slot_count == 1 %}
+                                                bloque
+                                            {% else %}
+                                                bloques
+                                            {% endif %}
+                                        </small>
+
+                                    </a>
+
+
+                                {% elif day.status == 'blocked' %}
+
+                                    <div
+                                        class="space-calendar-day space-calendar-day-blocked {% if day.is_today %}space-calendar-day-today{% endif %} {% if day.is_selected %}space-calendar-day-selected{% endif %}"
+                                    >
+
+                                        <span>
+                                            {{ day.day_number }}
+                                        </span>
+
+                                        <small>
+                                            Bloqueado
+                                        </small>
+
+                                    </div>
+
+
+                                {% elif day.status == 'unavailable' %}
+
+                                    <div
+                                        class="space-calendar-day space-calendar-day-unavailable {% if day.is_today %}space-calendar-day-today{% endif %} {% if day.is_selected %}space-calendar-day-selected{% endif %}"
+                                    >
+
+                                        <span>
+                                            {{ day.day_number }}
+                                        </span>
+
+                                        <small>
+                                            Sin cupos
+                                        </small>
+
+                                    </div>
+
+
+                                {% elif day.status == 'no_schedule' %}
+
+                                    <div
+                                        class="space-calendar-day space-calendar-day-empty {% if day.is_today %}space-calendar-day-today{% endif %}"
+                                    >
+
+                                        <span>
+                                            {{ day.day_number }}
+                                        </span>
+
+                                        <small>
+                                            —
+                                        </small>
+
+                                    </div>
+
+
+                                {% else %}
+
+                                    <div class="space-calendar-day space-calendar-day-outside">
+
+                                        {% if day.in_display_month %}
+                                            <span>
+                                                {{ day.day_number }}
+                                            </span>
+                                        {% endif %}
+
+                                    </div>
+
+                                {% endif %}
+
+                            {% endfor %}
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <form
+                    method="get"
+                    class="space-date-jump-card"
+                >
+
+                    <div class="space-date-jump-copy">
+
+                        <span class="space-date-jump-kicker">
+                            BÚSQUEDA DIRECTA
+                        </span>
+
+                        <strong>
+                            ¿Ya sabes qué día necesitas?
+                        </strong>
+
+                        <p>
+                            Elige día, mes y año para revisar directamente
+                            si ese día tiene horarios disponibles.
+                        </p>
+
+                    </div>
+
+
+                    <div class="space-date-jump-controls">
+
+                        <div class="space-friendly-date-grid">
+
+                            <div class="space-friendly-date-field">
+
+                                <label for="date-day">
+                                    Día
+                                </label>
+
+                                <select
+                                    id="date-day"
+                                    name="day"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Día
+                                    </option>
+
+                                    {% for day_number in day_options %}
+
+                                        <option
+                                            value="{{ day_number }}"
+                                            {% if selected_date and selected_date.day == day_number %}selected{% endif %}
+                                        >
+                                            {{ day_number }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="space-friendly-date-field space-friendly-date-field-month">
+
+                                <label for="date-month">
+                                    Mes
+                                </label>
+
+                                <select
+                                    id="date-month"
+                                    name="month_number"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Selecciona un mes
+                                    </option>
+
+                                    {% for month_number, month_name in month_options %}
+
+                                        <option
+                                            value="{{ month_number }}"
+                                            {% if selected_date and selected_date.month == month_number %}selected{% endif %}
+                                        >
+                                            {{ month_name }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="space-friendly-date-field">
+
+                                <label for="date-year">
+                                    Año
+                                </label>
+
+                                <select
+                                    id="date-year"
+                                    name="year"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Año
+                                    </option>
+
+                                    {% for year_number in year_options %}
+
+                                        <option
+                                            value="{{ year_number }}"
+                                            {% if selected_date and selected_date.year == year_number %}selected{% endif %}
+                                        >
+                                            {{ year_number }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="space-date-jump-button"
+                        >
+                            Revisar esta fecha
+                            <span>→</span>
+                        </button>
+
+                    </div>
+
+
+                    <div class="space-date-jump-footer">
+
+                        <span>
+                            Puedes consultar desde hoy
+                        </span>
+
+                        <strong>
+                            Hasta 12 meses
+                        </strong>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        02
+                    </span>
+
+                    <h2>
+                        Horarios disponibles
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    60 MINUTOS
+                </span>
+
+            </div>
+
+
+            <div class="account-panel-body">
+
+                {% if selected_date %}
+
+                    <div class="space-calendar-selected-date">
+
+                        <span class="account-summary-label">
+                            ESTÁS REVISANDO
+                        </span>
+
+                        <strong>
+                            {{ selected_date|date:"d/m/Y" }}
+                        </strong>
+
+                        <small>
+                            Elige uno de los horarios disponibles para continuar.
+                        </small>
+
+                    </div>
+
+
+                    {% if selected_exception %}
+
+                        <div class="account-professional-message">
+
+                            <strong>
+                                Excepción para esta fecha
+                            </strong>
+
+                            <p>
+                                {{ selected_exception.get_exception_type_display }}
+
+                                {% if selected_exception.exception_type == 'special_hours' %}
+                                    ·
+                                    {{ selected_exception.start_time|time:"H:i" }}
+                                    –
+                                    {{ selected_exception.end_time|time:"H:i" }}
+                                {% endif %}
+
+                                {% if selected_exception.reason %}
+                                    · {{ selected_exception.reason }}
+                                {% endif %}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if selected_slots %}
+
+                        <div class="booking-list">
+
+                            {% for slot in selected_slots %}
+
+                                <article class="booking-list-card">
+
+                                    <div class="booking-list-main">
+
+                                        <span class="booking-list-label">
+                                            HORARIO DISPONIBLE
+                                        </span>
+
+                                        <strong>
+                                            {{ slot.start_time|time:"H:i" }}
+                                            –
+                                            {{ slot.end_time|time:"H:i" }}
+                                        </strong>
+
+                                        <p>
+                                            <span>60 minutos</span>
+                                            <b>{{ space.hourly_price_clp|clp }}</b>
+                                        </p>
+
+                                    </div>
+
+
+                                    <div class="booking-list-status">
+
+                                        <span class="role-status role-status-active">
+                                            Disponible
+                                        </span>
+
+                                        {% if is_owner %}
+
+                                            <span class="account-summary-label">
+                                                Tu espacio
+                                            </span>
+
+                                        {% else %}
+
+                                            <a
+                                                href="{% url 'spaces:confirm_booking' space.id %}?date={{ selected_date|date:'Y-m-d' }}&start={{ slot.start_time|time:'H:i' }}&end={{ slot.end_time|time:'H:i' }}"
+                                                class="space-slot-booking-action"
+                                            >
+                                                Reservar este horario
+                                                <span>→</span>
+                                            </a>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </article>
+
+                            {% endfor %}
+
+                        </div>
+
+
+                    {% else %}
+
+                        <div class="account-empty">
+
+                            <strong>
+                                No hay horarios disponibles
+                            </strong>
+
+                            <p>
+                                Esta fecha no tiene horarios libres
+                                según la disponibilidad actual del recinto.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+
+                {% else %}
+
+                    <div class="account-empty">
+
+                        <strong>
+                            Selecciona un día del calendario
+                        </strong>
+
+                        <p>
+                            Los horarios disponibles aparecerán aquí.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <div class="registration-actions">
+
+            <a
+                href="{% url 'spaces:public_detail' space.id %}"
+                class="account-professional-action"
+            >
+                ← Volver al espacio
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,970 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+Historial de Disponibilidad | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page">
+
+    <div class="account-container">
+
+
+        <!-- =========================
+             CABECERA
+        ========================== -->
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    CENTRO PROFESIONAL
+                </span>
+
+                <h1>
+                    Historial de
+                    <span>
+                        disponibilidad
+                    </span>
+                </h1>
+
+                <p>
+                    Consulta los cambios registrados para este horario.
+                    Esta información es de solo lectura y forma parte
+                    de la trazabilidad del sistema.
+                </p>
+
+            </div>
+
+
+            <div class="account-status">
+
+                <span class="account-status-dot"></span>
+
+                Historial protegido
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             ESTADO ACTUAL
+        ========================== -->
+
+        <section class="account-summary-grid">
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    SERVICIO
+                </span>
+
+                <strong>
+                    {{ service.name }}
+                </strong>
+
+                <p>
+                    Servicio asociado
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    DÍA ACTUAL
+                </span>
+
+                <strong>
+                    {{ availability.get_weekday_display }}
+                </strong>
+
+                <p>
+                    Día registrado actualmente
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    HORARIO ACTUAL
+                </span>
+
+                <strong>
+                    {{ availability.start_time|time:"H:i" }}
+                    –
+                    {{ availability.end_time|time:"H:i" }}
+                </strong>
+
+                <p>
+                    Bloque vigente
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    ESTADO ACTUAL
+                </span>
+
+                <strong>
+                    {% if availability.is_active %}
+                        Activa
+                    {% else %}
+                        Inactiva
+                    {% endif %}
+                </strong>
+
+                <p>
+                    Estado de la disponibilidad
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <!-- =========================
+             BUSCADOR DEL HISTORIAL
+        ========================== -->
+
+        <section class="account-panel history-filter-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        01
+                    </span>
+
+                    <h2>
+                        Buscar en el historial
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    FILTROS
+                </span>
+
+            </div>
+
+
+            <form
+                method="get"
+                class="history-filter-form"
+            >
+
+                <!-- BÚSQUEDA RÁPIDA -->
+
+                <div class="history-search-block">
+
+                    <label for="history-search">
+                        ¿Qué estás buscando?
+                    </label>
+
+                    <input
+                        id="history-search"
+                        type="text"
+                        name="q"
+                        value="{{ search_value }}"
+                        placeholder="Ej: Editada, Juan Moraga, reactivada..."
+                    >
+
+                    <span class="account-form-help">
+                        Puedes buscar por tipo de cambio, responsable
+                        o texto del motivo registrado.
+                    </span>
+
+                </div>
+
+
+                <!-- PERÍODO RÁPIDO -->
+
+                <div class="history-filter-section">
+
+                    <span class="history-filter-title">
+                        Período
+                    </span>
+
+                    <div class="history-period-options">
+
+                        <label class="history-period-option">
+
+                            <input
+                                type="radio"
+                                name="period"
+                                value="all"
+                                {% if period_value == 'all' %}checked{% endif %}
+                            >
+
+                            <span>
+                                Todo
+                            </span>
+
+                        </label>
+
+
+                        <label class="history-period-option">
+
+                            <input
+                                type="radio"
+                                name="period"
+                                value="today"
+                                {% if period_value == 'today' %}checked{% endif %}
+                            >
+
+                            <span>
+                                Hoy
+                            </span>
+
+                        </label>
+
+
+                        <label class="history-period-option">
+
+                            <input
+                                type="radio"
+                                name="period"
+                                value="7d"
+                                {% if period_value == '7d' %}checked{% endif %}
+                            >
+
+                            <span>
+                                Últimos 7 días
+                            </span>
+
+                        </label>
+
+
+                        <label class="history-period-option">
+
+                            <input
+                                type="radio"
+                                name="period"
+                                value="month"
+                                {% if period_value == 'month' %}checked{% endif %}
+                            >
+
+                            <span>
+                                Este mes
+                            </span>
+
+                        </label>
+
+
+                        <label class="history-period-option">
+
+                            <input
+                                type="radio"
+                                name="period"
+                                value="custom"
+                                {% if period_value == 'custom' %}checked{% endif %}
+                            >
+
+                            <span>
+                                Elegir fechas
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TIPO DE CAMBIO -->
+
+                <div class="history-filter-section">
+
+                    <label
+                        class="history-filter-title"
+                        for="history-action"
+                    >
+                        Tipo de cambio
+                    </label>
+
+                    <select
+                        id="history-action"
+                        name="action"
+                    >
+
+                        <option value="">
+                            Todos los cambios
+                        </option>
+
+                        {% for value, label in action_choices %}
+
+                            <option
+                                value="{{ value }}"
+                                {% if action_value == value %}selected{% endif %}
+                            >
+                                {{ label }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- FECHAS PERSONALIZADAS -->
+
+                <div
+                    id="history-custom-dates"
+                    class="history-custom-dates"
+                >
+
+                    <div>
+
+                        <label for="history-date-from">
+                            Desde
+                        </label>
+
+                        <input
+                            id="history-date-from"
+                            type="date"
+                            name="date_from"
+                            value="{{ date_from_value }}"
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="history-date-to">
+                            Hasta
+                        </label>
+
+                        <input
+                            id="history-date-to"
+                            type="date"
+                            name="date_to"
+                            value="{{ date_to_value }}"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                {% if filter_error %}
+
+                    <div class="history-filter-error">
+                        {{ filter_error }}
+                    </div>
+
+                {% endif %}
+
+
+                <!-- ACCIONES -->
+
+                <div class="history-filter-actions">
+
+                    <button
+                        type="submit"
+                        class="account-professional-action"
+                    >
+                        Aplicar filtros
+                        <span>→</span>
+                    </button>
+
+
+                    <a
+                        href="{% url 'professionals:service_availability_history' availability.id %}"
+                        class="account-logout"
+                    >
+                        Limpiar
+                    </a>
+
+                </div>
+
+            </form>
+
+
+            <!-- RESUMEN -->
+
+            <div class="history-results-summary">
+
+                <div>
+
+                    <strong>
+                        {{ result_count }}
+                    </strong>
+
+                    <span>
+                        {% if result_count == 1 %}
+                            cambio encontrado
+                        {% else %}
+                            cambios encontrados
+                        {% endif %}
+                    </span>
+
+                </div>
+
+
+                {% if has_active_filters %}
+
+                    <div class="history-active-filters">
+
+                        {% if search_value %}
+
+                            <span>
+                                Búsqueda: “{{ search_value }}”
+                            </span>
+
+                        {% endif %}
+
+
+                        {% if active_action_label %}
+
+                            <span>
+                                {{ active_action_label }}
+                            </span>
+
+                        {% endif %}
+
+
+                        {% if period_value != 'all' %}
+
+                            <span>
+                                {{ active_period_label }}
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                {% else %}
+
+                    <span class="history-no-filter">
+                        Mostrando todo el historial
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             HISTORIAL
+        ========================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        02
+                    </span>
+
+                    <h2>
+                        Registro de cambios
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    TRAZABILIDAD
+                </span>
+
+            </div>
+
+
+            {% if history_entries %}
+
+                {% for entry in history_entries %}
+
+                    <div
+                        style="
+                            padding: 22px;
+                            border-bottom: 1px solid rgba(255,255,255,0.08);
+                        "
+                    >
+
+                        <!-- CABECERA DEL EVENTO -->
+
+                        <div
+                            style="
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: flex-start;
+                                gap: 20px;
+                                flex-wrap: wrap;
+                                margin-bottom: 18px;
+                            "
+                        >
+
+                            <div>
+
+                                <span class="account-subtitle">
+                                    EVENTO
+                                </span>
+
+                                <strong
+                                    style="
+                                        display: block;
+                                        font-size: 16px;
+                                        color: var(--accent);
+                                    "
+                                >
+                                    {{ entry.get_action_display }}
+                                </strong>
+
+                            </div>
+
+
+                            <div style="text-align: right;">
+
+                                <span class="account-subtitle">
+                                    FECHA DEL CAMBIO
+                                </span>
+
+                                <strong>
+                                    {{ entry.created_at|date:"d/m/Y H:i" }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- RESPONSABLE / MOTIVO -->
+
+                        <div class="account-data-grid">
+
+                            <div class="account-data-item">
+
+                                <span>
+                                    Responsable
+                                </span>
+
+                                <strong>
+
+                                    {% if entry.changed_by %}
+
+                                        {{ entry.changed_by.get_full_name|default:entry.changed_by.email }}
+
+                                    {% else %}
+
+                                        Registro histórico inicial
+
+                                    {% endif %}
+
+                                </strong>
+
+                            </div>
+
+
+                            <div class="account-data-item">
+
+                                <span>
+                                    Motivo
+                                </span>
+
+                                <strong>
+
+                                    {% if entry.reason %}
+
+                                        {{ entry.reason }}
+
+                                    {% else %}
+
+                                        Sin motivo registrado
+
+                                    {% endif %}
+
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ESTADO ANTERIOR -->
+
+                        <div class="account-interests">
+
+                            <span class="account-subtitle">
+                                ESTADO ANTERIOR
+                            </span>
+
+
+                            {% if entry.previous_data %}
+
+                                <div
+                                    class="account-data-grid"
+                                    style="padding: 0; margin-top: 12px;"
+                                >
+
+                                    <div class="account-data-item">
+
+                                        <span>
+                                            Día
+                                        </span>
+
+                                        <strong>
+                                            {{ entry.previous_data.weekday_display|default:"Sin registrar" }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="account-data-item">
+
+                                        <span>
+                                            Horario
+                                        </span>
+
+                                        <strong>
+                                            {% if entry.previous_data.start_time and entry.previous_data.end_time %}
+
+                                                {{ entry.previous_data.start_time|slice:":5" }}
+                                                –
+                                                {{ entry.previous_data.end_time|slice:":5" }}
+
+                                            {% else %}
+
+                                                Sin registrar
+
+                                            {% endif %}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="account-data-item">
+
+                                        <span>
+                                            Vigencia
+                                        </span>
+
+                                        <strong>
+
+                                            {% if entry.previous_data.valid_from %}
+
+                                                {{ entry.previous_data.valid_from|slice:"8:10" }}/{{ entry.previous_data.valid_from|slice:"5:7" }}/{{ entry.previous_data.valid_from|slice:":4" }}
+
+                                                →
+
+                                                {% if entry.previous_data.valid_until %}
+                                                    {{ entry.previous_data.valid_until|slice:"8:10" }}/{{ entry.previous_data.valid_until|slice:"5:7" }}/{{ entry.previous_data.valid_until|slice:":4" }}
+                                                {% else %}
+                                                    Sin fecha de término
+                                                {% endif %}
+
+                                            {% else %}
+
+                                                Sin registrar
+
+                                            {% endif %}
+
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="account-data-item">
+
+                                        <span>
+                                            Estado
+                                        </span>
+
+                                        <strong>
+
+                                            {% if entry.previous_data.is_active == True %}
+                                                Activa
+                                            {% elif entry.previous_data.is_active == False %}
+                                                Inactiva
+                                            {% else %}
+                                                Sin registrar
+                                            {% endif %}
+
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            {% else %}
+
+                                <p style="color: var(--text-muted); font-size: 11px;">
+                                    No existe un estado anterior porque este
+                                    corresponde al registro inicial.
+                                </p>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- ESTADO NUEVO -->
+
+                        <div class="account-interests">
+
+                            <span class="account-subtitle">
+                                ESTADO NUEVO
+                            </span>
+
+                            <div
+                                class="account-data-grid"
+                                style="padding: 0; margin-top: 12px;"
+                            >
+
+                                <div class="account-data-item">
+
+                                    <span>
+                                        Día
+                                    </span>
+
+                                    <strong>
+                                        {{ entry.new_data.weekday_display|default:"Sin registrar" }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="account-data-item">
+
+                                    <span>
+                                        Horario
+                                    </span>
+
+                                    <strong>
+
+                                        {% if entry.new_data.start_time and entry.new_data.end_time %}
+
+                                            {{ entry.new_data.start_time|slice:":5" }}
+                                            –
+                                            {{ entry.new_data.end_time|slice:":5" }}
+
+                                        {% else %}
+
+                                            Sin registrar
+
+                                        {% endif %}
+
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="account-data-item">
+
+                                    <span>
+                                        Vigencia
+                                    </span>
+
+                                    <strong>
+
+                                        {% if entry.new_data.valid_from %}
+
+                                            {{ entry.new_data.valid_from|slice:"8:10" }}/{{ entry.new_data.valid_from|slice:"5:7" }}/{{ entry.new_data.valid_from|slice:":4" }}
+
+                                            →
+
+                                            {% if entry.new_data.valid_until %}
+                                                {{ entry.new_data.valid_until|slice:"8:10" }}/{{ entry.new_data.valid_until|slice:"5:7" }}/{{ entry.new_data.valid_until|slice:":4" }}
+                                            {% else %}
+                                                Sin fecha de término
+                                            {% endif %}
+
+                                        {% else %}
+
+                                            Sin registrar
+
+                                        {% endif %}
+
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="account-data-item">
+
+                                    <span>
+                                        Estado
+                                    </span>
+
+                                    <strong>
+
+                                        {% if entry.new_data.is_active %}
+                                            Activa
+                                        {% else %}
+                                            Inactiva
+                                        {% endif %}
+
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+
+            {% else %}
+
+                <div class="account-empty">
+
+                    <strong>
+                        Sin historial registrado
+                    </strong>
+
+                    <p>
+                        Esta disponibilidad todavía no posee eventos
+                        de trazabilidad asociados.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- =========================
+             INFORMACIÓN
+        ========================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        03
+                    </span>
+
+                    <h2>
+                        Política de trazabilidad
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    SOLO LECTURA
+                </span>
+
+            </div>
+
+
+            <div class="account-professional-message">
+
+                <strong>
+                    El historial no se modifica desde esta pantalla
+                </strong>
+
+                <p>
+                    Los eventos conservan el estado anterior y el estado
+                    posterior de cada cambio relevante. Esta información
+                    permite reconstruir la evolución de una disponibilidad
+                    sin eliminar registros operacionales.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- VOLVER -->
+
+        <div
+            style="
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-top: 24px;
+            "
+        >
+
+            <a
+                href="{% url 'professionals:dashboard' %}"
+                class="account-professional-action"
+            >
+                ← Volver al Centro Profesional
+            </a>
+
+
+            <a
+                href="{% url 'professionals:edit_service_availability' availability.id %}"
+                class="account-professional-action"
+            >
+                Editar horario
+                <span>→</span>
+            </a>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const periodInputs = document.querySelectorAll(
+        'input[name="period"]'
+    );
+
+    const customDates = document.getElementById(
+        'history-custom-dates'
+    );
+
+    function updateCustomDates() {
+
+        const selectedPeriod = document.querySelector(
+            'input[name="period"]:checked'
+        );
+
+        if (!customDates || !selectedPeriod) {
+            return;
+        }
+
+        customDates.style.display = (
+            selectedPeriod.value === 'custom'
+                ? 'grid'
+                : 'none'
+        );
+    }
+
+    periodInputs.forEach(function (input) {
+
+        input.addEventListener(
+            'change',
+            updateCustomDates
+        );
+
+    });
+
+    updateCustomDates();
+
+});
+</script>
+
+{% endblock %}

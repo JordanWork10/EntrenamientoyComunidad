@@ -1,0 +1,778 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+Mi agenda | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="member-agenda-page">
+
+    <div class="member-agenda-container">
+
+
+        <!-- =========================
+             CABECERA
+        ========================== -->
+
+        <header class="member-agenda-hero">
+
+            <div>
+
+                <span class="member-agenda-overline">
+                    MIEMBRO
+                </span>
+
+                <h1>
+                    Mi <span>agenda.</span>
+                </h1>
+
+                <p>
+                    Organiza tus sesiones profesionales, arriendos de espacios
+                    y actividades desde un solo calendario.
+                </p>
+
+            </div>
+
+            <div class="member-agenda-hero-actions">
+
+                <a
+                    href="{% url 'bookings:my_bookings' %}"
+                    class="member-agenda-hero-link member-agenda-hero-link-professional"
+                >
+                    Reservas profesionales →
+                </a>
+
+                <a
+                    href="{% url 'spaces:my_bookings' %}"
+                    class="member-agenda-hero-link member-agenda-hero-link-space"
+                >
+                    Mis arriendos →
+                </a>
+
+                <a
+                    href="{% url 'activities:my_activities' %}"
+                    class="member-agenda-hero-link member-agenda-hero-link-activity"
+                >
+                    Mis actividades →
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             RESUMEN DEL MES
+        ========================== -->
+
+        <section class="member-agenda-summary-grid">
+
+            <article class="member-agenda-summary-card member-agenda-summary-professional">
+
+                <span>
+                    RESERVAS PROFESIONALES
+                </span>
+
+                <strong>
+                    {{ professional_month_count }}
+                </strong>
+
+                <p>
+                    Registros profesionales este mes
+                </p>
+
+            </article>
+
+
+            <article class="member-agenda-summary-card member-agenda-summary-space">
+
+                <span>
+                    ARRIENDOS
+                </span>
+
+                <strong>
+                    {{ space_month_count }}
+                </strong>
+
+                <p>
+                    Reservas de espacios este mes
+                </p>
+
+            </article>
+
+
+            <article class="member-agenda-summary-card member-agenda-summary-activity">
+
+                <span>
+                    ACTIVIDADES
+                </span>
+
+                <strong>
+                    {{ activity_month_count }}
+                </strong>
+
+                <p>
+                    Organizadas o inscritas este mes
+                </p>
+
+            </article>
+
+
+            <article class="member-agenda-summary-card member-agenda-summary-pending">
+
+                <span>
+                    PENDIENTES
+                </span>
+
+                <strong>
+                    {{ pending_month_count }}
+                </strong>
+
+                <p>
+                    Solicitudes esperando respuesta
+                </p>
+
+            </article>
+
+
+            <article class="member-agenda-summary-card member-agenda-summary-confirmed">
+
+                <span>
+                    CONFIRMADAS
+                </span>
+
+                <strong>
+                    {{ confirmed_month_count }}
+                </strong>
+
+                <p>
+                    Actividades confirmadas
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <!-- =========================
+             CALENDARIO
+        ========================== -->
+
+        <section class="member-agenda-calendar-panel">
+
+            <header class="member-agenda-month-header">
+
+                <div class="member-agenda-month-main">
+
+                    <a
+                        href="?month={{ previous_month|date:'Y-m' }}"
+                        class="member-agenda-month-arrow"
+                        aria-label="Mes anterior"
+                    >
+                        ←
+                    </a>
+
+                    <div>
+
+                        <span>
+                            MES
+                        </span>
+
+                        <h2>
+                            {{ display_month_label }}
+                        </h2>
+
+                    </div>
+
+                    <a
+                        href="?month={{ next_month|date:'Y-m' }}"
+                        class="member-agenda-month-arrow"
+                        aria-label="Mes siguiente"
+                    >
+                        →
+                    </a>
+
+                </div>
+
+
+                <a
+                    href="?month={{ today|date:'Y-m' }}&date={{ today|date:'Y-m-d' }}"
+                    class="member-agenda-today-link"
+                >
+                    Ir a hoy
+                </a>
+
+            </header>
+
+
+            <div class="member-agenda-year-navigation">
+
+                <a
+                    href="?month={{ previous_year }}-{{ display_month.month|stringformat:'02d' }}"
+                    class="member-agenda-year-link"
+                >
+                    ← {{ previous_year }}
+                </a>
+
+
+                <div class="member-agenda-month-strip">
+
+                    {% for month in month_navigation %}
+
+                        <a
+                            href="?month={{ month.query_value }}"
+                            class="member-agenda-month-link{% if month.is_active %} is-active{% endif %}"
+                            title="{{ month.full_name }}"
+                        >
+                            {{ month.short_name }}
+                        </a>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <a
+                    href="?month={{ next_year }}-{{ display_month.month|stringformat:'02d' }}"
+                    class="member-agenda-year-link"
+                >
+                    {{ next_year }} →
+                </a>
+
+            </div>
+
+
+            <div class="member-agenda-legend">
+
+                <span class="member-agenda-legend-professional">
+                    <i></i>
+                    Servicio profesional
+                </span>
+
+                <span class="member-agenda-legend-space">
+                    <i></i>
+                    Arriendo de espacio
+                </span>
+
+                <span class="member-agenda-legend-activity">
+                    <i></i>
+                    Actividad
+                </span>
+
+                <span class="member-agenda-legend-pending">
+                    <i></i>
+                    Pendiente
+                </span>
+
+                <span class="member-agenda-legend-confirmed">
+                    <i></i>
+                    Confirmada
+                </span>
+
+                <span class="member-agenda-legend-history">
+                    <i></i>
+                    Historial
+                </span>
+
+            </div>
+
+
+            <div class="member-agenda-grid">
+
+                <div class="member-agenda-weekday">
+                    LUN
+                </div>
+
+                <div class="member-agenda-weekday">
+                    MAR
+                </div>
+
+                <div class="member-agenda-weekday">
+                    MIÉ
+                </div>
+
+                <div class="member-agenda-weekday">
+                    JUE
+                </div>
+
+                <div class="member-agenda-weekday">
+                    VIE
+                </div>
+
+                <div class="member-agenda-weekday">
+                    SÁB
+                </div>
+
+                <div class="member-agenda-weekday">
+                    DOM
+                </div>
+
+
+                {% for week in calendar_weeks %}
+
+                    {% for cell in week %}
+
+                        {% if cell.in_month %}
+
+                            <a
+                                href="?month={{ display_month|date:'Y-m' }}&date={{ cell.date|date:'Y-m-d' }}"
+                                class="member-agenda-day{% if cell.is_today %} is-today{% endif %}{% if cell.is_selected %} is-selected{% endif %}{% if cell.has_activity %} has-activity{% endif %}"
+                            >
+
+                                <div class="member-agenda-day-head">
+
+                                    <strong>
+                                        {{ cell.date.day }}
+                                    </strong>
+
+                                    {% if cell.is_today %}
+
+                                        <small>
+                                            HOY
+                                        </small>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="member-agenda-day-events">
+
+                                    {% if cell.professional_count %}
+
+                                        <span class="member-agenda-event member-agenda-event-professional">
+
+                                            {{ cell.professional_count }}
+
+                                            sesión{{ cell.professional_count|pluralize:"es" }}
+
+                                        </span>
+
+                                    {% endif %}
+
+
+                                    {% if cell.space_count %}
+
+                                        <span class="member-agenda-event member-agenda-event-space">
+
+                                            {{ cell.space_count }}
+
+                                            arriendo{{ cell.space_count|pluralize:"s" }}
+
+                                        </span>
+
+                                    {% endif %}
+
+
+                                    {% if cell.activity_count %}
+
+                                        <span class="member-agenda-event member-agenda-event-activity">
+
+                                            {{ cell.activity_count }}
+
+                                            actividad{{ cell.activity_count|pluralize:"es" }}
+
+                                        </span>
+
+                                    {% endif %}
+
+
+                                    {% if cell.pending_count %}
+
+                                        <span class="member-agenda-event member-agenda-event-pending">
+
+                                            {{ cell.pending_count }}
+
+                                            pendiente{{ cell.pending_count|pluralize:"s" }}
+
+                                        </span>
+
+                                    {% endif %}
+
+
+                                    {% if cell.confirmed_count %}
+
+                                        <span class="member-agenda-event member-agenda-event-confirmed">
+
+                                            {{ cell.confirmed_count }}
+
+                                            confirmada{{ cell.confirmed_count|pluralize:"s" }}
+
+                                        </span>
+
+                                    {% endif %}
+
+
+                                    {% if cell.history_count %}
+
+                                        <span class="member-agenda-event member-agenda-event-history">
+                                            Historial
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </a>
+
+
+                        {% else %}
+
+                            <div class="member-agenda-day is-outside">
+
+                                <div class="member-agenda-day-head">
+
+                                    <strong>
+                                        {{ cell.date.day }}
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             DÍA SELECCIONADO
+        ========================== -->
+
+        <section class="member-agenda-day-panel">
+
+            <header>
+
+                <div>
+
+                    <span class="member-agenda-day-kicker">
+                        DÍA SELECCIONADO
+                    </span>
+
+                    <h2>
+                        {{ selected_date|date:"l j \d\e F \d\e Y"|capfirst }}
+                    </h2>
+
+                </div>
+
+            </header>
+
+
+            <div class="member-agenda-day-columns">
+
+
+                <!-- =========================
+                     ACTIVIDAD ACTIVA
+                ========================== -->
+
+                <div class="member-agenda-day-column">
+
+                    <div class="member-agenda-column-title">
+
+                        <span>
+                            MIS ACTIVIDADES
+                        </span>
+
+                        <strong>
+                            {{ selected_active_items|length }}
+                        </strong>
+
+                    </div>
+
+
+                    {% for item in selected_active_items %}
+
+                        <article class="member-agenda-item member-agenda-item-{{ item.kind }} member-agenda-item-status-{{ item.status }}">
+
+                            <div class="member-agenda-item-head">
+
+                                <div>
+
+                                    <span class="member-agenda-item-module">
+                                        {{ item.module_label }}
+                                    </span>
+
+                                    <h3>
+                                        {{ item.title }}
+                                    </h3>
+
+                                    <p>
+
+                                        {{ item.person_label }}:
+
+                                        <strong>
+                                            {{ item.person_name }}
+                                        </strong>
+
+                                    </p>
+
+                                </div>
+
+
+                                <span class="member-agenda-status member-agenda-status-{{ item.status }}">
+                                    {{ item.status_label }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="member-agenda-item-meta">
+
+                                <div>
+
+                                    <span>
+                                        HORARIO
+                                    </span>
+
+                                    <strong>
+
+                                        {{ item.start_time|time:"H:i" }}
+
+                                        →
+
+                                        {{ item.end_time|time:"H:i" }}
+
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        DURACIÓN
+                                    </span>
+
+                                    <strong>
+                                        {{ item.duration_minutes }} min
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        PRECIO
+                                    </span>
+
+                                    <strong>
+
+                                        {% if item.kind == 'activity' and item.price_clp == 0 %}
+
+                                            Gratis
+
+                                        {% else %}
+
+                                            {{ item.price_clp|clp }}
+
+                                        {% endif %}
+
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                            <a
+                                href="{{ item.detail_url }}"
+                                class="member-agenda-item-action"
+                            >
+                                {{ item.action_label }}
+                            </a>
+
+                        </article>
+
+
+                    {% empty %}
+
+                        <div class="member-agenda-empty">
+
+                            <strong>
+                                Sin actividades activas para este día
+                            </strong>
+
+                            <p>
+                                Tus sesiones, solicitudes, arriendos y actividades
+                                aparecerán aquí.
+                            </p>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- =========================
+                     HISTORIAL
+                ========================== -->
+
+                <div class="member-agenda-day-column">
+
+                    <div class="member-agenda-column-title">
+
+                        <span>
+                            HISTORIAL DEL DÍA
+                        </span>
+
+                        <strong class="member-agenda-history-count">
+                            {{ selected_history_items|length }}
+                        </strong>
+
+                    </div>
+
+
+                    {% for item in selected_history_items %}
+
+                        <article class="member-agenda-item member-agenda-item-history member-agenda-item-{{ item.kind }} member-agenda-item-status-{{ item.status }}">
+
+                            <div class="member-agenda-item-head">
+
+                                <div>
+
+                                    <span class="member-agenda-item-module">
+                                        {{ item.module_label }}
+                                    </span>
+
+                                    <h3>
+                                        {{ item.title }}
+                                    </h3>
+
+                                    <p>
+
+                                        {{ item.person_label }}:
+
+                                        <strong>
+                                            {{ item.person_name }}
+                                        </strong>
+
+                                    </p>
+
+                                </div>
+
+
+                                <span class="member-agenda-status member-agenda-status-{{ item.status }}">
+                                    {{ item.status_label }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="member-agenda-item-meta">
+
+                                <div>
+
+                                    <span>
+                                        HORARIO
+                                    </span>
+
+                                    <strong>
+
+                                        {{ item.start_time|time:"H:i" }}
+
+                                        →
+
+                                        {{ item.end_time|time:"H:i" }}
+
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        DURACIÓN
+                                    </span>
+
+                                    <strong>
+                                        {{ item.duration_minutes }} min
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        PRECIO
+                                    </span>
+
+                                    <strong>
+
+                                        {% if item.kind == 'activity' and item.price_clp == 0 %}
+
+                                            Gratis
+
+                                        {% else %}
+
+                                            {{ item.price_clp|clp }}
+
+                                        {% endif %}
+
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                            <a
+                                href="{{ item.detail_url }}"
+                                class="member-agenda-item-action"
+                            >
+                                {{ item.action_label }}
+                            </a>
+
+                        </article>
+
+
+                    {% empty %}
+
+                        <div class="member-agenda-empty">
+
+                            <strong>
+                                Sin historial para este día
+                            </strong>
+
+                            <p>
+                                Las actividades vencidas, canceladas,
+                                no aceptadas o completadas aparecerán aquí.
+                            </p>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <a
+            href="{% url 'accounts:dashboard' %}"
+            class="member-agenda-back"
+        >
+            ← Volver a Mi cuenta
+        </a>
+
+
+    </div>
+
+</section>
+
+{% endblock %}

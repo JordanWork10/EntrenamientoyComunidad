@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Confirmar arriendo | {{ space.name }} | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+<section class="account-page space-booking-confirm-page">
+    <div class="account-container">
+
+        <header class="account-hero">
+            <div>
+                <span class="page-overline">
+                    RESERVA DE ESPACIO
+                </span>
+
+                <h1>
+                    Confirma tu
+                    <span>arriendo.</span>
+                </h1>
+
+                <p>
+                    Revisa que la fecha, el horario y el precio estén correctos
+                    antes de enviar tu solicitud al proveedor.
+                </p>
+            </div>
+
+            <div class="space-booking-confirm-status">
+                <span></span>
+                Solicitud al proveedor
+            </div>
+        </header>
+
+        <section class="account-panel">
+            <div class="account-panel-header">
+                <div>
+                    <span class="account-panel-number">01</span>
+                    <h2>Lo que estás reservando</h2>
+                </div>
+
+                <span class="account-panel-tag">
+                    ESPACIO
+                </span>
+            </div>
+
+            <div class="space-booking-confirm-card">
+
+                <div class="space-booking-confirm-space">
+                    {% with cover=space.images.all.0 %}
+                        {% if cover %}
+                            <img
+                                src="{{ cover.image.url }}"
+                                alt="{{ space.name }}"
+                                class="space-booking-confirm-image"
+                            >
+                        {% else %}
+                            <div class="space-booking-confirm-image space-booking-confirm-image-fallback">
+                                ESP
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <div>
+                        <span>ESPACIO</span>
+                        <h3>{{ space.name }}</h3>
+
+                        <p>
+                            Proveedor:
+                            <strong>{{ space.provider_profile.display_name }}</strong>
+                        </p>
+
+                        <small>
+                            {{ space.space_type.name }}
+                            ·
+                            {{ space.commune.name }}
+                        </small>
+                    </div>
+                </div>
+
+                <div class="space-booking-confirm-details">
+
+                    <div>
+                        <span>FECHA</span>
+                        <strong>
+                            {% if session_date %}
+                                {{ session_date|date:"d M Y"|upper }}
+                            {% else %}
+                                No disponible
+                            {% endif %}
+                        </strong>
+                        <small>Día seleccionado</small>
+                    </div>
+
+                    <div>
+                        <span>HORARIO</span>
+                        <strong>
+                            {% if start_time and end_time %}
+                                {{ start_time|time:"H:i" }}
+                                –
+                                {{ end_time|time:"H:i" }}
+                            {% else %}
+                                No disponible
+                            {% endif %}
+                        </strong>
+                        <small>Horario elegido</small>
+                    </div>
+
+                    <div>
+                        <span>DURACIÓN</span>
+                        <strong>60 min</strong>
+                        <small>Duración del arriendo</small>
+                    </div>
+
+                    <div class="space-booking-confirm-price">
+                        <span>PRECIO</span>
+                        <strong>{{ space.hourly_price_clp|clp }}</strong>
+                        <small>Precio de esta reserva</small>
+                    </div>
+
+                </div>
+
+                <div class="space-booking-confirm-location">
+                    <span>UBICACIÓN</span>
+                    <strong>
+                        {{ space.address }}
+                        ·
+                        {{ space.commune.name }}
+                    </strong>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="account-panel">
+            <div class="account-panel-header">
+                <div>
+                    <span class="account-panel-number">02</span>
+                    <h2>¿Qué pasará después?</h2>
+                </div>
+
+                <span class="account-panel-tag">
+                    SOLICITUD
+                </span>
+            </div>
+
+            {% if booking_error %}
+
+                <div class="space-booking-confirm-error">
+                    <span>NO SE PUEDE CONTINUAR</span>
+
+                    <strong>
+                        No pudimos crear esta solicitud
+                    </strong>
+
+                    <p>
+                        {{ booking_error }}
+                    </p>
+                </div>
+
+            {% else %}
+
+                <div class="space-booking-confirm-explanation">
+
+                    <div class="space-booking-confirm-step">
+                        <span>1</span>
+                        <div>
+                            <strong>
+                                Enviaremos tu solicitud a
+                                {{ space.provider_profile.display_name }}
+                            </strong>
+                            <p>
+                                El proveedor recibirá la fecha y el horario
+                                que seleccionaste.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-booking-confirm-step">
+                        <span>2</span>
+                        <div>
+                            <strong>
+                                Tu arriendo quedará pendiente
+                            </strong>
+                            <p>
+                                El espacio quedará esperando la respuesta
+                                del proveedor antes de aparecer como confirmado.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-booking-confirm-step">
+                        <span>3</span>
+                        <div>
+                            <strong>
+                                Podrás revisar el resultado desde Mi cuenta
+                            </strong>
+                            <p>
+                                Te mostraremos el estado en
+                                <b>Mis arriendos de espacios</b>.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="space-booking-confirm-note">
+                    <span>ANTES DE ENVIAR</span>
+                    <strong>
+                        Revisa una última vez la fecha y el horario.
+                    </strong>
+                    <p>
+                        Al continuar crearás una solicitud de arriendo.
+                        Todavía deberá ser aceptada por el proveedor.
+                    </p>
+                </div>
+
+            {% endif %}
+
+            <form method="post" class="space-booking-confirm-form">
+                {% csrf_token %}
+
+                {{ form.session_date }}
+                {{ form.start_time }}
+                {{ form.end_time }}
+
+                <div class="space-booking-confirm-actions">
+
+                    <button
+                        type="submit"
+                        class="space-booking-confirm-submit {% if booking_error %}space-booking-confirm-submit-disabled{% endif %}"
+                        {% if booking_error %}disabled{% endif %}
+                    >
+                        Enviar solicitud de arriendo
+                        <span>→</span>
+                    </button>
+
+                    <a
+                        href="{% url 'spaces:public_slots' space.id %}{% if session_date %}?date={{ session_date|date:'Y-m-d' }}{% endif %}"
+                        class="space-booking-confirm-back"
+                    >
+                        Elegir otro horario
+                    </a>
+
+                </div>
+            </form>
+
+        </section>
+
+    </div>
+</section>
+{% endblock %}

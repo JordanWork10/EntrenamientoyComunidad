@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Mis actividades | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page activities-page">
+
+    <div class="account-container">
+
+        <header class="activities-hero activities-hero-compact">
+
+            <div>
+
+                <span class="activities-overline">
+                    MIS ACTIVIDADES
+                </span>
+
+                <h1>
+                    Tu comunidad, en un solo lugar.
+                </h1>
+
+                <p>
+                    Revisa lo que organizas y las actividades
+                    en las que decidiste participar.
+                </p>
+
+            </div>
+
+
+            <div class="activities-hero-actions">
+
+                <a
+                    href="{% url 'activities:create_community' %}"
+                    class="activities-button activities-button-primary"
+                >
+                    + Crear actividad comunitaria
+                </a>
+
+                {% if can_create_professional %}
+
+                    <a
+                        href="{% url 'activities:create_professional' %}"
+                        class="activities-button activities-button-secondary"
+                    >
+                        + Crear actividad profesional
+                    </a>
+
+                {% endif %}
+
+                <a
+                    href="{% url 'activities:home' %}"
+                    class="activities-button activities-button-secondary"
+                >
+                    Explorar actividades
+                </a>
+
+            </div>
+
+        </header>
+
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        <section class="activities-list-section">
+
+            <div class="activities-section-heading">
+
+                <div>
+
+                    <span>
+                        01
+                    </span>
+
+                    <h2>
+                        Organizadas por mí
+                    </h2>
+
+                </div>
+
+                <small>
+                    {{ organized_activities|length }}
+                    registrada{{ organized_activities|length|pluralize:"s" }}
+                </small>
+
+            </div>
+
+
+            {% if organized_activities %}
+
+                <div class="activities-simple-list">
+
+                    {% for activity in organized_activities %}
+
+                        <a
+                            href="{% url 'activities:detail' activity.id %}"
+                            class="activities-simple-card {% if activity.activity_type == 'professional' %}activities-simple-card-professional{% endif %}"
+                        >
+
+                            <div>
+
+                                <span class="activities-simple-type {% if activity.activity_type == 'professional' %}activities-simple-type-professional{% endif %}">
+                                    {{ activity.get_activity_type_display }}
+                                </span>
+
+                                <span class="activities-card-category">
+                                    {{ activity.category.name }}
+                                </span>
+
+                                <h3>
+                                    {{ activity.title }}
+                                </h3>
+
+                                <p>
+                                    {{ activity.date|date:"d/m/Y" }}
+                                    ·
+                                    {{ activity.start_time|time:"H:i" }}–{{ activity.end_time|time:"H:i" }}
+                                    ·
+                                    {{ activity.get_modality_display }}
+                                </p>
+
+                            </div>
+
+
+                            <div class="activities-simple-card-meta">
+
+                                <span class="activities-chip {% if activity.activity_type == 'professional' %}activities-chip-professional{% endif %}">
+                                    {{ activity.get_status_display }}
+                                </span>
+
+                                <strong>
+                                    {{ activity.active_registrations_count }}/{{ activity.capacity }}
+                                    inscritos
+                                </strong>
+
+                                <strong>
+                                    {% if activity.price %}
+                                        {{ activity.price|clp }}
+                                    {% else %}
+                                        Gratis
+                                    {% endif %}
+                                </strong>
+
+                                <span>
+                                    Ver actividad →
+                                </span>
+
+                            </div>
+
+                        </a>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="activities-empty-state activities-empty-state-small">
+
+                    <h3>
+                        Aún no organizas actividades.
+                    </h3>
+
+                    <p>
+                        Puedes crear una actividad comunitaria y,
+                        si tienes Perfil Profesional verificado,
+                        también una actividad profesional.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <section class="activities-list-section">
+
+            <div class="activities-section-heading">
+
+                <div>
+
+                    <span>
+                        02
+                    </span>
+
+                    <h2>
+                        Actividades en las que participo
+                    </h2>
+
+                </div>
+
+                <small>
+                    {{ joined_registrations|length }}
+                    registro{{ joined_registrations|length|pluralize:"s" }}
+                </small>
+
+            </div>
+
+
+            {% if joined_registrations %}
+
+                <div class="activities-simple-list">
+
+                    {% for registration in joined_registrations %}
+
+                        <a
+                            href="{% url 'activities:detail' registration.activity.id %}"
+                            class="activities-simple-card {% if registration.activity.activity_type == 'professional' %}activities-simple-card-professional{% endif %}"
+                        >
+
+                            <div>
+
+                                <span class="activities-simple-type {% if registration.activity.activity_type == 'professional' %}activities-simple-type-professional{% endif %}">
+                                    {{ registration.activity.get_activity_type_display }}
+                                </span>
+
+                                <span class="activities-card-category">
+                                    {{ registration.activity.category.name }}
+                                </span>
+
+                                <h3>
+                                    {{ registration.activity.title }}
+                                </h3>
+
+                                <p>
+                                    {{ registration.activity.date|date:"d/m/Y" }}
+                                    ·
+                                    {{ registration.activity.start_time|time:"H:i" }}–{{ registration.activity.end_time|time:"H:i" }}
+                                    ·
+                                    {{ registration.activity.get_modality_display }}
+                                </p>
+
+                            </div>
+
+
+                            <div class="activities-simple-card-meta">
+
+                                <span class="activities-chip {% if registration.activity.activity_type == 'professional' %}activities-chip-professional{% endif %}">
+                                    {{ registration.get_status_display }}
+                                </span>
+
+                                <strong>
+                                    Organiza
+                                    {{ registration.activity.organizer.get_full_name|default:registration.activity.organizer.email }}
+                                </strong>
+
+                                <strong>
+                                    {% if registration.activity.price %}
+                                        {{ registration.activity.price|clp }}
+                                    {% else %}
+                                        Gratis
+                                    {% endif %}
+                                </strong>
+
+                                <span>
+                                    Ver actividad →
+                                </span>
+
+                            </div>
+
+                        </a>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="activities-empty-state activities-empty-state-small">
+
+                    <h3>
+                        Todavía no te has unido a una actividad.
+                    </h3>
+
+                    <p>
+                        Explora las actividades publicadas y reserva
+                        un cupo cuando encuentres una que te interese.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</section>
+
+{% endblock %}

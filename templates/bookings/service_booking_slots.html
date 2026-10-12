@@ -1,0 +1,792 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+
+{% block title %}
+Reservar Sesión | EntrenamientoyComunidad
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const form = document.getElementById('booking-friendly-date-form');
+    const hiddenDate = document.getElementById('booking-date');
+
+    const daySelect = document.getElementById('booking-date-day');
+    const monthSelect = document.getElementById('booking-date-month');
+    const yearSelect = document.getElementById('booking-date-year');
+
+    const errorMessage = document.getElementById(
+        'booking-friendly-date-error'
+    );
+
+    const todayValue = '{{ today_value|escapejs }}';
+    const selectedValue = '{{ selected_date_value|escapejs }}';
+
+
+    function parseDate(value) {
+
+        if (!value) {
+            return null;
+        }
+
+        const parts = value.split('-');
+
+        if (parts.length !== 3) {
+            return null;
+        }
+
+        return {
+            year: Number(parts[0]),
+            month: Number(parts[1]),
+            day: Number(parts[2])
+        };
+    }
+
+
+    function pad(number) {
+        return String(number).padStart(2, '0');
+    }
+
+
+    function daysInMonth(year, month) {
+        return new Date(year, month, 0).getDate();
+    }
+
+
+    const today = parseDate(todayValue);
+
+    const initialDate = (
+        parseDate(selectedValue)
+        || today
+    );
+
+
+    function buildYears() {
+
+        if (!today) {
+            return;
+        }
+
+        const selectedYear = initialDate
+            ? initialDate.year
+            : today.year;
+
+        const finalYear = Math.max(
+            today.year + 10,
+            selectedYear
+        );
+
+        for (
+            let year = today.year;
+            year <= finalYear;
+            year += 1
+        ) {
+            const option = document.createElement('option');
+
+            option.value = String(year);
+            option.textContent = String(year);
+
+            yearSelect.appendChild(option);
+        }
+    }
+
+
+    function buildDays(preferredDay) {
+
+        const month = Number(monthSelect.value);
+        const year = Number(yearSelect.value);
+
+        const oldDay = (
+            preferredDay
+            || Number(daySelect.value)
+            || null
+        );
+
+        daySelect.innerHTML = '<option value="">Día</option>';
+
+        if (!month || !year) {
+            return;
+        }
+
+        const totalDays = daysInMonth(
+            year,
+            month
+        );
+
+        for (
+            let day = 1;
+            day <= totalDays;
+            day += 1
+        ) {
+            const option = document.createElement('option');
+
+            option.value = String(day);
+            option.textContent = String(day);
+
+            daySelect.appendChild(option);
+        }
+
+        if (
+            oldDay
+            && oldDay <= totalDays
+        ) {
+            daySelect.value = String(oldDay);
+        }
+    }
+
+
+    function buildDateValue() {
+
+        const day = Number(daySelect.value);
+        const month = Number(monthSelect.value);
+        const year = Number(yearSelect.value);
+
+        if (!day || !month || !year) {
+            return '';
+        }
+
+        return (
+            String(year)
+            + '-'
+            + pad(month)
+            + '-'
+            + pad(day)
+        );
+    }
+
+
+    function isBeforeToday(value) {
+
+        if (!today || !value) {
+            return false;
+        }
+
+        return value < todayValue;
+    }
+
+
+    function syncDate() {
+
+        const value = buildDateValue();
+
+        if (
+            value
+            && !isBeforeToday(value)
+        ) {
+            hiddenDate.value = value;
+
+            if (errorMessage) {
+                errorMessage.style.display = 'none';
+            }
+
+            return true;
+        }
+
+        hiddenDate.value = '';
+
+        return false;
+    }
+
+
+    buildYears();
+
+    if (initialDate) {
+
+        monthSelect.value = String(initialDate.month);
+        yearSelect.value = String(initialDate.year);
+
+        buildDays(initialDate.day);
+
+        daySelect.value = String(initialDate.day);
+
+        syncDate();
+    }
+
+
+    monthSelect.addEventListener(
+        'change',
+        function () {
+            buildDays();
+            syncDate();
+        }
+    );
+
+
+    yearSelect.addEventListener(
+        'change',
+        function () {
+            buildDays();
+            syncDate();
+        }
+    );
+
+
+    daySelect.addEventListener(
+        'change',
+        syncDate
+    );
+
+
+    form.addEventListener(
+        'submit',
+        function (event) {
+
+            if (!syncDate()) {
+
+                event.preventDefault();
+
+                if (errorMessage) {
+                    errorMessage.style.display = 'block';
+                }
+
+                return;
+            }
+
+
+            if (
+                isBeforeToday(hiddenDate.value)
+            ) {
+                event.preventDefault();
+
+                hiddenDate.value = '';
+
+                if (errorMessage) {
+                    errorMessage.textContent = (
+                        'La fecha debe ser igual o posterior a hoy.'
+                    );
+
+                    errorMessage.style.display = 'block';
+                }
+            }
+        }
+    );
+
+});
+</script>
+
+{% endblock %}
+
+
+{% block content %}
+
+<section class="account-page">
+
+    <div class="account-container">
+
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    RESERVA
+                </span>
+
+                <h1>
+                    Elige tu
+                    <span>
+                        sesión
+                    </span>
+                </h1>
+
+                <p>
+                    Selecciona una fecha y revisa solamente los horarios
+                    que se encuentran realmente disponibles.
+                </p>
+
+            </div>
+
+
+            <div class="account-status">
+
+                <span class="account-status-dot"></span>
+
+                Disponibilidad actualizada
+
+            </div>
+
+        </header>
+
+
+        <!-- RESUMEN -->
+
+        <section class="account-summary-grid">
+
+            <article class="account-summary-card booking-service-summary-card">
+
+                <div class="booking-service-identity">
+
+                    <div class="booking-professional-avatar">
+
+                        {% if service.professional_profile.user.profile_image %}
+
+                            <img
+                                src="{{ service.professional_profile.user.profile_image.url }}"
+                                alt="Foto de {{ service.professional_profile.user.get_full_name }}"
+                                class="booking-professional-avatar-image"
+                                width="52"
+                                height="52"
+                            >
+
+                        {% else %}
+
+                            <span>
+                                {{ service.professional_profile.user.first_name|first|upper }}{{ service.professional_profile.user.last_name|first|upper }}
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="booking-service-identity-copy">
+
+                        <span class="account-summary-label">
+                            SERVICIO
+                        </span>
+
+                        <strong>
+                            {{ service.name }}
+                        </strong>
+
+                        <p>
+                            {{ service.professional_profile.user.get_full_name }}
+                            ·
+                            {{ service.professional_profile.specialty.name }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    DURACIÓN
+                </span>
+
+                <strong>
+                    {{ service.duration_minutes }} minutos
+                </strong>
+
+                <p>
+                    Duración por sesión
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    MODALIDAD
+                </span>
+
+                <strong>
+                    {{ service.get_mode_display }}
+                </strong>
+
+                <p>
+                    Modalidad del servicio
+                </p>
+
+            </article>
+
+
+            <article class="account-summary-card">
+
+                <span class="account-summary-label">
+                    PRECIO
+                </span>
+
+                <strong>
+                    {{ service.price|clp }}
+                </strong>
+
+                <p>
+                    Precio por sesión
+                </p>
+
+            </article>
+
+        </section>
+
+
+        <!-- FECHA -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        01
+                    </span>
+
+                    <h2>
+                        Elige una fecha
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    DISPONIBILIDAD
+                </span>
+
+            </div>
+
+
+            <div class="friendly-date-picker">
+
+                <div class="friendly-date-intro">
+
+                    <strong>
+                        Próximos días
+                    </strong>
+
+                    <p>
+                        Los días marcados como disponibles tienen al menos
+                        una sesión libre en este momento.
+                    </p>
+
+                </div>
+
+
+                <div class="friendly-date-options">
+
+                    {% for quick_date in quick_dates %}
+
+                        <a
+                            href="?date={{ quick_date.value }}"
+                            class="friendly-date-option {% if quick_date.is_selected %}friendly-date-option-active{% endif %}"
+                        >
+
+                            <span>
+                                {{ quick_date.label }}
+                            </span>
+
+                            <strong>
+                                {{ quick_date.date_label }}
+                            </strong>
+
+                            <small class="friendly-date-status {% if quick_date.has_slots %}friendly-date-status-available{% else %}friendly-date-status-empty{% endif %}">
+                                {% if quick_date.has_slots %}
+                                    Disponible
+                                {% else %}
+                                    Sin horario
+                                {% endif %}
+                            </small>
+
+                        </a>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <form
+                    method="get"
+                    class="friendly-date-custom"
+                    id="booking-friendly-date-form"
+                >
+
+                    <div>
+
+                        <label>
+                            ¿Buscas otra fecha?
+                        </label>
+
+                        <input
+                            id="booking-date"
+                            type="hidden"
+                            name="date"
+                            value="{{ selected_date_value }}"
+                        >
+
+                        <div class="professional-availability-date-grid">
+
+                            <div class="professional-availability-field">
+
+                                <label for="booking-date-day">
+                                    Día
+                                </label>
+
+                                <select id="booking-date-day">
+                                    <option value="">Día</option>
+                                </select>
+
+                            </div>
+
+
+                            <div class="professional-availability-field professional-availability-month">
+
+                                <label for="booking-date-month">
+                                    Mes
+                                </label>
+
+                                <select id="booking-date-month">
+                                    <option value="">Selecciona un mes</option>
+                                    <option value="1">Enero</option>
+                                    <option value="2">Febrero</option>
+                                    <option value="3">Marzo</option>
+                                    <option value="4">Abril</option>
+                                    <option value="5">Mayo</option>
+                                    <option value="6">Junio</option>
+                                    <option value="7">Julio</option>
+                                    <option value="8">Agosto</option>
+                                    <option value="9">Septiembre</option>
+                                    <option value="10">Octubre</option>
+                                    <option value="11">Noviembre</option>
+                                    <option value="12">Diciembre</option>
+                                </select>
+
+                            </div>
+
+
+                            <div class="professional-availability-field">
+
+                                <label for="booking-date-year">
+                                    Año
+                                </label>
+
+                                <select id="booking-date-year">
+                                    <option value="">Año</option>
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <span class="account-form-help">
+                            Puedes elegir cualquier fecha desde hoy.
+                        </span>
+
+                        <p
+                            id="booking-friendly-date-error"
+                            class="form-error"
+                            style="display: none;"
+                        >
+                            Selecciona una fecha válida para continuar.
+                        </p>
+
+                        {% if date_error %}
+
+                            <p class="form-error">
+                                {{ date_error }}
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="account-professional-action"
+                    >
+                        Ver disponibilidad
+                        <span>→</span>
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <!-- HORARIOS -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+
+                    <span class="account-panel-number">
+                        02
+                    </span>
+
+                    <h2>
+                        Horarios disponibles
+                    </h2>
+
+                </div>
+
+                <span class="account-panel-tag">
+                    RESERVA
+                </span>
+
+            </div>
+
+
+            {% if not selected_date %}
+
+                <div class="account-empty">
+
+                    <strong>
+                        Selecciona una fecha
+                    </strong>
+
+                    <p>
+                        Los horarios disponibles aparecerán aquí.
+                    </p>
+
+                </div>
+
+
+            {% elif date_error %}
+
+                <div class="account-empty">
+
+                    <strong>
+                        No se pudo consultar la fecha
+                    </strong>
+
+                    <p>
+                        Revisa la fecha seleccionada.
+                    </p>
+
+                </div>
+
+
+            {% elif slots %}
+
+                <div class="account-interests">
+
+                    <span class="account-subtitle">
+                        {{ weekday_label|upper }}
+                        ·
+                        {{ selected_date|date:"d/m/Y" }}
+                    </span>
+
+                    <p class="booking-slot-count">
+                        {{ slot_count }}
+                        {% if slot_count == 1 %}
+                            horario disponible
+                        {% else %}
+                            horarios disponibles
+                        {% endif %}
+                    </p>
+
+
+                    <div class="booking-slot-grid">
+
+                        {% for slot in slots %}
+
+                            <article class="account-data-item">
+
+                                <span>
+                                    SESIÓN {{ forloop.counter }}
+                                </span>
+
+                                <strong class="booking-slot-time">
+                                    {{ slot.start_time|time:"H:i" }}
+                                    –
+                                    {{ slot.end_time|time:"H:i" }}
+                                </strong>
+
+                                <div class="booking-slot-meta">
+
+                                    <span>
+                                        {{ service.duration_minutes }} minutos
+                                    </span>
+
+                                    <span>
+                                        {{ service.price|clp }}
+                                    </span>
+
+                                </div>
+
+
+                                {% if is_own_service %}
+
+                                    <span class="account-form-help">
+                                        Este horario pertenece a tu propio servicio.
+                                    </span>
+
+                                {% else %}
+
+                                    <a
+                                        href="{% url 'bookings:confirm' service.id %}?date={{ selected_date|date:'Y-m-d' }}&start={{ slot.start_time|time:'H:i' }}&end={{ slot.end_time|time:'H:i' }}"
+                                        class="account-professional-action booking-slot-action"
+                                    >
+                                        Reservar esta sesión
+                                        <span>→</span>
+                                    </a>
+
+                                {% endif %}
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+            {% else %}
+
+                <div class="account-empty">
+
+                    <strong>
+                        No hay horarios disponibles
+                    </strong>
+
+                    <p>
+                        El Profesional no posee una sesión libre para
+                        {{ weekday_label }} {{ selected_date|date:"d/m/Y" }}.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        {% if is_own_service %}
+
+            <section class="account-panel">
+
+                <div class="account-professional-message">
+
+                    <strong>
+                        Estás viendo tu propio servicio
+                    </strong>
+
+                    <p>
+                        Puedes revisar cómo se verá la disponibilidad para
+                        los miembros, pero no puedes reservar tu propio
+                        servicio profesional.
+                    </p>
+
+                </div>
+
+            </section>
+
+        {% endif %}
+
+
+        <div class="booking-back-action">
+
+            <a
+                href="{% url 'core:home' %}"
+                class="account-professional-action"
+            >
+                ← Volver al inicio
+            </a>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+{% endblock %}

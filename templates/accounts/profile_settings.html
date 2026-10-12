@@ -1,0 +1,793 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}
+Configuración de Perfil | EntrenamientoyComunidad
+{% endblock %}
+
+
+{% block content %}
+
+<section class="profile-settings-page">
+
+    <div class="profile-settings-container">
+
+
+        <!-- CABECERA -->
+
+        <header class="profile-settings-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    CUENTA ÚNICA UNIVERSAL
+                </span>
+
+                <h1>
+                    Configuración y
+                    <span>edición de perfil.</span>
+                </h1>
+
+                <p>
+                    Mantén actualizada tu información personal,
+                    ubicación y preferencias dentro de la plataforma.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{% url 'accounts:dashboard' %}"
+                class="profile-back-link"
+            >
+                ← Volver a Mi Cuenta
+            </a>
+
+        </header>
+
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+            class="profile-settings-form"
+            id="profile-settings-form"
+            novalidate
+        >
+
+            {% csrf_token %}
+
+
+            {% if form.non_field_errors %}
+
+                <div class="form-global-errors">
+
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- 01 DATOS PERSONALES -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            01
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Datos personales
+                            </h2>
+
+                            <p>
+                                Información asociada a tu Cuenta Única.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        ID
+                    </span>
+
+                </div>
+
+
+                <div class="form-grid form-grid-2">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.first_name.id_for_label }}">
+                            Nombres
+                        </label>
+
+                        {{ form.first_name }}
+
+                        {% for error in form.first_name.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.last_name.id_for_label }}">
+                            Apellidos
+                        </label>
+
+                        {{ form.last_name }}
+
+                        {% for error in form.last_name.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label>
+                            RUT
+                        </label>
+
+                        <input
+                            type="text"
+                            value="{{ request.user.rut|default:'' }}"
+                            disabled
+                        >
+
+                        <span class="field-help">
+                            El RUT no puede modificarse desde esta sección.
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.email.id_for_label }}">
+                            Correo electrónico
+                        </label>
+
+                        {{ form.email }}
+
+                        {% for error in form.email.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.phone.id_for_label }}">
+                            Teléfono
+                        </label>
+
+                        {{ form.phone }}
+
+                        {% for error in form.phone.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.birth_date.id_for_label }}">
+                            Fecha de nacimiento
+                        </label>
+
+                        {{ form.birth_date }}
+
+                        {% for error in form.birth_date.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.gender.id_for_label }}">
+                            Género
+                            <span class="field-optional">
+                                (opcional)
+                            </span>
+                        </label>
+
+                        {{ form.gender }}
+
+                        <span class="field-help">
+                            Puedes elegir una opción o dejar este campo sin responder.
+                        </span>
+
+                        {% for error in form.gender.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field profile-image-field">
+
+                        <label for="{{ form.profile_image.id_for_label }}">
+                            Foto de perfil
+                            <span class="field-optional">
+                                (opcional)
+                            </span>
+                        </label>
+
+                        <div class="profile-photo-preview">
+
+                            {% if request.user.profile_image %}
+
+                                <img
+                                    src="{{ request.user.profile_image.url }}"
+                                    alt="Foto de perfil de {{ request.user.get_full_name|default:request.user.email }}"
+                                    class="profile-photo-image"
+                                    width="96"
+                                    height="96"
+                                >
+
+                            {% else %}
+
+                                <div
+                                    class="profile-photo-initials"
+                                    aria-label="Avatar con iniciales"
+                                >
+                                    {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                                </div>
+
+                            {% endif %}
+
+                            <div class="profile-photo-copy">
+
+                                {% if request.user.profile_image %}
+
+                                    <strong>
+                                        Foto actual
+                                    </strong>
+
+                                    <p>
+                                        Puedes reemplazarla seleccionando una nueva imagen.
+                                    </p>
+
+                                {% else %}
+
+                                    <strong>
+                                        Avatar por defecto
+                                    </strong>
+
+                                    <p>
+                                        Mientras no subas una fotografía, mostraremos tus iniciales.
+                                    </p>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                        <div class="profile-photo-controls">
+
+                            <label
+                                for="{{ form.profile_image.id_for_label }}"
+                                class="profile-photo-upload-button"
+                            >
+                                Cambiar fotografía
+                            </label>
+
+                            <input
+                                type="file"
+                                name="{{ form.profile_image.html_name }}"
+                                id="{{ form.profile_image.id_for_label }}"
+                                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                                class="profile-photo-file-input"
+                            >
+
+                            {% if request.user.profile_image %}
+
+                                <label
+                                    for="profile-image-clear"
+                                    class="profile-photo-remove-option"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        name="{{ form.profile_image.html_name }}-clear"
+                                        id="profile-image-clear"
+                                    >
+
+                                    <span>
+                                        Eliminar fotografía y volver a mis iniciales
+                                    </span>
+                                </label>
+
+                            {% endif %}
+
+                        </div>
+
+                        <span class="field-help">
+                            JPG, JPEG, PNG o WEBP. Máximo 5 MB.
+                        </span>
+
+                        <span
+                            class="profile-photo-file-name"
+                            id="profile-photo-file-name"
+                        >
+                            Ningún archivo nuevo seleccionado.
+                        </span>
+
+                        {% for error in form.profile_image.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- 02 UBICACIÓN -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            02
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Ubicación
+                            </h2>
+
+                            <p>
+                                Utilizada para búsquedas y futuras
+                                recomendaciones territoriales.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        GEO
+                    </span>
+
+                </div>
+
+
+                <div class="form-grid form-grid-2">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.region.id_for_label }}">
+                            Región
+                        </label>
+
+                        {{ form.region }}
+
+                        {% for error in form.region.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.commune.id_for_label }}">
+                            Comuna
+                        </label>
+
+                        {{ form.commune }}
+
+                        {% for error in form.commune.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- 03 PERFIL MIEMBRO -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            03
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Perfil de miembro
+                            </h2>
+
+                            <p>
+                                Ajusta tu nivel de actividad e intereses.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        FIT
+                    </span>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.activity_level.id_for_label }}">
+                            Nivel de actividad física
+                        </label>
+
+                        {{ form.activity_level }}
+
+                        {% for error in form.activity_level.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-field interests-field">
+
+                    <label>
+                        Intereses
+                    </label>
+
+                    <p class="field-description">
+                        Puedes seleccionar más de uno.
+                    </p>
+
+
+                    <div class="interest-grid">
+
+                        {% for choice in form.interests %}
+
+                            <label class="interest-option">
+
+                                {{ choice.tag }}
+
+                                <span>
+                                    {{ choice.choice_label }}
+                                </span>
+
+                            </label>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    {% for error in form.interests.errors %}
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+
+            <!-- 04 CONTACTO DE EMERGENCIA -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            04
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Contacto de emergencia
+                            </h2>
+
+                            <p>
+                                Mantén actualizada esta información
+                                para actividades presenciales.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol registration-symbol-alert">
+                        SOS
+                    </span>
+
+                </div>
+
+
+                <div class="form-grid form-grid-3">
+
+                    <div class="form-field">
+
+                        <label for="{{ form.emergency_contact_name.id_for_label }}">
+                            Nombre y apellido
+                        </label>
+
+                        {{ form.emergency_contact_name }}
+
+                        {% for error in form.emergency_contact_name.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.emergency_contact_relationship.id_for_label }}">
+                            Relación o parentesco
+                        </label>
+
+                        {{ form.emergency_contact_relationship }}
+
+                        {% for error in form.emergency_contact_relationship.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="{{ form.emergency_contact_phone.id_for_label }}">
+                            Teléfono
+                        </label>
+
+                        {{ form.emergency_contact_phone }}
+
+                        {% for error in form.emergency_contact_phone.errors %}
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- PERFILES ADICIONALES -->
+
+            <section class="registration-block">
+
+                <div class="registration-block-header">
+
+                    <div class="registration-block-title">
+
+                        <span class="registration-number">
+                            05
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Perfiles habilitados
+                            </h2>
+
+                            <p>
+                                Estados actuales asociados a tu Cuenta Única.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <span class="registration-symbol">
+                        ROLE
+                    </span>
+
+                </div>
+
+
+                <div class="profile-role-list">
+
+                    <div class="account-role">
+
+                        <div>
+
+                            <strong>
+                                Miembro
+                            </strong>
+
+                            <span>
+                                Perfil base de la plataforma
+                            </span>
+
+                        </div>
+
+                        <span class="role-status role-status-active">
+                            Activo
+                        </span>
+
+                    </div>
+
+
+                    <div class="account-role">
+
+                        <div>
+
+                            <strong>
+                                Profesional
+                            </strong>
+
+                            <span>
+                                Servicios profesionales
+                            </span>
+
+                        </div>
+
+                        <span class="role-status">
+                            No habilitado
+                        </span>
+
+                    </div>
+
+
+                    <div class="account-role">
+
+                        <div>
+
+                            <strong>
+                                Proveedor de espacios
+                            </strong>
+
+                            <span>
+                                Gestión de infraestructura
+                            </span>
+
+                        </div>
+
+                        <span class="role-status">
+                            No habilitado
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- GUARDAR -->
+
+            <div class="profile-settings-actions">
+
+                <a
+                    href="{% url 'accounts:dashboard' %}"
+                    class="profile-cancel-button"
+                >
+                    Cancelar
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="button profile-save-button"
+                >
+                    Guardar cambios
+                    <span>→</span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script
+    src="{% static 'js/register.js' %}"
+></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const fileInput = document.getElementById(
+            '{{ form.profile_image.id_for_label }}'
+        );
+
+        const fileName = document.getElementById(
+            'profile-photo-file-name'
+        );
+
+        if (fileInput && fileName) {
+
+            fileInput.addEventListener('change', function () {
+
+                if (
+                    fileInput.files
+                    && fileInput.files.length > 0
+                ) {
+                    fileName.textContent = (
+                        fileInput.files[0].name
+                    );
+                } else {
+                    fileName.textContent = (
+                        'Ningún archivo nuevo seleccionado.'
+                    );
+                }
+
+            });
+
+        }
+
+    });
+</script>
+
+{% endblock %}

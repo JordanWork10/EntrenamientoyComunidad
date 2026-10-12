@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Mis Arriendos de Espacios | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+<section class="account-page space-member-bookings-page">
+    <div class="account-container">
+
+        <header class="account-hero">
+            <div>
+                <span class="page-overline">MIS ESPACIOS RESERVADOS</span>
+                <h1>
+                    Mis arriendos de
+                    <span>espacios.</span>
+                </h1>
+                <p>
+                    Revisa tus próximos arriendos, su estado y los espacios que ya reservaste.
+                </p>
+            </div>
+
+            <div class="space-member-page-status">
+                <span></span>
+                Mis arriendos
+            </div>
+        </header>
+
+
+        {% if latest_space_provider_update %}
+            <section class="space-provider-update-alert">
+                <div class="space-provider-update-alert-icon">
+                    !
+                </div>
+
+                <div class="space-provider-update-alert-content">
+                    <span>ACTUALIZACIÓN IMPORTANTE</span>
+
+                    {% if latest_space_provider_update.kind == 'rejected' %}
+                        <h2>Tu solicitud no fue aceptada</h2>
+
+                        <p>
+                            <strong>
+                                {{ latest_space_provider_update.booking.provider_name_snapshot }}
+                            </strong>
+                            no pudo aceptar tu solicitud para
+                            <strong>
+                                {{ latest_space_provider_update.booking.space_name_snapshot }}
+                            </strong>,
+                            del
+                            <strong>
+                                {{ latest_space_provider_update.booking.session_date|date:"d M"|upper }}
+                            </strong>
+                            de
+                            <strong>
+                                {{ latest_space_provider_update.booking.start_time|time:"H:i" }}
+                                a
+                                {{ latest_space_provider_update.booking.end_time|time:"H:i" }}
+                            </strong>.
+                        </p>
+                    {% else %}
+                        <h2>El proveedor canceló uno de tus arriendos</h2>
+
+                        <p>
+                            <strong>
+                                {{ latest_space_provider_update.booking.provider_name_snapshot }}
+                            </strong>
+                            canceló tu reserva para
+                            <strong>
+                                {{ latest_space_provider_update.booking.space_name_snapshot }}
+                            </strong>,
+                            del
+                            <strong>
+                                {{ latest_space_provider_update.booking.session_date|date:"d M"|upper }}
+                            </strong>
+                            de
+                            <strong>
+                                {{ latest_space_provider_update.booking.start_time|time:"H:i" }}
+                                a
+                                {{ latest_space_provider_update.booking.end_time|time:"H:i" }}
+                            </strong>.
+                        </p>
+                    {% endif %}
+
+                    {% if latest_space_provider_update.event.reason %}
+                        <div class="space-provider-update-reason">
+                            <span>MOTIVO</span>
+                            <strong>
+                                {{ latest_space_provider_update.event.reason }}
+                            </strong>
+                        </div>
+                    {% endif %}
+
+                    <p class="space-provider-update-help">
+                        El horario volvió a quedar disponible y este arriendo
+                        permanece guardado en tu historial.
+                    </p>
+                </div>
+
+                <a
+                    href="{% url 'spaces:booking_detail' latest_space_provider_update.booking.id %}"
+                    class="space-provider-update-action"
+                >
+                    Ver arriendo
+                    <span>→</span>
+                </a>
+            </section>
+        {% endif %}
+
+        <section class="account-summary-grid">
+            <article class="account-summary-card">
+                <span class="account-summary-label">PRÓXIMOS</span>
+                <strong>{{ upcoming_count }}</strong>
+                <p>Pendientes o confirmados</p>
+            </article>
+
+            <article class="account-summary-card">
+                <span class="account-summary-label">ANTERIORES</span>
+                <strong>{{ history_count }}</strong>
+                <p>Cancelados, completados o pasados</p>
+            </article>
+
+            <article class="account-summary-card">
+                <span class="account-summary-label">TOTAL</span>
+                <strong>{{ total_count }}</strong>
+                <p>Arriendos registrados</p>
+            </article>
+
+            <article class="account-summary-card">
+                <span class="account-summary-label">MI CUENTA</span>
+                <strong>{{ request.user.get_full_name|default:request.user.email }}</strong>
+                <p>Tus reservas de espacios</p>
+            </article>
+        </section>
+
+        <section class="account-panel">
+            <div class="account-panel-header">
+                <div>
+                    <span class="account-panel-number">01</span>
+                    <h2>Próximos arriendos</h2>
+                </div>
+                <span class="account-panel-tag">{{ upcoming_count }} ACTIVOS</span>
+            </div>
+
+            {% if upcoming_bookings %}
+                <div class="space-member-booking-list">
+                    {% for booking in upcoming_bookings %}
+                        <article class="space-member-booking-card">
+                            <div class="space-member-booking-top">
+                                <div class="space-member-booking-identity">
+                                    {% with cover=booking.space.images.all.0 %}
+                                        {% if cover %}
+                                            <img
+                                                src="{{ cover.image.url }}"
+                                                alt="{{ booking.space_name_snapshot }}"
+                                                class="space-member-booking-image"
+                                            >
+                                        {% else %}
+                                            <div class="space-member-booking-image space-member-booking-image-fallback">ESP</div>
+                                        {% endif %}
+                                    {% endwith %}
+
+                                    <div class="space-member-booking-copy">
+                                        <span>ESPACIO RESERVADO</span>
+                                        <h3>{{ booking.space_name_snapshot }}</h3>
+                                        <p>
+                                            con {{ booking.provider_name_snapshot }}
+                                        </p>
+                                        <small>
+                                            {{ booking.space_type_snapshot }} · {{ booking.commune_snapshot }}
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <span class="space-request-status space-request-status-{{ booking.status }}">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </div>
+
+                            <div class="space-member-booking-details">
+                                <div class="space-member-booking-detail space-member-booking-detail-date">
+                                    <span>FECHA</span>
+                                    <strong>{{ booking.session_date|date:"d M"|upper }}</strong>
+                                    <small>{{ booking.session_date|date:"Y" }}</small>
+                                </div>
+
+                                <div class="space-member-booking-detail">
+                                    <span>HORARIO</span>
+                                    <strong>{{ booking.start_time|time:"H:i" }} – {{ booking.end_time|time:"H:i" }}</strong>
+                                    <small>Bloque reservado</small>
+                                </div>
+
+                                <div class="space-member-booking-detail">
+                                    <span>DURACIÓN</span>
+                                    <strong>{{ booking.duration_minutes }} min</strong>
+                                    <small>Duración del arriendo</small>
+                                </div>
+
+                                <div class="space-member-booking-detail space-member-booking-detail-price">
+                                    <span>PRECIO</span>
+                                    <strong>{{ booking.price_clp|clp }}</strong>
+                                    <small>Precio de esta reserva</small>
+                                </div>
+                            </div>
+
+                            <div class="space-member-booking-footer">
+                                <span>
+                                    {% if booking.status == 'pending' %}
+                                        Esperando confirmación de {{ booking.provider_name_snapshot }}.
+                                    {% elif booking.status == 'confirmed' %}
+                                        Tu arriendo está confirmado.
+                                    {% else %}
+                                        Revisa el estado y los detalles de tu arriendo.
+                                    {% endif %}
+                                </span>
+
+                                <a
+                                    href="{% url 'spaces:booking_detail' booking.id %}"
+                                    class="space-member-booking-action"
+                                >
+                                    Ver mi arriendo <b>→</b>
+                                </a>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="account-empty space-member-empty">
+                    <strong>No tienes arriendos próximos</strong>
+                    <p>Cuando reserves un espacio, aparecerá aquí con su fecha, horario y estado.</p>
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="account-panel">
+            <div class="account-panel-header">
+                <div>
+                    <span class="account-panel-number">02</span>
+                    <h2>Arriendos anteriores</h2>
+                </div>
+                <span class="account-panel-tag">HISTORIAL</span>
+            </div>
+
+            {% if history_bookings %}
+                <details class="space-member-history-details">
+                    <summary class="space-member-history-summary">
+                        <span class="space-member-history-icon">↻</span>
+                        <div>
+                            <strong>{{ history_count }} arriendo{{ history_count|pluralize }} anterior{{ history_count|pluralize:"es" }}</strong>
+                            <span>Consulta reservas canceladas, completadas o cuya fecha ya pasó.</span>
+                        </div>
+                        <span class="space-member-history-action">
+                            <span class="space-member-history-closed">Ver arriendos anteriores</span>
+                            <span class="space-member-history-open">Ocultar arriendos anteriores</span>
+                            <b>⌄</b>
+                        </span>
+                    </summary>
+
+                    <div class="space-member-history-list">
+                        {% for booking in history_bookings %}
+                            <a
+                                href="{% url 'spaces:booking_detail' booking.id %}"
+                                class="space-member-history-card"
+                            >
+                                <div class="space-member-history-space">
+                                    {% with cover=booking.space.images.all.0 %}
+                                        {% if cover %}
+                                            <img src="{{ cover.image.url }}" alt="{{ booking.space_name_snapshot }}">
+                                        {% else %}
+                                            <span>ESP</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                    <div>
+                                        <small>ESPACIO</small>
+                                        <strong>{{ booking.space_name_snapshot }}</strong>
+                                        <span>{{ booking.space_type_snapshot }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="space-member-history-date">
+                                    <small>FECHA Y HORARIO</small>
+                                    <strong>{{ booking.session_date|date:"d M Y"|upper }}</strong>
+                                    <span>{{ booking.start_time|time:"H:i" }} – {{ booking.end_time|time:"H:i" }}</span>
+                                </div>
+
+                                <div class="space-member-history-state">
+                                    <span class="space-request-status space-request-status-{{ booking.status }}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                    <strong>Ver detalles →</strong>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </details>
+            {% else %}
+                <div class="account-empty space-member-empty">
+                    <strong>Aún no tienes arriendos anteriores</strong>
+                    <p>Las reservas canceladas, completadas o pasadas aparecerán aquí.</p>
+                </div>
+            {% endif %}
+        </section>
+
+        <div class="registration-actions space-member-booking-actions">
+            <a href="{% url 'accounts:dashboard' %}" class="account-professional-action">
+                ← Volver a Mi Cuenta
+            </a>
+            <a href="{% url 'spaces:public_catalog' %}" class="space-member-explore-button">
+                Explorar espacios <span>→</span>
+            </a>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

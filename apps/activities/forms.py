@@ -1436,6 +1436,22 @@ class ProfessionalActivityForm(forms.ModelForm):
             **kwargs,
         )
 
+        # La validación interna de ModelForm ejecuta Activity.clean()
+        # antes de que la vista asigne estos campos al guardar.
+        # Los dejamos definidos desde el formulario para que una
+        # reserva de espacio pueda validarse correctamente como parte
+        # de una Actividad Profesional.
+        if self.user is not None:
+            self.instance.organizer = self.user
+            self.instance.activity_type = (
+                Activity.ActivityType.PROFESSIONAL
+            )
+
+        if self.professional_profile is not None:
+            self.instance.professional_profile = (
+                self.professional_profile
+            )
+
         self.fields['category'].queryset = (
             ActivityCategory.objects
             .filter(

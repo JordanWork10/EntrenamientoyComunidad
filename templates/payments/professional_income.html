@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Pagos recibidos | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<section class="payments-page">
+
+    <div class="account-container">
+
+        <header class="payments-hero">
+
+            <div>
+                <span class="payments-overline">
+                    CENTRO PROFESIONAL · INGRESOS
+                </span>
+
+                <h1>
+                    Pagos <span>recibidos.</span>
+                </h1>
+
+                <p>
+                    Revisa los pagos aprobados asociados a las actividades
+                    profesionales que organizas. Este resumen todavía no
+                    representa retiros, transferencias ni comisiones.
+                </p>
+            </div>
+
+            <div class="payments-sandbox-badge">
+                SANDBOX · SIN COBRO REAL
+            </div>
+
+        </header>
+
+
+        <section class="payments-summary-grid">
+
+            <article class="payments-summary-card">
+                <span>PAGOS APROBADOS</span>
+                <strong>{{ approved_count }}</strong>
+            </article>
+
+            <article class="payments-summary-card">
+                <span>TOTAL APROBADO</span>
+                <strong>{{ approved_total|clp }}</strong>
+            </article>
+
+            <article class="payments-summary-card">
+                <span>ACTIVIDADES CON PAGOS</span>
+                <strong>{{ paid_activity_count }}</strong>
+            </article>
+
+        </section>
+
+
+        {% if refunded_count %}
+
+            <section class="professional-income-refund-summary">
+
+                <span>
+                    DEVOLUCIONES REGISTRADAS
+                </span>
+
+                <strong>
+                    {{ refunded_count }}
+                    reembolso{{ refunded_count|pluralize }}
+                    ·
+                    {{ refunded_total|clp }}
+                </strong>
+
+                <p>
+                    Los pagos reembolsados ya no forman parte
+                    del total aprobado vigente.
+                </p>
+
+            </section>
+
+        {% endif %}
+
+
+        <section class="payments-panel professional-income-panel">
+
+            <div class="payments-panel-title professional-income-title">
+
+                <span>
+                    01
+                </span>
+
+                <div>
+
+                    <h2>
+                        Movimientos recibidos
+                    </h2>
+
+                    <p>
+                        Pagos aprobados y futuras devoluciones vinculadas
+                        a tus actividades profesionales.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if payments %}
+
+                <div class="payments-list">
+
+                    {% for payment in payments %}
+
+                        <article class="payment-row professional-income-row">
+
+
+                            <div class="payment-row-main">
+
+                                <span>
+                                    ACTIVIDAD PROFESIONAL
+                                </span>
+
+                                <strong>
+                                    {{ payment.activity.title }}
+                                </strong>
+
+                                <p>
+                                    {{ payment.activity.date|date:"d/m/Y" }}
+                                    ·
+                                    {{ payment.activity.start_time|time:"H:i" }}
+                                    –
+                                    {{ payment.activity.end_time|time:"H:i" }}
+                                </p>
+
+                            </div>
+
+
+                            <div class="payment-row-data professional-income-member">
+
+                                <span>
+                                    MIEMBRO
+                                </span>
+
+                                <strong>
+                                    {{ payment.payer.get_full_name|default:payment.payer.email }}
+                                </strong>
+
+                                <p>
+
+                                    {% if payment.registration %}
+
+                                        Inscripción vinculada
+
+                                    {% else %}
+
+                                        Sin inscripción vinculada
+
+                                    {% endif %}
+
+                                </p>
+
+                            </div>
+
+
+                            <div class="payment-row-data payment-row-amount">
+
+                                <span>
+                                    MONTO
+                                </span>
+
+                                <strong>
+                                    {{ payment.amount_clp|clp }}
+                                </strong>
+
+                                <p>
+
+                                    {% if payment.approved_at %}
+
+                                        {{ payment.approved_at|date:"d/m/Y H:i" }}
+
+                                    {% else %}
+
+                                        {{ payment.created_at|date:"d/m/Y H:i" }}
+
+                                    {% endif %}
+
+                                </p>
+
+                            </div>
+
+
+                            <div class="payment-row-data professional-income-status-data">
+
+                                <span>
+                                    ESTADO
+                                </span>
+
+                                {% if payment.status == 'approved' %}
+
+                                    <strong class="payment-status payment-status-approved">
+                                        Aprobado
+                                    </strong>
+
+                                {% elif payment.status == 'refunded' %}
+
+                                    <strong class="payment-status payment-status-refunded">
+                                        Reembolsado
+                                    </strong>
+
+                                {% else %}
+
+                                    <strong class="payment-status">
+                                        {{ payment.get_status_display }}
+                                    </strong>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="payment-row-actions professional-income-actions">
+
+                                <a href="{% url 'activities:detail' payment.activity.id %}">
+                                    Ver actividad →
+                                </a>
+
+                                <a href="{% url 'payments:activity_payments' payment.activity.id %}">
+                                    Ver movimientos →
+                                </a>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="professional-income-empty">
+
+                    <span>
+                        PAY
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Todavía no tienes pagos recibidos
+                        </strong>
+
+                        <p>
+                            Cuando un Miembro pague y se inscriba correctamente
+                            en una de tus actividades profesionales pagadas,
+                            el movimiento aparecerá aquí.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <div class="professional-income-footer-actions">
+
+            <a
+                href="{% url 'professionals:dashboard' %}"
+                class="professional-income-back"
+            >
+                ← Volver al Centro Profesional
+            </a>
+
+            <a
+                href="{% url 'activities:my_activities' %}"
+                class="professional-income-activities"
+            >
+                Mis actividades profesionales →
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

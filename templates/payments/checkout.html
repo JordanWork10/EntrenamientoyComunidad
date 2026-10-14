@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Pagar actividad | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page payments-page">
+
+    <div class="account-container">
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        <header class="payments-hero">
+
+            <div>
+
+                <span class="payments-overline">
+                    PAGOS
+                </span>
+
+                <h1>
+                    Reserva tu cupo.
+                    <span>
+                        Confirma el pago de la actividad.
+                    </span>
+                </h1>
+
+                <p>
+                    El cupo se confirma únicamente cuando el pago queda aprobado.
+                    En esta primera versión estamos usando un entorno sandbox
+                    para comprobar todo el flujo sin realizar cobros reales.
+                </p>
+
+            </div>
+
+            {% if sandbox_enabled %}
+
+                <span class="payments-sandbox-badge">
+                    SANDBOX · SIN COBRO REAL
+                </span>
+
+            {% endif %}
+
+        </header>
+
+
+        <div class="payments-checkout-grid">
+
+            <section class="payments-panel">
+
+                <div class="payments-panel-title">
+
+                    <span>
+                        01
+                    </span>
+
+                    <h2>
+                        Resumen de tu inscripción
+                    </h2>
+
+                </div>
+
+
+                <article class="payments-activity-card">
+
+                    <span>
+                        ACTIVIDAD PROFESIONAL
+                    </span>
+
+                    <h3>
+                        {{ activity.title }}
+                    </h3>
+
+                    <p>
+                        con
+                        {{ activity.organizer.get_full_name|default:activity.organizer.email }}
+                    </p>
+
+                </article>
+
+
+                <div class="payments-facts">
+
+                    <div class="payments-fact">
+
+                        <span>
+                            FECHA
+                        </span>
+
+                        <strong>
+                            {{ activity.date|date:"d/m/Y" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payments-fact">
+
+                        <span>
+                            HORARIO
+                        </span>
+
+                        <strong>
+                            {{ activity.start_time|time:"H:i" }}
+                            –
+                            {{ activity.end_time|time:"H:i" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payments-fact">
+
+                        <span>
+                            MODALIDAD
+                        </span>
+
+                        <strong>
+                            {{ activity.get_modality_display }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payments-fact">
+
+                        <span>
+                            CUPOS DISPONIBLES
+                        </span>
+
+                        <strong>
+                            {{ activity.available_spots }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="payments-amount">
+
+                    <span>
+                        TOTAL A PAGAR
+                    </span>
+
+                    <strong>
+                        {{ payment.amount_clp|clp }}
+                    </strong>
+
+                </div>
+
+
+                <p class="payments-secure-note">
+                    El monto queda guardado como referencia del intento de pago.
+                    Si el precio de la actividad cambia antes de aprobarlo,
+                    el sistema solicitará iniciar un nuevo pago.
+                </p>
+
+            </section>
+
+
+            <aside class="payments-panel payments-sandbox-panel">
+
+                <div class="payments-panel-title">
+
+                    <span>
+                        02
+                    </span>
+
+                    <h2>
+                        Confirmar pago
+                    </h2>
+
+                </div>
+
+
+                <span class="payment-status payment-status-{{ payment.status }}">
+                    {{ payment.get_status_display }}
+                </span>
+
+
+                <p>
+                    Referencia interna:
+                    <span class="payments-reference">
+                        {{ payment.public_id }}
+                    </span>
+                </p>
+
+
+                {% if sandbox_enabled and payment.status == 'pending' %}
+
+                    <div class="payments-warning">
+
+                        <strong>
+                            Simulación de desarrollo
+                        </strong>
+
+                        Estos botones representan la respuesta que
+                        posteriormente entregará una pasarela de pago real.
+                        No se moverá dinero.
+
+                    </div>
+
+
+                    <div class="payments-action-stack">
+
+                        <form
+                            method="post"
+                            action="{% url 'payments:sandbox_approve' payment.public_id %}"
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="payments-button payments-button-approve"
+                            >
+                                ✓ Simular pago aprobado
+                            </button>
+                        </form>
+
+
+                        <form
+                            method="post"
+                            action="{% url 'payments:sandbox_reject' payment.public_id %}"
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="payments-button payments-button-reject"
+                            >
+                                Simular pago rechazado
+                            </button>
+                        </form>
+
+
+                        <form
+                            method="post"
+                            action="{% url 'payments:cancel' payment.public_id %}"
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="payments-button payments-button-cancel"
+                            >
+                                Cancelar este intento
+                            </button>
+                        </form>
+
+                    </div>
+
+
+                {% elif payment.status != 'pending' %}
+
+                    <div class="payments-action-stack">
+
+                        <a
+                            href="{% url 'payments:receipt' payment.public_id %}"
+                            class="payments-button payments-button-link"
+                        >
+                            Ver resultado →
+                        </a>
+
+                    </div>
+
+
+                {% else %}
+
+                    <div class="payments-warning">
+
+                        <strong>
+                            Esperando proveedor de pago
+                        </strong>
+
+                        En producción, esta pantalla redirigirá
+                        a la pasarela seleccionada.
+
+                    </div>
+
+                {% endif %}
+
+
+                <div class="payments-action-stack">
+
+                    <a
+                        href="{% url 'activities:detail' activity.id %}"
+                        class="payments-button payments-button-link"
+                    >
+                        ← Volver a la actividad
+                    </a>
+
+                    <a
+                        href="{% url 'payments:my_payments' %}"
+                        class="payments-button payments-button-link"
+                    >
+                        Mis pagos →
+                    </a>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

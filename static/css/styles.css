@@ -31352,3 +31352,870 @@ textarea.activities-form-control {
         grid-template-columns: 1fr;
     }
 }
+
+/* =========================================================
+   V98 - PAGOS V1 / SANDBOX
+   Pegar AL FINAL de static/css/styles.css
+========================================================= */
+
+:root {
+    --payment-gold: #ffd56b;
+    --payment-gold-soft: #ffe7a8;
+    --payment-green: #41e6a4;
+    --payment-red: #ff6577;
+}
+
+/* ---------------------------------------------------------
+   CONTENEDOR GENERAL
+--------------------------------------------------------- */
+
+.payments-page {
+    min-height: 70vh;
+}
+
+.payments-hero {
+    display: flex;
+    justify-content: space-between;
+    gap: 28px;
+    margin-bottom: 18px;
+    padding: 28px;
+    border: 1px solid rgba(255, 213, 107, 0.28);
+    border-radius: 14px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 213, 107, 0.055),
+            rgba(177, 116, 255, 0.025)
+        ),
+        #111720;
+}
+
+.payments-overline {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--payment-gold);
+    font-size: 10px;
+    font-weight: 1000;
+    letter-spacing: .13em;
+}
+
+.payments-hero h1 {
+    max-width: 760px;
+    margin: 0;
+    color: #f5f4ee;
+    font-size: clamp(30px, 4vw, 56px);
+    line-height: .98;
+}
+
+.payments-hero h1 span {
+    color: var(--payment-gold);
+}
+
+.payments-hero p {
+    max-width: 720px;
+    margin: 14px 0 0;
+    color: #929aaf;
+    line-height: 1.6;
+}
+
+.payments-sandbox-badge {
+    align-self: flex-start;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 213, 107, 0.34);
+    border-radius: 10px;
+    color: var(--payment-gold);
+    background: rgba(255, 213, 107, 0.055);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    white-space: nowrap;
+}
+
+/* ---------------------------------------------------------
+   CHECKOUT
+--------------------------------------------------------- */
+
+.payments-checkout-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(300px, .75fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.payments-panel {
+    padding: 22px;
+    border: 1px solid #2c3443;
+    border-radius: 13px;
+    background: #111720;
+}
+
+.payments-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 18px;
+}
+
+.payments-panel-title span {
+    color: var(--payment-gold);
+    font-size: 10px;
+    font-weight: 1000;
+}
+
+.payments-panel-title h2 {
+    margin: 0;
+    color: #f5f4ee;
+    font-size: 20px;
+}
+
+.payments-activity-card {
+    padding: 16px;
+    border: 1px solid rgba(177, 116, 255, 0.30);
+    border-radius: 11px;
+    background: rgba(177, 116, 255, 0.035);
+}
+
+.payments-activity-card > span {
+    color: #c69aff;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .1em;
+}
+
+.payments-activity-card h3 {
+    margin: 7px 0 8px;
+    color: #f5f4ee;
+    font-size: 22px;
+}
+
+.payments-activity-card p {
+    margin: 0;
+    color: #929aaf;
+}
+
+.payments-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.payments-fact {
+    padding: 12px;
+    border: 1px solid #252d3a;
+    border-radius: 9px;
+    background: #0d131b;
+}
+
+.payments-fact span {
+    display: block;
+    margin-bottom: 5px;
+    color: #7f89a1;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .1em;
+}
+
+.payments-fact strong {
+    color: #f5f4ee;
+}
+
+.payments-amount {
+    margin-top: 14px;
+    padding: 16px;
+    border: 1px solid rgba(255, 213, 107, 0.28);
+    border-radius: 10px;
+    background: rgba(255, 213, 107, 0.04);
+}
+
+.payments-amount span {
+    display: block;
+    color: #929aaf;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .1em;
+}
+
+.payments-amount strong {
+    display: block;
+    margin-top: 5px;
+    color: var(--payment-gold);
+    font-size: 28px;
+}
+
+.payments-secure-note {
+    margin-top: 14px;
+    color: #8b93a8;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.payments-sandbox-panel {
+    border-color: rgba(255, 213, 107, 0.30);
+}
+
+.payments-sandbox-panel h2 {
+    color: var(--payment-gold);
+}
+
+.payments-sandbox-panel p {
+    color: #979fb3;
+    line-height: 1.6;
+}
+
+.payments-action-stack {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.payments-button {
+    width: 100%;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 16px;
+    border-radius: 9px;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 900;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.payments-button-approve {
+    border: 1px solid rgba(65, 230, 164, 0.38);
+    color: #08120f;
+    background: var(--payment-green);
+}
+
+.payments-button-reject {
+    border: 1px solid rgba(255, 101, 119, 0.42);
+    color: #ff8997;
+    background: rgba(255, 101, 119, 0.055);
+}
+
+.payments-button-cancel {
+    border: 1px solid #313a49;
+    color: #aab1c2;
+    background: #121923;
+}
+
+.payments-button-link {
+    border: 1px solid rgba(177, 116, 255, 0.34);
+    color: #c69aff;
+    background: rgba(177, 116, 255, 0.045);
+}
+
+.payments-warning {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 213, 107, 0.25);
+    border-radius: 9px;
+    color: #9ca4b7;
+    background: rgba(255, 213, 107, 0.035);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.payments-warning strong {
+    color: var(--payment-gold);
+}
+
+/* ---------------------------------------------------------
+   ESTADOS / COMPROBANTE
+--------------------------------------------------------- */
+
+.payment-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .06em;
+}
+
+.payment-status-pending {
+    color: var(--payment-gold);
+    border: 1px solid rgba(255, 213, 107, 0.34);
+    background: rgba(255, 213, 107, 0.06);
+}
+
+.payment-status-approved {
+    color: var(--payment-green);
+    border: 1px solid rgba(65, 230, 164, 0.34);
+    background: rgba(65, 230, 164, 0.055);
+}
+
+.payment-status-failed,
+.payment-status-cancelled {
+    color: var(--payment-red);
+    border: 1px solid rgba(255, 101, 119, 0.34);
+    background: rgba(255, 101, 119, 0.055);
+}
+
+.payment-status-refunded {
+    color: #66d8ff;
+    border: 1px solid rgba(102, 216, 255, 0.34);
+    background: rgba(102, 216, 255, 0.05);
+}
+
+.payments-receipt {
+    max-width: 880px;
+    margin: 0 auto;
+}
+
+.payments-receipt-status {
+    display: grid;
+    place-items: center;
+    min-height: 130px;
+    margin-bottom: 18px;
+    border: 1px solid #2c3443;
+    border-radius: 13px;
+    background: #111720;
+    text-align: center;
+}
+
+.payments-receipt-status strong {
+    display: block;
+    margin-top: 10px;
+    color: #f5f4ee;
+    font-size: 22px;
+}
+
+.payments-receipt-status p {
+    max-width: 600px;
+    margin: 8px auto 0;
+    color: #929aaf;
+    line-height: 1.55;
+}
+
+.payments-reference {
+    color: #7f89a1;
+    font-family: monospace;
+    font-size: 11px;
+}
+
+/* ---------------------------------------------------------
+   HISTORIAL
+--------------------------------------------------------- */
+
+.payments-list {
+    display: grid;
+    gap: 10px;
+}
+
+.payment-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) .7fr .65fr auto;
+    gap: 16px;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #2b3341;
+    border-radius: 10px;
+    background: #10161e;
+}
+
+.payment-row-main span,
+.payment-row-data span {
+    display: block;
+    margin-bottom: 5px;
+    color: #7f89a1;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .09em;
+}
+
+.payment-row-main strong,
+.payment-row-data strong {
+    color: #f5f4ee;
+}
+
+.payment-row-main p {
+    margin: 5px 0 0;
+    color: #8f97ab;
+    font-size: 10px;
+}
+
+.payment-row-amount strong {
+    color: var(--payment-gold);
+}
+
+.payment-row-actions {
+    display: grid;
+    justify-items: end;
+    gap: 8px;
+}
+
+.payment-row-actions a {
+    color: var(--payment-gold-soft);
+    font-size: 10px;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+/* ---------------------------------------------------------
+   PROFESIONAL / MOVIMIENTOS
+--------------------------------------------------------- */
+
+.payments-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.payments-summary-card {
+    padding: 16px;
+    border: 1px solid #2b3341;
+    border-radius: 10px;
+    background: #111720;
+}
+
+.payments-summary-card span {
+    display: block;
+    color: #7f89a1;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .1em;
+}
+
+.payments-summary-card strong {
+    display: block;
+    margin-top: 8px;
+    color: var(--payment-gold);
+    font-size: 24px;
+}
+
+/* ---------------------------------------------------------
+   ACTIVIDAD PAGADA
+--------------------------------------------------------- */
+
+.activities-payment-owner-link {
+    margin-top: 10px;
+    color: var(--payment-gold) !important;
+    border-color: rgba(255, 213, 107, 0.30) !important;
+}
+
+.activities-payment-cta {
+    border-color: rgba(255, 213, 107, 0.42) !important;
+    color: #171306 !important;
+    background: var(--payment-gold) !important;
+}
+
+.activities-paid-pending-box.payment-ready {
+    border-color: rgba(255, 213, 107, 0.34);
+    background: rgba(255, 213, 107, 0.05);
+}
+
+.activities-paid-pending-box.payment-ready strong {
+    color: var(--payment-gold);
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVE
+--------------------------------------------------------- */
+
+@media (max-width: 900px) {
+    .payments-hero,
+    .payments-checkout-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .payments-hero {
+        display: grid;
+    }
+
+    .payments-facts,
+    .payments-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-row {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-row-actions {
+        justify-items: start;
+    }
+}
+
+/* =========================================================
+   V99 - ACCESO "MIS PAGOS" EN MI CUENTA
+   Pegar AL FINAL de static/css/styles.css
+========================================================= */
+
+:root {
+    --payment-gold: #ffd56b;
+    --payment-gold-soft: #ffe7a8;
+}
+
+.member-payments-access {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+    margin-top: 12px;
+    padding: 14px 16px;
+    border: 1px solid rgba(255, 213, 107, 0.34);
+    border-radius: 11px;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255, 213, 107, 0.055),
+            rgba(177, 116, 255, 0.018) 42%,
+            transparent
+        ),
+        #111720;
+    color: inherit;
+    text-decoration: none;
+    transition:
+        border-color .18s ease,
+        background .18s ease,
+        transform .18s ease;
+}
+
+.member-payments-access:hover {
+    border-color: rgba(255, 213, 107, 0.58);
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255, 213, 107, 0.08),
+            rgba(177, 116, 255, 0.025) 42%,
+            transparent
+        ),
+        #111720;
+    transform: translateY(-1px);
+}
+
+.member-payments-access-icon {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 213, 107, 0.42);
+    border-radius: 9px;
+    color: var(--payment-gold);
+    background: rgba(255, 213, 107, 0.065);
+    font-size: 10px;
+    font-weight: 1000;
+    letter-spacing: .08em;
+}
+
+.member-payments-access-copy {
+    min-width: 0;
+}
+
+.member-payments-access-copy > span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--payment-gold);
+    font-size: 7px;
+    font-weight: 1000;
+    letter-spacing: .12em;
+}
+
+.member-payments-access-copy > strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #f5f4ee;
+    font-size: 15px;
+}
+
+.member-payments-access-copy > p {
+    max-width: 760px;
+    margin: 0;
+    color: #8d95a8;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.member-payments-access-meta {
+    display: grid;
+    justify-items: end;
+    gap: 4px;
+    min-width: 175px;
+    text-align: right;
+}
+
+.member-payments-access-meta > span {
+    color: #939bad;
+    font-size: 8px;
+    white-space: nowrap;
+}
+
+.member-payments-access-meta > small {
+    color: var(--payment-gold-soft);
+    font-size: 8px;
+    font-weight: 800;
+}
+
+.member-payments-access-meta > strong {
+    color: var(--payment-gold);
+    font-size: 9px;
+    font-weight: 1000;
+}
+
+.member-payments-access-meta > strong span {
+    margin-left: 5px;
+}
+
+@media (max-width: 760px) {
+    .member-payments-access {
+        grid-template-columns: auto 1fr;
+    }
+
+    .member-payments-access-meta {
+        grid-column: 1 / -1;
+        justify-items: start;
+        min-width: 0;
+        padding-left: 60px;
+        text-align: left;
+    }
+
+    .member-payments-access-meta > span {
+        white-space: normal;
+    }
+}
+
+/* =========================================================
+   V100 - PAGOS RECIBIDOS / CENTRO PROFESIONAL
+   Pegar AL FINAL de static/css/styles.css
+========================================================= */
+
+/* Tercer acceso de Gestión Profesional */
+.professional-management-action-payment {
+    grid-template-areas:
+        "label arrow"
+        "title arrow"
+        "meta arrow";
+    border-color: rgba(255, 213, 107, .36);
+    background: rgba(255, 213, 107, .045);
+}
+
+.professional-management-action-payment:hover {
+    border-color: rgba(255, 213, 107, .62);
+    background: rgba(255, 213, 107, .075);
+}
+
+.professional-management-action-payment > span,
+.professional-management-action-payment > strong,
+.professional-management-action-payment > i {
+    color: var(--payment-gold, #ffd56b);
+}
+
+.professional-management-action-payment > small {
+    grid-area: meta;
+    display: block;
+    margin-top: 3px;
+    color: #8f97ab;
+    font-size: 8px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+/* La franja admite 3 accesos sin perder la estructura */
+.professional-management-actions {
+    flex-wrap: wrap;
+}
+
+.professional-management-actions .professional-management-action {
+    flex: 1 1 165px;
+    min-width: 165px;
+}
+
+/* Página Pagos recibidos */
+.professional-income-panel {
+    margin-top: 4px;
+}
+
+.professional-income-title {
+    align-items: flex-start;
+}
+
+.professional-income-title p {
+    margin: 5px 0 0;
+    color: #858fa5;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.professional-income-row {
+    grid-template-columns:
+        minmax(190px, 1.35fr)
+        minmax(150px, 1fr)
+        minmax(110px, .72fr)
+        minmax(100px, .62fr)
+        auto;
+}
+
+.professional-income-member p,
+.payment-row-amount p {
+    margin: 5px 0 0;
+    color: #737e94;
+    font-size: 9px;
+}
+
+.professional-income-status-data .payment-status {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 6px 9px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 900;
+}
+
+.professional-income-status-data .payment-status-approved {
+    color: #41e6a4;
+    border: 1px solid rgba(65, 230, 164, .38);
+    background: rgba(65, 230, 164, .07);
+}
+
+.professional-income-status-data .payment-status-refunded {
+    color: #ffd56b;
+    border: 1px solid rgba(255, 213, 107, .38);
+    background: rgba(255, 213, 107, .07);
+}
+
+.professional-income-actions {
+    min-width: 118px;
+}
+
+.professional-income-refund-summary {
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border: 1px solid rgba(255, 213, 107, .28);
+    border-radius: 10px;
+    background: rgba(255, 213, 107, .035);
+}
+
+.professional-income-refund-summary > span {
+    display: block;
+    color: #8f97ab;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .1em;
+}
+
+.professional-income-refund-summary > strong {
+    display: block;
+    margin-top: 5px;
+    color: var(--payment-gold, #ffd56b);
+    font-size: 16px;
+}
+
+.professional-income-refund-summary > p {
+    margin: 5px 0 0;
+    color: #858fa5;
+    font-size: 9px;
+}
+
+.professional-income-empty {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 92px;
+    padding: 18px;
+    border: 1px dashed #313a49;
+    border-radius: 10px;
+    background: #0d131a;
+}
+
+.professional-income-empty > span {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: grid;
+    place-items: center;
+    color: var(--payment-gold, #ffd56b);
+    border: 1px solid rgba(255, 213, 107, .34);
+    border-radius: 9px;
+    background: rgba(255, 213, 107, .05);
+    font-size: 9px;
+    font-weight: 1000;
+}
+
+.professional-income-empty strong {
+    display: block;
+    color: #f5f4ee;
+}
+
+.professional-income-empty p {
+    margin: 5px 0 0;
+    color: #858fa5;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.professional-income-footer-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.professional-income-footer-actions a {
+    font-size: 10px;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.professional-income-back {
+    color: #c6ff33;
+}
+
+.professional-income-activities {
+    color: #c69aff;
+}
+
+@media (max-width: 1050px) {
+    .professional-management-strip {
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .professional-management-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+    }
+
+    .professional-management-actions .professional-management-action {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .professional-income-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .professional-income-actions {
+        justify-items: start;
+    }
+}
+
+@media (max-width: 700px) {
+    .professional-management-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .professional-management-actions .professional-management-action {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .professional-income-row {
+        grid-template-columns: 1fr;
+    }
+
+    .professional-income-footer-actions {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

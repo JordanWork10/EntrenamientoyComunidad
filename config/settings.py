@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'apps.bookings',
     'apps.spaces.apps.SpacesConfig',
     'apps.activities.apps.ActivitiesConfig',
+    'apps.payments.apps.PaymentsConfig',
 ]
 
 MIDDLEWARE = [
@@ -155,3 +156,9 @@ AUTH_USER_MODEL = 'accounts.User'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+# Payments
+# En desarrollo se habilita una simulación local.
+# Al pasar DEBUG=False, estos controles dejan de estar disponibles.
+PAYMENTS_SANDBOX = DEBUG

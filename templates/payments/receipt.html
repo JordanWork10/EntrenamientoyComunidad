@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Resultado del pago | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page payments-page">
+
+    <div class="account-container payments-receipt">
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        <header class="payments-hero">
+
+            <div>
+
+                <span class="payments-overline">
+                    COMPROBANTE
+                </span>
+
+                <h1>
+                    Estado de tu
+                    <span>
+                        pago.
+                    </span>
+                </h1>
+
+                <p>
+                    Aquí puedes revisar el resultado del intento
+                    y confirmar si tu cupo quedó reservado.
+                </p>
+
+            </div>
+
+            {% if sandbox_enabled %}
+
+                <span class="payments-sandbox-badge">
+                    SANDBOX · SIN COBRO REAL
+                </span>
+
+            {% endif %}
+
+        </header>
+
+
+        <section class="payments-receipt-status">
+
+            <div>
+
+                <span class="payment-status payment-status-{{ payment.status }}">
+                    {{ payment.get_status_display }}
+                </span>
+
+
+                {% if payment.status == 'approved' %}
+
+                    <strong>
+                        ✓ Pago aprobado y cupo reservado
+                    </strong>
+
+                    <p>
+                        Tu inscripción en
+                        <strong>{{ activity.title }}</strong>
+                        quedó confirmada.
+                    </p>
+
+
+                {% elif payment.status == 'failed' %}
+
+                    <strong>
+                        El pago no fue aprobado
+                    </strong>
+
+                    <p>
+                        No se reservó ningún cupo.
+                        Puedes iniciar un nuevo intento desde la actividad.
+                    </p>
+
+
+                {% elif payment.status == 'cancelled' %}
+
+                    <strong>
+                        Pago cancelado
+                    </strong>
+
+                    <p>
+                        Este intento fue cancelado y no produjo una inscripción.
+                    </p>
+
+
+                {% elif payment.status == 'refunded' %}
+
+                    <strong>
+                        Pago reembolsado
+                    </strong>
+
+                    <p>
+                        El pago figura como reembolsado.
+                    </p>
+
+
+                {% else %}
+
+                    <strong>
+                        Pago pendiente
+                    </strong>
+
+                    <p>
+                        La inscripción todavía no está confirmada.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <section class="payments-panel">
+
+            <div class="payments-panel-title">
+
+                <span>
+                    01
+                </span>
+
+                <h2>
+                    Detalle
+                </h2>
+
+            </div>
+
+
+            <div class="payments-facts">
+
+                <div class="payments-fact">
+
+                    <span>
+                        ACTIVIDAD
+                    </span>
+
+                    <strong>
+                        {{ activity.title }}
+                    </strong>
+
+                </div>
+
+
+                <div class="payments-fact">
+
+                    <span>
+                        MONTO
+                    </span>
+
+                    <strong>
+                        {{ payment.amount_clp|clp }}
+                    </strong>
+
+                </div>
+
+
+                <div class="payments-fact">
+
+                    <span>
+                        FECHA DEL INTENTO
+                    </span>
+
+                    <strong>
+                        {{ payment.created_at|date:"d/m/Y H:i" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="payments-fact">
+
+                    <span>
+                        REFERENCIA
+                    </span>
+
+                    <strong class="payments-reference">
+                        {% if payment.provider_reference %}
+                            {{ payment.provider_reference }}
+                        {% else %}
+                            {{ payment.public_id }}
+                        {% endif %}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            {% if payment.failure_reason %}
+
+                <div class="payments-warning">
+
+                    <strong>
+                        Detalle del estado
+                    </strong>
+
+                    {{ payment.failure_reason }}
+
+                </div>
+
+            {% endif %}
+
+
+            <div class="payments-action-stack">
+
+                {% if payment.status == 'approved' %}
+
+                    <a
+                        href="{% url 'activities:detail' activity.id %}"
+                        class="payments-button payments-button-approve"
+                    >
+                        Ver mi actividad →
+                    </a>
+
+                    <a
+                        href="{% url 'accounts:member_agenda' %}?month={{ activity.date|date:'Y-m' }}&date={{ activity.date|date:'Y-m-d' }}"
+                        class="payments-button payments-button-link"
+                    >
+                        Ver en Mi agenda →
+                    </a>
+
+
+                {% elif payment.status == 'failed' or payment.status == 'cancelled' %}
+
+                    <a
+                        href="{% url 'payments:checkout' activity.id %}"
+                        class="payments-button payments-button-link"
+                    >
+                        Intentar nuevamente →
+                    </a>
+
+                {% endif %}
+
+
+                <a
+                    href="{% url 'payments:my_payments' %}"
+                    class="payments-button payments-button-link"
+                >
+                    Ver Mis pagos →
+                </a>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</section>
+
+{% endblock %}

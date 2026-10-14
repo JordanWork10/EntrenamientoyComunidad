@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Pagos de {{ activity.title }} | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page payments-page">
+
+    <div class="account-container">
+
+        <header class="payments-hero">
+
+            <div>
+
+                <span class="payments-overline">
+                    ACTIVIDAD PROFESIONAL
+                </span>
+
+                <h1>
+                    Pagos de
+                    <span>
+                        {{ activity.title }}.
+                    </span>
+                </h1>
+
+                <p>
+                    Revisa los movimientos generados por esta actividad.
+                    En esta versión los pagos aprobados corresponden
+                    al entorno sandbox.
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <section class="payments-summary-grid">
+
+            <article class="payments-summary-card">
+
+                <span>
+                    PAGOS APROBADOS
+                </span>
+
+                <strong>
+                    {{ approved_count }}
+                </strong>
+
+            </article>
+
+
+            <article class="payments-summary-card">
+
+                <span>
+                    TOTAL APROBADO
+                </span>
+
+                <strong>
+                    {{ approved_total|clp }}
+                </strong>
+
+            </article>
+
+
+            <article class="payments-summary-card">
+
+                <span>
+                    PRECIO POR PERSONA
+                </span>
+
+                <strong>
+                    {{ activity.price|clp }}
+                </strong>
+
+            </article>
+
+        </section>
+
+
+        <section class="payments-panel">
+
+            <div class="payments-panel-title">
+
+                <span>
+                    01
+                </span>
+
+                <h2>
+                    Movimientos
+                </h2>
+
+            </div>
+
+
+            {% if payments %}
+
+                <div class="payments-list">
+
+                    {% for payment in payments %}
+
+                        <article class="payment-row">
+
+                            <div class="payment-row-main">
+
+                                <span>
+                                    MIEMBRO
+                                </span>
+
+                                <strong>
+                                    {{ payment.payer.get_full_name|default:payment.payer.email }}
+                                </strong>
+
+                                <p>
+                                    {{ payment.payer.email }}
+                                </p>
+
+                            </div>
+
+
+                            <div class="payment-row-data payment-row-amount">
+
+                                <span>
+                                    MONTO
+                                </span>
+
+                                <strong>
+                                    {{ payment.amount_clp|clp }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="payment-row-data">
+
+                                <span>
+                                    ESTADO
+                                </span>
+
+                                <strong class="payment-status payment-status-{{ payment.status }}">
+                                    {{ payment.get_status_display }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="payment-row-actions">
+
+                                <span>
+                                    {{ payment.created_at|date:"d/m/Y H:i" }}
+                                </span>
+
+                                {% if payment.registration %}
+
+                                    <span>
+                                        Inscripción vinculada
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+
+            {% else %}
+
+                <div class="activities-empty-state activities-empty-state-small">
+
+                    <h3>
+                        Aún no hay movimientos.
+                    </h3>
+
+                    <p>
+                        Los intentos de pago aparecerán aquí
+                        cuando un Miembro inicie el checkout.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <div class="activities-bottom-actions">
+
+            <a href="{% url 'activities:detail' activity.id %}">
+                ← Volver a la actividad
+            </a>
+
+            <a href="{% url 'activities:my_activities' %}">
+                Mis actividades →
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

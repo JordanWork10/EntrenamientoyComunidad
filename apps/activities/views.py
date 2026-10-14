@@ -2103,6 +2103,25 @@ def leave_activity(
 
 
 
+        if (
+            registration.activity.activity_type
+            == Activity.ActivityType.PROFESSIONAL
+            and registration.activity.price > 0
+        ):
+            messages.info(
+                request,
+                (
+                    'Esta inscripción está asociada a un pago aprobado. '
+                    'La cancelación y devolución se gestionarán desde '
+                    'el flujo de reembolsos del módulo de Pagos.'
+                ),
+            )
+
+            return redirect(
+                'activities:detail',
+                activity_id=activity_id,
+            )
+
         registration.status = (
 
             ActivityRegistration

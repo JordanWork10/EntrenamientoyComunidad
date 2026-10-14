@@ -464,6 +464,18 @@
                         </a>
 
 
+                        {% if activity.price > 0 %}
+
+                            <a
+                                href="{% url 'payments:activity_payments' activity.id %}"
+                                class="activities-button activities-button-secondary activities-button-full activities-payment-owner-link"
+                            >
+                                Ver pagos de esta actividad →
+                            </a>
+
+                        {% endif %}
+
+
                         {% if activity.status == 'draft' %}
 
                             <form
@@ -529,20 +541,49 @@
                     </div>
 
 
-                    <form
-                        method="post"
-                        action="{% url 'activities:leave' activity.id %}"
-                    >
-                        {% csrf_token %}
+                    {% if activity.activity_type == 'professional' and activity.price > 0 %}
 
-                        <button
-                            type="submit"
-                            class="activities-button activities-button-danger activities-button-full"
+                        <div class="activities-paid-pending-box payment-ready">
+
+                            <strong>
+                                Pago aprobado
+                            </strong>
+
+                            <p>
+                                Esta inscripción está vinculada a un pago.
+                                La cancelación con devolución se habilitará
+                                en el siguiente bloque del módulo de Pagos.
+                            </p>
+
+                        </div>
+
+
+                        <a
+                            href="{% url 'payments:my_payments' %}"
+                            class="activities-button activities-button-secondary activities-button-full"
                         >
-                            Liberar mi cupo
-                        </button>
+                            Ver mi pago →
+                        </a>
 
-                    </form>
+
+                    {% else %}
+
+                        <form
+                            method="post"
+                            action="{% url 'activities:leave' activity.id %}"
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="activities-button activities-button-danger activities-button-full"
+                            >
+                                Liberar mi cupo
+                            </button>
+
+                        </form>
+
+                    {% endif %}
 
 
                 {% elif not request.user.is_authenticated %}
@@ -557,26 +598,36 @@
 
                 {% elif paid_registration_pending %}
 
-                    <div class="activities-paid-pending-box">
+                    <div class="activities-paid-pending-box payment-ready">
 
                         <strong>
-                            Inscripción pagada
+                            Actividad profesional pagada
                         </strong>
 
                         <p>
-                            La actividad ya puede publicarse con precio,
-                            pero el cobro y la confirmación de pagos se
-                            habilitarán en el módulo de Pagos.
+                            Para reservar tu cupo debes completar
+                            el pago de {{ activity.price|clp }}.
+                            La inscripción se confirma únicamente
+                            cuando el pago queda aprobado.
                         </p>
 
                     </div>
 
-                    <button
-                        class="activities-button activities-button-disabled activities-button-full"
-                        disabled
+
+                    <a
+                        href="{% url 'payments:checkout' activity.id %}"
+                        class="activities-button activities-button-full activities-payment-cta"
                     >
-                        Inscripción pagada próximamente
-                    </button>
+                        Reservar cupo · {{ activity.price|clp }} →
+                    </a>
+
+
+                    <a
+                        href="{% url 'payments:my_payments' %}"
+                        class="activities-button activities-button-secondary activities-button-full"
+                    >
+                        Mis pagos →
+                    </a>
 
 
                 {% elif can_join %}
@@ -635,6 +686,7 @@
             <a href="{% url 'activities:home' %}">
                 ← Volver a Actividades
             </a>
+
 
             {% if request.user.is_authenticated %}
 

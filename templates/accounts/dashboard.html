@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load clp_filters %}
+{% load clp_filters payment_extras %}
 
 
 {% block title %}
@@ -2905,6 +2905,70 @@ Mi Cuenta | EntrenamientoyComunidad
 
                     <strong>
                         Buscar y filtrar
+                        <span>→</span>
+                    </strong>
+
+                </div>
+
+            </a>
+
+
+            <!-- MIS PAGOS -->
+
+            {% member_payment_summary request.user as payment_summary %}
+
+            <a
+                href="{% url 'payments:my_payments' %}"
+                class="member-payments-access"
+            >
+
+                <div class="member-payments-access-icon">
+                    PAY
+                </div>
+
+
+                <div class="member-payments-access-copy">
+
+                    <span>
+                        PAGOS Y COMPROBANTES
+                    </span>
+
+                    <strong>
+                        Mis pagos
+                    </strong>
+
+                    <p>
+                        Consulta pagos aprobados, intentos fallidos,
+                        comprobantes y futuras devoluciones de tus
+                        actividades profesionales.
+                    </p>
+
+                </div>
+
+
+                <div class="member-payments-access-meta">
+
+                    <span>
+                        {{ payment_summary.movements }}
+                        movimiento{{ payment_summary.movements|pluralize:"s" }}
+                        ·
+                        {{ payment_summary.approved_total|clp }}
+                        aprobado
+                    </span>
+
+
+                    {% if payment_summary.pending %}
+
+                        <small>
+                            {{ payment_summary.pending }}
+                            pendiente{{ payment_summary.pending|pluralize:"s" }}
+                        </small>
+
+                    {% endif %}
+
+
+                    <strong>
+                        Ver mis pagos
                         <span>→</span>
                     </strong>
 

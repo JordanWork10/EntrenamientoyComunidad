@@ -7,6 +7,191 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
 
 {% block content %}
 
+<style>
+    .activity-payment-settlement-strip {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin: 14px 0 18px;
+        padding: 14px 16px;
+        background: #10171f;
+        border: 1px solid #293241;
+        border-left: 3px solid #ffd44a;
+        border-radius: 10px;
+    }
+
+    .activity-payment-settlement-strip span {
+        display: block;
+        margin-bottom: 4px;
+        color: #66738d;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    .activity-payment-settlement-strip strong {
+        color: #f4f1e8;
+        font-size: 12px;
+    }
+
+    .activity-payment-settlement-strip p {
+        margin: 0;
+        color: #7f8aa3;
+        font-size: 9px;
+        text-align: right;
+    }
+
+    .activity-payment-economic-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin: 0 0 18px;
+    }
+
+    .activity-payment-economic-card {
+        padding: 13px;
+        background: #0d1218;
+        border: 1px solid #242d39;
+        border-radius: 9px;
+    }
+
+    .activity-payment-economic-card span {
+        display: block;
+        margin-bottom: 5px;
+        color: #66738d;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    .activity-payment-economic-card strong {
+        color: #f4f1e8;
+        font-size: 14px;
+    }
+
+    .activity-payment-economic-card-net strong {
+        color: #ffd44a;
+    }
+
+    .activity-payment-detail-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .activity-payment-detail-row {
+        display: grid;
+        grid-template-columns: minmax(180px, 1.6fr) repeat(3, minmax(110px, .75fr));
+        gap: 14px;
+        align-items: center;
+        padding: 15px;
+        background: #0d1218;
+        border: 1px solid #27313e;
+        border-radius: 10px;
+    }
+
+    .activity-payment-detail-main,
+    .activity-payment-detail-data {
+        min-width: 0;
+    }
+
+    .activity-payment-detail-main > span,
+    .activity-payment-detail-data > span {
+        display: block;
+        margin-bottom: 5px;
+        color: #66738d;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+    }
+
+    .activity-payment-detail-main strong,
+    .activity-payment-detail-data strong {
+        display: block;
+        color: #f4f1e8;
+        font-size: 12px;
+    }
+
+    .activity-payment-detail-main p,
+    .activity-payment-detail-data p {
+        margin: 4px 0 0;
+        overflow: hidden;
+        color: #758198;
+        font-size: 9px;
+        line-height: 1.4;
+        text-overflow: ellipsis;
+    }
+
+    .activity-payment-detail-refund strong {
+        color: #ffd44a;
+    }
+
+    .activity-payment-detail-net strong {
+        color: #41e6aa;
+    }
+
+    .activity-payment-status {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 6px 9px;
+        border-radius: 999px;
+        font-size: 8px !important;
+        font-weight: 900;
+    }
+
+    .activity-payment-status-approved {
+        color: #41e6aa !important;
+        background: rgba(65, 230, 170, .07);
+        border: 1px solid rgba(65, 230, 170, .32);
+    }
+
+    .activity-payment-status-partially_refunded,
+    .activity-payment-status-refunded {
+        color: #ffd44a !important;
+        background: rgba(255, 212, 74, .07);
+        border: 1px solid rgba(255, 212, 74, .32);
+    }
+
+    .activity-payment-status-failed,
+    .activity-payment-status-cancelled {
+        color: #ff6b72 !important;
+        background: rgba(255, 107, 114, .07);
+        border: 1px solid rgba(255, 107, 114, .30);
+    }
+
+    .activity-payment-status-pending {
+        color: #9aa5b8 !important;
+        background: rgba(154, 165, 184, .06);
+        border: 1px solid rgba(154, 165, 184, .26);
+    }
+
+    @media (max-width: 900px) {
+        .activity-payment-detail-row {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 620px) {
+        .activity-payment-settlement-strip {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .activity-payment-settlement-strip p {
+            text-align: left;
+        }
+
+        .activity-payment-economic-grid,
+        .activity-payment-detail-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
 <section class="account-page payments-page">
 
     <div class="account-container">
@@ -16,20 +201,16 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
             <div>
 
                 <span class="payments-overline">
-                    ACTIVIDAD PROFESIONAL
+                    ACTIVIDAD PROFESIONAL · PAGOS
                 </span>
 
                 <h1>
-                    Pagos de
-                    <span>
-                        {{ activity.title }}.
-                    </span>
+                    {{ activity.title }}
                 </h1>
 
                 <p>
-                    Revisa los movimientos generados por esta actividad.
-                    En esta versión los pagos aprobados corresponden
-                    al entorno sandbox.
+                    Revisa el resumen económico de esta actividad
+                    y el detalle de los Miembros que iniciaron un pago.
                 </p>
 
             </div>
@@ -42,11 +223,13 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
             <article class="payments-summary-card">
 
                 <span>
-                    PAGOS APROBADOS
+                    CUPOS PAGADOS
                 </span>
 
                 <strong>
-                    {{ approved_count }}
+                    {{ active_paid_count }}
+                    /
+                    {{ activity.capacity }}
                 </strong>
 
             </article>
@@ -55,11 +238,11 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
             <article class="payments-summary-card">
 
                 <span>
-                    TOTAL APROBADO
+                    BRUTO
                 </span>
 
                 <strong>
-                    {{ approved_total|clp }}
+                    {{ gross_total|clp }}
                 </strong>
 
             </article>
@@ -68,16 +251,72 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
             <article class="payments-summary-card">
 
                 <span>
-                    PRECIO POR PERSONA
+                    NETO ESTIMADO
                 </span>
 
                 <strong>
-                    {{ activity.price|clp }}
+                    {{ net_total|clp }}
                 </strong>
 
             </article>
 
         </section>
+
+
+        <div class="activity-payment-settlement-strip">
+
+            <div>
+
+                <span>
+                    ESTADO DE LIQUIDACIÓN
+                </span>
+
+                <strong>
+                    {{ settlement_label }}
+                </strong>
+
+            </div>
+
+            {% if eligible_at %}
+
+                <p>
+                    Fecha económica de referencia:
+                    {{ eligible_at|date:"d/m/Y H:i" }}
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="activity-payment-economic-grid">
+
+            <article class="activity-payment-economic-card">
+
+                <span>
+                    REEMBOLSOS
+                </span>
+
+                <strong>
+                    {{ refunded_total|clp }}
+                </strong>
+
+            </article>
+
+
+            <article class="activity-payment-economic-card">
+
+                <span>
+                    COMISIÓN PLATAFORMA
+                </span>
+
+                <strong>
+                    {{ commission_total|clp }}
+                </strong>
+
+            </article>
+
+        </div>
 
 
         <section class="payments-panel">
@@ -88,22 +327,31 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
                     01
                 </span>
 
-                <h2>
-                    Movimientos
-                </h2>
+                <div>
+
+                    <h2>
+                        Participantes y movimientos
+                    </h2>
+
+                    <p>
+                        Aquí puedes revisar quién pagó, canceló
+                        o recibió una devolución.
+                    </p>
+
+                </div>
 
             </div>
 
 
             {% if payments %}
 
-                <div class="payments-list">
+                <div class="activity-payment-detail-list">
 
                     {% for payment in payments %}
 
-                        <article class="payment-row">
+                        <article class="activity-payment-detail-row">
 
-                            <div class="payment-row-main">
+                            <div class="activity-payment-detail-main">
 
                                 <span>
                                     MIEMBRO
@@ -114,49 +362,93 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
                                 </strong>
 
                                 <p>
-                                    {{ payment.payer.email }}
+                                    {{ payment.created_at|date:"d/m/Y H:i" }}
+
+                                    {% if payment.registration %}
+
+                                        ·
+                                        {{ payment.registration.get_status_display }}
+
+                                    {% endif %}
                                 </p>
 
                             </div>
 
 
-                            <div class="payment-row-data payment-row-amount">
+                            <div class="activity-payment-detail-data">
 
                                 <span>
-                                    MONTO
+                                    PAGO
                                 </span>
 
                                 <strong>
                                     {{ payment.amount_clp|clp }}
                                 </strong>
 
+                                <p>
+                                    {% if payment.approved_at %}
+                                        Aprobado {{ payment.approved_at|date:"d/m/Y H:i" }}
+                                    {% else %}
+                                        Intento registrado
+                                    {% endif %}
+                                </p>
+
                             </div>
 
 
-                            <div class="payment-row-data">
+                            <div class="activity-payment-detail-data activity-payment-detail-refund">
+
+                                <span>
+                                    REEMBOLSO
+                                </span>
+
+                                {% if payment.refunded_amount_clp %}
+
+                                    <strong>
+                                        {{ payment.refunded_amount_clp|clp }}
+                                    </strong>
+
+                                    <p>
+                                        Devolución registrada
+                                    </p>
+
+                                {% else %}
+
+                                    <strong>
+                                        $0 CLP
+                                    </strong>
+
+                                    <p>
+                                        Sin devolución
+                                    </p>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="activity-payment-detail-data">
 
                                 <span>
                                     ESTADO
                                 </span>
 
-                                <strong class="payment-status payment-status-{{ payment.status }}">
+                                <strong class="activity-payment-status activity-payment-status-{{ payment.status }}">
                                     {{ payment.get_status_display }}
                                 </strong>
 
-                            </div>
+                                {% if payment.failure_reason %}
 
+                                    <p>
+                                        {{ payment.failure_reason }}
+                                    </p>
 
-                            <div class="payment-row-actions">
+                                {% elif payment.status == 'approved' or payment.status == 'partially_refunded' %}
 
-                                <span>
-                                    {{ payment.created_at|date:"d/m/Y H:i" }}
-                                </span>
-
-                                {% if payment.registration %}
-
-                                    <span>
-                                        Inscripción vinculada
-                                    </span>
+                                    <p class="activity-payment-detail-net">
+                                        Neto asociado:
+                                        {{ payment.net_amount_clp|clp }}
+                                    </p>
 
                                 {% endif %}
 
@@ -191,12 +483,12 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
 
         <div class="activities-bottom-actions">
 
-            <a href="{% url 'activities:detail' activity.id %}">
-                ← Volver a la actividad
+            <a href="{% url 'payments:professional_income' %}">
+                ← Volver a Pagos
             </a>
 
-            <a href="{% url 'activities:my_activities' %}">
-                Mis actividades →
+            <a href="{% url 'activities:detail' activity.id %}">
+                Ver actividad →
             </a>
 
         </div>

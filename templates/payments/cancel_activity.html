@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Cancelar participación | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .refund-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin: 18px 0;
+    }
+
+    .refund-preview-card {
+        padding: 14px;
+        background: #0d1218;
+        border: 1px solid #293241;
+        border-radius: 10px;
+    }
+
+    .refund-preview-card span {
+        display: block;
+        margin-bottom: 6px;
+        color: #66738d;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    .refund-preview-card strong {
+        display: block;
+        color: #f4f1e8;
+        font-size: 18px;
+    }
+
+    .refund-preview-card-refund {
+        border-color: rgba(65, 230, 170, .34);
+    }
+
+    .refund-preview-card-refund strong {
+        color: #41e6aa;
+    }
+
+    .refund-preview-card-retained strong {
+        color: #ffd44a;
+    }
+
+    .refund-policy-result {
+        margin: 18px 0;
+        padding: 15px;
+        background: rgba(255, 212, 74, .045);
+        border: 1px solid rgba(255, 212, 74, .28);
+        border-left: 3px solid #ffd44a;
+        border-radius: 10px;
+    }
+
+    .refund-policy-result strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #ffd44a;
+        font-size: 12px;
+    }
+
+    .refund-policy-result p {
+        margin: 0;
+        color: #8a96ad;
+        font-size: 10px;
+        line-height: 1.5;
+    }
+
+    .refund-confirmation-note {
+        margin: 14px 0;
+        color: #8a96ad;
+        font-size: 10px;
+        line-height: 1.55;
+    }
+
+    @media (max-width: 700px) {
+        .refund-preview-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="account-page payments-page">
+
+    <div class="account-container payments-receipt">
+
+        <header class="payments-hero">
+
+            <div>
+
+                <span class="payments-overline">
+                    CANCELACIÓN · ACTIVIDAD PAGADA
+                </span>
+
+                <h1>
+                    Revisa tu <span>reembolso.</span>
+                </h1>
+
+                <p>
+                    Antes de cancelar, te mostramos exactamente cuánto
+                    corresponde devolver según la política aceptada al pagar.
+                </p>
+
+            </div>
+
+            {% if sandbox_enabled %}
+
+                <span class="payments-sandbox-badge">
+                    SANDBOX · SIN MOVIMIENTO REAL
+                </span>
+
+            {% endif %}
+
+        </header>
+
+
+        <section class="payments-panel">
+
+            <div class="payments-panel-title">
+
+                <span>
+                    01
+                </span>
+
+                <h2>
+                    {{ activity.title }}
+                </h2>
+
+            </div>
+
+
+            <div class="payments-facts">
+
+                <div class="payments-fact">
+
+                    <span>
+                        FECHA
+                    </span>
+
+                    <strong>
+                        {{ activity.date|date:"d/m/Y" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="payments-fact">
+
+                    <span>
+                        HORARIO
+                    </span>
+
+                    <strong>
+                        {{ activity.start_time|time:"H:i" }}
+                        –
+                        {{ activity.end_time|time:"H:i" }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="refund-policy-result">
+
+                <strong>
+                    Según la política vigente corresponde un reembolso del
+                    {{ decision.refund_percent }}%.
+                </strong>
+
+                <p>
+                    El cálculo se realiza automáticamente según el tiempo
+                    restante antes del inicio de la actividad.
+                </p>
+
+            </div>
+
+
+            <div class="refund-preview-grid">
+
+                <article class="refund-preview-card">
+
+                    <span>
+                        PAGO ORIGINAL
+                    </span>
+
+                    <strong>
+                        {{ payment.amount_clp|clp }}
+                    </strong>
+
+                </article>
+
+
+                <article class="refund-preview-card refund-preview-card-refund">
+
+                    <span>
+                        REEMBOLSO
+                    </span>
+
+                    <strong>
+                        {{ decision.refund_amount_clp|clp }}
+                    </strong>
+
+                </article>
+
+
+                <article class="refund-preview-card refund-preview-card-retained">
+
+                    <span>
+                        NO REEMBOLSABLE
+                    </span>
+
+                    <strong>
+                        {{ decision.retained_amount_clp|clp }}
+                    </strong>
+
+                </article>
+
+            </div>
+
+
+            <p class="refund-confirmation-note">
+                Al confirmar, tu inscripción será cancelada y el cupo
+                quedará nuevamente disponible. En este entorno sandbox
+                el reembolso se registra en el sistema sin mover dinero real.
+            </p>
+
+
+            <div class="payments-action-stack">
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="payments-button payments-button-reject"
+                    >
+                        Confirmar cancelación y reembolso
+                    </button>
+                </form>
+
+
+                <a
+                    href="{% url 'activities:detail' activity.id %}"
+                    class="payments-button payments-button-link"
+                >
+                    ← Mantener mi inscripción
+                </a>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</section>
+
+{% endblock %}

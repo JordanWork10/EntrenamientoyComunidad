@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -10,6 +12,17 @@ from django.utils import timezone
 from apps.activities.models import Activity, ActivityRegistration
 
 from .models import Payment
+from .services.cancellation_policy import PAYMENTS_POLICY_VERSION
+from .services.commissions import apply_payment_commission_snapshot
+from .services.settlements import (
+    refresh_payment_settlement_status,
+    sync_activity_settlement,
+)
+from .services.refunds import (
+    RefundProcessingError,
+    preview_member_activity_cancellation,
+    process_member_activity_cancellation,
+)
 
 
 def _paid_activity_queryset():
@@ -38,6 +51,26 @@ def _sandbox_enabled():
             False,
         )
     )
+
+
+def _activity_service_end(activity):
+    service_end = datetime.combine(
+        activity.date,
+        activity.end_time,
+    )
+
+    # Si en el futuro permitimos actividades que terminan después de
+    # medianoche, el fin pertenece al día siguiente.
+    if activity.end_time <= activity.start_time:
+        service_end += timedelta(days=1)
+
+    if timezone.is_naive(service_end):
+        service_end = timezone.make_aware(
+            service_end,
+            timezone.get_current_timezone(),
+        )
+
+    return service_end
 
 
 @login_required(login_url='accounts:login')
@@ -180,13 +213,24 @@ def receipt(
     payment_id,
 ):
     payment = get_object_or_404(
-        Payment.objects.select_related(
+        Payment.objects
+        .select_related(
             'activity',
             'activity__organizer',
             'registration',
+        )
+        .prefetch_related(
+            'refunds',
         ),
         public_id=payment_id,
         payer=request.user,
+    )
+
+    latest_refund = (
+        payment.refunds
+        .filter(status='processed')
+        .order_by('-processed_at', '-requested_at')
+        .first()
     )
 
     return render(
@@ -196,6 +240,11 @@ def receipt(
             'payment': payment,
             'activity': payment.activity,
             'sandbox_enabled': _sandbox_enabled(),
+            'latest_refund': latest_refund,
+            'retained_amount_clp': max(
+                payment.amount_clp - payment.refunded_amount_clp,
+                0,
+            ),
         },
     )
 
@@ -245,6 +294,19 @@ def sandbox_approve(
             return redirect(
                 'payments:receipt',
                 payment_id=payment.public_id,
+            )
+
+        if request.POST.get('accept_policy') != '1':
+            messages.error(
+                request,
+                (
+                    'Debes aceptar la política de cancelación y '
+                    'reembolsos antes de confirmar el pago.'
+                ),
+            )
+            return redirect(
+                'payments:checkout',
+                activity_id=payment.activity_id,
             )
 
         activity = get_object_or_404(
@@ -418,23 +480,58 @@ def sandbox_approve(
                     ]
                 )
 
+        approved_at = timezone.now()
+        service_end = _activity_service_end(activity)
+
         payment.registration = registration
+        payment.economic_scope = (
+            Payment.EconomicScope.PROFESSIONAL_ACTIVITY
+        )
         payment.status = Payment.Status.APPROVED
-        payment.approved_at = timezone.now()
+        payment.approved_at = approved_at
         payment.provider_reference = (
             f'SBX-{str(payment.public_id).split("-")[0].upper()}'
         )
         payment.failure_reason = ''
+
+        # V103: la política y las condiciones económicas se congelan
+        # cuando el pago queda aprobado. Estos datos son internos y
+        # permiten mantener la trazabilidad histórica de la operación.
+        payment.policy_version = PAYMENTS_POLICY_VERSION
+        payment.policy_accepted_at = approved_at
+
+        apply_payment_commission_snapshot(
+            payment,
+            at=approved_at,
+            save=False,
+        )
+
+        refresh_payment_settlement_status(
+            payment,
+            service_end=service_end,
+            now=approved_at,
+            save=False,
+        )
 
         try:
             payment.full_clean()
             payment.save(
                 update_fields=[
                     'registration',
+                    'economic_scope',
                     'status',
                     'approved_at',
                     'provider_reference',
                     'failure_reason',
+                    'plan_code_snapshot',
+                    'commission_rate_percent',
+                    'commission_base_clp',
+                    'commission_amount_clp',
+                    'net_amount_clp',
+                    'policy_version',
+                    'policy_accepted_at',
+                    'settlement_status',
+                    'settlement_eligible_at',
                     'updated_at',
                 ]
             )
@@ -450,6 +547,14 @@ def sandbox_approve(
                 activity_id=activity.pk,
             )
 
+        # V103: mantenemos una liquidación agregada por actividad.
+        # La pantalla agrupada se conectará a esta entidad más adelante.
+        sync_activity_settlement(
+            activity,
+            service_end=service_end,
+            now=approved_at,
+        )
+
     messages.success(
         request,
         (
@@ -461,6 +566,101 @@ def sandbox_approve(
     return redirect(
         'payments:receipt',
         payment_id=payment.public_id,
+    )
+
+
+@login_required(login_url='accounts:login')
+def cancel_paid_activity(
+    request,
+    activity_id,
+):
+    payment = get_object_or_404(
+        Payment.objects
+        .select_related(
+            'activity',
+            'activity__organizer',
+            'registration',
+        ),
+        payer=request.user,
+        activity_id=activity_id,
+        status=Payment.Status.APPROVED,
+        registration__status=ActivityRegistration.Status.REGISTERED,
+    )
+
+    try:
+        decision = preview_member_activity_cancellation(
+            payment,
+            cancelled_at=timezone.now(),
+        )
+
+        if (
+            payment.policy_version != PAYMENTS_POLICY_VERSION
+            or payment.policy_accepted_at is None
+        ):
+            raise RefundProcessingError(
+                'Este pago fue realizado antes de la política automática vigente.'
+            )
+
+        if payment.settlement_status == Payment.SettlementStatus.SETTLED:
+            raise RefundProcessingError(
+                'Este pago ya fue liquidado y requiere una revisión especial.'
+            )
+
+        if decision.hours_before_service <= 0:
+            raise RefundProcessingError(
+                'La actividad ya comenzó. La cancelación automática ya no está disponible.'
+            )
+
+    except RefundProcessingError as exc:
+        messages.error(
+            request,
+            str(exc),
+        )
+        return redirect(
+            'activities:detail',
+            activity_id=activity_id,
+        )
+
+    if request.method == 'POST':
+        try:
+            outcome = process_member_activity_cancellation(
+                payment,
+                request.user,
+                cancelled_at=timezone.now(),
+            )
+        except RefundProcessingError as exc:
+            messages.error(
+                request,
+                str(exc),
+            )
+            return redirect(
+                'activities:detail',
+                activity_id=activity_id,
+            )
+
+        messages.success(
+            request,
+            (
+                'Cancelación procesada correctamente. '
+                f'Se registró un reembolso de '
+                f'${outcome.decision.refund_amount_clp:,.0f} CLP.'
+            ).replace(',', '.'),
+        )
+
+        return redirect(
+            'payments:receipt',
+            payment_id=outcome.payment.public_id,
+        )
+
+    return render(
+        request,
+        'payments/cancel_activity.html',
+        {
+            'payment': payment,
+            'activity': payment.activity,
+            'decision': decision,
+            'sandbox_enabled': _sandbox_enabled(),
+        },
     )
 
 
@@ -612,6 +812,112 @@ def my_payments(
     )
 
 
+def _economic_payment_statuses():
+    return [
+        Payment.Status.APPROVED,
+        Payment.Status.PARTIALLY_REFUNDED,
+        Payment.Status.REFUNDED,
+    ]
+
+
+def _activity_settlement_label(payments):
+    statuses = {
+        payment.settlement_status
+        for payment in payments
+    }
+
+    if Payment.SettlementStatus.ON_HOLD in statuses:
+        return {
+            'code': 'on_hold',
+            'label': 'En revisión',
+        }
+
+    if statuses and statuses == {Payment.SettlementStatus.SETTLED}:
+        return {
+            'code': 'settled',
+            'label': 'Liquidado',
+        }
+
+    if Payment.SettlementStatus.ELIGIBLE in statuses:
+        return {
+            'code': 'eligible',
+            'label': 'Elegible para liquidación',
+        }
+
+    return {
+        'code': 'pending',
+        'label': 'Pendiente de liquidación',
+    }
+
+
+def _build_professional_activity_groups(payments):
+    groups = {}
+
+    for payment in payments:
+        activity = payment.activity
+
+        if activity.pk not in groups:
+            groups[activity.pk] = {
+                'activity': activity,
+                'payments': [],
+                'gross_total': 0,
+                'refunded_total': 0,
+                'commission_total': 0,
+                'net_total': 0,
+                'active_paid_count': 0,
+                'refunded_count': 0,
+                'eligible_at': None,
+            }
+
+        group = groups[activity.pk]
+        group['payments'].append(payment)
+        group['gross_total'] += payment.amount_clp
+        group['refunded_total'] += payment.refunded_amount_clp
+        group['commission_total'] += payment.commission_amount_clp
+        group['net_total'] += payment.net_amount_clp
+
+        if payment.refunded_amount_clp > 0:
+            group['refunded_count'] += 1
+
+        if (
+            payment.registration
+            and payment.registration.status
+            == ActivityRegistration.Status.REGISTERED
+            and payment.status
+            in [
+                Payment.Status.APPROVED,
+                Payment.Status.PARTIALLY_REFUNDED,
+            ]
+        ):
+            group['active_paid_count'] += 1
+
+        if payment.settlement_eligible_at:
+            if (
+                group['eligible_at'] is None
+                or payment.settlement_eligible_at > group['eligible_at']
+            ):
+                group['eligible_at'] = payment.settlement_eligible_at
+
+    result = []
+
+    for group in groups.values():
+        settlement = _activity_settlement_label(group['payments'])
+        group['settlement_code'] = settlement['code']
+        group['settlement_label'] = settlement['label']
+        result.append(group)
+
+    result.sort(
+        key=lambda item: (
+            item['activity'].date,
+            item['activity'].start_time,
+            item['activity'].pk,
+        ),
+        reverse=True,
+    )
+
+    return result
+
+
 @login_required(login_url='accounts:login')
 def professional_income(
     request,
@@ -628,21 +934,18 @@ def professional_income(
     ):
         messages.error(
             request,
-            'Necesitas un Perfil Profesional verificado para revisar pagos recibidos.',
+            'Necesitas un Perfil Profesional verificado para revisar tus pagos.',
         )
         return redirect(
             'accounts:dashboard',
         )
 
-    professional_payments = (
+    professional_payments = list(
         Payment.objects
         .filter(
             activity__organizer=request.user,
             activity__activity_type=Activity.ActivityType.PROFESSIONAL,
-            status__in=[
-                Payment.Status.APPROVED,
-                Payment.Status.REFUNDED,
-            ],
+            status__in=_economic_payment_statuses(),
         )
         .select_related(
             'payer',
@@ -651,42 +954,48 @@ def professional_income(
             'registration',
         )
         .order_by(
+            '-activity__date',
+            '-activity__start_time',
             '-approved_at',
             '-created_at',
         )
     )
 
-    approved_payments = professional_payments.filter(
-        status=Payment.Status.APPROVED,
+    activity_groups = _build_professional_activity_groups(
+        professional_payments,
     )
 
-    refunded_payments = professional_payments.filter(
-        status=Payment.Status.REFUNDED,
+    to_settle_total = sum(
+        payment.net_amount_clp
+        for payment in professional_payments
+        if payment.settlement_status
+        in [
+            Payment.SettlementStatus.PENDING,
+            Payment.SettlementStatus.ELIGIBLE,
+            Payment.SettlementStatus.ON_HOLD,
+        ]
     )
 
-    approved_total = (
-        approved_payments
-        .aggregate(
-            total=Sum('amount_clp'),
-        )
-        .get('total')
-        or 0
+    settled_total = sum(
+        payment.net_amount_clp
+        for payment in professional_payments
+        if payment.settlement_status
+        == Payment.SettlementStatus.SETTLED
     )
 
-    refunded_total = (
-        refunded_payments
-        .aggregate(
-            total=Sum('amount_clp'),
-        )
-        .get('total')
-        or 0
+    refunded_total = sum(
+        payment.refunded_amount_clp
+        for payment in professional_payments
     )
 
-    paid_activity_count = (
-        professional_payments
-        .values('activity_id')
-        .distinct()
-        .count()
+    gross_total = sum(
+        payment.amount_clp
+        for payment in professional_payments
+    )
+
+    commission_total = sum(
+        payment.commission_amount_clp
+        for payment in professional_payments
     )
 
     return render(
@@ -694,12 +1003,13 @@ def professional_income(
         'payments/professional_income.html',
         {
             'professional_profile': professional_profile,
-            'payments': professional_payments,
-            'approved_count': approved_payments.count(),
-            'approved_total': approved_total,
-            'refunded_count': refunded_payments.count(),
+            'activity_groups': activity_groups,
+            'to_settle_total': to_settle_total,
+            'settled_total': settled_total,
             'refunded_total': refunded_total,
-            'paid_activity_count': paid_activity_count,
+            'gross_total': gross_total,
+            'commission_total': commission_total,
+            'paid_activity_count': len(activity_groups),
         },
     )
 
@@ -720,7 +1030,7 @@ def activity_payments(
         price__gt=0,
     )
 
-    payments = (
+    payments = list(
         Payment.objects
         .filter(
             activity=activity,
@@ -734,18 +1044,64 @@ def activity_payments(
         )
     )
 
-    approved_payments = payments.filter(
-        status=Payment.Status.APPROVED,
+    economic_payments = [
+        payment
+        for payment in payments
+        if payment.status in _economic_payment_statuses()
+    ]
+
+    gross_total = sum(
+        payment.amount_clp
+        for payment in economic_payments
     )
 
-    approved_total = (
-        approved_payments
-        .aggregate(
-            total=Sum('amount_clp'),
-        )
-        .get('total')
-        or 0
+    refunded_total = sum(
+        payment.refunded_amount_clp
+        for payment in economic_payments
     )
+
+    commission_total = sum(
+        payment.commission_amount_clp
+        for payment in economic_payments
+    )
+
+    net_total = sum(
+        payment.net_amount_clp
+        for payment in economic_payments
+    )
+
+    active_paid_count = sum(
+        1
+        for payment in economic_payments
+        if (
+            payment.registration
+            and payment.registration.status
+            == ActivityRegistration.Status.REGISTERED
+            and payment.status
+            in [
+                Payment.Status.APPROVED,
+                Payment.Status.PARTIALLY_REFUNDED,
+            ]
+        )
+    )
+
+    refunded_count = sum(
+        1
+        for payment in economic_payments
+        if payment.refunded_amount_clp > 0
+    )
+
+    settlement = _activity_settlement_label(
+        economic_payments,
+    )
+
+    eligible_dates = [
+        payment.settlement_eligible_at
+        for payment in economic_payments
+        if payment.settlement_eligible_at
+    ]
+
+    eligible_at = max(eligible_dates) if eligible_dates else None
 
     return render(
         request,
@@ -753,7 +1109,14 @@ def activity_payments(
         {
             'activity': activity,
             'payments': payments,
-            'approved_count': approved_payments.count(),
-            'approved_total': approved_total,
+            'gross_total': gross_total,
+            'refunded_total': refunded_total,
+            'commission_total': commission_total,
+            'net_total': net_total,
+            'active_paid_count': active_paid_count,
+            'refunded_count': refunded_count,
+            'settlement_code': settlement['code'],
+            'settlement_label': settlement['label'],
+            'eligible_at': eligible_at,
         },
     )

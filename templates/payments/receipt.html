@@ -40,8 +40,8 @@ Resultado del pago | EntrenamientoyComunidad
                 </h1>
 
                 <p>
-                    Aquí puedes revisar el resultado del intento
-                    y confirmar si tu cupo quedó reservado.
+                    Aquí puedes revisar el resultado del pago
+                    y cualquier devolución asociada.
                 </p>
 
             </div>
@@ -79,6 +79,29 @@ Resultado del pago | EntrenamientoyComunidad
                     </p>
 
 
+                {% elif payment.status == 'partially_refunded' %}
+
+                    <strong>
+                        Cancelación procesada con reembolso parcial
+                    </strong>
+
+                    <p>
+                        Tu inscripción fue cancelada y tu cupo quedó liberado.
+                    </p>
+
+
+                {% elif payment.status == 'refunded' %}
+
+                    <strong>
+                        ✓ Cancelación y reembolso procesados
+                    </strong>
+
+                    <p>
+                        Tu inscripción fue cancelada y el pago
+                        figura como reembolsado.
+                    </p>
+
+
                 {% elif payment.status == 'failed' %}
 
                     <strong>
@@ -99,17 +122,6 @@ Resultado del pago | EntrenamientoyComunidad
 
                     <p>
                         Este intento fue cancelado y no produjo una inscripción.
-                    </p>
-
-
-                {% elif payment.status == 'refunded' %}
-
-                    <strong>
-                        Pago reembolsado
-                    </strong>
-
-                    <p>
-                        El pago figura como reembolsado.
                     </p>
 
 
@@ -163,7 +175,7 @@ Resultado del pago | EntrenamientoyComunidad
                 <div class="payments-fact">
 
                     <span>
-                        MONTO
+                        MONTO ORIGINAL
                     </span>
 
                     <strong>
@@ -173,39 +185,83 @@ Resultado del pago | EntrenamientoyComunidad
                 </div>
 
 
-                <div class="payments-fact">
+                {% if payment.refunded_amount_clp %}
 
-                    <span>
-                        FECHA DEL INTENTO
-                    </span>
+                    <div class="payments-fact">
 
-                    <strong>
-                        {{ payment.created_at|date:"d/m/Y H:i" }}
-                    </strong>
+                        <span>
+                            REEMBOLSADO
+                        </span>
 
-                </div>
+                        <strong>
+                            {{ payment.refunded_amount_clp|clp }}
+                        </strong>
+
+                    </div>
 
 
-                <div class="payments-fact">
+                    <div class="payments-fact">
 
-                    <span>
-                        REFERENCIA
-                    </span>
+                        <span>
+                            NO REEMBOLSABLE
+                        </span>
 
-                    <strong class="payments-reference">
-                        {% if payment.provider_reference %}
-                            {{ payment.provider_reference }}
-                        {% else %}
-                            {{ payment.public_id }}
-                        {% endif %}
-                    </strong>
+                        <strong>
+                            {{ retained_amount_clp|clp }}
+                        </strong>
 
-                </div>
+                    </div>
+
+                {% else %}
+
+                    <div class="payments-fact">
+
+                        <span>
+                            FECHA DEL INTENTO
+                        </span>
+
+                        <strong>
+                            {{ payment.created_at|date:"d/m/Y H:i" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payments-fact">
+
+                        <span>
+                            REFERENCIA
+                        </span>
+
+                        <strong class="payments-reference">
+                            {% if payment.provider_reference %}
+                                {{ payment.provider_reference }}
+                            {% else %}
+                                {{ payment.public_id }}
+                            {% endif %}
+                        </strong>
+
+                    </div>
+
+                {% endif %}
 
             </div>
 
 
-            {% if payment.failure_reason %}
+            {% if latest_refund %}
+
+                <div class="payments-warning">
+
+                    <strong>
+                        Devolución registrada
+                    </strong>
+
+                    Reembolso de {{ latest_refund.amount_clp|clp }}
+                    procesado según la política de cancelación aplicable.
+
+                </div>
+
+            {% elif payment.failure_reason %}
 
                 <div class="payments-warning">
 
@@ -246,6 +302,16 @@ Resultado del pago | EntrenamientoyComunidad
                         class="payments-button payments-button-link"
                     >
                         Intentar nuevamente →
+                    </a>
+
+
+                {% elif payment.status == 'partially_refunded' or payment.status == 'refunded' %}
+
+                    <a
+                        href="{% url 'activities:detail' activity.id %}"
+                        class="payments-button payments-button-link"
+                    >
+                        Volver a la actividad →
                     </a>
 
                 {% endif %}

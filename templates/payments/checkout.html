@@ -7,6 +7,84 @@ Pagar actividad | EntrenamientoyComunidad
 
 {% block content %}
 
+<style>
+    .payments-policy-box {
+        display: grid;
+        gap: 12px;
+        margin: 18px 0;
+        padding: 16px;
+        background: rgba(255, 212, 74, .035);
+        border: 1px solid rgba(255, 212, 74, .24);
+        border-radius: 12px;
+    }
+
+    .payments-policy-box > strong {
+        color: #f4f1e8;
+        font-size: 12px;
+    }
+
+    .payments-policy-box > p {
+        margin: 0;
+        color: #8a96ad;
+        font-size: 10px;
+        line-height: 1.5;
+    }
+
+    .payments-policy-list {
+        display: grid;
+        gap: 7px;
+    }
+
+    .payments-policy-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding-bottom: 7px;
+        border-bottom: 1px solid rgba(255, 255, 255, .055);
+    }
+
+    .payments-policy-row:last-child {
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+
+    .payments-policy-row span {
+        color: #7f8aa3;
+        font-size: 10px;
+    }
+
+    .payments-policy-row strong {
+        flex: 0 0 auto;
+        color: #ffd44a;
+        font-size: 10px;
+    }
+
+    .payments-policy-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin: 16px 0 14px;
+        padding: 13px;
+        color: #a6b0c2;
+        background: #0d1218;
+        border: 1px solid #293241;
+        border-radius: 10px;
+        font-size: 10px;
+        line-height: 1.45;
+        cursor: pointer;
+    }
+
+    .payments-policy-check input {
+        margin-top: 2px;
+        accent-color: #ffd44a;
+    }
+
+    .payments-policy-check strong {
+        color: #f4f1e8;
+    }
+</style>
+
 <section class="account-page payments-page">
 
     <div class="account-container">
@@ -165,9 +243,9 @@ Pagar actividad | EntrenamientoyComunidad
 
 
                 <p class="payments-secure-note">
-                    El monto queda guardado como referencia del intento de pago.
-                    Si el precio de la actividad cambia antes de aprobarlo,
-                    el sistema solicitará iniciar un nuevo pago.
+                    Este monto corresponde al precio actual de la actividad.
+                    Si el valor cambia antes de completar el pago,
+                    el sistema te pedirá iniciar un nuevo intento.
                 </p>
 
             </section>
@@ -193,15 +271,45 @@ Pagar actividad | EntrenamientoyComunidad
                 </span>
 
 
-                <p>
-                    Referencia interna:
-                    <span class="payments-reference">
-                        {{ payment.public_id }}
-                    </span>
-                </p>
-
-
                 {% if sandbox_enabled and payment.status == 'pending' %}
+
+                    <div class="payments-policy-box">
+
+                        <strong>
+                            Política de cancelación y reembolsos
+                        </strong>
+
+                        <p>
+                            Antes de confirmar tu pago, revisa las condiciones
+                            aplicables a esta inscripción.
+                        </p>
+
+                        <div class="payments-policy-list">
+
+                            <div class="payments-policy-row">
+                                <span>48 horas o más antes</span>
+                                <strong>100% reembolso</strong>
+                            </div>
+
+                            <div class="payments-policy-row">
+                                <span>Entre 24 y menos de 48 horas</span>
+                                <strong>75% reembolso</strong>
+                            </div>
+
+                            <div class="payments-policy-row">
+                                <span>Menos de 24 horas antes</span>
+                                <strong>50% reembolso</strong>
+                            </div>
+
+                            <div class="payments-policy-row">
+                                <span>No presentación o actividad iniciada</span>
+                                <strong>Sin reembolso</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
 
                     <div class="payments-warning">
 
@@ -223,6 +331,23 @@ Pagar actividad | EntrenamientoyComunidad
                             action="{% url 'payments:sandbox_approve' payment.public_id %}"
                         >
                             {% csrf_token %}
+
+                            <label class="payments-policy-check">
+
+                                <input
+                                    type="checkbox"
+                                    name="accept_policy"
+                                    value="1"
+                                    required
+                                >
+
+                                <span>
+                                    <strong>He leído y acepto</strong>
+                                    la política de cancelación y reembolsos
+                                    aplicable a esta actividad.
+                                </span>
+
+                            </label>
 
                             <button
                                 type="submit"

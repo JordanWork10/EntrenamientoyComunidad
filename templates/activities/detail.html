@@ -550,12 +550,20 @@
                             </strong>
 
                             <p>
-                                Esta inscripción está vinculada a un pago.
-                                La cancelación con devolución se habilitará
-                                en el siguiente bloque del módulo de Pagos.
+                                Tu inscripción está vinculada a un pago.
+                                Si ya no puedes asistir, revisa primero
+                                cuánto corresponde reembolsar según la política vigente.
                             </p>
 
                         </div>
+
+
+                        <a
+                            href="{% url 'payments:cancel_paid_activity' activity.id %}"
+                            class="activities-button activities-button-danger activities-button-full"
+                        >
+                            Cancelar participación y revisar reembolso →
+                        </a>
 
 
                         <a

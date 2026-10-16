@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'apps.bookings',
     'apps.spaces.apps.SpacesConfig',
     'apps.activities.apps.ActivitiesConfig',
+    'apps.subscriptions.apps.SubscriptionsConfig',
     'apps.payments.apps.PaymentsConfig',
 ]
 

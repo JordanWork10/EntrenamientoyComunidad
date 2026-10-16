@@ -2,10 +2,258 @@
 {% load clp_filters %}
 
 {% block title %}
-Pagos recibidos | EntrenamientoyComunidad
+Pagos | EntrenamientoyComunidad
 {% endblock %}
 
 {% block content %}
+
+<style>
+    .professional-payments-intro {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin: 18px 0 14px;
+    }
+
+    .professional-payments-intro p {
+        margin: 0;
+        color: #7f8aa3;
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .professional-payments-count {
+        flex: 0 0 auto;
+        padding: 8px 11px;
+        color: #ffd44a;
+        background: rgba(255, 212, 74, .06);
+        border: 1px solid rgba(255, 212, 74, .28);
+        border-radius: 999px;
+        font-size: 9px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .professional-payment-card-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .professional-payment-card {
+        padding: 18px;
+        background: #10171f;
+        border: 1px solid #293241;
+        border-top: 3px solid #ffd44a;
+        border-radius: 12px;
+    }
+
+    .professional-payment-card-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .professional-payment-card-head-copy {
+        min-width: 0;
+    }
+
+    .professional-payment-card-kicker {
+        display: block;
+        margin-bottom: 6px;
+        color: #ffd44a;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+    }
+
+    .professional-payment-card h3 {
+        margin: 0;
+        color: #f4f1e8;
+        font-size: 18px;
+        line-height: 1.15;
+    }
+
+    .professional-payment-card-date {
+        margin: 6px 0 0;
+        color: #7f8aa3;
+        font-size: 10px;
+    }
+
+    .professional-payment-settlement {
+        flex: 0 0 auto;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 8px;
+        font-weight: 900;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .professional-payment-settlement-pending {
+        color: #ffd44a;
+        background: rgba(255, 212, 74, .07);
+        border: 1px solid rgba(255, 212, 74, .32);
+    }
+
+    .professional-payment-settlement-eligible {
+        color: #41e6aa;
+        background: rgba(65, 230, 170, .07);
+        border: 1px solid rgba(65, 230, 170, .32);
+    }
+
+    .professional-payment-settlement-on_hold {
+        color: #ff9e64;
+        background: rgba(255, 158, 100, .07);
+        border: 1px solid rgba(255, 158, 100, .32);
+    }
+
+    .professional-payment-settlement-settled {
+        color: #3ed3ff;
+        background: rgba(62, 211, 255, .07);
+        border: 1px solid rgba(62, 211, 255, .32);
+    }
+
+    .professional-payment-settlement-empty {
+        color: #9aa5b8;
+        background: rgba(154, 165, 184, .06);
+        border: 1px solid rgba(154, 165, 184, .26);
+    }
+
+    .professional-payment-card-facts {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .professional-payment-card-fact {
+        min-width: 0;
+        padding: 12px;
+        background: #0d1218;
+        border: 1px solid #242d39;
+        border-radius: 9px;
+    }
+
+    .professional-payment-card-fact span {
+        display: block;
+        margin-bottom: 5px;
+        color: #66738d;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    .professional-payment-card-fact strong {
+        display: block;
+        color: #f4f1e8;
+        font-size: 14px;
+    }
+
+    .professional-payment-card-fact-net strong {
+        color: #ffd44a;
+    }
+
+    .professional-payment-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 15px;
+        padding-top: 13px;
+        border-top: 1px solid #242d39;
+    }
+
+    .professional-payment-card-note {
+        margin: 0;
+        color: #758198;
+        font-size: 9px;
+        line-height: 1.45;
+    }
+
+    .professional-payment-card-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .professional-payment-card-actions a {
+        color: #ffd44a;
+        font-size: 10px;
+        font-weight: 900;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .professional-payment-card-actions a:last-child {
+        color: #3ed3ff;
+    }
+
+    .professional-payments-empty {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 20px;
+        background: #0d1218;
+        border: 1px dashed #293241;
+        border-radius: 11px;
+    }
+
+    .professional-payments-empty > span {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: grid;
+        place-items: center;
+        color: #ffd44a;
+        background: rgba(255, 212, 74, .06);
+        border: 1px solid rgba(255, 212, 74, .28);
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 900;
+    }
+
+    .professional-payments-empty strong {
+        display: block;
+        color: #f4f1e8;
+        font-size: 13px;
+    }
+
+    .professional-payments-empty p {
+        margin: 4px 0 0;
+        color: #7f8aa3;
+        font-size: 10px;
+        line-height: 1.45;
+    }
+
+    @media (max-width: 850px) {
+        .professional-payment-card-facts {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .professional-payment-card-head,
+        .professional-payment-card-footer,
+        .professional-payments-intro {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .professional-payment-card-actions {
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 520px) {
+        .professional-payment-card-facts {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 
 <section class="payments-page">
 
@@ -14,19 +262,21 @@ Pagos recibidos | EntrenamientoyComunidad
         <header class="payments-hero">
 
             <div>
+
                 <span class="payments-overline">
-                    CENTRO PROFESIONAL · INGRESOS
+                    CENTRO PROFESIONAL · PAGOS
                 </span>
 
                 <h1>
-                    Pagos <span>recibidos.</span>
+                    Tus <span>pagos.</span>
                 </h1>
 
                 <p>
-                    Revisa los pagos aprobados asociados a las actividades
-                    profesionales que organizas. Este resumen todavía no
-                    representa retiros, transferencias ni comisiones.
+                    Revisa tus actividades pagadas de forma resumida.
+                    Cada tarjeta reúne los cupos pagados, reembolsos,
+                    comisión y monto neto asociado a una actividad.
                 </p>
+
             </div>
 
             <div class="payments-sandbox-badge">
@@ -39,46 +289,44 @@ Pagos recibidos | EntrenamientoyComunidad
         <section class="payments-summary-grid">
 
             <article class="payments-summary-card">
-                <span>PAGOS APROBADOS</span>
-                <strong>{{ approved_count }}</strong>
-            </article>
-
-            <article class="payments-summary-card">
-                <span>TOTAL APROBADO</span>
-                <strong>{{ approved_total|clp }}</strong>
-            </article>
-
-            <article class="payments-summary-card">
-                <span>ACTIVIDADES CON PAGOS</span>
-                <strong>{{ paid_activity_count }}</strong>
-            </article>
-
-        </section>
-
-
-        {% if refunded_count %}
-
-            <section class="professional-income-refund-summary">
 
                 <span>
-                    DEVOLUCIONES REGISTRADAS
+                    POR LIQUIDAR
                 </span>
 
                 <strong>
-                    {{ refunded_count }}
-                    reembolso{{ refunded_count|pluralize }}
-                    ·
+                    {{ to_settle_total|clp }}
+                </strong>
+
+            </article>
+
+
+            <article class="payments-summary-card">
+
+                <span>
+                    LIQUIDADO
+                </span>
+
+                <strong>
+                    {{ settled_total|clp }}
+                </strong>
+
+            </article>
+
+
+            <article class="payments-summary-card">
+
+                <span>
+                    REEMBOLSADO
+                </span>
+
+                <strong>
                     {{ refunded_total|clp }}
                 </strong>
 
-                <p>
-                    Los pagos reembolsados ya no forman parte
-                    del total aprobado vigente.
-                </p>
+            </article>
 
-            </section>
-
-        {% endif %}
+        </section>
 
 
         <section class="payments-panel professional-income-panel">
@@ -92,12 +340,12 @@ Pagos recibidos | EntrenamientoyComunidad
                 <div>
 
                     <h2>
-                        Movimientos recibidos
+                        Actividades con pagos
                     </h2>
 
                     <p>
-                        Pagos aprobados y futuras devoluciones vinculadas
-                        a tus actividades profesionales.
+                        El detalle individual de cada Miembro se encuentra
+                        dentro de su actividad correspondiente.
                     </p>
 
                 </div>
@@ -105,128 +353,157 @@ Pagos recibidos | EntrenamientoyComunidad
             </div>
 
 
-            {% if payments %}
+            <div class="professional-payments-intro">
 
-                <div class="payments-list">
+                <p>
+                    Los montos se calculan utilizando las condiciones económicas
+                    guardadas en cada pago.
+                </p>
 
-                    {% for payment in payments %}
+                <span class="professional-payments-count">
+                    {{ paid_activity_count }}
+                    actividad{{ paid_activity_count|pluralize:"es" }}
+                </span>
 
-                        <article class="payment-row professional-income-row">
-
-
-                            <div class="payment-row-main">
-
-                                <span>
-                                    ACTIVIDAD PROFESIONAL
-                                </span>
-
-                                <strong>
-                                    {{ payment.activity.title }}
-                                </strong>
-
-                                <p>
-                                    {{ payment.activity.date|date:"d/m/Y" }}
-                                    ·
-                                    {{ payment.activity.start_time|time:"H:i" }}
-                                    –
-                                    {{ payment.activity.end_time|time:"H:i" }}
-                                </p>
-
-                            </div>
+            </div>
 
 
-                            <div class="payment-row-data professional-income-member">
+            {% if activity_groups %}
 
-                                <span>
-                                    MIEMBRO
-                                </span>
+                <div class="professional-payment-card-list">
 
-                                <strong>
-                                    {{ payment.payer.get_full_name|default:payment.payer.email }}
-                                </strong>
+                    {% for group in activity_groups %}
 
-                                <p>
+                        <article class="professional-payment-card">
 
-                                    {% if payment.registration %}
+                            <div class="professional-payment-card-head">
 
-                                        Inscripción vinculada
+                                <div class="professional-payment-card-head-copy">
 
-                                    {% else %}
+                                    <span class="professional-payment-card-kicker">
+                                        ACTIVIDAD PROFESIONAL
+                                    </span>
 
-                                        Sin inscripción vinculada
+                                    <h3>
+                                        {{ group.activity.title }}
+                                    </h3>
 
-                                    {% endif %}
+                                    <p class="professional-payment-card-date">
+                                        {{ group.activity.date|date:"d/m/Y" }}
+                                        ·
+                                        {{ group.activity.start_time|time:"H:i" }}
+                                        –
+                                        {{ group.activity.end_time|time:"H:i" }}
+                                    </p>
 
-                                </p>
-
-                            </div>
-
-
-                            <div class="payment-row-data payment-row-amount">
-
-                                <span>
-                                    MONTO
-                                </span>
-
-                                <strong>
-                                    {{ payment.amount_clp|clp }}
-                                </strong>
-
-                                <p>
-
-                                    {% if payment.approved_at %}
-
-                                        {{ payment.approved_at|date:"d/m/Y H:i" }}
-
-                                    {% else %}
-
-                                        {{ payment.created_at|date:"d/m/Y H:i" }}
-
-                                    {% endif %}
-
-                                </p>
-
-                            </div>
+                                </div>
 
 
-                            <div class="payment-row-data professional-income-status-data">
+                                {% if group.net_total == 0 %}
 
-                                <span>
-                                    ESTADO
-                                </span>
-
-                                {% if payment.status == 'approved' %}
-
-                                    <strong class="payment-status payment-status-approved">
-                                        Aprobado
-                                    </strong>
-
-                                {% elif payment.status == 'refunded' %}
-
-                                    <strong class="payment-status payment-status-refunded">
-                                        Reembolsado
-                                    </strong>
+                                    <span class="professional-payment-settlement professional-payment-settlement-empty">
+                                        Sin monto por liquidar
+                                    </span>
 
                                 {% else %}
 
-                                    <strong class="payment-status">
-                                        {{ payment.get_status_display }}
-                                    </strong>
+                                    <span class="professional-payment-settlement professional-payment-settlement-{{ group.settlement_code }}">
+                                        {{ group.settlement_label }}
+                                    </span>
 
                                 {% endif %}
 
                             </div>
 
 
-                            <div class="payment-row-actions professional-income-actions">
+                            <div class="professional-payment-card-facts">
 
-                                <a href="{% url 'activities:detail' payment.activity.id %}">
-                                    Ver actividad →
-                                </a>
+                                <div class="professional-payment-card-fact">
 
-                                <a href="{% url 'payments:activity_payments' payment.activity.id %}">
-                                    Ver movimientos →
-                                </a>
+                                    <span>
+                                        CUPOS PAGADOS
+                                    </span>
+
+                                    <strong>
+                                        {{ group.active_paid_count }}
+                                        /
+                                        {{ group.activity.capacity }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="professional-payment-card-fact">
+
+                                    <span>
+                                        BRUTO
+                                    </span>
+
+                                    <strong>
+                                        {{ group.gross_total|clp }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="professional-payment-card-fact">
+
+                                    <span>
+                                        REEMBOLSOS
+                                    </span>
+
+                                    <strong>
+                                        {{ group.refunded_total|clp }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="professional-payment-card-fact professional-payment-card-fact-net">
+
+                                    <span>
+                                        NETO ESTIMADO
+                                    </span>
+
+                                    <strong>
+                                        {{ group.net_total|clp }}
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="professional-payment-card-footer">
+
+                                <p class="professional-payment-card-note">
+
+                                    Comisión de plataforma:
+                                    {{ group.commission_total|clp }}
+
+                                    {% if group.refunded_count %}
+
+                                        ·
+                                        {{ group.refunded_count }}
+                                        pago{{ group.refunded_count|pluralize }}
+                                        con devolución
+
+                                    {% endif %}
+
+                                </p>
+
+
+                                <div class="professional-payment-card-actions">
+
+                                    <a href="{% url 'payments:activity_payments' group.activity.id %}">
+                                        Ver detalle →
+                                    </a>
+
+                                    <a href="{% url 'activities:detail' group.activity.id %}">
+                                        Ver actividad →
+                                    </a>
+
+                                </div>
 
                             </div>
 
@@ -236,9 +513,10 @@ Pagos recibidos | EntrenamientoyComunidad
 
                 </div>
 
+
             {% else %}
 
-                <div class="professional-income-empty">
+                <div class="professional-payments-empty">
 
                     <span>
                         PAY
@@ -247,13 +525,12 @@ Pagos recibidos | EntrenamientoyComunidad
                     <div>
 
                         <strong>
-                            Todavía no tienes pagos recibidos
+                            Todavía no tienes actividades con pagos
                         </strong>
 
                         <p>
-                            Cuando un Miembro pague y se inscriba correctamente
-                            en una de tus actividades profesionales pagadas,
-                            el movimiento aparecerá aquí.
+                            Cuando un Miembro complete un pago válido,
+                            la actividad aparecerá aquí como una tarjeta resumida.
                         </p>
 
                     </div>

@@ -26,6 +26,12 @@ urlpatterns = [
     ),
 
     path(
+        'actividad/<int:activity_id>/cancelar-participacion/',
+        views.cancel_paid_activity,
+        name='cancel_paid_activity',
+    ),
+
+    path(
         'actividad/<int:activity_id>/movimientos/',
         views.activity_payments,
         name='activity_payments',

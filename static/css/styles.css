@@ -32222,30 +32222,25 @@ textarea.activities-form-control {
 
 
 /* =========================================================
-   RESERVA DE SERVICIO PROFESIONAL - IDENTIDAD MIEMBRO V113
-
-   Regla visual:
-   - Flujo de reserva del Miembro = verde.
-   - Identidad del Profesional / servicio = cyan secundario.
-   - Alcance limitado a la pantalla que contiene
-     .booking-service-summary-card para no alterar Espacios,
-     Centro Profesional ni otros módulos.
+   RESERVA DE SERVICIO PROFESIONAL - IDENTIDAD CYAN V114
+   Todo el flujo de horarios y solicitud conserva la identidad
+   visual del módulo Profesional. Los estados positivos mantienen
+   su color semántico verde y los pendientes usan amarillo.
 ========================================================= */
 
 .account-container:has(.booking-service-summary-card) {
-    --booking-member-accent: #c6ff33;
-    --booking-member-accent-hover: #d5ff68;
-    --booking-member-soft: rgba(198, 255, 51, 0.055);
-    --booking-member-border: rgba(198, 255, 51, 0.36);
-
-    --booking-professional-cyan: #45d6ff;
-    --booking-professional-cyan-soft: rgba(69, 214, 255, 0.055);
-    --booking-professional-cyan-border: rgba(69, 214, 255, 0.30);
+    --booking-professional-accent: #45d6ff;
+    --booking-professional-accent-hover: #71e1ff;
+    --booking-professional-soft: rgba(69, 214, 255, 0.055);
+    --booking-professional-soft-strong: rgba(69, 214, 255, 0.10);
+    --booking-professional-border: rgba(69, 214, 255, 0.36);
+    --booking-professional-border-strong: rgba(69, 214, 255, 0.62);
+    --booking-pending: #ffd44a;
 }
 
 
 /* ---------------------------------------------------------
-   HERO / ESTADO DEL FLUJO DEL MIEMBRO
+   HERO / IDENTIDAD DEL FLUJO PROFESIONAL
 --------------------------------------------------------- */
 
 .account-container:has(.booking-service-summary-card)
@@ -32254,45 +32249,61 @@ textarea.activities-form-control {
 .page-overline,
 .account-container:has(.booking-service-summary-card)
 .account-panel-number {
-    color: var(--booking-member-accent);
+    color: var(--booking-professional-accent);
 }
 
 
+/* Disponibilidad actualizada = estado positivo, permanece verde. */
 .account-container:has(.booking-service-summary-card)
-.account-status {
+.account-status:not(.booking-review-status) {
     color: var(--success);
     border-color: rgba(70, 230, 166, 0.32);
     background: rgba(70, 230, 166, 0.065);
 }
 
-
 .account-container:has(.booking-service-summary-card)
+.account-status:not(.booking-review-status)
 .account-status-dot {
     background: var(--success);
 }
 
 
+/* Revisión final = etapa del flujo, por eso usa cian. */
+.account-container:has(.booking-service-summary-card)
+.booking-review-status {
+    color: var(--booking-professional-accent);
+    border-color: var(--booking-professional-border);
+    background: var(--booking-professional-soft);
+}
+
+.account-container:has(.booking-service-summary-card)
+.booking-review-status
+.account-status-dot {
+    background: var(--booking-professional-accent);
+}
+
+
 /* ---------------------------------------------------------
-   TARJETA DEL SERVICIO = IDENTIDAD PROFESIONAL CYAN
+   RESUMEN DEL SERVICIO / FECHA / HORARIO / PRECIO
 --------------------------------------------------------- */
 
 .account-container:has(.booking-service-summary-card)
 .booking-service-summary-card {
-    border-color: var(--booking-professional-cyan-border);
-
+    border-color: var(--booking-professional-border);
     background:
         linear-gradient(
             135deg,
-            rgba(69, 214, 255, 0.055),
-            rgba(69, 214, 255, 0.014) 48%,
+            rgba(69, 214, 255, 0.060),
+            rgba(69, 214, 255, 0.015) 48%,
             transparent 76%
         ),
         var(--bg-card);
 }
 
-
 .account-container:has(.booking-service-summary-card)
 .booking-professional-avatar {
+    color: var(--booking-professional-accent);
+    border-color: var(--booking-professional-border);
     background:
         linear-gradient(
             145deg,
@@ -32300,24 +32311,16 @@ textarea.activities-form-control {
             rgba(69, 214, 255, 0.025)
         ),
         #0d1117;
-
-    border-color: rgba(69, 214, 255, 0.34);
-
-    color: var(--booking-professional-cyan);
 }
-
 
 .account-container:has(.booking-service-summary-card)
-.booking-service-identity-copy .account-summary-label {
-    color: var(--booking-professional-cyan);
-}
-
-
+.booking-service-identity-copy .account-summary-label,
 .account-container:has(.booking-service-summary-card)
-.booking-service-identity-copy strong {
-    color: var(--booking-professional-cyan);
+.booking-service-identity-copy strong,
+.account-container:has(.booking-service-summary-card)
+.account-summary-card strong {
+    color: var(--booking-professional-accent);
 }
-
 
 .account-container:has(.booking-service-summary-card)
 .booking-service-identity-copy p {
@@ -32325,101 +32328,83 @@ textarea.activities-form-control {
 }
 
 
-/* Los datos que el Miembro usa para decidir siguen en verde. */
-.account-container:has(.booking-service-summary-card)
-.account-summary-card:not(.booking-service-summary-card) strong {
-    color: var(--booking-member-accent);
-}
-
-
 /* ---------------------------------------------------------
-   PRÓXIMOS DÍAS / SELECCIÓN DE FECHA
+   PRÓXIMOS DÍAS / FECHA SELECCIONADA
 --------------------------------------------------------- */
 
 .account-container:has(.booking-service-summary-card)
 .friendly-date-option:hover {
-    border-color: rgba(198, 255, 51, 0.58);
-    background: rgba(198, 255, 51, 0.035);
+    border-color: var(--booking-professional-border-strong);
+    background: rgba(69, 214, 255, 0.035);
 }
-
 
 .account-container:has(.booking-service-summary-card)
 .friendly-date-option-active {
-    border-color: var(--booking-member-accent);
-
+    border-color: var(--booking-professional-accent);
     background:
         linear-gradient(
             180deg,
-            rgba(198, 255, 51, 0.09),
-            rgba(198, 255, 51, 0.035)
+            rgba(69, 214, 255, 0.10),
+            rgba(69, 214, 255, 0.035)
         );
-
-    box-shadow:
-        0 0 0 1px rgba(198, 255, 51, 0.055);
+    box-shadow: 0 0 0 1px rgba(69, 214, 255, 0.06);
 }
-
 
 .account-container:has(.booking-service-summary-card)
 .friendly-date-option-active span,
 .account-container:has(.booking-service-summary-card)
 .friendly-date-option-active strong,
 .account-container:has(.booking-service-summary-card)
-.friendly-date-option-active small {
-    color: var(--booking-member-accent);
-}
-
-
+.friendly-date-option-active small,
 .account-container:has(.booking-service-summary-card)
 .friendly-date-status-available {
-    color: var(--booking-member-accent);
+    color: var(--booking-professional-accent);
 }
 
 
 /* ---------------------------------------------------------
-   OTRA FECHA - INPUT O SELECTORES DÍA / MES / AÑO
+   SELECTOR DÍA / MES / AÑO
 --------------------------------------------------------- */
 
 .account-container:has(.booking-service-summary-card)
 .friendly-date-custom {
-    border-color: rgba(198, 255, 51, 0.16);
+    border-color: rgba(69, 214, 255, 0.17);
 }
 
+.account-container:has(.booking-service-summary-card)
+.professional-availability-field select:hover,
+.account-container:has(.booking-service-summary-card)
+.friendly-date-selects select:hover {
+    border-color: rgba(69, 214, 255, 0.48);
+}
 
+.account-container:has(.booking-service-summary-card)
+.professional-availability-field select:focus,
 .account-container:has(.booking-service-summary-card)
 .friendly-date-custom input[type="date"]:focus,
 .account-container:has(.booking-service-summary-card)
 .friendly-date-selects select:focus {
-    border-color: var(--booking-member-accent);
-
-    box-shadow:
-        0 0 0 2px rgba(198, 255, 51, 0.07);
+    border-color: var(--booking-professional-accent);
+    box-shadow: 0 0 0 2px rgba(69, 214, 255, 0.08);
 }
-
-
-.account-container:has(.booking-service-summary-card)
-.friendly-date-selects select:hover {
-    border-color: rgba(198, 255, 51, 0.46);
-}
-
 
 .account-container:has(.booking-service-summary-card)
 .friendly-date-custom .account-professional-action {
-    color: var(--booking-member-accent);
-    border-color: var(--booking-member-border);
-    background: var(--booking-member-soft);
+    color: var(--booking-professional-accent);
+    border-color: var(--booking-professional-border);
+    background: var(--booking-professional-soft);
 }
-
 
 .account-container:has(.booking-service-summary-card)
 .friendly-date-custom .account-professional-action:hover {
-    color: #090b0f;
-    border-color: var(--booking-member-accent);
-    background: var(--booking-member-accent);
+    color: #071018;
+    border-color: var(--booking-professional-accent);
+    background: var(--booking-professional-accent);
 }
 
 
 /* ---------------------------------------------------------
-   HORARIOS DISPONIBLES / RESERVAR
+   HORARIOS DISPONIBLES / RESERVAR ESTA SESIÓN
 --------------------------------------------------------- */
 
 .account-container:has(.booking-service-summary-card)
@@ -32430,34 +32415,100 @@ textarea.activities-form-control {
         transform 0.18s ease;
 }
 
-
 .account-container:has(.booking-service-summary-card)
 .booking-slot-grid .account-data-item:hover {
-    border-color: rgba(198, 255, 51, 0.24);
-    background: rgba(198, 255, 51, 0.018);
+    border-color: rgba(69, 214, 255, 0.30);
+    background: rgba(69, 214, 255, 0.020);
     transform: translateY(-1px);
 }
 
-
 .account-container:has(.booking-service-summary-card)
 .booking-slot-time {
-    color: var(--booking-member-accent);
+    color: var(--booking-professional-accent);
+}
+
+.account-container:has(.booking-service-summary-card)
+.booking-slot-action,
+.account-container:has(.booking-service-summary-card)
+.booking-confirm-button {
+    color: var(--booking-professional-accent);
+    border-color: var(--booking-professional-border);
+    background: var(--booking-professional-soft);
+}
+
+.account-container:has(.booking-service-summary-card)
+.booking-slot-action:hover,
+.account-container:has(.booking-service-summary-card)
+.booking-confirm-button:hover {
+    color: #071018;
+    border-color: var(--booking-professional-accent);
+    background: var(--booking-professional-accent);
 }
 
 
-.account-container:has(.booking-service-summary-card)
-.booking-slot-action {
-    color: var(--booking-member-accent);
-    border-color: var(--booking-member-border);
-    background: var(--booking-member-soft);
+/* ---------------------------------------------------------
+   PANTALLA REVISAR SOLICITUD
+--------------------------------------------------------- */
+
+.professional-booking-confirm-page .booking-pending-status {
+    color: var(--booking-pending) !important;
+}
+
+.professional-booking-confirm-page .booking-request-status-card {
+    border-color: rgba(255, 212, 74, 0.24);
+}
+
+.professional-booking-confirm-page .booking-request-note {
+    border-color: rgba(69, 214, 255, 0.28);
+    background: rgba(69, 214, 255, 0.035);
+}
+
+.professional-booking-confirm-page .booking-request-note strong {
+    color: var(--booking-professional-accent);
+}
+
+.professional-booking-confirm-page .booking-confirm-actions {
+    padding: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.professional-booking-confirm-page .booking-confirm-back {
+    color: var(--text-secondary);
+    border-color: var(--border-soft);
+    background: transparent;
+}
+
+.professional-booking-confirm-page .booking-confirm-back:hover {
+    color: var(--booking-professional-accent);
+    border-color: var(--booking-professional-border);
+    background: var(--booking-professional-soft);
+}
+
+.professional-booking-confirm-page .booking-confirm-button-disabled,
+.professional-booking-confirm-page .booking-confirm-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 
+/* ---------------------------------------------------------
+   VOLVER / NAVEGACIÓN SECUNDARIA
+--------------------------------------------------------- */
+
 .account-container:has(.booking-service-summary-card)
-.booking-slot-action:hover {
-    color: #090b0f;
-    border-color: var(--booking-member-accent);
-    background: var(--booking-member-accent);
+.booking-back-action .account-professional-action {
+    color: var(--booking-professional-accent);
+    border-color: rgba(69, 214, 255, 0.30);
+    background: rgba(69, 214, 255, 0.030);
+}
+
+.account-container:has(.booking-service-summary-card)
+.booking-back-action .account-professional-action:hover {
+    border-color: var(--booking-professional-accent);
+    background: var(--booking-professional-soft);
 }
 
 
@@ -32473,22 +32524,633 @@ button:focus-visible,
 input:focus-visible,
 .account-container:has(.booking-service-summary-card)
 select:focus-visible {
-    outline: 2px solid var(--booking-member-accent);
+    outline: 2px solid var(--booking-professional-accent);
     outline-offset: 2px;
 }
 
 
-/* ---------------------------------------------------------
-   RESPONSIVE
---------------------------------------------------------- */
-
 @media (max-width: 600px) {
 
     .account-container:has(.booking-service-summary-card)
-    .friendly-date-custom .account-professional-action {
+    .friendly-date-custom .account-professional-action,
+    .professional-booking-confirm-page
+    .booking-confirm-actions .account-professional-action {
         width: 100%;
         justify-content: space-between;
     }
 
+    .professional-booking-confirm-page .booking-confirm-actions {
+        flex-direction: column;
+    }
 }
 
+
+/* =========================================================
+   V115.1 · RESERVAS PROFESIONALES
+   Identidad del módulo: cyan/turquesa.
+   Estados semánticos:
+   - pendiente: amarillo
+   - confirmada / aceptar / completar: verde
+   - cancelar / rechazar: rojo
+========================================================= */
+
+/* ---------------------------------------------------------
+   DETALLE PROFESIONAL: SOLICITUD / PRÓXIMA SESIÓN / HISTORIAL
+--------------------------------------------------------- */
+
+.account-container:has(.professional-booking-footer-actions) {
+    --professional-booking-cyan: #45d6ff;
+    --professional-booking-cyan-soft: rgba(69, 214, 255, 0.045);
+    --professional-booking-cyan-border: rgba(69, 214, 255, 0.30);
+    --professional-booking-cyan-border-strong: rgba(69, 214, 255, 0.52);
+}
+
+.account-container:has(.professional-booking-footer-actions)
+.page-overline,
+.account-container:has(.professional-booking-footer-actions)
+.account-hero h1 span,
+.account-container:has(.professional-booking-footer-actions)
+.account-panel-number {
+    color: var(--professional-booking-cyan);
+}
+
+.account-container:has(.professional-booking-footer-actions)
+.professional-received-card {
+    border-color: rgba(69, 214, 255, 0.30);
+}
+
+.account-container:has(.professional-booking-footer-actions)
+.professional-received-card::before {
+    background: linear-gradient(
+        90deg,
+        var(--professional-booking-cyan),
+        rgba(69, 214, 255, 0.28) 58%,
+        transparent
+    );
+}
+
+.account-container:has(.professional-booking-footer-actions)
+.professional-received-avatar,
+.account-container:has(.professional-booking-footer-actions)
+.professional-received-eyebrow,
+.account-container:has(.professional-booking-footer-actions)
+.professional-received-service,
+.account-container:has(.professional-booking-footer-actions)
+.professional-received-detail-date strong,
+.account-container:has(.professional-booking-footer-actions)
+.professional-received-detail-price strong {
+    color: var(--professional-booking-cyan);
+}
+
+.account-container:has(.professional-booking-footer-actions)
+.professional-received-avatar {
+    border-color: rgba(69, 214, 255, 0.46);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(69, 214, 255, 0.16),
+            rgba(69, 214, 255, 0.025)
+        ),
+        #0d1117;
+}
+
+.account-container:has(.professional-booking-footer-actions)
+.professional-received-details {
+    border-top-color: rgba(69, 214, 255, 0.14);
+    border-bottom-color: rgba(69, 214, 255, 0.14);
+}
+
+/* Estado pendiente: amarillo */
+.account-container:has(.professional-booking-footer-actions)
+.professional-received-status-pending {
+    color: var(--warning);
+    background: rgba(255, 203, 69, 0.07);
+    border-color: rgba(255, 203, 69, 0.34);
+}
+
+/* Estado confirmado: verde */
+.account-container:has(.professional-booking-footer-actions)
+.professional-received-status-confirmed {
+    color: var(--success);
+    background: rgba(70, 230, 166, 0.07);
+    border-color: rgba(70, 230, 166, 0.34);
+}
+
+/* Estado cancelado: rojo */
+.account-container:has(.professional-booking-footer-actions)
+.professional-received-status-cancelled {
+    color: var(--danger);
+    background: rgba(255, 100, 100, 0.07);
+    border-color: rgba(255, 100, 100, 0.30);
+}
+
+/* Estado completado: positivo, pero distinto a confirmada */
+.account-container:has(.professional-booking-footer-actions)
+.professional-received-status-completed {
+    color: #71ead7;
+    background: rgba(113, 234, 215, 0.06);
+    border-color: rgba(113, 234, 215, 0.28);
+}
+
+/* ---------------------------------------------------------
+   AVISOS Y ACCIONES
+--------------------------------------------------------- */
+
+/* La acción de aceptar sigue siendo verde. */
+.account-container:has(.professional-booking-footer-actions)
+.professional-booking-choice-accept {
+    color: #081000;
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+/* Rechazo / cancelación se mantiene rojo. */
+.account-container:has(.professional-booking-footer-actions)
+.professional-booking-choice-decline,
+.account-container:has(.professional-booking-footer-actions)
+.professional-booking-cancel-button {
+    border-color: rgba(255, 100, 100, 0.30);
+}
+
+/* Caja informativa de completar: identidad cyan neutra. */
+.account-container:has(.professional-booking-footer-actions)
+.booking-completion-box {
+    background: rgba(69, 214, 255, 0.025);
+    border-color: rgba(69, 214, 255, 0.18);
+}
+
+/* El aviso interno de que todavía no puede completarse sigue siendo advertencia. */
+.account-container:has(.professional-booking-footer-actions)
+.booking-completion-box .account-professional-message:not(.account-professional-message-active) {
+    background: rgba(255, 203, 69, 0.035);
+    border-color: rgba(255, 203, 69, 0.24);
+}
+
+.account-container:has(.professional-booking-footer-actions)
+.booking-completion-box .account-professional-message:not(.account-professional-message-active) strong {
+    color: var(--warning);
+}
+
+/* Marcar como completada sigue siendo una acción positiva. */
+.account-container:has(.professional-booking-footer-actions)
+.professional-booking-action-button {
+    color: #081000;
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.account-container:has(.professional-booking-footer-actions)
+.professional-booking-action-button:hover {
+    background: #d1ff5c;
+    border-color: #d1ff5c;
+}
+
+/* ---------------------------------------------------------
+   HISTORIAL Y NAVEGACIÓN DEL MÓDULO
+--------------------------------------------------------- */
+
+.account-container:has(.professional-booking-footer-actions)
+.received-history-summary-button {
+    color: var(--professional-booking-cyan);
+    background: var(--professional-booking-cyan-soft);
+    border-color: var(--professional-booking-cyan-border);
+}
+
+.account-container:has(.professional-booking-footer-actions)
+.received-history-summary:hover .received-history-summary-button {
+    border-color: var(--professional-booking-cyan-border-strong);
+    background: rgba(69, 214, 255, 0.075);
+}
+
+.account-container:has(.professional-booking-footer-actions)
+.professional-booking-footer-actions .account-professional-action {
+    color: var(--professional-booking-cyan);
+    background: var(--professional-booking-cyan-soft);
+    border-color: var(--professional-booking-cyan-border);
+}
+
+.account-container:has(.professional-booking-footer-actions)
+.professional-booking-footer-actions .account-professional-action:hover {
+    color: #071018;
+    background: var(--professional-booking-cyan);
+    border-color: var(--professional-booking-cyan);
+}
+
+/* ---------------------------------------------------------
+   RESERVAS RECIBIDAS: CTA DE LAS TARJETAS PROFESIONALES
+--------------------------------------------------------- */
+
+.professional-received-card-footer > strong {
+    color: var(--public-cyan);
+    background: rgba(89, 221, 255, 0.045);
+    border-color: rgba(89, 221, 255, 0.26);
+}
+
+.professional-received-card-link:hover
+.professional-received-card-footer > strong {
+    background: rgba(89, 221, 255, 0.085);
+    border-color: rgba(89, 221, 255, 0.48);
+}
+
+/* ---------------------------------------------------------
+   FOCO ACCESIBLE
+--------------------------------------------------------- */
+
+.account-container:has(.professional-booking-footer-actions)
+a:focus-visible,
+.account-container:has(.professional-booking-footer-actions)
+button:focus-visible,
+.account-container:has(.professional-booking-footer-actions)
+summary:focus-visible,
+.account-container:has(.professional-booking-footer-actions)
+textarea:focus-visible {
+    outline: 2px solid var(--professional-booking-cyan);
+    outline-offset: 2px;
+}
+
+/* =========================================================
+   V115.3 - NOVEDADES DEL CENTRO PROFESIONAL
+   Fuente: BookingHistory. Sin migraciones.
+   ========================================================= */
+.professional-updates-section {
+    margin: 26px 0 30px;
+    padding: 18px;
+    background: #101720;
+    border: 1px solid rgba(62, 211, 255, .30);
+    border-radius: 12px;
+}
+
+.professional-updates-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 14px;
+}
+
+.professional-updates-heading > div:first-child {
+    min-width: 0;
+}
+
+.professional-updates-overline {
+    display: block;
+    margin-bottom: 7px;
+    color: #3ed3ff;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+.professional-updates-heading h2 {
+    margin: 0;
+    color: #f4f1e8;
+    font-size: clamp(20px, 2vw, 27px);
+    line-height: 1.08;
+}
+
+.professional-updates-heading p {
+    margin: 7px 0 0;
+    color: #7f8aa3;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.professional-updates-heading-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.professional-updates-count,
+.professional-updates-mark-all {
+    min-height: 32px;
+    padding: 0 11px;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 9px;
+    font-weight: 900;
+}
+
+.professional-updates-count {
+    display: inline-flex;
+    align-items: center;
+    color: #3ed3ff;
+    background: rgba(62, 211, 255, .06);
+    border: 1px solid rgba(62, 211, 255, .28);
+}
+
+.professional-updates-mark-all {
+    color: #c8d1df;
+    background: #0b1118;
+    border: 1px solid #2a3442;
+    cursor: pointer;
+}
+
+.professional-updates-mark-all:hover:not(:disabled) {
+    color: #3ed3ff;
+    border-color: rgba(62, 211, 255, .44);
+}
+
+.professional-updates-mark-all:disabled {
+    opacity: .45;
+    cursor: default;
+}
+
+.professional-updates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 12px;
+}
+
+.professional-update-card {
+    min-width: 0;
+    padding: 16px;
+    background: #111923;
+    border: 1px solid rgba(62, 211, 255, .34);
+    border-top: 3px solid #3ed3ff;
+    border-radius: 11px;
+}
+
+.professional-update-card-cancelled {
+    border-color: rgba(255, 91, 112, .38);
+    border-top-color: #ff5b70;
+}
+
+.professional-update-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.professional-update-member {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    min-width: 0;
+}
+
+.professional-update-avatar {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    color: #3ed3ff;
+    background: rgba(62, 211, 255, .06);
+    border: 1px solid rgba(62, 211, 255, .40);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.professional-update-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.professional-update-copy {
+    min-width: 0;
+}
+
+.professional-update-copy > span {
+    display: block;
+    margin-bottom: 4px;
+    color: #3ed3ff;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.professional-update-copy h3 {
+    margin: 0;
+    color: #f4f1e8;
+    font-size: 15px;
+    line-height: 1.2;
+}
+
+.professional-update-copy p {
+    margin: 5px 0 0;
+    color: #8692a8;
+    font-size: 10px;
+    line-height: 1.45;
+}
+
+.professional-update-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 0 9px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    font-size: 8px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.professional-update-status-request {
+    color: #ffd44a;
+    background: rgba(255, 212, 74, .06);
+    border: 1px solid rgba(255, 212, 74, .34);
+}
+
+.professional-update-status-cancelled {
+    color: #ff687b;
+    background: rgba(255, 91, 112, .06);
+    border: 1px solid rgba(255, 91, 112, .36);
+}
+
+.professional-update-facts {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    margin-top: 14px;
+    padding: 12px 0;
+    border-top: 1px solid rgba(62, 211, 255, .16);
+    border-bottom: 1px solid rgba(62, 211, 255, .16);
+}
+
+.professional-update-facts > div {
+    min-width: 0;
+    padding: 0 12px;
+    border-right: 1px solid #26303d;
+}
+
+.professional-update-facts > div:first-child {
+    padding-left: 0;
+}
+
+.professional-update-facts > div:last-child {
+    padding-right: 0;
+    border-right: 0;
+}
+
+.professional-update-facts span,
+.professional-update-reason span {
+    display: block;
+    margin-bottom: 5px;
+    color: #71809a;
+    font-size: 7px;
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.professional-update-facts strong {
+    display: block;
+    overflow: hidden;
+    color: #eaf2fb;
+    font-size: 10px;
+    font-weight: 850;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.professional-update-reason {
+    margin-top: 12px;
+    padding: 11px 12px;
+    background: rgba(255, 91, 112, .055);
+    border: 1px solid rgba(255, 91, 112, .26);
+    border-radius: 8px;
+}
+
+.professional-update-reason span {
+    color: #ff687b;
+}
+
+.professional-update-reason strong {
+    color: #f4f1e8;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.professional-update-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.professional-update-review-button,
+.professional-update-open {
+    min-height: 31px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    border-radius: 7px;
+    font-size: 9px;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.professional-update-review-button {
+    color: #a9b4c5;
+    background: #0b1118;
+    border: 1px solid #2a3442;
+    cursor: pointer;
+}
+
+.professional-update-review-button:hover {
+    color: #3ed3ff;
+    border-color: rgba(62, 211, 255, .42);
+}
+
+.professional-update-open {
+    color: #3ed3ff;
+    background: rgba(62, 211, 255, .05);
+    border: 1px solid rgba(62, 211, 255, .32);
+}
+
+.professional-update-open:hover {
+    background: rgba(62, 211, 255, .10);
+}
+
+.professional-updates-empty {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    color: #41e6aa;
+    background: rgba(65, 230, 170, .045);
+    border: 1px dashed rgba(65, 230, 170, .30);
+    border-radius: 10px;
+}
+
+.professional-updates-empty[hidden] {
+    display: none !important;
+}
+
+.professional-updates-empty > span {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(65, 230, 170, .38);
+    border-radius: 9px;
+    font-weight: 900;
+}
+
+.professional-updates-empty strong {
+    display: block;
+    color: #f4f1e8;
+    font-size: 12px;
+}
+
+.professional-updates-empty p {
+    margin: 3px 0 0;
+    color: #7f8aa3;
+    font-size: 10px;
+}
+
+@media (max-width: 900px) {
+    .professional-updates-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .professional-updates-heading-actions {
+        justify-content: flex-start;
+    }
+
+    .professional-update-facts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .professional-update-facts > div,
+    .professional-update-facts > div:first-child,
+    .professional-update-facts > div:last-child {
+        padding: 0;
+        border-right: 0;
+    }
+}
+
+@media (max-width: 620px) {
+    .professional-updates-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .professional-update-card-top,
+    .professional-update-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .professional-update-status {
+        width: fit-content;
+    }
+
+    .professional-update-review-button,
+    .professional-update-open {
+        width: 100%;
+    }
+}

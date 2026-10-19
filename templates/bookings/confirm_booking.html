@@ -1,15 +1,13 @@
 {% extends 'base.html' %}
 {% load clp_filters %}
 
-
 {% block title %}
-Confirmar Reserva | EntrenamientoyComunidad
+Revisar solicitud | EntrenamientoyComunidad
 {% endblock %}
-
 
 {% block content %}
 
-<section class="account-page">
+<section class="account-page professional-booking-flow professional-booking-confirm-page">
 
     <div class="account-container">
 
@@ -18,29 +16,28 @@ Confirmar Reserva | EntrenamientoyComunidad
             <div>
 
                 <span class="page-overline">
-                    RESERVA
+                    RESERVA PROFESIONAL
                 </span>
 
                 <h1>
-                    Confirmar
+                    Revisa tu
                     <span>
-                        sesión
+                        solicitud.
                     </span>
                 </h1>
 
                 <p>
-                    Revisa los datos antes de crear la reserva.
-                    La sesión volverá a validarse al confirmar.
+                    Comprueba la fecha, el horario y los datos del servicio
+                    antes de enviar la solicitud al Profesional.
                 </p>
 
             </div>
 
-
-            <div class="account-status">
+            <div class="account-status booking-review-status">
 
                 <span class="account-status-dot"></span>
 
-                Confirmación segura
+                Revisión final
 
             </div>
 
@@ -49,7 +46,7 @@ Confirmar Reserva | EntrenamientoyComunidad
 
         <section class="account-summary-grid">
 
-            <article class="account-summary-card">
+            <article class="account-summary-card booking-service-summary-card">
 
                 <span class="account-summary-label">
                     SERVICIO
@@ -140,7 +137,7 @@ Confirmar Reserva | EntrenamientoyComunidad
                     </span>
 
                     <h2>
-                        Detalle de la reserva
+                        Detalle de la solicitud
                     </h2>
 
                 </div>
@@ -199,14 +196,14 @@ Confirmar Reserva | EntrenamientoyComunidad
                 </div>
 
 
-                <div class="account-data-item">
+                <div class="account-data-item booking-request-status-card">
 
                     <span>
-                        Estado inicial
+                        Estado
                     </span>
 
-                    <strong>
-                        Pendiente
+                    <strong class="booking-pending-status">
+                        Pendiente de confirmación
                     </strong>
 
                 </div>
@@ -219,7 +216,7 @@ Confirmar Reserva | EntrenamientoyComunidad
                 <div class="account-professional-message account-professional-message-error">
 
                     <strong>
-                        No se puede confirmar esta sesión
+                        No se puede enviar esta solicitud
                     </strong>
 
                     <p>
@@ -230,16 +227,16 @@ Confirmar Reserva | EntrenamientoyComunidad
 
             {% else %}
 
-                <div class="account-professional-message">
+                <div class="account-professional-message booking-request-note">
 
                     <strong>
-                        La reserva quedará registrada
+                        Tu solicitud será enviada a
+                        {{ service.professional_profile.user.get_full_name }}
                     </strong>
 
                     <p>
-                        Al confirmar, el sistema guardará la fecha,
-                        horario, duración, precio, modalidad y lugar
-                        correspondientes a este momento.
+                        El Profesional deberá revisarla y confirmarla antes de que
+                        la sesión quede reservada definitivamente.
                     </p>
 
                 </div>
@@ -252,7 +249,11 @@ Confirmar Reserva | EntrenamientoyComunidad
                 <div class="account-professional-message account-professional-message-error">
 
                     {% for error in form.non_field_errors %}
-                        <p>{{ error }}</p>
+
+                        <p>
+                            {{ error }}
+                        </p>
+
                     {% endfor %}
 
                 </div>
@@ -276,62 +277,21 @@ Confirmar Reserva | EntrenamientoyComunidad
                         class="account-professional-action booking-confirm-button {% if booking_error %}booking-confirm-button-disabled{% endif %}"
                         {% if booking_error %}disabled{% endif %}
                     >
-                        Confirmar reserva
+                        Enviar solicitud de reserva
                         <span>→</span>
                     </button>
 
 
                     <a
-                        href="{% url 'core:home' %}"
-                        class="account-logout booking-confirm-cancel"
+                        href="{% url 'bookings:service_slots' service.id %}{% if session_date %}?date={{ session_date|date:'Y-m-d' }}{% endif %}"
+                        class="account-professional-action booking-confirm-back"
                     >
-                        Cancelar
+                        ← Volver a los horarios
                     </a>
 
                 </div>
 
             </form>
-
-        </section>
-
-
-        <section class="account-panel">
-
-            <div class="account-panel-header">
-
-                <div>
-
-                    <span class="account-panel-number">
-                        02
-                    </span>
-
-                    <h2>
-                        Trazabilidad de la reserva
-                    </h2>
-
-                </div>
-
-                <span class="account-panel-tag">
-                    PROTECCIÓN
-                </span>
-
-            </div>
-
-
-            <div class="account-professional-message">
-
-                <strong>
-                    Los datos importantes quedarán congelados
-                </strong>
-
-                <p>
-                    Si el Profesional modifica posteriormente el precio,
-                    duración, modalidad o información del lugar, esta
-                    reserva conservará los datos existentes al momento
-                    de confirmar.
-                </p>
-
-            </div>
 
         </section>
 

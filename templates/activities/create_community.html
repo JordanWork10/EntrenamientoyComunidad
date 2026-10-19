@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load subscription_extras %}
 
 {% block title %}
 Crear actividad comunitaria | EntrenamientoyComunidad
@@ -6,11 +7,93 @@ Crear actividad comunitaria | EntrenamientoyComunidad
 
 {% block content %}
 
+{% community_publication_summary request.user as publication_summary %}
+
+<style>
+    .activities-v111-rule-plan {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        margin-bottom: 7px;
+        padding: 5px 8px;
+        color: #b4ff29;
+        background: rgba(180, 255, 41, .06);
+        border: 1px solid rgba(180, 255, 41, .28);
+        border-radius: 999px;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .activities-v111-rule-limit {
+        color: #f4f1e8;
+    }
+
+    .activities-v111-rule-remaining {
+        display: block;
+        margin-top: 5px;
+        color: #8b96aa;
+        line-height: 1.45;
+    }
+
+    .activities-v111-rule-full {
+        color: #ffd44a;
+    }
+
+    .activities-v111-week-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 12px;
+        padding-top: 11px;
+        border-top: 1px solid rgba(177, 116, 255, .20);
+    }
+
+    .activities-v111-week-info div {
+        min-width: 0;
+        padding: 8px 9px;
+        background: rgba(7, 12, 18, .28);
+        border: 1px solid rgba(177, 116, 255, .14);
+        border-radius: 8px;
+    }
+
+    .activities-v111-week-info span {
+        display: block;
+        margin-bottom: 4px;
+        color: #8f7aa9;
+        font-size: 7px;
+        font-weight: 900;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+    }
+
+    .activities-v111-week-info strong {
+        display: block;
+        color: #f4f1e8;
+        font-size: 9px;
+        line-height: 1.35;
+    }
+
+    .activities-v111-week-info .activities-v111-renewal strong {
+        color: #b4ff29;
+    }
+
+    @media (max-width: 700px) {
+        .activities-v111-week-info {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
 <section class="account-page activities-page">
+
     <div class="account-container">
 
         <header class="activities-form-hero">
+
             <div>
+
                 <span class="activities-overline">
                     ACTIVIDAD COMUNITARIA
                 </span>
@@ -20,28 +103,99 @@ Crear actividad comunitaria | EntrenamientoyComunidad
                 </h1>
 
                 <p>
-                    Las actividades comunitarias son gratuitas, tienen cupos
-                    y están organizadas por Miembros. Puedes publicar una por semana.
+                    Las actividades comunitarias son gratuitas,
+                    tienen cupos y están organizadas por Miembros.
+                    Tu límite semanal depende de los beneficios
+                    vigentes de tu Cuenta Única.
                 </p>
+
             </div>
 
+
             <div class="activities-form-rule">
+
+                <span class="activities-v111-rule-plan">
+                    {{ publication_summary.plan_name }}
+                </span>
+
                 <span>
                     REGLA COMUNITARIA
                 </span>
 
-                <strong>
-                    1 publicación por semana
+                <strong class="activities-v111-rule-limit">
+                    {{ publication_summary.used }}/{{ publication_summary.limit }}
+                    publicaciones usadas esta semana
                 </strong>
 
-                <small>
-                    Guardar borradores no consume tu publicación semanal.
-                </small>
+
+                {% if publication_summary.can_publish %}
+
+                    <small class="activities-v111-rule-remaining">
+
+                        {% if publication_summary.remaining == 1 %}
+
+                            Te queda 1 publicación esta semana.
+
+                        {% else %}
+
+                            Te quedan {{ publication_summary.remaining }}
+                            publicaciones esta semana.
+
+                        {% endif %}
+
+                        Guardar borradores no consume este límite.
+
+                    </small>
+
+                {% else %}
+
+                    <small class="activities-v111-rule-remaining activities-v111-rule-full">
+                        Alcanzaste tu límite semanal.
+                        Puedes seguir guardando borradores
+                        y publicarlos cuando comience una nueva semana.
+                    </small>
+
+                {% endif %}
+
+
+                <div class="activities-v111-week-info">
+
+                    <div>
+
+                        <span>
+                            SEMANA ACTUAL
+                        </span>
+
+                        <strong>
+                            {{ publication_summary.week_start|date:"d/m/Y" }}
+                            –
+                            {{ publication_summary.week_end|date:"d/m/Y" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="activities-v111-renewal">
+
+                        <span>
+                            SE RENUEVA EL LUNES
+                        </span>
+
+                        <strong>
+                            {{ publication_summary.next_week_start|date:"d/m/Y" }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
             </div>
+
         </header>
 
 
         <div class="activities-form-steps">
+
             <div>
                 <span>01</span>
                 <strong>La actividad</strong>
@@ -61,6 +215,7 @@ Crear actividad comunitaria | EntrenamientoyComunidad
                 <span>04</span>
                 <strong>Recomendaciones</strong>
             </div>
+
         </div>
 
 
@@ -69,46 +224,63 @@ Crear actividad comunitaria | EntrenamientoyComunidad
             enctype="multipart/form-data"
             class="activities-form"
         >
+
             {% csrf_token %}
 
+
             {% if form.non_field_errors %}
+
                 <div class="activities-message activities-message-error">
+
                     <strong>
                         Revisa esta información
                     </strong>
 
                     {% for error in form.non_field_errors %}
+
                         <p>
                             {{ error }}
                         </p>
+
                     {% endfor %}
+
                 </div>
+
             {% endif %}
 
+
+            <!-- =========================
+                 01 ACTIVIDAD
+            ========================== -->
 
             <section class="activities-form-section">
 
                 <div class="activities-form-section-title">
+
                     <span>
                         01
                     </span>
 
                     <div>
+
                         <h2>
                             ¿Qué quieres organizar?
                         </h2>
 
                         <p>
-                            Describe una actividad concreta para que otras personas
-                            sepan a qué se están uniendo.
+                            Describe una actividad concreta para que
+                            otras personas sepan a qué se están uniendo.
                         </p>
+
                     </div>
+
                 </div>
 
 
                 <div class="activities-form-grid activities-form-grid-2">
 
                     <div class="activities-field">
+
                         <label for="{{ form.category.id_for_label }}">
                             Categoría
                         </label>
@@ -116,14 +288,18 @@ Crear actividad comunitaria | EntrenamientoyComunidad
                         {{ form.category }}
 
                         {% for error in form.category.errors %}
+
                             <span class="field-error">
                                 {{ error }}
                             </span>
+
                         {% endfor %}
+
                     </div>
 
 
                     <div class="activities-field">
+
                         <label for="{{ form.title.id_for_label }}">
                             Nombre de la actividad
                         </label>
@@ -131,16 +307,20 @@ Crear actividad comunitaria | EntrenamientoyComunidad
                         {{ form.title }}
 
                         {% for error in form.title.errors %}
+
                             <span class="field-error">
                                 {{ error }}
                             </span>
+
                         {% endfor %}
+
                     </div>
 
                 </div>
 
 
                 <div class="activities-field">
+
                     <label for="{{ form.description.id_for_label }}">
                         Descripción
                     </label>
@@ -148,243 +328,264 @@ Crear actividad comunitaria | EntrenamientoyComunidad
                     {{ form.description }}
 
                     <span class="activities-help">
-                        Explica qué harán, el ritmo esperado y qué debería saber
-                        alguien antes de unirse. No es una publicación social abierta.
+                        No es una publicación social:
+                        explica el plan, ritmo y propósito de la actividad.
                     </span>
 
                     {% for error in form.description.errors %}
+
                         <span class="field-error">
                             {{ error }}
                         </span>
+
                     {% endfor %}
+
                 </div>
 
 
                 <div class="activities-field">
+
                     <label for="{{ form.image.id_for_label }}">
                         Foto opcional
                     </label>
 
                     {{ form.image }}
 
-                    <span class="activities-help">
-                        Puedes dejarla vacía y agregar una imagen más adelante.
-                    </span>
-
                     {% for error in form.image.errors %}
+
                         <span class="field-error">
                             {{ error }}
                         </span>
+
                     {% endfor %}
+
                 </div>
 
             </section>
 
 
+            <!-- =========================
+                 02 FECHA Y CUPOS
+            ========================== -->
+
             <section class="activities-form-section">
 
                 <div class="activities-form-section-title">
+
                     <span>
                         02
                     </span>
 
                     <div>
+
                         <h2>
                             Fecha, horario y cupos
                         </h2>
 
                         <p>
-                            Define cuándo será y cuántas personas podrán sumarse
-                            además de ti.
+                            Define cuándo será y cuántas personas
+                            podrán sumarse además de ti.
                         </p>
+
                     </div>
+
                 </div>
 
 
-                <div class="activities-form-grid activities-form-grid-2">
+                <div class="activities-form-grid activities-form-grid-4">
 
                     <div class="activities-field">
-                        <label>
+
+                        <label for="{{ form.date.id_for_label }}">
                             Fecha
                         </label>
 
-                        <div class="activities-date-grid">
-                            {{ form.date }}
-                        </div>
-
-                        <span class="activities-field-helper">
-                            Selecciona Día, Mes y Año. Solo se permiten fechas de hoy en adelante.
-                        </span>
+                        {{ form.date }}
 
                         {% for error in form.date.errors %}
+
                             <span class="field-error">
                                 {{ error }}
                             </span>
+
                         {% endfor %}
+
                     </div>
 
 
                     <div class="activities-field">
-                        <label for="{{ form.capacity.id_for_label }}">
-                            Cupos para participantes
-                        </label>
 
-                        {{ form.capacity }}
-
-                        <span class="activities-field-helper">
-                            Tú eres quien organiza, por lo que no consumes uno de estos cupos.
-                        </span>
-
-                        {% for error in form.capacity.errors %}
-                            <span class="field-error">
-                                {{ error }}
-                            </span>
-                        {% endfor %}
-                    </div>
-
-                </div>
-
-
-                <div class="activities-form-grid activities-form-grid-2">
-
-                    <div class="activities-field">
                         <label for="{{ form.start_time.id_for_label }}">
-                            Hora de inicio
+                            Inicio
                         </label>
 
                         {{ form.start_time }}
 
                         {% for error in form.start_time.errors %}
+
                             <span class="field-error">
                                 {{ error }}
                             </span>
+
                         {% endfor %}
+
                     </div>
 
 
                     <div class="activities-field">
+
                         <label for="{{ form.end_time.id_for_label }}">
-                            Hora de término
+                            Término
                         </label>
 
                         {{ form.end_time }}
 
                         {% for error in form.end_time.errors %}
+
                             <span class="field-error">
                                 {{ error }}
                             </span>
+
                         {% endfor %}
+
+                    </div>
+
+
+                    <div class="activities-field">
+
+                        <label for="{{ form.capacity.id_for_label }}">
+                            Cupos
+                        </label>
+
+                        {{ form.capacity }}
+
+                        {% for error in form.capacity.errors %}
+
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
                     </div>
 
                 </div>
 
 
                 <div class="activities-field activities-field-half">
+
                     <label for="{{ form.level.id_for_label }}">
                         Nivel recomendado
                     </label>
 
                     {{ form.level }}
 
-                    <span class="activities-field-helper">
-                        Elige el nivel pensando en alguien que evalúa si puede participar con seguridad.
-                    </span>
-
                     {% for error in form.level.errors %}
+
                         <span class="field-error">
                             {{ error }}
                         </span>
+
                     {% endfor %}
+
                 </div>
 
             </section>
 
 
+            <!-- =========================
+                 03 UBICACIÓN
+            ========================== -->
+
             <section class="activities-form-section">
 
                 <div class="activities-form-section-title">
+
                     <span>
                         03
                     </span>
 
                     <div>
+
                         <h2>
                             ¿Dónde se reunirán?
                         </h2>
 
                         <p>
-                            Primero selecciona la región y luego la comuna.
-                            Para ciclismo, trote o caminatas también puedes indicar una ruta.
+                            Para ciclismo, trote o caminatas
+                            también puedes indicar una ruta o destino.
                         </p>
-                    </div>
-                </div>
 
-
-                <div class="activities-form-grid activities-form-grid-2 activities-location-pair">
-
-                    <div class="activities-field">
-                        <label for="{{ form.region.id_for_label }}">
-                            Región
-                        </label>
-
-                        {{ form.region }}
-
-                        <span class="activities-field-helper">
-                            Esto reduce la lista de comunas y hace más rápida la selección.
-                        </span>
-
-                        {% for error in form.region.errors %}
-                            <span class="field-error">
-                                {{ error }}
-                            </span>
-                        {% endfor %}
                     </div>
 
-
-                    <div class="activities-field">
-                        <label for="{{ form.commune.id_for_label }}">
-                            Comuna
-                        </label>
-
-                        {{ form.commune }}
-
-                        <span class="activities-field-helper">
-                            Solo verás comunas pertenecientes a la región seleccionada.
-                        </span>
-
-                        {% for error in form.commune.errors %}
-                            <span class="field-error">
-                                {{ error }}
-                            </span>
-                        {% endfor %}
-                    </div>
-
-                </div>
-
-
-                <div class="activities-field">
-                    <label for="{{ form.meeting_point.id_for_label }}">
-                        Punto de encuentro
-                    </label>
-
-                    {{ form.meeting_point }}
-
-                    <span class="activities-field-helper">
-                        Usa un lugar fácil de reconocer, por ejemplo una plaza,
-                        acceso principal o estación.
-                    </span>
-
-                    {% for error in form.meeting_point.errors %}
-                        <span class="field-error">
-                            {{ error }}
-                        </span>
-                    {% endfor %}
                 </div>
 
 
                 <div class="activities-form-grid activities-form-grid-2">
 
                     <div class="activities-field">
+
+                        <label for="{{ form.region.id_for_label }}">
+                            Región
+                        </label>
+
+                        {{ form.region }}
+
+                        {% for error in form.region.errors %}
+
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="activities-field">
+
+                        <label for="{{ form.commune.id_for_label }}">
+                            Comuna
+                        </label>
+
+                        {{ form.commune }}
+
+                        {% for error in form.commune.errors %}
+
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="activities-form-grid activities-form-grid-2">
+
+                    <div class="activities-field">
+
+                        <label for="{{ form.meeting_point.id_for_label }}">
+                            Punto de encuentro
+                        </label>
+
+                        {{ form.meeting_point }}
+
+                        {% for error in form.meeting_point.errors %}
+
+                            <span class="field-error">
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="activities-field">
+
                         <label for="{{ form.location_reference.id_for_label }}">
                             Referencia opcional
                         </label>
@@ -392,53 +593,69 @@ Crear actividad comunitaria | EntrenamientoyComunidad
                         {{ form.location_reference }}
 
                         {% for error in form.location_reference.errors %}
+
                             <span class="field-error">
                                 {{ error }}
                             </span>
+
                         {% endfor %}
+
                     </div>
 
+                </div>
 
-                    <div class="activities-field">
-                        <label for="{{ form.route_or_destination.id_for_label }}">
-                            Ruta o destino opcional
-                        </label>
 
-                        {{ form.route_or_destination }}
+                <div class="activities-field">
 
-                        {% for error in form.route_or_destination.errors %}
-                            <span class="field-error">
-                                {{ error }}
-                            </span>
-                        {% endfor %}
-                    </div>
+                    <label for="{{ form.route_or_destination.id_for_label }}">
+                        Ruta o destino opcional
+                    </label>
+
+                    {{ form.route_or_destination }}
+
+                    {% for error in form.route_or_destination.errors %}
+
+                        <span class="field-error">
+                            {{ error }}
+                        </span>
+
+                    {% endfor %}
 
                 </div>
 
             </section>
 
 
+            <!-- =========================
+                 04 RECOMENDACIONES
+            ========================== -->
+
             <section class="activities-form-section">
 
                 <div class="activities-form-section-title">
+
                     <span>
                         04
                     </span>
 
                     <div>
+
                         <h2>
                             ¿Qué deberían llevar o saber?
                         </h2>
 
                         <p>
-                            Ayuda a que las personas lleguen preparadas y entiendan
-                            las condiciones antes de reservar un cupo.
+                            Ayuda a que las personas lleguen preparadas
+                            y entiendan el nivel de la actividad.
                         </p>
+
                     </div>
+
                 </div>
 
 
                 <div class="activities-field">
+
                     <label for="{{ form.requirements.id_for_label }}">
                         Requisitos o recomendaciones
                     </label>
@@ -446,26 +663,36 @@ Crear actividad comunitaria | EntrenamientoyComunidad
                     {{ form.requirements }}
 
                     {% for error in form.requirements.errors %}
+
                         <span class="field-error">
                             {{ error }}
                         </span>
+
                     {% endfor %}
+
                 </div>
 
 
                 <div class="activities-community-note">
+
                     <strong>
                         Actividad comunitaria · Gratis
                     </strong>
 
                     <p>
-                        Esta modalidad no permite cobrar. Las actividades pagadas
-                        se publicarán desde Perfil Profesional.
+                        Esta modalidad no permite cobrar.
+                        Las actividades pagadas se publicarán
+                        desde Perfil Profesional.
                     </p>
+
                 </div>
 
             </section>
 
+
+            <!-- =========================
+                 ACCIONES
+            ========================== -->
 
             <div class="activities-form-savebar">
 
@@ -476,7 +703,9 @@ Crear actividad comunitaria | EntrenamientoyComunidad
                     Cancelar
                 </a>
 
+
                 <div>
+
                     <button
                         type="submit"
                         name="action"
@@ -486,14 +715,27 @@ Crear actividad comunitaria | EntrenamientoyComunidad
                         Guardar borrador
                     </button>
 
+
                     <button
                         type="submit"
                         name="action"
                         value="publish"
                         class="activities-button activities-button-primary"
+                        {% if not publication_summary.can_publish %}disabled{% endif %}
                     >
-                        Publicar actividad →
+
+                        {% if publication_summary.can_publish %}
+
+                            Publicar actividad →
+
+                        {% else %}
+
+                            Límite semanal alcanzado
+
+                        {% endif %}
+
                     </button>
+
                 </div>
 
             </div>
@@ -501,65 +743,128 @@ Crear actividad comunitaria | EntrenamientoyComunidad
         </form>
 
     </div>
+
 </section>
 
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const regionSelect = document.getElementById('id_region');
-    const communeSelect = document.getElementById('id_commune');
-    const communesUrl = "{% url 'accounts:communes_by_region' %}";
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
 
-    if (!regionSelect || !communeSelect) {
-        return;
-    }
+        const regionSelect = document.getElementById(
+            'id_region'
+        );
 
-    async function loadCommunes(regionId) {
-        communeSelect.disabled = true;
-        communeSelect.innerHTML =
-            '<option value="">Cargando comunas...</option>';
+        const communeSelect = document.getElementById(
+            'id_commune'
+        );
 
-        if (!regionId) {
-            communeSelect.innerHTML =
-                '<option value="">Primero selecciona una región</option>';
+        const communesUrl = (
+            "{% url 'accounts:communes_by_region' %}"
+        );
+
+
+        if (
+            !regionSelect
+            || !communeSelect
+        ) {
             return;
         }
 
-        try {
-            const response = await fetch(
-                communesUrl + '?region=' + encodeURIComponent(regionId)
+
+        async function loadCommunes(regionId) {
+
+            communeSelect.disabled = true;
+
+            communeSelect.innerHTML = (
+                '<option value="">Cargando comunas...</option>'
             );
 
-            if (!response.ok) {
-                throw new Error('No fue posible cargar las comunas.');
+
+            if (!regionId) {
+
+                communeSelect.innerHTML = (
+                    '<option value="">Primero selecciona una región</option>'
+                );
+
+                return;
             }
 
-            const data = await response.json();
 
-            communeSelect.innerHTML =
-                '<option value="">Selecciona una comuna</option>';
+            try {
 
-            data.communes.forEach(function (commune) {
-                const option = document.createElement('option');
+                const response = await fetch(
+                    communesUrl
+                    + '?region='
+                    + encodeURIComponent(regionId)
+                );
 
-                option.value = commune.id;
-                option.textContent = commune.name;
 
-                communeSelect.appendChild(option);
-            });
+                if (!response.ok) {
 
-            communeSelect.disabled = false;
+                    throw new Error(
+                        'No fue posible cargar las comunas.'
+                    );
 
-        } catch (error) {
-            communeSelect.innerHTML =
-                '<option value="">No se pudieron cargar las comunas</option>';
+                }
+
+
+                const data = await response.json();
+
+
+                communeSelect.innerHTML = (
+                    '<option value="">Selecciona una comuna</option>'
+                );
+
+
+                data.communes.forEach(
+                    function (commune) {
+
+                        const option = document.createElement(
+                            'option'
+                        );
+
+                        option.value = commune.id;
+
+                        option.textContent = commune.name;
+
+                        communeSelect.appendChild(
+                            option
+                        );
+
+                    }
+                );
+
+
+                communeSelect.disabled = false;
+
+            } catch (error) {
+
+                communeSelect.innerHTML = (
+                    '<option value="">No se pudieron cargar las comunas</option>'
+                );
+
+                communeSelect.disabled = true;
+
+            }
+
         }
-    }
 
-    regionSelect.addEventListener('change', function () {
-        loadCommunes(regionSelect.value);
-    });
-});
+
+        regionSelect.addEventListener(
+            'change',
+            function () {
+
+                loadCommunes(
+                    regionSelect.value
+                );
+
+            }
+        );
+
+    }
+);
 </script>
 
 {% endblock %}

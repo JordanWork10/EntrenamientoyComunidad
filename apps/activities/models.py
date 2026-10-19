@@ -631,6 +631,10 @@ class Activity(models.Model):
 
             if self.published_at is None:
 
+                from apps.subscriptions.services import (
+                    get_member_community_publication_limit,
+                )
+
                 now = timezone.localtime()
 
                 week_start = now.date() - timezone.timedelta(days=now.weekday())
@@ -639,24 +643,47 @@ class Activity(models.Model):
 
 
 
-                already_published = Activity.objects.filter(
-
-                    organizer=self.organizer,
-
-                    activity_type=self.ActivityType.COMMUNITY,
-
-                    published_at__date__range=(week_start, week_end),
-
-                ).exclude(pk=self.pk).exists()
+                publication_limit = (
+                    get_member_community_publication_limit(
+                        self.organizer,
+                        at=now,
+                    )
+                )
 
 
 
-                if already_published:
+                published_count = (
+                    Activity.objects
+                    .filter(
+                        organizer=self.organizer,
+                        activity_type=self.ActivityType.COMMUNITY,
+                        published_at__date__range=(week_start, week_end),
+                    )
+                    .exclude(pk=self.pk)
+                    .count()
+                )
+
+
+
+                if published_count >= publication_limit:
+
+                    if publication_limit == 1:
+                        limit_text = (
+                            'Tu plan actual permite 1 actividad comunitaria '
+                            'publicada por semana.'
+                        )
+                    else:
+                        limit_text = (
+                            f'Tu plan actual permite hasta {publication_limit} '
+                            'actividades comunitarias publicadas por semana '
+                            f'y ya utilizaste las {publication_limit}.'
+                        )
 
                     raise ValidationError(
-
-                        'Ya publicaste una actividad comunitaria esta semana.'
-
+                        (
+                            f'{limit_text} '
+                            'Puedes guardar borradores sin consumir este límite.'
+                        )
                     )
 
 

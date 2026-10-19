@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load clp_filters payment_extras %}
+{% load clp_filters payment_extras subscription_extras %}
 
 
 {% block title %}
@@ -8,6 +8,44 @@ Mi Cuenta | EntrenamientoyComunidad
 
 
 {% block content %}
+
+{% subscription_identity request.user as subscription_identity %}
+
+<style>
+    .account-v109-status-stack {
+        display: flex;
+        align-items: flex-end;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .account-v109-plan-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        padding: 0 11px;
+        color: #b4ff29;
+        background: rgba(180, 255, 41, .05);
+        border: 1px solid rgba(180, 255, 41, .32);
+        border-radius: 8px;
+        font-size: 9px;
+        font-weight: 900;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .account-v109-plan-badge span {
+        margin-left: 6px;
+        color: #78859d;
+        font-weight: 800;
+    }
+
+    @media (max-width: 760px) {
+        .account-v109-status-stack {
+            align-items: flex-start;
+        }
+    }
+</style>
 
 <section class="account-page">
 
@@ -72,11 +110,31 @@ Mi Cuenta | EntrenamientoyComunidad
             </div>
 
 
-            <div class="account-status">
+            <div class="account-v109-status-stack">
 
-                <span class="account-status-dot"></span>
+                <div class="account-status">
 
-                Cuenta activa
+                    <span class="account-status-dot"></span>
+
+                    Cuenta activa
+
+                </div>
+
+
+                {% if subscription_identity.subscription %}
+
+                    <a
+                        href="{% url 'subscriptions:plans' %}"
+                        class="account-v109-plan-badge"
+                    >
+                        {{ subscription_identity.plan_name }}
+
+                        <span>
+                            · {{ subscription_identity.status_label }}
+                        </span>
+                    </a>
+
+                {% endif %}
 
             </div>
 
@@ -171,16 +229,34 @@ Mi Cuenta | EntrenamientoyComunidad
             <article class="account-summary-card">
 
                 <span class="account-summary-label">
-                    REGISTRO
+                    PLAN ACTUAL
                 </span>
 
-                <strong>
-                    {{ request.user.date_joined|date:"d/m/Y" }}
-                </strong>
+                {% if subscription_identity.subscription %}
 
-                <p>
-                    Fecha de creación
-                </p>
+                    <strong>
+                        {{ subscription_identity.plan_name }}
+                    </strong>
+
+                    <p>
+                        {% if subscription_identity.status == 'trial' and subscription_identity.trial_ends_at %}
+                            Prueba hasta {{ subscription_identity.trial_ends_at|date:"d/m/Y" }}
+                        {% else %}
+                            {{ subscription_identity.status_label }}
+                        {% endif %}
+                    </p>
+
+                {% else %}
+
+                    <strong>
+                        Sin plan activo
+                    </strong>
+
+                    <p>
+                        Beneficios base
+                    </p>
+
+                {% endif %}
 
             </article>
 
@@ -202,7 +278,7 @@ Mi Cuenta | EntrenamientoyComunidad
                 </span>
 
                 <strong>
-                    Miembro
+                    Miembro{% if subscription_identity.subscription %} · {{ subscription_identity.plan_name }}{% endif %}
                 </strong>
 
             </div>

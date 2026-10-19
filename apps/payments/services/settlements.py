@@ -10,6 +10,10 @@ from ..models import Payment, Settlement
 INCIDENT_WINDOW_HOURS = 24
 
 
+class SettlementProcessingError(Exception):
+    pass
+
+
 def calculate_settlement_eligible_at(service_end):
     if timezone.is_naive(service_end):
         service_end = timezone.make_aware(
@@ -99,9 +103,6 @@ def release_payment_hold(payment, service_end, now=None, save=True):
 def sync_activity_settlement(activity, service_end, now=None):
     """
     Agrupa los pagos económicos de una actividad en UNA liquidación.
-
-    La vista futura de Pagos utilizará esta entidad para mostrar una tarjeta por
-    actividad en lugar de una fila por participante.
     """
     now = now or timezone.now()
     eligible_at = calculate_settlement_eligible_at(service_end)
@@ -166,7 +167,9 @@ def sync_activity_settlement(activity, service_end, now=None):
     settlement.full_clean()
     settlement.save()
 
-    payments.exclude(settlement=settlement).update(settlement=settlement)
+    payments.exclude(settlement=settlement).update(
+        settlement=settlement,
+    )
 
     for payment in payments:
         if payment.settlement_status not in {
@@ -188,3 +191,103 @@ def sync_activity_settlement(activity, service_end, now=None):
             )
 
     return settlement
+
+
+@transaction.atomic
+def settle_activity_settlement(
+    settlement,
+    now=None,
+    provider_reference=None,
+):
+    """
+    Cierra una liquidación elegible y marca todos sus pagos económicos
+    como liquidados.
+
+    En V107 el movimiento es sandbox. En producción esta función se
+    conectará al proveedor de pagos antes de marcar SETTLED.
+    """
+    now = now or timezone.now()
+
+    locked_settlement = (
+        Settlement.objects
+        .select_for_update()
+        .get(pk=settlement.pk)
+    )
+
+    if locked_settlement.scope_type != Settlement.ScopeType.ACTIVITY:
+        raise SettlementProcessingError(
+            'Esta liquidación no corresponde a una actividad profesional.'
+        )
+
+    if locked_settlement.status == Settlement.Status.SETTLED:
+        return locked_settlement
+
+    if locked_settlement.status == Settlement.Status.ON_HOLD:
+        raise SettlementProcessingError(
+            'La liquidación se encuentra en revisión.'
+        )
+
+    if locked_settlement.status != Settlement.Status.ELIGIBLE:
+        raise SettlementProcessingError(
+            'La liquidación todavía no es elegible.'
+        )
+
+    if locked_settlement.net_amount_clp <= 0:
+        raise SettlementProcessingError(
+            'No existe monto neto por liquidar.'
+        )
+
+    if (
+        locked_settlement.eligible_at
+        and now < locked_settlement.eligible_at
+    ):
+        raise SettlementProcessingError(
+            'Todavía no se cumple la fecha de liquidación.'
+        )
+
+    payments = (
+        Payment.objects
+        .select_for_update()
+        .filter(
+            settlement=locked_settlement,
+            status__in=[
+                Payment.Status.APPROVED,
+                Payment.Status.PARTIALLY_REFUNDED,
+                Payment.Status.REFUNDED,
+            ],
+        )
+    )
+
+    if payments.filter(
+        settlement_status=Payment.SettlementStatus.ON_HOLD,
+    ).exists():
+        raise SettlementProcessingError(
+            'Existe al menos un pago en revisión.'
+        )
+
+    locked_settlement.status = Settlement.Status.SETTLED
+    locked_settlement.settled_at = now
+    locked_settlement.hold_reason = ''
+    locked_settlement.provider_reference = (
+        provider_reference
+        or f'SET-SBX-{str(locked_settlement.public_id).split("-")[0].upper()}'
+    )
+    locked_settlement.full_clean()
+    locked_settlement.save(
+        update_fields=[
+            'status',
+            'settled_at',
+            'hold_reason',
+            'provider_reference',
+            'updated_at',
+        ]
+    )
+
+    payments.update(
+        settlement_status=Payment.SettlementStatus.SETTLED,
+        settled_at=now,
+        settlement_hold_reason='',
+        updated_at=now,
+    )
+
+    return locked_settlement

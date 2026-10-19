@@ -1,0 +1,645 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Planes y suscripción | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .subscriptions-page {
+        padding: 34px 0 50px;
+    }
+
+    .subscriptions-hero {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 16px;
+        padding: 24px;
+        background: #171c24;
+        border: 1px solid rgba(180, 255, 41, .22);
+        border-radius: 14px;
+    }
+
+    .subscriptions-hero-copy {
+        min-width: 0;
+    }
+
+    .subscriptions-overline {
+        display: block;
+        margin-bottom: 8px;
+        color: #b4ff29;
+        font-size: 9px;
+        font-weight: 1000;
+        letter-spacing: .13em;
+    }
+
+    .subscriptions-hero h1 {
+        margin: 0;
+        color: #f5f4ee;
+        font-size: clamp(32px, 5vw, 48px);
+        line-height: 1;
+    }
+
+    .subscriptions-hero h1 span {
+        color: #b4ff29;
+    }
+
+    .subscriptions-hero p {
+        max-width: 720px;
+        margin: 12px 0 0;
+        color: #9aa4b8;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .subscriptions-sandbox {
+        flex: 0 0 auto;
+        padding: 10px 13px;
+        color: #ffd44a;
+        border: 1px solid rgba(255, 212, 74, .34);
+        border-radius: 9px;
+        font-size: 9px;
+        font-weight: 1000;
+        white-space: nowrap;
+    }
+
+    .subscription-current {
+        margin-bottom: 16px;
+        padding: 18px;
+        background: #10171f;
+        border: 1px solid #293241;
+        border-left: 3px solid #b4ff29;
+        border-radius: 11px;
+    }
+
+    .subscription-current-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .subscription-current span {
+        display: block;
+        margin-bottom: 5px;
+        color: #78859d;
+        font-size: 8px;
+        font-weight: 1000;
+        letter-spacing: .12em;
+    }
+
+    .subscription-current strong {
+        display: block;
+        color: #f5f4ee;
+        font-size: 18px;
+    }
+
+    .subscription-current p {
+        margin: 5px 0 0;
+        color: #8f99ad;
+        font-size: 10px;
+        line-height: 1.5;
+    }
+
+    .subscription-current-status {
+        padding: 7px 10px;
+        color: #b4ff29;
+        background: rgba(180, 255, 41, .05);
+        border: 1px solid rgba(180, 255, 41, .3);
+        border-radius: 999px;
+        font-size: 8px;
+        font-weight: 1000;
+        white-space: nowrap;
+    }
+
+    .subscription-benefit-summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    .subscription-benefit-summary div {
+        padding: 11px;
+        background: #0d1218;
+        border: 1px solid #242d39;
+        border-radius: 8px;
+    }
+
+    .subscription-benefit-summary small {
+        display: block;
+        margin-bottom: 4px;
+        color: #68758d;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: .1em;
+    }
+
+    .subscription-benefit-summary b {
+        color: #f5f4ee;
+        font-size: 12px;
+    }
+
+    .subscription-current-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+        flex-wrap: wrap;
+    }
+
+    .subscription-current-actions form {
+        margin: 0;
+    }
+
+    .subscription-action-button {
+        min-height: 38px;
+        padding: 0 14px;
+        border-radius: 8px;
+        font: inherit;
+        font-size: 9px;
+        font-weight: 1000;
+        cursor: pointer;
+    }
+
+    .subscription-action-cancel {
+        color: #ff777d;
+        background: transparent;
+        border: 1px solid rgba(255, 119, 125, .42);
+    }
+
+    .subscription-action-reactivate {
+        color: #b4ff29;
+        background: rgba(180, 255, 41, .04);
+        border: 1px solid rgba(180, 255, 41, .35);
+    }
+
+    .subscription-plans-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .subscription-plan {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+        padding: 20px;
+        background: #10171f;
+        border: 1px solid #293241;
+        border-top: 3px solid #b4ff29;
+        border-radius: 12px;
+    }
+
+    .subscription-plan-professional_pro {
+        border-top-color: #3ed3ff;
+    }
+
+    .subscription-plan-spaces_pro {
+        border-top-color: #ff896c;
+    }
+
+    .subscription-plan-pro_integral {
+        border-top-color: #b174ff;
+    }
+
+    .subscription-plan-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .subscription-plan-kicker {
+        display: block;
+        margin-bottom: 5px;
+        color: #78859d;
+        font-size: 8px;
+        font-weight: 1000;
+        letter-spacing: .12em;
+    }
+
+    .subscription-plan h2 {
+        margin: 0;
+        color: #f5f4ee;
+        font-size: 21px;
+    }
+
+    .subscription-trial-badge {
+        flex: 0 0 auto;
+        padding: 6px 8px;
+        color: #b4ff29;
+        background: rgba(180, 255, 41, .05);
+        border: 1px solid rgba(180, 255, 41, .3);
+        border-radius: 999px;
+        font-size: 8px;
+        font-weight: 1000;
+    }
+
+    .subscription-price {
+        margin: 18px 0 4px;
+        color: #f5f4ee;
+        font-size: 28px;
+        font-weight: 1000;
+    }
+
+    .subscription-price small {
+        color: #78859d;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .subscription-intro-price {
+        margin: 0 0 16px;
+        color: #ffd44a;
+        font-size: 10px;
+        font-weight: 900;
+    }
+
+    .subscription-benefits {
+        display: grid;
+        gap: 8px;
+        margin: 0 0 18px;
+        padding: 0;
+        list-style: none;
+    }
+
+    .subscription-benefits li {
+        padding: 9px 10px;
+        color: #9aa4b8;
+        background: #0d1218;
+        border: 1px solid #222b37;
+        border-radius: 8px;
+        font-size: 10px;
+        line-height: 1.45;
+    }
+
+    .subscription-benefits li::before {
+        content: "✓";
+        margin-right: 7px;
+        color: #b4ff29;
+        font-weight: 1000;
+    }
+
+    .subscription-plan-footer {
+        margin-top: auto;
+    }
+
+    .subscription-plan-button {
+        width: 100%;
+        min-height: 42px;
+        padding: 0 14px;
+        color: #071006;
+        background: #b4ff29;
+        border: 0;
+        border-radius: 8px;
+        font: inherit;
+        font-size: 10px;
+        font-weight: 1000;
+        cursor: pointer;
+    }
+
+    .subscription-plan-button:disabled {
+        color: #697488;
+        background: #171e27;
+        border: 1px solid #2b3543;
+        cursor: not-allowed;
+    }
+
+    .subscription-plan-reason {
+        min-height: 30px;
+        margin: 8px 0 0;
+        color: #78859d;
+        font-size: 9px;
+        line-height: 1.4;
+    }
+
+    .subscription-policy-note {
+        margin-top: 16px;
+        padding: 14px;
+        color: #8c97aa;
+        background: #0d1218;
+        border: 1px solid #242d39;
+        border-radius: 10px;
+        font-size: 10px;
+        line-height: 1.55;
+    }
+
+    @media (max-width: 800px) {
+        .subscriptions-hero,
+        .subscription-current-top {
+            flex-direction: column;
+        }
+
+        .subscription-plans-grid,
+        .subscription-benefit-summary {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="account-page subscriptions-page">
+
+    <div class="account-container">
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        <header class="subscriptions-hero">
+
+            <div class="subscriptions-hero-copy">
+
+                <span class="subscriptions-overline">
+                    PLANES · CUENTA ÚNICA
+                </span>
+
+                <h1>
+                    Elige tus <span>beneficios.</span>
+                </h1>
+
+                <p>
+                    Todos los planes superiores incluyen Miembro Plus.
+                    La primera suscripción cuenta con 7 días de prueba gratuita
+                    y los primeros 3 meses pagados utilizan el precio promocional.
+                </p>
+
+            </div>
+
+            {% if sandbox_enabled %}
+
+                <span class="subscriptions-sandbox">
+                    SANDBOX · SIN COBRO REAL
+                </span>
+
+            {% endif %}
+
+        </header>
+
+
+        {% if current_subscription %}
+
+            <section class="subscription-current">
+
+                <div class="subscription-current-top">
+
+                    <div>
+
+                        <span>
+                            TU SUSCRIPCIÓN ACTUAL
+                        </span>
+
+                        <strong>
+                            {{ current_subscription.plan.name }}
+                        </strong>
+
+                        <p>
+                            {{ current_subscription.get_status_display }}
+
+                            {% if current_subscription.status == 'trial' and current_subscription.trial_ends_at %}
+                                · prueba hasta
+                                {{ current_subscription.trial_ends_at|date:"d/m/Y H:i" }}
+                            {% elif current_subscription.current_period_end %}
+                                · periodo hasta
+                                {{ current_subscription.current_period_end|date:"d/m/Y H:i" }}
+                            {% endif %}
+                        </p>
+
+                    </div>
+
+                    <span class="subscription-current-status">
+                        {{ current_subscription.get_status_display|upper }}
+                    </span>
+
+                </div>
+
+
+                <div class="subscription-benefit-summary">
+
+                    <div>
+
+                        <small>
+                            ACTIVIDADES COMUNITARIAS
+                        </small>
+
+                        <b>
+                            {{ member_publication_limit }} publicaciones / semana
+                        </b>
+
+                    </div>
+
+                    <div>
+
+                        <small>
+                            SOLICITUDES DE ESPACIOS
+                        </small>
+
+                        <b>
+                            Hasta {{ member_space_request_limit }} pendientes
+                        </b>
+
+                    </div>
+
+                </div>
+
+
+                <div class="subscription-current-actions">
+
+                    {% if current_subscription.status == 'cancel_at_period_end' %}
+
+                        <form
+                            method="post"
+                            action="{% url 'subscriptions:reactivate_plan' %}"
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="subscription-action-button subscription-action-reactivate"
+                            >
+                                Mantener mi suscripción
+                            </button>
+                        </form>
+
+                    {% else %}
+
+                        <form
+                            method="post"
+                            action="{% url 'subscriptions:cancel_plan' %}"
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="subscription-action-button subscription-action-cancel"
+                            >
+                                Cancelar al finalizar el periodo
+                            </button>
+                        </form>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+        {% endif %}
+
+
+        <div class="subscription-plans-grid">
+
+            {% for item in plan_cards %}
+
+                <article class="subscription-plan subscription-plan-{{ item.plan.code }}">
+
+                    <div class="subscription-plan-head">
+
+                        <div>
+
+                            <span class="subscription-plan-kicker">
+                                PLAN MENSUAL
+                            </span>
+
+                            <h2>
+                                {{ item.plan.name }}
+                            </h2>
+
+                        </div>
+
+                        <span class="subscription-trial-badge">
+                            {{ item.plan.trial_days }} DÍAS GRATIS
+                        </span>
+
+                    </div>
+
+
+                    <div class="subscription-price">
+                        {{ item.plan.monthly_price_clp|clp }}
+                        <small>/ mes</small>
+                    </div>
+
+                    <p class="subscription-intro-price">
+                        Primeros {{ item.plan.intro_months }} meses pagados:
+                        {{ item.plan.intro_price_clp|clp }} / mes
+                    </p>
+
+
+                    <ul class="subscription-benefits">
+
+                        {% for benefit in item.benefits %}
+
+                            <li>
+                                {{ benefit }}
+                            </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+
+                    <div class="subscription-plan-footer">
+
+                        {% if item.is_current %}
+
+                            <button
+                                type="button"
+                                class="subscription-plan-button"
+                                disabled
+                            >
+                                Plan actual
+                            </button>
+
+
+                        {% elif current_subscription %}
+
+                            <button
+                                type="button"
+                                class="subscription-plan-button"
+                                disabled
+                            >
+                                Ya tienes una suscripción vigente
+                            </button>
+
+
+                        {% elif not item.can_use %}
+
+                            <button
+                                type="button"
+                                class="subscription-plan-button"
+                                disabled
+                            >
+                                Perfil requerido
+                            </button>
+
+
+                        {% else %}
+
+                            <form
+                                method="post"
+                                action="{% url 'subscriptions:start_plan' item.plan.code %}"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="subscription-plan-button"
+                                >
+                                    Comenzar prueba gratuita →
+                                </button>
+                            </form>
+
+                        {% endif %}
+
+
+                        <p class="subscription-plan-reason">
+
+                            {% if not item.can_use %}
+
+                                {{ item.reason }}
+
+                            {% elif current_subscription and not item.is_current %}
+
+                                Los cambios de plan se habilitarán desde la gestión de suscripción.
+
+                            {% else %}
+
+                                Sin cobro durante los primeros {{ item.plan.trial_days }} días.
+
+                            {% endif %}
+
+                        </p>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="subscription-policy-note">
+            Los beneficios económicos se aplican a operaciones nuevas realizadas
+            mientras el plan se encuentre vigente. Los pagos históricos conservan
+            la comisión que tenían al momento de aprobarse. Las prioridades de
+            búsqueda y los límites Plus se conectarán a sus módulos correspondientes
+            en el siguiente bloque.
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

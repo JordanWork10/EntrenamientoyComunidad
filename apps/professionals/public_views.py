@@ -2,6 +2,7 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, render
 
 from apps.locations.models import Commune, Region
+from apps.subscriptions.services import has_professional_priority
 
 from .models import (
     ProfessionalCategory,
@@ -128,12 +129,46 @@ def public_service_catalog(request):
         )
     )
 
+    priority_search_active = bool(
+        query
+        or category_id.isdigit()
+        or specialty_id.isdigit()
+        or region_id.isdigit()
+        or commune_id.isdigit()
+    )
+
+    priority_by_user = {}
+
     for service in services:
+        user = service.professional_profile.user
+
+        if user.id not in priority_by_user:
+            priority_by_user[user.id] = has_professional_priority(
+                user
+            )
+
+        service.has_professional_priority = priority_by_user[user.id]
+
         service.price_display = (
             f'${service.price:,}'
             .replace(',', '.')
             + ' CLP'
         )
+
+    if priority_search_active:
+        services.sort(
+            key=lambda service: (
+                0
+                if service.has_professional_priority
+                else 1
+            )
+        )
+
+    priority_result_count = sum(
+        1
+        for service in services
+        if service.has_professional_priority
+    )
 
     categories = (
         ProfessionalCategory.objects
@@ -227,6 +262,8 @@ def public_service_catalog(request):
         {
             'services': services,
             'result_count': len(services),
+            'priority_search_active': priority_search_active,
+            'priority_result_count': priority_result_count,
             'categories': categories,
             'specialties': specialties,
             'regions': regions,

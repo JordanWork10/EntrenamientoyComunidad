@@ -32219,3 +32219,276 @@ textarea.activities-form-control {
         flex-direction: column;
     }
 }
+
+
+/* =========================================================
+   RESERVA DE SERVICIO PROFESIONAL - IDENTIDAD MIEMBRO V113
+
+   Regla visual:
+   - Flujo de reserva del Miembro = verde.
+   - Identidad del Profesional / servicio = cyan secundario.
+   - Alcance limitado a la pantalla que contiene
+     .booking-service-summary-card para no alterar Espacios,
+     Centro Profesional ni otros módulos.
+========================================================= */
+
+.account-container:has(.booking-service-summary-card) {
+    --booking-member-accent: #c6ff33;
+    --booking-member-accent-hover: #d5ff68;
+    --booking-member-soft: rgba(198, 255, 51, 0.055);
+    --booking-member-border: rgba(198, 255, 51, 0.36);
+
+    --booking-professional-cyan: #45d6ff;
+    --booking-professional-cyan-soft: rgba(69, 214, 255, 0.055);
+    --booking-professional-cyan-border: rgba(69, 214, 255, 0.30);
+}
+
+
+/* ---------------------------------------------------------
+   HERO / ESTADO DEL FLUJO DEL MIEMBRO
+--------------------------------------------------------- */
+
+.account-container:has(.booking-service-summary-card)
+.account-hero h1 span,
+.account-container:has(.booking-service-summary-card)
+.page-overline,
+.account-container:has(.booking-service-summary-card)
+.account-panel-number {
+    color: var(--booking-member-accent);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.account-status {
+    color: var(--success);
+    border-color: rgba(70, 230, 166, 0.32);
+    background: rgba(70, 230, 166, 0.065);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.account-status-dot {
+    background: var(--success);
+}
+
+
+/* ---------------------------------------------------------
+   TARJETA DEL SERVICIO = IDENTIDAD PROFESIONAL CYAN
+--------------------------------------------------------- */
+
+.account-container:has(.booking-service-summary-card)
+.booking-service-summary-card {
+    border-color: var(--booking-professional-cyan-border);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(69, 214, 255, 0.055),
+            rgba(69, 214, 255, 0.014) 48%,
+            transparent 76%
+        ),
+        var(--bg-card);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.booking-professional-avatar {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(69, 214, 255, 0.13),
+            rgba(69, 214, 255, 0.025)
+        ),
+        #0d1117;
+
+    border-color: rgba(69, 214, 255, 0.34);
+
+    color: var(--booking-professional-cyan);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.booking-service-identity-copy .account-summary-label {
+    color: var(--booking-professional-cyan);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.booking-service-identity-copy strong {
+    color: var(--booking-professional-cyan);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.booking-service-identity-copy p {
+    color: var(--text-muted);
+}
+
+
+/* Los datos que el Miembro usa para decidir siguen en verde. */
+.account-container:has(.booking-service-summary-card)
+.account-summary-card:not(.booking-service-summary-card) strong {
+    color: var(--booking-member-accent);
+}
+
+
+/* ---------------------------------------------------------
+   PRÓXIMOS DÍAS / SELECCIÓN DE FECHA
+--------------------------------------------------------- */
+
+.account-container:has(.booking-service-summary-card)
+.friendly-date-option:hover {
+    border-color: rgba(198, 255, 51, 0.58);
+    background: rgba(198, 255, 51, 0.035);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.friendly-date-option-active {
+    border-color: var(--booking-member-accent);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(198, 255, 51, 0.09),
+            rgba(198, 255, 51, 0.035)
+        );
+
+    box-shadow:
+        0 0 0 1px rgba(198, 255, 51, 0.055);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.friendly-date-option-active span,
+.account-container:has(.booking-service-summary-card)
+.friendly-date-option-active strong,
+.account-container:has(.booking-service-summary-card)
+.friendly-date-option-active small {
+    color: var(--booking-member-accent);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.friendly-date-status-available {
+    color: var(--booking-member-accent);
+}
+
+
+/* ---------------------------------------------------------
+   OTRA FECHA - INPUT O SELECTORES DÍA / MES / AÑO
+--------------------------------------------------------- */
+
+.account-container:has(.booking-service-summary-card)
+.friendly-date-custom {
+    border-color: rgba(198, 255, 51, 0.16);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.friendly-date-custom input[type="date"]:focus,
+.account-container:has(.booking-service-summary-card)
+.friendly-date-selects select:focus {
+    border-color: var(--booking-member-accent);
+
+    box-shadow:
+        0 0 0 2px rgba(198, 255, 51, 0.07);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.friendly-date-selects select:hover {
+    border-color: rgba(198, 255, 51, 0.46);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.friendly-date-custom .account-professional-action {
+    color: var(--booking-member-accent);
+    border-color: var(--booking-member-border);
+    background: var(--booking-member-soft);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.friendly-date-custom .account-professional-action:hover {
+    color: #090b0f;
+    border-color: var(--booking-member-accent);
+    background: var(--booking-member-accent);
+}
+
+
+/* ---------------------------------------------------------
+   HORARIOS DISPONIBLES / RESERVAR
+--------------------------------------------------------- */
+
+.account-container:has(.booking-service-summary-card)
+.booking-slot-grid .account-data-item {
+    transition:
+        border-color 0.18s ease,
+        background 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.booking-slot-grid .account-data-item:hover {
+    border-color: rgba(198, 255, 51, 0.24);
+    background: rgba(198, 255, 51, 0.018);
+    transform: translateY(-1px);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.booking-slot-time {
+    color: var(--booking-member-accent);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.booking-slot-action {
+    color: var(--booking-member-accent);
+    border-color: var(--booking-member-border);
+    background: var(--booking-member-soft);
+}
+
+
+.account-container:has(.booking-service-summary-card)
+.booking-slot-action:hover {
+    color: #090b0f;
+    border-color: var(--booking-member-accent);
+    background: var(--booking-member-accent);
+}
+
+
+/* ---------------------------------------------------------
+   ACCESIBILIDAD / FOCO
+--------------------------------------------------------- */
+
+.account-container:has(.booking-service-summary-card)
+a:focus-visible,
+.account-container:has(.booking-service-summary-card)
+button:focus-visible,
+.account-container:has(.booking-service-summary-card)
+input:focus-visible,
+.account-container:has(.booking-service-summary-card)
+select:focus-visible {
+    outline: 2px solid var(--booking-member-accent);
+    outline-offset: 2px;
+}
+
+
+/* ---------------------------------------------------------
+   RESPONSIVE
+--------------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+    .account-container:has(.booking-service-summary-card)
+    .friendly-date-custom .account-professional-action {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+}
+

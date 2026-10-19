@@ -38,6 +38,18 @@ urlpatterns = [
     ),
 
     path(
+        'actividad/<int:activity_id>/sandbox/elegible/',
+        views.sandbox_make_activity_settlement_eligible,
+        name='sandbox_make_activity_settlement_eligible',
+    ),
+
+    path(
+        'actividad/<int:activity_id>/sandbox/liquidar/',
+        views.sandbox_settle_activity,
+        name='sandbox_settle_activity',
+    ),
+
+    path(
         '<uuid:payment_id>/',
         views.receipt,
         name='receipt',

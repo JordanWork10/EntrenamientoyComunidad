@@ -11,11 +11,14 @@ from django.utils import timezone
 
 from apps.activities.models import Activity, ActivityRegistration
 
-from .models import Payment
+from .models import Payment, Settlement
 from .services.cancellation_policy import PAYMENTS_POLICY_VERSION
 from .services.commissions import apply_payment_commission_snapshot
 from .services.settlements import (
+    SettlementProcessingError,
+    calculate_settlement_eligible_at,
     refresh_payment_settlement_status,
+    settle_activity_settlement,
     sync_activity_settlement,
 )
 from .services.refunds import (
@@ -1118,5 +1121,137 @@ def activity_payments(
             'settlement_code': settlement['code'],
             'settlement_label': settlement['label'],
             'eligible_at': eligible_at,
+            'activity_settlement': (
+                Settlement.objects
+                .filter(
+                    scope_type=Settlement.ScopeType.ACTIVITY,
+                    activity=activity,
+                )
+                .first()
+            ),
+            'sandbox_enabled': _sandbox_enabled(),
         },
+    )
+
+
+@login_required(login_url='accounts:login')
+def sandbox_make_activity_settlement_eligible(
+    request,
+    activity_id,
+):
+    if request.method != 'POST':
+        return redirect(
+            'payments:activity_payments',
+            activity_id=activity_id,
+        )
+
+    if not _sandbox_enabled():
+        raise Http404(
+            'La simulación de liquidaciones no está habilitada.'
+        )
+
+    activity = get_object_or_404(
+        Activity,
+        pk=activity_id,
+        organizer=request.user,
+        activity_type=Activity.ActivityType.PROFESSIONAL,
+    )
+
+    service_end = _activity_service_end(activity)
+    eligible_at = calculate_settlement_eligible_at(service_end)
+
+    settlement = sync_activity_settlement(
+        activity,
+        service_end=service_end,
+        now=eligible_at,
+    )
+
+    if settlement.net_amount_clp <= 0:
+        messages.info(
+            request,
+            'Esta actividad no tiene monto por liquidar.',
+        )
+    elif settlement.status == Settlement.Status.ELIGIBLE:
+        messages.success(
+            request,
+            (
+                'Sandbox: se simuló el cumplimiento de la ventana '
+                'de 24 horas. La liquidación ya es elegible.'
+            ),
+        )
+    else:
+        messages.info(
+            request,
+            f'Estado actual: {settlement.get_status_display()}.',
+        )
+
+    return redirect(
+        'payments:activity_payments',
+        activity_id=activity.pk,
+    )
+
+
+@login_required(login_url='accounts:login')
+def sandbox_settle_activity(
+    request,
+    activity_id,
+):
+    if request.method != 'POST':
+        return redirect(
+            'payments:activity_payments',
+            activity_id=activity_id,
+        )
+
+    if not _sandbox_enabled():
+        raise Http404(
+            'La simulación de liquidaciones no está habilitada.'
+        )
+
+    activity = get_object_or_404(
+        Activity,
+        pk=activity_id,
+        organizer=request.user,
+        activity_type=Activity.ActivityType.PROFESSIONAL,
+    )
+
+    settlement = get_object_or_404(
+        Settlement,
+        scope_type=Settlement.ScopeType.ACTIVITY,
+        activity=activity,
+        beneficiary=request.user,
+    )
+
+    try:
+        # En sandbox usamos eligible_at como reloj simulado.
+        simulated_now = (
+            settlement.eligible_at
+            if settlement.eligible_at
+            else timezone.now()
+        )
+
+        settlement = settle_activity_settlement(
+            settlement,
+            now=simulated_now,
+        )
+    except SettlementProcessingError as exc:
+        messages.error(
+            request,
+            str(exc),
+        )
+        return redirect(
+            'payments:activity_payments',
+            activity_id=activity.pk,
+        )
+
+    messages.success(
+        request,
+        (
+            'Liquidación sandbox completada correctamente. '
+            f'Monto neto: ${settlement.net_amount_clp:,.0f} CLP.'
+        ).replace(',', '.'),
+    )
+
+    return redirect(
+        'payments:activity_payments',
+        activity_id=activity.pk,
     )

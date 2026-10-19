@@ -1,713 +1,471 @@
 {% extends 'base.html' %}
-{% load clp_filters %}
-
+{% load clp_filters subscription_extras %}
 {% block title %}
 {{ activity.title }} | EntrenamientoyComunidad
 {% endblock %}
-
 {% block content %}
-
+{% if activity.activity_type == 'professional' %}
+{% subscription_identity activity.organizer as organizer_subscription_identity %}
+{% endif %}
+<style>
+.activities-chip-professional-pro {
+color: #b4ff29;
+background: rgba(180, 255, 41, .06);
+border: 1px solid rgba(180, 255, 41, .34);
+}
+</style>
 <section class="account-page activities-page">
-
-    <div class="account-container">
-
-        {% if messages %}
-
-            {% for message in messages %}
-
-                <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
-                    {{ message }}
-                </div>
-
-            {% endfor %}
-
-        {% endif %}
-
-
-        <header class="activities-detail-hero">
-
-            <div class="activities-detail-copy">
-
-                <div class="activities-detail-badges">
-
-                    <span class="activities-chip {% if activity.activity_type == 'professional' %}activities-chip-professional{% endif %}">
-                        {{ activity.get_activity_type_display }}
-                    </span>
-
-                    <span class="activities-chip activities-chip-soft">
-                        {{ activity.category.name }}
-                    </span>
-
-                    {% if activity.activity_type == 'professional' %}
-
-                        <span class="activities-chip activities-chip-professional-verified">
-                            Profesional verificado
-                        </span>
-
-                    {% endif %}
-
-                    {% if activity.status == 'draft' %}
-
-                        <span class="activities-chip activities-chip-warning">
-                            Borrador
-                        </span>
-
-                    {% endif %}
-
-                </div>
-
-
-                <h1>
-                    {{ activity.title }}
-                </h1>
-
-
-                <p>
-                    {{ activity.description }}
-                </p>
-
-
-                <div class="activities-organizer">
-
-                    {% if activity.organizer.profile_image %}
-
-                        <img
-                            src="{{ activity.organizer.profile_image.url }}"
-                            alt="{{ activity.organizer.get_full_name }}"
-                        >
-
-                    {% else %}
-
-                        <span>
-                            {{ activity.organizer.first_name|first|upper }}{{ activity.organizer.last_name|first|upper }}
-                        </span>
-
-                    {% endif %}
-
-
-                    <div>
-
-                        <small>
-                            {% if activity.activity_type == 'professional' %}
-                                PROFESIONAL
-                            {% else %}
-                                ORGANIZA
-                            {% endif %}
-                        </small>
-
-                        <strong>
-                            {{ activity.organizer.get_full_name|default:activity.organizer.email }}
-                        </strong>
-
-                        <p>
-                            {% if activity.activity_type == 'professional' %}
-                                Profesional verificado de EntrenamientoyComunidad
-                            {% else %}
-                                Miembro de EntrenamientoyComunidad
-                            {% endif %}
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="activities-detail-media">
-
-                {% if activity.image %}
-
-                    <img
-                        src="{{ activity.image.url }}"
-                        alt="{{ activity.title }}"
-                    >
-
-                {% else %}
-
-                    <div class="activities-detail-placeholder">
-                        ACTIVIDAD
-                    </div>
-
-                {% endif %}
-
-            </div>
-
-        </header>
-
-
-        <section class="activities-detail-grid">
-
-            <div class="activities-detail-main">
-
-                <article class="activities-detail-panel">
-
-                    <div class="activities-section-heading compact">
-
-                        <div>
-
-                            <span>
-                                01
-                            </span>
-
-                            <h2>
-                                Cuándo y cómo
-                            </h2>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="activities-facts-grid">
-
-                        <div>
-
-                            <span>
-                                FECHA
-                            </span>
-
-                            <strong>
-                                {{ activity.date|date:"d/m/Y" }}
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                HORARIO
-                            </span>
-
-                            <strong>
-                                {{ activity.start_time|time:"H:i" }}–{{ activity.end_time|time:"H:i" }}
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                MODALIDAD
-                            </span>
-
-                            <strong>
-                                {{ activity.get_modality_display }}
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                NIVEL
-                            </span>
-
-                            <strong>
-                                {{ activity.get_level_display }}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    {% if activity.modality == 'in_person' or activity.modality == 'hybrid' %}
-
-                        <div class="activities-location-box {% if activity.activity_type == 'professional' %}activities-professional-location{% endif %}">
-
-                            <span>
-                                PUNTO DE ENCUENTRO
-                            </span>
-
-                            <strong>
-                                {{ activity.meeting_point|default:"Por definir" }}
-                            </strong>
-
-
-                            {% if activity.location_reference %}
-
-                                <p>
-                                    {{ activity.location_reference }}
-                                </p>
-
-                            {% endif %}
-
-
-                            {% if activity.commune %}
-
-                                <div class="activities-route">
-
-                                    <span>
-                                        COMUNA
-                                    </span>
-
-                                    <strong>
-                                        {{ activity.commune.name }}
-                                    </strong>
-
-                                </div>
-
-                            {% endif %}
-
-
-                            {% if activity.route_or_destination %}
-
-                                <div class="activities-route">
-
-                                    <span>
-                                        RUTA / DESTINO
-                                    </span>
-
-                                    <strong>
-                                        {{ activity.route_or_destination }}
-                                    </strong>
-
-                                </div>
-
-                            {% endif %}
-
-
-                            {% if activity.space_booking %}
-
-                                <div class="activities-booked-space-box">
-
-                                    <span>
-                                        ESPACIO RESERVADO
-                                    </span>
-
-                                    <strong>
-                                        {{ activity.space_booking.space_name_snapshot }}
-                                    </strong>
-
-                                    <p>
-                                        Reserva confirmada:
-                                        {{ activity.space_booking.session_date|date:"d/m/Y" }}
-                                        ·
-                                        {{ activity.space_booking.start_time|time:"H:i" }}–{{ activity.space_booking.end_time|time:"H:i" }}
-                                    </p>
-
-                                </div>
-
-                            {% endif %}
-
-                        </div>
-
-                    {% endif %}
-
-
-                    {% if activity.modality == 'online' or activity.modality == 'hybrid' %}
-
-                        <div class="activities-online-box">
-
-                            <span>
-                                ACCESO ONLINE
-                            </span>
-
-                            {% if can_access_online_info %}
-
-                                <strong>
-                                    Información para tu sesión
-                                </strong>
-
-                                <p>
-                                    {{ activity.online_access_info }}
-                                </p>
-
-                            {% else %}
-
-                                <strong>
-                                    Disponible para personas inscritas
-                                </strong>
-
-                                <p class="activities-online-private">
-                                    Por seguridad, las instrucciones o enlaces
-                                    de acceso se muestran después de inscribirte.
-                                </p>
-
-                            {% endif %}
-
-                        </div>
-
-                    {% endif %}
-
-                </article>
-
-
-                {% if activity.requirements %}
-
-                    <article class="activities-detail-panel">
-
-                        <div class="activities-section-heading compact">
-
-                            <div>
-
-                                <span>
-                                    02
-                                </span>
-
-                                <h2>
-                                    Antes de sumarte
-                                </h2>
-
-                            </div>
-
-                        </div>
-
-
-                        <p class="activities-requirements">
-                            {{ activity.requirements }}
-                        </p>
-
-                    </article>
-
-                {% endif %}
-
-            </div>
-
-
-            <aside class="activities-participation-card">
-
-                <span class="activities-overline">
-                    PARTICIPACIÓN
-                </span>
-
-
-                <div class="activities-capacity-number">
-
-                    <strong>
-                        {{ activity.active_registrations_count }}
-                    </strong>
-
-                    <span>
-                        / {{ activity.capacity }}
-                    </span>
-
-                </div>
-
-
-                <p>
-                    personas inscritas
-                </p>
-
-
-                <div class="activities-progress-track">
-
-                    <progress
-                        class="activities-progress-native"
-                        value="{{ activity.active_registrations_count }}"
-                        max="{{ activity.capacity }}"
-                    >
-                        {{ activity.active_registrations_count }}
-                        de
-                        {{ activity.capacity }}
-                    </progress>
-
-                </div>
-
-
-                <div class="activities-spots-line">
-
-                    {% if activity.is_full %}
-
-                        <strong>
-                            Cupos completos
-                        </strong>
-
-                    {% else %}
-
-                        <strong>
-                            {{ activity.available_spots }}
-                            cupo{{ activity.available_spots|pluralize:"s" }}
-                            disponible{{ activity.available_spots|pluralize:"s" }}
-                        </strong>
-
-                    {% endif %}
-
-
-                    <span>
-                        {% if activity.price %}
-                            {{ activity.price|clp }}
-                        {% else %}
-                            Gratis
-                        {% endif %}
-                    </span>
-
-                </div>
-
-
-                {% if is_owner %}
-
-                    <div class="activities-owner-box">
-
-                        <strong>
-                            Tú organizas esta actividad
-                        </strong>
-
-                        <p>
-                            El organizador no ocupa uno de los cupos publicados.
-                        </p>
-
-                    </div>
-
-
-                    {% if activity.activity_type == 'professional' %}
-
-                        <a
-                            href="{% url 'activities:edit_professional' activity.id %}"
-                            class="activities-button activities-button-secondary activities-button-full"
-                        >
-                            Editar actividad profesional →
-                        </a>
-
-
-                        {% if activity.price > 0 %}
-
-                            <a
-                                href="{% url 'payments:activity_payments' activity.id %}"
-                                class="activities-button activities-button-secondary activities-button-full activities-payment-owner-link"
-                            >
-                                Ver pagos de esta actividad →
-                            </a>
-
-                        {% endif %}
-
-
-                        {% if activity.status == 'draft' %}
-
-                            <form
-                                method="post"
-                                action="{% url 'activities:publish_professional' activity.id %}"
-                            >
-                                {% csrf_token %}
-
-                                <button
-                                    type="submit"
-                                    class="activities-button activities-button-primary activities-button-full"
-                                >
-                                    Publicar actividad →
-                                </button>
-                            </form>
-
-                        {% endif %}
-
-
-                    {% else %}
-
-                        <a
-                            href="{% url 'activities:edit_community' activity.id %}"
-                            class="activities-button activities-button-secondary activities-button-full"
-                        >
-                            Editar actividad →
-                        </a>
-
-
-                        {% if activity.status == 'draft' %}
-
-                            <form
-                                method="post"
-                                action="{% url 'activities:publish_community' activity.id %}"
-                            >
-                                {% csrf_token %}
-
-                                <button
-                                    type="submit"
-                                    class="activities-button activities-button-primary activities-button-full"
-                                >
-                                    Publicar actividad →
-                                </button>
-                            </form>
-
-                        {% endif %}
-
-                    {% endif %}
-
-
-                {% elif is_registered %}
-
-                    <div class="activities-registered-box">
-
-                        <strong>
-                            ✓ Ya estás inscrito
-                        </strong>
-
-                        <p>
-                            Tu cupo está reservado para esta actividad.
-                        </p>
-
-                    </div>
-
-
-                    {% if activity.activity_type == 'professional' and activity.price > 0 %}
-
-                        <div class="activities-paid-pending-box payment-ready">
-
-                            <strong>
-                                Pago aprobado
-                            </strong>
-
-                            <p>
-                                Tu inscripción está vinculada a un pago.
-                                Si ya no puedes asistir, revisa primero
-                                cuánto corresponde reembolsar según la política vigente.
-                            </p>
-
-                        </div>
-
-
-                        <a
-                            href="{% url 'payments:cancel_paid_activity' activity.id %}"
-                            class="activities-button activities-button-danger activities-button-full"
-                        >
-                            Cancelar participación y revisar reembolso →
-                        </a>
-
-
-                        <a
-                            href="{% url 'payments:my_payments' %}"
-                            class="activities-button activities-button-secondary activities-button-full"
-                        >
-                            Ver mi pago →
-                        </a>
-
-
-                    {% else %}
-
-                        <form
-                            method="post"
-                            action="{% url 'activities:leave' activity.id %}"
-                        >
-                            {% csrf_token %}
-
-                            <button
-                                type="submit"
-                                class="activities-button activities-button-danger activities-button-full"
-                            >
-                                Liberar mi cupo
-                            </button>
-
-                        </form>
-
-                    {% endif %}
-
-
-                {% elif not request.user.is_authenticated %}
-
-                    <a
-                        href="{% url 'accounts:login' %}"
-                        class="activities-button activities-button-primary activities-button-full"
-                    >
-                        Inicia sesión para unirte
-                    </a>
-
-
-                {% elif paid_registration_pending %}
-
-                    <div class="activities-paid-pending-box payment-ready">
-
-                        <strong>
-                            Actividad profesional pagada
-                        </strong>
-
-                        <p>
-                            Para reservar tu cupo debes completar
-                            el pago de {{ activity.price|clp }}.
-                            La inscripción se confirma únicamente
-                            cuando el pago queda aprobado.
-                        </p>
-
-                    </div>
-
-
-                    <a
-                        href="{% url 'payments:checkout' activity.id %}"
-                        class="activities-button activities-button-full activities-payment-cta"
-                    >
-                        Reservar cupo · {{ activity.price|clp }} →
-                    </a>
-
-
-                    <a
-                        href="{% url 'payments:my_payments' %}"
-                        class="activities-button activities-button-secondary activities-button-full"
-                    >
-                        Mis pagos →
-                    </a>
-
-
-                {% elif can_join %}
-
-                    <form
-                        method="post"
-                        action="{% url 'activities:join' activity.id %}"
-                    >
-                        {% csrf_token %}
-
-                        <button
-                            type="submit"
-                            class="activities-button activities-button-primary activities-button-full"
-                        >
-                            Unirme a la actividad →
-                        </button>
-
-                    </form>
-
-
-                {% elif activity.is_full %}
-
-                    <button
-                        class="activities-button activities-button-disabled activities-button-full"
-                        disabled
-                    >
-                        Cupos completos
-                    </button>
-
-                {% endif %}
-
-
-                {% if activity.activity_type == 'professional' %}
-
-                    <small class="activities-community-disclaimer activities-professional-disclaimer">
-                        Actividad dirigida por un Profesional verificado.
-                        El precio corresponde al valor definido por participante.
-                    </small>
-
-                {% else %}
-
-                    <small class="activities-community-disclaimer">
-                        Actividad organizada por un Miembro.
-                        No corresponde a un servicio profesional pagado.
-                    </small>
-
-                {% endif %}
-
-            </aside>
-
-        </section>
-
-
-        <div class="activities-bottom-actions">
-
-            <a href="{% url 'activities:home' %}">
-                ← Volver a Actividades
-            </a>
-
-
-            {% if request.user.is_authenticated %}
-
-                <a href="{% url 'activities:my_activities' %}">
-                    Mis actividades →
-                </a>
-
-            {% endif %}
-
-        </div>
-
-    </div>
-
+<div class="account-container">
+{% if messages %}
+{% for message in messages %}
+<div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
+{{ message }}
+</div>
+{% endfor %}
+{% endif %}
+<header class="activities-detail-hero">
+<div class="activities-detail-copy">
+<div class="activities-detail-badges">
+<span class="activities-chip {% if activity.activity_type == 'professional' %}activities-chip-professional{% endif %}">
+{{ activity.get_activity_type_display }}
+</span>
+<span class="activities-chip activities-chip-soft">
+{{ activity.category.name }}
+</span>
+{% if activity.activity_type == 'professional' %}
+<span class="activities-chip activities-chip-professional-verified">
+Profesional verificado
+</span>
+{% if organizer_subscription_identity.has_professional_discount %}
+<span class="activities-chip activities-chip-professional-pro">
+{{ organizer_subscription_identity.plan_name }}
+</span>
+{% endif %}
+{% endif %}
+{% if activity.status == 'draft' %}
+<span class="activities-chip activities-chip-warning">
+Borrador
+</span>
+{% endif %}
+</div>
+<h1>
+{{ activity.title }}
+</h1>
+<p>
+{{ activity.description }}
+</p>
+<div class="activities-organizer">
+{% if activity.organizer.profile_image %}
+<img
+src="{{ activity.organizer.profile_image.url }}"
+alt="{{ activity.organizer.get_full_name }}"
+>
+{% else %}
+<span>
+{{ activity.organizer.first_name|first|upper }}{{ activity.organizer.last_name|first|upper }}
+</span>
+{% endif %}
+<div>
+<small>
+{% if activity.activity_type == 'professional' %}
+PROFESIONAL
+{% else %}
+ORGANIZA
+{% endif %}
+</small>
+<strong>
+{{ activity.organizer.get_full_name|default:activity.organizer.email }}
+</strong>
+<p>
+{% if activity.activity_type == 'professional' %}
+Profesional verificado de EntrenamientoyComunidad
+{% else %}
+Miembro de EntrenamientoyComunidad
+{% endif %}
+</p>
+</div>
+</div>
+</div>
+<div class="activities-detail-media">
+{% if activity.image %}
+<img
+src="{{ activity.image.url }}"
+alt="{{ activity.title }}"
+>
+{% else %}
+<div class="activities-detail-placeholder">
+ACTIVIDAD
+</div>
+{% endif %}
+</div>
+</header>
+<section class="activities-detail-grid">
+<div class="activities-detail-main">
+<article class="activities-detail-panel">
+<div class="activities-section-heading compact">
+<div>
+<span>
+01
+</span>
+<h2>
+Cuándo y cómo
+</h2>
+</div>
+</div>
+<div class="activities-facts-grid">
+<div>
+<span>
+FECHA
+</span>
+<strong>
+{{ activity.date|date:"d/m/Y" }}
+</strong>
+</div>
+<div>
+<span>
+HORARIO
+</span>
+<strong>
+{{ activity.start_time|time:"H:i" }}–{{ activity.end_time|time:"H:i" }}
+</strong>
+</div>
+<div>
+<span>
+MODALIDAD
+</span>
+<strong>
+{{ activity.get_modality_display }}
+</strong>
+</div>
+<div>
+<span>
+NIVEL
+</span>
+<strong>
+{{ activity.get_level_display }}
+</strong>
+</div>
+</div>
+{% if activity.modality == 'in_person' or activity.modality == 'hybrid' %}
+<div class="activities-location-box {% if activity.activity_type == 'professional' %}activities-professional-location{% endif %}">
+<span>
+PUNTO DE ENCUENTRO
+</span>
+<strong>
+{{ activity.meeting_point|default:"Por definir" }}
+</strong>
+{% if activity.location_reference %}
+<p>
+{{ activity.location_reference }}
+</p>
+{% endif %}
+{% if activity.commune %}
+<div class="activities-route">
+<span>
+COMUNA
+</span>
+<strong>
+{{ activity.commune.name }}
+</strong>
+</div>
+{% endif %}
+{% if activity.route_or_destination %}
+<div class="activities-route">
+<span>
+RUTA / DESTINO
+</span>
+<strong>
+{{ activity.route_or_destination }}
+</strong>
+</div>
+{% endif %}
+{% if activity.space_booking %}
+<div class="activities-booked-space-box">
+<span>
+ESPACIO RESERVADO
+</span>
+<strong>
+{{ activity.space_booking.space_name_snapshot }}
+</strong>
+<p>
+Reserva confirmada:
+{{ activity.space_booking.session_date|date:"d/m/Y" }}
+·
+{{ activity.space_booking.start_time|time:"H:i" }}–{{ activity.space_booking.end_time|time:"H:i" }}
+</p>
+</div>
+{% endif %}
+</div>
+{% endif %}
+{% if activity.modality == 'online' or activity.modality == 'hybrid' %}
+<div class="activities-online-box">
+<span>
+ACCESO ONLINE
+</span>
+{% if can_access_online_info %}
+<strong>
+Información para tu sesión
+</strong>
+<p>
+{{ activity.online_access_info }}
+</p>
+{% else %}
+<strong>
+Disponible para personas inscritas
+</strong>
+<p class="activities-online-private">
+Por seguridad, las instrucciones o enlaces
+de acceso se muestran después de inscribirte.
+</p>
+{% endif %}
+</div>
+{% endif %}
+</article>
+{% if activity.requirements %}
+<article class="activities-detail-panel">
+<div class="activities-section-heading compact">
+<div>
+<span>
+02
+</span>
+<h2>
+Antes de sumarte
+</h2>
+</div>
+</div>
+<p class="activities-requirements">
+{{ activity.requirements }}
+</p>
+</article>
+{% endif %}
+</div>
+<aside class="activities-participation-card">
+<span class="activities-overline">
+PARTICIPACIÓN
+</span>
+<div class="activities-capacity-number">
+<strong>
+{{ activity.active_registrations_count }}
+</strong>
+<span>
+/ {{ activity.capacity }}
+</span>
+</div>
+<p>
+personas inscritas
+</p>
+<div class="activities-progress-track">
+<progress
+class="activities-progress-native"
+value="{{ activity.active_registrations_count }}"
+max="{{ activity.capacity }}"
+>
+{{ activity.active_registrations_count }}
+de
+{{ activity.capacity }}
+</progress>
+</div>
+<div class="activities-spots-line">
+{% if activity.is_full %}
+<strong>
+Cupos completos
+</strong>
+{% else %}
+<strong>
+{{ activity.available_spots }}
+cupo{{ activity.available_spots|pluralize:"s" }}
+disponible{{ activity.available_spots|pluralize:"s" }}
+</strong>
+{% endif %}
+<span>
+{% if activity.price %}
+{{ activity.price|clp }}
+{% else %}
+Gratis
+{% endif %}
+</span>
+</div>
+{% if is_owner %}
+<div class="activities-owner-box">
+<strong>
+Tú organizas esta actividad
+</strong>
+<p>
+El organizador no ocupa uno de los cupos publicados.
+</p>
+</div>
+{% if activity.activity_type == 'professional' %}
+<a
+href="{% url 'activities:edit_professional' activity.id %}"
+class="activities-button activities-button-secondary activities-button-full"
+>
+Editar actividad profesional →
+</a>
+{% if activity.price > 0 %}
+<a
+href="{% url 'payments:activity_payments' activity.id %}"
+class="activities-button activities-button-secondary activities-button-full activities-payment-owner-link"
+>
+Ver pagos de esta actividad →
+</a>
+{% endif %}
+{% if activity.status == 'draft' %}
+<form
+method="post"
+action="{% url 'activities:publish_professional' activity.id %}"
+>
+{% csrf_token %}
+<button
+type="submit"
+class="activities-button activities-button-primary activities-button-full"
+>
+Publicar actividad →
+</button>
+</form>
+{% endif %}
+{% else %}
+<a
+href="{% url 'activities:edit_community' activity.id %}"
+class="activities-button activities-button-secondary activities-button-full"
+>
+Editar actividad →
+</a>
+{% if activity.status == 'draft' %}
+<form
+method="post"
+action="{% url 'activities:publish_community' activity.id %}"
+>
+{% csrf_token %}
+<button
+type="submit"
+class="activities-button activities-button-primary activities-button-full"
+>
+Publicar actividad →
+</button>
+</form>
+{% endif %}
+{% endif %}
+{% elif is_registered %}
+<div class="activities-registered-box">
+<strong>
+✓ Ya estás inscrito
+</strong>
+<p>
+Tu cupo está reservado para esta actividad.
+</p>
+</div>
+{% if activity.activity_type == 'professional' and activity.price > 0 %}
+<div class="activities-paid-pending-box payment-ready">
+<strong>
+Pago aprobado
+</strong>
+<p>
+Tu inscripción está vinculada a un pago.
+Si ya no puedes asistir, revisa primero
+cuánto corresponde reembolsar según la política vigente.
+</p>
+</div>
+<a
+href="{% url 'payments:cancel_paid_activity' activity.id %}"
+class="activities-button activities-button-danger activities-button-full"
+>
+Cancelar participación y revisar reembolso →
+</a>
+<a
+href="{% url 'payments:my_payments' %}"
+class="activities-button activities-button-secondary activities-button-full"
+>
+Ver mi pago →
+</a>
+{% else %}
+<form
+method="post"
+action="{% url 'activities:leave' activity.id %}"
+>
+{% csrf_token %}
+<button
+type="submit"
+class="activities-button activities-button-danger activities-button-full"
+>
+Liberar mi cupo
+</button>
+</form>
+{% endif %}
+{% elif not request.user.is_authenticated %}
+<a
+href="{% url 'accounts:login' %}"
+class="activities-button activities-button-primary activities-button-full"
+>
+Inicia sesión para unirte
+</a>
+{% elif paid_registration_pending %}
+<div class="activities-paid-pending-box payment-ready">
+<strong>
+Actividad profesional pagada
+</strong>
+<p>
+Para reservar tu cupo debes completar
+el pago de {{ activity.price|clp }}.
+La inscripción se confirma únicamente
+cuando el pago queda aprobado.
+</p>
+</div>
+<a
+href="{% url 'payments:checkout' activity.id %}"
+class="activities-button activities-button-full activities-payment-cta"
+>
+Reservar cupo · {{ activity.price|clp }} →
+</a>
+<a
+href="{% url 'payments:my_payments' %}"
+class="activities-button activities-button-secondary activities-button-full"
+>
+Mis pagos →
+</a>
+{% elif can_join %}
+<form
+method="post"
+action="{% url 'activities:join' activity.id %}"
+>
+{% csrf_token %}
+<button
+type="submit"
+class="activities-button activities-button-primary activities-button-full"
+>
+Unirme a la actividad →
+</button>
+</form>
+{% elif activity.is_full %}
+<button
+class="activities-button activities-button-disabled activities-button-full"
+disabled
+>
+Cupos completos
+</button>
+{% endif %}
+{% if activity.activity_type == 'professional' %}
+<small class="activities-community-disclaimer activities-professional-disclaimer">
+Actividad dirigida por un Profesional verificado.
+El precio corresponde al valor definido por participante.
+</small>
+{% else %}
+<small class="activities-community-disclaimer">
+Actividad organizada por un Miembro.
+No corresponde a un servicio profesional pagado.
+</small>
+{% endif %}
+</aside>
 </section>
-
+<div class="activities-bottom-actions">
+<a href="{% url 'activities:home' %}">
+← Volver a Actividades
+</a>
+{% if request.user.is_authenticated %}
+<a href="{% url 'activities:my_activities' %}">
+Mis actividades →
+</a>
+{% endif %}
+</div>
+</div>
+</section>
 {% endblock %}

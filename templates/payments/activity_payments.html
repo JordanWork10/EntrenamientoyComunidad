@@ -169,6 +169,51 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
         border: 1px solid rgba(154, 165, 184, .26);
     }
 
+    .settlement-sandbox-panel {
+        margin: 0 0 18px;
+        padding: 15px;
+        background: rgba(255, 212, 74, .035);
+        border: 1px solid rgba(255, 212, 74, .24);
+        border-radius: 10px;
+    }
+
+    .settlement-sandbox-panel > span {
+        display: block;
+        margin-bottom: 5px;
+        color: #ffd44a;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    .settlement-sandbox-panel > strong {
+        display: block;
+        color: #f4f1e8;
+        font-size: 12px;
+    }
+
+    .settlement-sandbox-panel > p {
+        margin: 5px 0 12px;
+        color: #7f8aa3;
+        font-size: 9px;
+        line-height: 1.5;
+    }
+
+    .settlement-sandbox-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .settlement-sandbox-actions form {
+        flex: 1 1 220px;
+    }
+
+    .settlement-sandbox-actions button {
+        width: 100%;
+    }
+
     @media (max-width: 900px) {
         .activity-payment-detail-row {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -195,6 +240,19 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
 <section class="account-page payments-page">
 
     <div class="account-container">
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
 
         <header class="payments-hero">
 
@@ -317,6 +375,104 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
             </article>
 
         </div>
+
+
+        {% if sandbox_enabled and activity_settlement and net_total > 0 %}
+
+            <section class="settlement-sandbox-panel">
+
+                <span>
+                    PRUEBA DE LIQUIDACIÓN · SANDBOX
+                </span>
+
+                {% if activity_settlement.status == 'pending' %}
+
+                    <strong>
+                        La liquidación todavía está pendiente.
+                    </strong>
+
+                    <p>
+                        Para probar V107 sin esperar hasta la fecha real,
+                        puedes simular que ya transcurrió la ventana de
+                        24 horas posterior a la actividad.
+                    </p>
+
+                    <div class="settlement-sandbox-actions">
+
+                        <form
+                            method="post"
+                            action="{% url 'payments:sandbox_make_activity_settlement_eligible' activity.id %}"
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="payments-button payments-button-link"
+                            >
+                                Simular +24 h →
+                            </button>
+                        </form>
+
+                    </div>
+
+
+                {% elif activity_settlement.status == 'eligible' %}
+
+                    <strong>
+                        La liquidación ya es elegible.
+                    </strong>
+
+                    <p>
+                        En producción este paso será automático mediante
+                        el proceso programado de liquidaciones.
+                    </p>
+
+                    <div class="settlement-sandbox-actions">
+
+                        <form
+                            method="post"
+                            action="{% url 'payments:sandbox_settle_activity' activity.id %}"
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="payments-button payments-button-approve"
+                            >
+                                Simular liquidación automática →
+                            </button>
+                        </form>
+
+                    </div>
+
+
+                {% elif activity_settlement.status == 'settled' %}
+
+                    <strong>
+                        Liquidación completada.
+                    </strong>
+
+                    <p>
+                        El monto neto de esta actividad ya quedó marcado
+                        como liquidado en el entorno sandbox.
+                    </p>
+
+
+                {% elif activity_settlement.status == 'on_hold' %}
+
+                    <strong>
+                        Liquidación en revisión.
+                    </strong>
+
+                    <p>
+                        Existe una retención o incidencia pendiente.
+                    </p>
+
+                {% endif %}
+
+            </section>
+
+        {% endif %}
 
 
         <section class="payments-panel">

@@ -8,6 +8,30 @@ Explorar Servicios | EntrenamientoyComunidad
 
 {% block content %}
 
+<style>
+    .catalog-service-card-v2.is-professional-pro {
+        border-color: rgba(180, 255, 41, .34);
+        box-shadow: inset 3px 0 0 rgba(180, 255, 41, .72);
+    }
+
+    .catalog-service-pro-badge-v112 {
+        display: inline-flex !important;
+        align-items: center;
+        width: fit-content;
+        margin-top: 5px;
+        padding: 4px 7px;
+        color: #b4ff29 !important;
+        background: rgba(180, 255, 41, .05);
+        border: 1px solid rgba(180, 255, 41, .30);
+        border-radius: 999px;
+        font-size: 7px !important;
+        font-weight: 900 !important;
+        letter-spacing: .08em !important;
+        text-transform: uppercase;
+    }
+
+</style>
+
 <section class="account-page">
 
     <div class="account-container">
@@ -311,7 +335,7 @@ Explorar Servicios | EntrenamientoyComunidad
 
                     {% for service in services %}
 
-                        <article class="catalog-service-card-v2">
+                        <article class="catalog-service-card-v2{% if service.has_professional_priority %} is-professional-pro{% endif %}">
 
                             <div class="catalog-service-provider-v2">
 
@@ -344,6 +368,14 @@ Explorar Servicios | EntrenamientoyComunidad
                                     <span>
                                         PROFESIONAL VERIFICADO
                                     </span>
+
+                                    {% if service.has_professional_priority %}
+
+                                        <span class="catalog-service-pro-badge-v112">
+                                            Profesional Pro
+                                        </span>
+
+                                    {% endif %}
 
                                     <strong>
                                         {{ service.professional_profile.user.get_full_name }}

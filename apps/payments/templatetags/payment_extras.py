@@ -11,10 +11,6 @@ register = template.Library()
 def member_payment_summary(user):
     """
     Resumen compacto para mostrar Pagos dentro de Mi cuenta.
-
-    - movements: todos los intentos registrados.
-    - approved_total: solo suma pagos aprobados.
-    - pending: cantidad de pagos todavía pendientes.
     """
 
     if not getattr(user, 'is_authenticated', False):
@@ -56,20 +52,32 @@ def member_payment_summary(user):
 @register.simple_tag
 def professional_payment_summary(user):
     """
-    Resumen compacto de pagos recibidos por actividades profesionales
-    organizadas por el usuario autenticado.
+    Resumen compacto para el acceso Pagos del Centro Profesional.
 
-    Solo los pagos aprobados se consideran ingresos vigentes.
+    movements considera operaciones económicas reales del organizador:
+    aprobadas, parcialmente reembolsadas o reembolsadas.
     """
 
     if not getattr(user, 'is_authenticated', False):
         return {
+            'movements': 0,
             'approved_count': 0,
             'approved_total': 0,
         }
 
-    approved_payments = Payment.objects.filter(
+    payments = Payment.objects.filter(
         activity__organizer=user,
+    )
+
+    economic_payments = payments.filter(
+        status__in=[
+            Payment.Status.APPROVED,
+            Payment.Status.PARTIALLY_REFUNDED,
+            Payment.Status.REFUNDED,
+        ],
+    )
+
+    approved_payments = payments.filter(
         status=Payment.Status.APPROVED,
     )
 
@@ -83,6 +91,7 @@ def professional_payment_summary(user):
     )
 
     return {
+        'movements': economic_payments.count(),
         'approved_count': approved_payments.count(),
         'approved_total': approved_total,
     }

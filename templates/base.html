@@ -1,4 +1,5 @@
 {% load static %}
+{% load session_review_widgets %}
 
 <!DOCTYPE html>
 <html lang="es">
@@ -25,18 +26,14 @@
 
     <link
         rel="stylesheet"
-        href="{% static 'css/styles.css' %}?v=104"
+        href="{% static 'css/styles.css' %}?v=122"
     >
 
 </head>
 
-
 <body>
 
-    <!-- =========================
-         NAVEGACIÓN PRINCIPAL
-    ========================== -->
-
+    <!-- NAVEGACIÓN PRINCIPAL -->
     <header class="site-header">
 
         <div class="navbar-container">
@@ -57,7 +54,6 @@
 
             </a>
 
-
             <nav class="main-nav">
 
                 <a href="{% url 'core:home' %}">
@@ -69,7 +65,6 @@
                 </a>
 
             </nav>
-
 
             <div class="navbar-account">
 
@@ -114,11 +109,10 @@
     </header>
 
 
-    <!-- =========================
-         CONTENIDO DE CADA PÁGINA
-    ========================== -->
-
+    <!-- CONTENIDO PRINCIPAL -->
     <main class="site-main">
+
+        {% session_attention_panel %}
 
         {% block content %}
         {% endblock %}
@@ -126,10 +120,7 @@
     </main>
 
 
-    <!-- =========================
-         PIE DE PÁGINA
-    ========================== -->
-
+    <!-- PIE DE PÁGINA -->
     <footer class="site-footer">
 
         <div class="footer-container">
@@ -155,12 +146,9 @@
 
             </div>
 
-
             <div class="footer-column">
 
-                <h4>
-                    Plataforma
-                </h4>
+                <h4>Plataforma</h4>
 
                 <a href="{% url 'core:home' %}">
                     Inicio
@@ -180,12 +168,9 @@
 
             </div>
 
-
             <div class="footer-column">
 
-                <h4>
-                    Cuenta
-                </h4>
+                <h4>Cuenta</h4>
 
                 {% if request.user.is_authenticated %}
 
@@ -207,25 +192,17 @@
 
             </div>
 
-
             <div class="footer-column">
 
-                <h4>
-                    Legal
-                </h4>
+                <h4>Legal</h4>
 
-                <span>
-                    Términos y condiciones
-                </span>
+                <span>Términos y condiciones</span>
 
-                <span>
-                    Política de privacidad
-                </span>
+                <span>Política de privacidad</span>
 
             </div>
 
         </div>
-
 
         <div class="footer-bottom">
 
@@ -237,6 +214,55 @@
         </div>
 
     </footer>
+
+
+    <!-- V122: UBICACIÓN DE LOS PANELES -->
+    <script>
+        document.addEventListener(
+            'DOMContentLoaded',
+            function () {
+
+                const main = document.querySelector(
+                    'main.site-main'
+                );
+
+                if (!main) {
+                    return;
+                }
+
+                const panels = Array.from(
+                    main.querySelectorAll(
+                        ':scope > .ec-review-alerts'
+                    )
+                );
+
+                if (!panels.length) {
+                    return;
+                }
+
+                /*
+                 * MIEMBRO:
+                 * Después de Mi agenda.
+                 *
+                 * PROFESIONAL:
+                 * Después de Gestión profesional.
+                 */
+
+                const target = document.querySelector(
+                    '.account-page .member-agenda-access, ' +
+                    '.professional-page .professional-management-strip, ' +
+                    '.professional-management-strip'
+                );
+
+                if (!target) {
+                    return;
+                }
+
+                target.after(...panels);
+
+            }
+        );
+    </script>
 
 
     {% block extra_js %}

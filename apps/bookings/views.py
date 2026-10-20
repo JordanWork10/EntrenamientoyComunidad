@@ -28,6 +28,7 @@ from .models import (
     Booking,
     BookingHistory,
 )
+from .session_review_services import start_review
 from .services import (
     create_booking,
     expire_pending_bookings,
@@ -660,7 +661,9 @@ def my_bookings(
         )
     )
 
-    history_bookings = (
+    # El historial se presenta con etiquetas coherentes con la vista
+    # profesional, sin modificar los estados guardados en PostgreSQL.
+    history_bookings = list(
         base_queryset
         .exclude(
             session_date__gte=today,
@@ -671,6 +674,21 @@ def my_bookings(
             '-start_time',
         )
     )
+
+    for history_booking in history_bookings:
+        if (
+            history_booking.session_date < today
+            and history_booking.status in upcoming_statuses
+        ):
+            # Una sesion pasada no esta necesariamente completada.
+            # Este distintivo afecta solo al texto y a la apariencia.
+            history_booking.ui_status_label = 'Pasada'
+            history_booking.ui_status_key = 'past'
+        else:
+            history_booking.ui_status_label = (
+                history_booking.get_status_display()
+            )
+            history_booking.ui_status_key = history_booking.status
 
     return render(
         request,
@@ -686,7 +704,7 @@ def my_bookings(
                 upcoming_bookings.count()
             ),
             'history_count': (
-                history_bookings.count()
+                len(history_bookings)
             ),
         }
     )
@@ -1452,6 +1470,11 @@ def professional_complete_booking(
                 'finalizar la sesión.'
             ),
         )
+
+
+        # V121: crear seguimiento del Miembro en la misma transacción.
+        # No modifica el estado Completada ni el historial existente.
+        start_review(booking)
 
     messages.success(
         request,

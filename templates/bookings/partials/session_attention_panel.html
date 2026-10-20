@@ -1,0 +1,263 @@
+{% comment %}
+V121. Tarjetas del Centro Profesional y Mi cuenta. Esta plantilla es un
+componente completo: no se debe reemplazar ninguno de los dos dashboards.
+{% endcomment %}
+
+{% if panel_mode == 'professional' and ready_sessions %}
+
+<section
+    class="ec-review-alerts"
+    aria-label="Sesiones pendientes de finalizar"
+>
+
+    <div class="ec-review-alerts-head">
+
+        <div>
+
+            <span class="ec-review-overline">
+                CENTRO PROFESIONAL
+            </span>
+
+            <h2>
+                Sesiones pendientes de finalizar
+            </h2>
+
+            <p>
+                Estas sesiones ya terminaron. Si se realizaron,
+                puedes registrarlas desde aquí.
+            </p>
+
+        </div>
+
+        <span class="ec-review-count">
+            {{ ready_sessions|length }} por revisar
+        </span>
+
+    </div>
+
+    <div class="ec-review-alerts-list">
+
+        {% for booking in ready_sessions %}
+
+        <article class="ec-review-alert-card">
+
+            <div class="ec-review-alert-body">
+
+                <span class="ec-review-overline">
+                    SESIÓN PROFESIONAL
+                </span>
+
+                <h3>
+                    {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}
+                </h3>
+
+                <p>
+                    {{ booking.service_name_snapshot }}
+                </p>
+
+                <small>
+                    {{ booking.session_date|date:"d M Y" }}
+                    ·
+                    {{ booking.start_time|time:"H:i" }}–{{ booking.end_time|time:"H:i" }}
+                </small>
+
+            </div>
+
+            <div class="ec-review-alert-actions">
+
+                <form
+                    method="post"
+                    action="{% url 'bookings:professional_complete' booking.id %}"
+                >
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="ec-review-action-primary"
+                    >
+                        ✓ Marcar como realizada
+                    </button>
+
+                </form>
+
+                <a
+                    class="ec-review-action-link"
+                    href="{% url 'bookings:professional_detail' booking.id %}"
+                >
+                    Ver reserva →
+                </a>
+
+            </div>
+
+        </article>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% elif panel_mode == 'member' and pending_reviews %}
+
+<section
+    class="ec-review-alerts"
+    aria-label="Sesiones para confirmar"
+>
+
+    <div class="ec-review-alerts-head">
+
+        <div>
+
+            <span class="ec-review-overline">
+                SERVICIOS PROFESIONALES
+            </span>
+
+            <h2>
+                ¿Se realizaron tus sesiones?
+            </h2>
+
+            <p>
+                Los profesionales registraron estas sesiones como realizadas.
+                Confirma o informa un problema.
+            </p>
+
+        </div>
+
+        <span class="ec-review-count">
+            {{ pending_reviews|length }} por responder
+        </span>
+
+    </div>
+
+    <div class="ec-review-alerts-list">
+
+        {% for review in pending_reviews %}
+
+        <article class="ec-review-alert-card">
+
+            <div class="ec-review-alert-body">
+
+                <span class="ec-review-overline">
+                    CONFIRMACIÓN DEL MIEMBRO
+                </span>
+
+                <h3>
+                    {{ review.booking.service_name_snapshot }}
+                </h3>
+
+                <p>
+                    Con
+                    {{ review.booking.professional_profile.user.get_full_name|default:review.booking.professional_profile.user.email }}
+                </p>
+
+                <small>
+                    {{ review.booking.session_date|date:"d M Y" }}
+                    ·
+                    {{ review.booking.start_time|time:"H:i" }}–{{ review.booking.end_time|time:"H:i" }}
+                </small>
+
+                <small>
+                    Plazo para responder:
+                    {{ review.expires_at|date:"d/m/Y H:i" }}
+                </small>
+
+            </div>
+
+            <div class="ec-review-alert-actions">
+
+                <form
+                    method="post"
+                    action="{% url 'bookings:session_review_confirm' review.booking_id %}"
+                >
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="ec-review-action-primary"
+                    >
+                        ✓ Sí, se realizó
+                    </button>
+
+                </form>
+
+                <a
+                    class="ec-review-action-warning"
+                    href="{% url 'bookings:session_review' review.booking_id %}#reportar"
+                >
+                    Tuve un problema →
+                </a>
+
+            </div>
+
+        </article>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+{% if panel_mode == 'member' and unrated_reviews %}
+
+<section
+    class="ec-review-alerts ec-review-alerts-subtle"
+    aria-label="Evaluaciones opcionales"
+>
+
+    <div class="ec-review-alerts-head">
+
+        <div>
+
+            <span class="ec-review-overline">
+                TU EXPERIENCIA
+            </span>
+
+            <h2>
+                ¿Cómo estuvieron tus sesiones?
+            </h2>
+
+            <p>
+                Si quieres, califica con estrellas las sesiones que confirmaste.
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="ec-review-alerts-list">
+
+        {% for review in unrated_reviews %}
+
+        <article class="ec-review-alert-card">
+
+            <div class="ec-review-alert-body">
+
+                <h3>
+                    {{ review.booking.service_name_snapshot }}
+                </h3>
+
+                <p>
+                    {{ review.booking.professional_profile.user.get_full_name|default:review.booking.professional_profile.user.email }}
+                </p>
+
+            </div>
+
+            <a
+                class="ec-review-action-link"
+                href="{% url 'bookings:session_review' review.booking_id %}#evaluar"
+            >
+                Evaluar con estrellas ★ →
+            </a>
+
+        </article>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endif %}

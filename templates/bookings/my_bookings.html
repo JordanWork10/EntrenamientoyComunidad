@@ -9,7 +9,7 @@ Mis Reservas | EntrenamientoyComunidad
 
 {% block content %}
 
-<section class="account-page">
+<section class="account-page member-professional-bookings-page">
 
     <div class="account-container">
 
@@ -18,7 +18,7 @@ Mis Reservas | EntrenamientoyComunidad
 
             <div>
                 <span class="page-overline">
-                    MI CUENTA
+                    SERVICIOS PROFESIONALES
                 </span>
 
                 <h1>
@@ -339,8 +339,8 @@ Mis Reservas | EntrenamientoyComunidad
 
 
                                 <div class="received-history-card-end">
-                                    <span class="professional-received-status professional-received-status-{{ booking.status }}">
-                                        {{ booking.get_status_display }}
+                                    <span class="professional-received-status professional-received-status-{{ booking.ui_status_key }}">
+                                        {{ booking.ui_status_label }}
                                     </span>
                                     <span class="received-history-link">
                                         Ver detalles <span>→</span>

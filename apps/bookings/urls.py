@@ -1,17 +1,56 @@
 from django.urls import path
 
-from . import views
+from . import views, review_views
 
 
 app_name = 'bookings'
 
 
 urlpatterns = [
+
+    # ==========================================
+    # V121 - CONFIRMACIONES Y EVALUACIONES
+    # ==========================================
+
+    path(
+        '<int:booking_id>/conformidad/',
+        review_views.review_session,
+        name='session_review',
+    ),
+
+    path(
+        '<int:booking_id>/conformidad/confirmar/',
+        review_views.confirm_session,
+        name='session_review_confirm',
+    ),
+
+    path(
+        '<int:booking_id>/conformidad/reportar/',
+        review_views.report_session,
+        name='session_review_report',
+    ),
+
+    path(
+        '<int:booking_id>/conformidad/evaluar/',
+        review_views.rate_session,
+        name='session_review_rate',
+    ),
+
+
+    # ==========================================
+    # RESERVAS DEL MIEMBRO
+    # ==========================================
+
     path(
         'mis-reservas/',
         views.my_bookings,
         name='my_bookings',
     ),
+
+
+    # ==========================================
+    # RESERVAS DEL PROFESIONAL
+    # ==========================================
 
     path(
         'profesional/recibidas/',
@@ -43,6 +82,11 @@ urlpatterns = [
         name='professional_complete',
     ),
 
+
+    # ==========================================
+    # DISPONIBILIDAD Y SOLICITUD DE RESERVAS
+    # ==========================================
+
     path(
         'servicios/<int:service_id>/horarios/',
         views.service_booking_slots,
@@ -55,6 +99,11 @@ urlpatterns = [
         name='confirm',
     ),
 
+
+    # ==========================================
+    # CANCELACIÓN Y DETALLE DEL MIEMBRO
+    # ==========================================
+
     path(
         '<int:booking_id>/cancelar/',
         views.cancel_my_booking,
@@ -66,4 +115,5 @@ urlpatterns = [
         views.booking_detail,
         name='detail',
     ),
+
 ]

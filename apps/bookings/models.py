@@ -679,3 +679,48 @@ class BookingHistory(models.Model):
             f'{self.booking} - '
             f'{self.get_action_display()}'
         )
+
+
+class BookingSessionReview(models.Model):
+    """Conformidad del Miembro, independiente del estado de la reserva.
+
+    Un Profesional puede marcar una reserva como Completada; eso no implica
+    que el Miembro haya confirmado haber recibido la sesión.
+    """
+
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Esperando respuesta'
+        CONFIRMED = 'confirmed', 'Confirmada por el miembro'
+        REPORTED = 'reported', 'Problema reportado'
+        NO_RESPONSE = 'no_response', 'Sin respuesta'
+
+    booking = models.OneToOneField(
+        Booking,
+        on_delete=models.PROTECT,
+        related_name='session_review',
+        verbose_name='Reserva profesional',
+    )
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.PENDING,
+        verbose_name='Conformidad del miembro',
+    )
+    expires_at = models.DateTimeField(verbose_name='Límite para responder')
+    responded_at = models.DateTimeField(null=True, blank=True)
+    issue_reason = models.TextField(blank=True, max_length=1000)
+    rating = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name='Evaluación (1 a 5)',
+    )
+    rating_comment = models.CharField(max_length=500, blank=True)
+    rated_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Conformidad de sesión'
+        verbose_name_plural = 'Conformidades de sesiones'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'Reserva #{self.booking_id}: {self.get_status_display()}'

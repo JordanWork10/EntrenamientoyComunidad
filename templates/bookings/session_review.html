@@ -1,0 +1,445 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Confirmar sesión | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page ec-session-review-page">
+
+    <div class="account-container">
+
+        <!-- CABECERA -->
+        <header class="account-hero">
+
+            <div>
+                <span class="page-overline">
+                    SERVICIOS PROFESIONALES
+                </span>
+
+                <h1>Tu <span>sesión</span></h1>
+
+                <p>
+                    Tu respuesta ayuda a mantener un registro claro
+                    de los servicios recibidos.
+                </p>
+            </div>
+
+        </header>
+
+
+        <!-- MENSAJES DEL SISTEMA -->
+        {% if messages %}
+
+            {% for message in messages %}
+                <div class="ec-review-flash" role="status">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+        {% endif %}
+
+
+        <!-- 01: DETALLES DE LA SESIÓN -->
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+                    <span class="account-panel-number">01</span>
+                    <h2>Detalle de la sesión</h2>
+                </div>
+
+                <span class="account-panel-tag">
+                    RESERVA #{{ booking.id }}
+                </span>
+
+            </div>
+
+            <div class="ec-session-review-content">
+
+                <span class="ec-review-overline">
+                    PROFESIONAL
+                </span>
+
+                <h2>
+                    {{ booking.professional_profile.user.get_full_name|default:booking.professional_profile.user.email }}
+                </h2>
+
+                <p class="ec-review-service-title">
+                    {{ booking.service_name_snapshot }}
+                </p>
+
+                <div class="ec-review-facts">
+
+                    <div>
+                        <small>FECHA</small>
+                        <strong>
+                            {{ booking.session_date|date:"d/m/Y" }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <small>HORARIO</small>
+                        <strong>
+                            {{ booking.start_time|time:"H:i" }}–{{ booking.end_time|time:"H:i" }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <small>ESTADO DE RESERVA</small>
+                        <strong>
+                            {{ booking.get_status_display }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- 02: CONFIRMACIÓN DEL MIEMBRO -->
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+                    <span class="account-panel-number">02</span>
+                    <h2>Confirma tu experiencia</h2>
+                </div>
+
+                <span class="account-panel-tag">
+                    CONFORMIDAD
+                </span>
+
+            </div>
+
+            <div class="ec-session-review-content">
+
+                {% if review.status == 'pending' and window_open %}
+
+                    <h3>
+                        ¿Se realizó correctamente tu sesión?
+                    </h3>
+
+                    <p>
+                        El profesional registró el servicio como realizado,
+                        pero todavía necesitamos tu confirmación.
+                    </p>
+
+                    <p>
+                        Puedes responder hasta el
+                        {{ review.expires_at|date:"d/m/Y H:i" }}.
+                    </p>
+
+                    <form
+                        method="post"
+                        action="{% url 'bookings:session_review_confirm' booking.id %}"
+                    >
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="ec-review-action-primary"
+                        >
+                            ✓ Sí, recibí la sesión
+                        </button>
+
+                    </form>
+
+
+                    <!-- REPORTAR PROBLEMA -->
+                    <div class="ec-review-issue-box" id="reportar">
+
+                        <h3>
+                            ¿Ocurrió algún inconveniente?
+                        </h3>
+
+                        <p>
+                            Cuéntanos qué pasó. El reporte quedará
+                            pendiente de revisión por la plataforma.
+                        </p>
+
+                        <form
+                            method="post"
+                            action="{% url 'bookings:session_review_report' booking.id %}"
+                        >
+                            {% csrf_token %}
+
+                            <label for="issue-reason">
+                                Explica lo ocurrido
+                                <span aria-hidden="true">*</span>
+                            </label>
+
+                            <textarea
+                                id="issue-reason"
+                                name="issue_reason"
+                                rows="4"
+                                minlength="10"
+                                maxlength="1000"
+                                placeholder="Describe qué ocurrió durante la sesión."
+                                required
+                            ></textarea>
+
+                            <button
+                                type="submit"
+                                class="ec-review-action-warning ec-review-button"
+                            >
+                                Reportar problema
+                            </button>
+
+                        </form>
+
+                    </div>
+
+
+                {% elif review.status == 'confirmed' %}
+
+                    <div class="ec-review-success">
+
+                        <strong>
+                            ✓ Confirmaste que recibiste la sesión.
+                        </strong>
+
+                        <p>
+                            ¡Gracias por responder!
+                        </p>
+
+                    </div>
+
+
+                {% elif review.status == 'reported' %}
+
+                    <div class="ec-review-issue-box">
+
+                        <strong>
+                            Problema reportado
+                        </strong>
+
+                        <p>
+                            Tu reporte quedó registrado y pendiente
+                            de revisión.
+                        </p>
+
+                        <p>
+                            {{ review.issue_reason }}
+                        </p>
+
+                    </div>
+
+
+                {% else %}
+
+                    <div class="ec-review-expired">
+
+                        <strong>
+                            Plazo de confirmación finalizado
+                        </strong>
+
+                        <p>
+                            Esta sesión quedó registrada como realizada
+                            por el profesional, pero sin confirmación
+                            del miembro.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <!-- 03: EVALUACIÓN OPCIONAL -->
+        {% if review.status == 'confirmed' %}
+
+            <section class="account-panel" id="evaluar">
+
+                <div class="account-panel-header">
+
+                    <div>
+                        <span class="account-panel-number">03</span>
+                        <h2>Evalúa tu experiencia</h2>
+                    </div>
+
+                    <span class="account-panel-tag">
+                        OPCIONAL
+                    </span>
+
+                </div>
+
+                <div class="ec-session-review-content">
+
+                    {% if review.rated_at %}
+
+                        <!-- EVALUACIÓN YA GUARDADA -->
+                        <div class="ec-rating-thanks">
+
+                            <span class="ec-review-overline">
+                                EVALUACIÓN GUARDADA
+                            </span>
+
+                            <h3>
+                                ¡Gracias por tu evaluación!
+                            </h3>
+
+                            <div
+                                class="ec-rating-saved-stars"
+                                aria-label="{{ review.rating }} de 5 estrellas"
+                            >
+
+                                {% for star in stars %}
+
+                                    <span
+                                        class="ec-rating-saved-star{% if star <= review.rating %} is-filled{% endif %}"
+                                        aria-hidden="true"
+                                    >
+                                        ★
+                                    </span>
+
+                                {% endfor %}
+
+                            </div>
+
+                            <p>
+                                Calificaste esta sesión con
+                                <strong>
+                                    {{ review.rating }} de 5 estrellas.
+                                </strong>
+                            </p>
+
+                            {% if review.rating_comment %}
+
+                                <div class="ec-rating-saved-comment">
+
+                                    <span>
+                                        TU COMENTARIO
+                                    </span>
+
+                                    <p>
+                                        {{ review.rating_comment }}
+                                    </p>
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                    {% else %}
+
+                        <!-- NUEVA EVALUACIÓN -->
+                        <h3>
+                            ¿Cómo estuvo tu sesión?
+                        </h3>
+
+                        <p>
+                            Tu evaluación es opcional. Puedes escoger
+                            de 1 a 5 estrellas y añadir un comentario
+                            si quieres.
+                        </p>
+
+                        <form
+                            method="post"
+                            action="{% url 'bookings:session_review_rate' booking.id %}"
+                            class="ec-rating-form"
+                        >
+                            {% csrf_token %}
+
+                            <fieldset class="ec-rating-stars">
+
+                                <legend>
+                                    Selecciona tu calificación
+                                </legend>
+
+                                {% for star in stars %}
+
+                                    <label class="ec-rating-star-option">
+
+                                        <input
+                                            type="radio"
+                                            name="rating"
+                                            value="{{ star }}"
+                                            aria-label="{{ star }} estrella{{ star|pluralize:'s' }}"
+                                            required
+                                        >
+
+                                        <span
+                                            class="ec-rating-star-symbol"
+                                            aria-hidden="true"
+                                        >
+                                            ★
+                                        </span>
+
+                                        <small aria-hidden="true">
+                                            {{ star }}
+                                        </small>
+
+                                    </label>
+
+                                {% endfor %}
+
+                            </fieldset>
+
+                            <label
+                                for="rating-comment"
+                                class="ec-rating-comment-label"
+                            >
+                                Comentario (opcional)
+                            </label>
+
+                            <textarea
+                                id="rating-comment"
+                                name="rating_comment"
+                                rows="3"
+                                maxlength="500"
+                                placeholder="Cuéntanos qué destacarías de la atención."
+                            ></textarea>
+
+                            <button
+                                type="submit"
+                                class="ec-review-action-primary"
+                            >
+                                Guardar evaluación
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+        {% endif %}
+
+
+        <!-- NAVEGACIÓN -->
+        <div class="ec-review-bottom-nav">
+
+            <a
+                class="account-professional-action"
+                href="{% url 'accounts:dashboard' %}"
+            >
+                ← Volver a Mi cuenta
+            </a>
+
+            <a
+                class="account-professional-action"
+                href="{% url 'bookings:detail' booking.id %}"
+            >
+                Ver reserva →
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -17,6 +17,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 
+from apps.bookings.incident_notifications import get_session_incident_updates
 from apps.bookings.models import Booking, BookingHistory
 from apps.bookings.services import expire_pending_bookings
 from apps.activities.models import Activity, ActivityRegistration
@@ -772,6 +773,72 @@ def _account_updates_for(user):
                 'created_at': cancelled_at,
                 'detail_url': detail_url,
             })
+
+    # =====================================================
+    # V123 - NOVEDADES ADMINISTRATIVAS DE INCIDENCIAS
+    # =====================================================
+    # Se agrega la novedad mas reciente de cada incidencia asociada
+    # al usuario autenticado. No se muestran datos administrativos
+    # privados ni la declaracion original del Profesional.
+    #
+    # Las claves son distintas a las novedades de reservas y
+    # actividades: cada nuevo estado importante genera una clave
+    # diferente, compatible con el historial local del navegador.
+
+    for incident_update in get_session_incident_updates(
+        user,
+        'member',
+        limit=30,
+    ):
+        booking = incident_update['booking']
+        professional_user = booking.professional_profile.user
+        professional_name = (
+            professional_user.get_full_name()
+            or professional_user.email
+        )
+
+        kind = incident_update['kind']
+
+        if kind == 'incident_resolved':
+            title = 'La plataforma resolvió tu reporte'
+            summary = (
+                'La administración finalizó la revisión de tu '
+                'incidencia. Consulta la decisión y su explicación.'
+            )
+        elif kind == 'incident_in_review':
+            title = 'La plataforma inició la revisión de tu reporte'
+            summary = (
+                'La administración está revisando tu incidencia '
+                'y los antecedentes disponibles.'
+            )
+        elif kind == 'incident_response':
+            title = 'El Profesional presentó sus antecedentes'
+            summary = (
+                'Se incorporó una declaración del Profesional '
+                'al expediente de la incidencia.'
+            )
+        else:
+            # No hay aviso nuevo para el miembro por su propio reporte.
+            continue
+
+        updates.append({
+            'key': 'member-' + incident_update['key'],
+            'module': 'incident',
+            'module_label': 'SEGUIMIENTO DE INCIDENCIA',
+            'kind': kind,
+            'title': title,
+            'summary': summary,
+            'reason': '',
+            'subject': booking.service_name_snapshot,
+            'person': professional_name,
+            'session_date': booking.session_date,
+            'start_time': booking.start_time,
+            'end_time': booking.end_time,
+            'created_at': incident_update['created_at'],
+            'detail_url': incident_update['link_url'],
+            'action_label': 'Ver mi incidencia',
+            'incident_id': incident_update['incident_id'],
+        })
 
     updates.sort(
         key=lambda item: item['created_at'],

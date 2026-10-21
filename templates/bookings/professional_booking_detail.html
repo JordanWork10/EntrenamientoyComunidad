@@ -45,8 +45,13 @@
             </div>
         </header>
 
-        <!-- SOLICITUD PRINCIPAL -->
+
+        <!-- ==========================================
+             01 - INFORMACIÓN PRINCIPAL
+        =========================================== -->
+
         <section class="account-panel">
+
             <div class="account-panel-header">
                 <div>
                     <span class="account-panel-number">01</span>
@@ -70,8 +75,10 @@
 
             <div class="professional-received-card-link">
                 <article class="professional-received-card">
+
                     <div class="professional-received-card-header">
                         <div class="professional-received-member">
+
                             <div class="professional-received-avatar">
                                 {% if booking.booked_by.profile_image %}
                                     <img
@@ -134,6 +141,7 @@
                     </div>
 
                     <div class="professional-received-details">
+
                         <div class="professional-received-detail professional-received-detail-date">
                             <span>FECHA</span>
                             <strong>{{ booking.session_date|date:"d M"|upper }}</strong>
@@ -161,6 +169,7 @@
                             <strong>{{ booking.price_clp|clp }}</strong>
                             <small>Precio de esta reserva</small>
                         </div>
+
                     </div>
 
                     <div class="professional-received-card-footer">
@@ -182,12 +191,19 @@
                             {% endif %}
                         </span>
                     </div>
+
                 </article>
             </div>
+
         </section>
 
-        <!-- ACCIONES PRINCIPALES -->
+
+        <!-- ==========================================
+             02 - ESTADO Y ACCIONES PRINCIPALES
+        =========================================== -->
+
         <section class="account-panel">
+
             <div class="account-panel-header">
                 <div>
                     <span class="account-panel-number">02</span>
@@ -222,7 +238,9 @@
 
             <div class="professional-booking-management">
 
+                <!-- SOLICITUD VENCIDA -->
                 {% if booking.status == 'expired' %}
+
                     <div class="account-professional-message professional-booking-expired-message">
                         <strong>Vencida</strong>
                         <p>
@@ -232,7 +250,10 @@
                         </p>
                     </div>
 
+
+                <!-- SOLICITUD PENDIENTE -->
                 {% elif booking.status == 'pending' %}
+
                     <div class="account-professional-message account-professional-message-active">
                         <strong>
                             {{ booking.booked_by.get_full_name|default:booking.booked_by.email }} está esperando tu respuesta
@@ -245,6 +266,7 @@
                     </div>
 
                     <div class="professional-booking-decision-actions">
+
                         <form
                             method="post"
                             action="{% url 'bookings:professional_confirm' booking.id %}"
@@ -257,6 +279,7 @@
                                 class="professional-booking-choice professional-booking-choice-accept"
                             >
                                 <span class="professional-booking-choice-icon">✓</span>
+
                                 <span>
                                     <strong>Sí, aceptar reserva</strong>
                                     <small>
@@ -274,11 +297,13 @@
                             aria-controls="rejection-form-panel"
                         >
                             <span class="professional-booking-choice-icon">×</span>
+
                             <span>
                                 <strong>No, no puedo realizarla</strong>
                                 <small>Explicar brevemente el motivo</small>
                             </span>
                         </button>
+
                     </div>
 
                     <div
@@ -318,6 +343,7 @@
                             ></textarea>
 
                             <div class="professional-booking-rejection-actions">
+
                                 <button
                                     type="button"
                                     class="professional-booking-rejection-back"
@@ -332,13 +358,17 @@
                                 >
                                     Rechazar solicitud
                                 </button>
+
                             </div>
                         </form>
                     </div>
 
+
+                <!-- SESIÓN CONFIRMADA -->
                 {% elif booking.status == 'confirmed' %}
 
                     {% if can_complete %}
+
                         <div class="account-professional-message account-professional-message-active">
                             <strong>Sesión finalizada</strong>
                             <p>
@@ -369,6 +399,7 @@
                         </div>
 
                     {% else %}
+
                         <div class="account-professional-message account-professional-message-active">
                             <strong>✓ Sesión confirmada</strong>
                             <p>
@@ -381,7 +412,6 @@
                                 <strong>
                                     La sesión aún no puede marcarse como completada
                                 </strong>
-
                                 <p>
                                     Esta acción se habilitará después del
                                     {{ booking.session_date|date:"d/m/Y" }}
@@ -391,10 +421,11 @@
                             </div>
                         </div>
 
-                        <!-- V119: ACCIÓN DE CANCELACIÓN -->
+                        <!-- ACCIÓN DE CANCELACIÓN -->
                         <details class="booking-cancellation-box">
 
                             <summary class="booking-cancellation-summary">
+
                                 <span
                                     class="booking-cancellation-summary-icon"
                                     aria-hidden="true"
@@ -413,9 +444,11 @@
                                     class="booking-cancellation-summary-chevron"
                                     aria-hidden="true"
                                 >⌄</span>
+
                             </summary>
 
                             <div class="booking-cancellation-content">
+
                                 <p class="booking-cancellation-explanation">
                                     Esta acción cancelará la sesión de
                                     {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}.
@@ -456,15 +489,21 @@
                                             Confirmar cancelación
                                         </button>
                                     </div>
+
                                 </form>
+
                             </div>
+
                         </details>
 
                     {% endif %}
 
+
+                <!-- RESERVA CANCELADA -->
                 {% elif booking.status == 'cancelled' %}
 
                     {% if history_entries.0.previous_data.status == 'pending' %}
+
                         <div class="account-professional-message account-professional-message-error">
                             <strong>Solicitud no aceptada</strong>
                             <p>
@@ -481,6 +520,7 @@
                                 <span class="account-subtitle">
                                     MOTIVO DEL RECHAZO
                                 </span>
+
                                 <strong>
                                     {{ booking.cancellation_reason }}
                                 </strong>
@@ -488,6 +528,7 @@
                         {% endif %}
 
                     {% else %}
+
                         <div class="account-professional-message account-professional-message-error">
                             <strong>Reserva cancelada</strong>
                             <p>
@@ -501,27 +542,81 @@
                                 <span class="account-subtitle">
                                     MOTIVO DE CANCELACIÓN
                                 </span>
+
                                 <strong>
                                     {{ booking.cancellation_reason }}
                                 </strong>
                             </div>
                         {% endif %}
+
                     {% endif %}
 
+
+                <!-- SESIÓN COMPLETADA -->
                 {% elif booking.status == 'completed' %}
+
                     <div class="account-professional-message account-professional-message-active">
                         <strong>✓ Sesión completada</strong>
                         <p>
                             Esta sesión ya fue finalizada y permanece disponible como registro histórico.
                         </p>
                     </div>
+
+
+                    <!-- ==========================================
+                         V123 - ACCESO A INCIDENCIAS
+                    =========================================== -->
+
+                    {% if booking.session_review.status == 'reported' and booking.session_review.incident %}
+
+                        <div class="professional-incident-shortcut-v123">
+
+                            <div class="professional-incident-shortcut-v123__copy">
+
+                                <span class="professional-incident-shortcut-v123__eyebrow">
+                                    INCIDENCIA DEL SERVICIO
+                                </span>
+
+                                <strong>
+                                    El miembro reportó un inconveniente
+                                </strong>
+
+                                <p>
+                                    Este reporte no implica responsabilidad demostrada.
+                                    Puedes revisar el motivo y el seguimiento administrativo.
+                                </p>
+
+                                <span class="professional-incident-shortcut-v123__status professional-incident-shortcut-v123__status--{{ booking.session_review.incident.status }}">
+                                    {{ booking.session_review.incident.get_status_display }}
+                                </span>
+
+                            </div>
+
+                            <a
+                                href="{% url 'bookings:professional_incident_status' booking.id %}"
+                                class="professional-incident-shortcut-v123__link"
+                            >
+                                Ver seguimiento de incidencia
+                                <span aria-hidden="true">→</span>
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
                 {% endif %}
 
             </div>
+
         </section>
 
-        <!-- INFORMACIÓN ADICIONAL -->
+
+        <!-- ==========================================
+             03 - INFORMACIÓN ADICIONAL
+        =========================================== -->
+
         <section class="account-panel">
+
             <div class="account-panel-header">
                 <div>
                     <span class="account-panel-number">03</span>
@@ -532,6 +627,7 @@
             </div>
 
             <div class="account-data-grid">
+
                 <div class="account-data-item">
                     <span>Modalidad</span>
                     <strong>
@@ -567,11 +663,18 @@
                     <span>Número de reserva</span>
                     <strong>#{{ booking.id }}</strong>
                 </div>
+
             </div>
+
         </section>
 
-        <!-- HISTORIAL DE LA RESERVA -->
+
+        <!-- ==========================================
+             04 - HISTORIAL DE LA RESERVA
+        =========================================== -->
+
         <section class="account-panel professional-booking-history-panel">
+
             <div class="account-panel-header">
                 <div>
                     <span class="account-panel-number">04</span>
@@ -589,7 +692,9 @@
             </div>
 
             <details class="professional-booking-history-details">
+
                 <summary class="professional-booking-history-summary">
+
                     <div class="professional-booking-history-summary-icon">
                         ↻
                     </div>
@@ -618,11 +723,15 @@
                             ⌄
                         </span>
                     </span>
+
                 </summary>
 
                 <div class="professional-booking-history-content">
+
                     {% for entry in history_entries %}
+
                         <article class="professional-booking-history-entry">
+
                             <div class="professional-booking-history-entry-head">
                                 <div>
                                     <span>EVENTO</span>
@@ -645,6 +754,7 @@
                             </div>
 
                             <div class="professional-booking-history-entry-grid">
+
                                 <div>
                                     <span>RESPONSABLE</span>
                                     <strong>
@@ -673,32 +783,46 @@
                                         {% endif %}
                                     </strong>
                                 </div>
+
                             </div>
 
                             {% if entry.reason %}
+
                                 <div class="professional-booking-history-reason">
                                     <span>MOTIVO / REGISTRO</span>
                                     <strong>
                                         {{ entry.reason }}
                                     </strong>
                                 </div>
+
                             {% endif %}
+
                         </article>
 
                     {% empty %}
+
                         <div class="account-empty">
                             <strong>Sin historial disponible</strong>
                             <p>
                                 No existen cambios registrados para esta reserva.
                             </p>
                         </div>
+
                     {% endfor %}
+
                 </div>
+
             </details>
+
         </section>
 
-        <!-- NAVEGACIÓN -->
+
+        <!-- ==========================================
+             NAVEGACIÓN
+        =========================================== -->
+
         <div class="professional-booking-footer-actions">
+
             <a
                 href="{% url 'bookings:professional_received' %}"
                 class="account-professional-action"
@@ -713,16 +837,18 @@
                 Centro Profesional
                 <span>→</span>
             </a>
+
         </div>
 
     </div>
 </section>
 
+
+<!-- ==========================================
+     ESTILOS DE HISTORIAL EXISTENTES
+=========================================== -->
+
 <style>
-/* =====================================================
-   DETALLE PROFESIONAL - HISTORIAL V35
-   Mantiene una sola acción visible: Ver / Ocultar.
-===================================================== */
 
 .professional-booking-history-details {
     margin: 0;
@@ -880,6 +1006,7 @@
 }
 
 @media (max-width: 700px) {
+
     .professional-booking-history-summary {
         align-items: flex-start;
         flex-wrap: wrap;
@@ -901,11 +1028,18 @@
     .professional-booking-history-entry-grid {
         grid-template-columns: 1fr;
     }
+
 }
+
 </style>
 
+
+<!-- ==========================================
+     ESTADOS Y NUEVOS ESTILOS V123
+=========================================== -->
+
 <style>
-/* Estado completado */
+
 .professional-received-status-completed {
     color: #c6ff33 !important;
     background: rgba(198, 255, 51, 0.08) !important;
@@ -915,10 +1049,118 @@
 .professional-booking-history-event-completed {
     color: #c6ff33 !important;
 }
+
+
+/* ACCESO DIRECTO A INCIDENCIAS */
+
+.professional-booking-detail-v119 .professional-incident-shortcut-v123 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-top: 16px;
+    padding: 17px;
+    border: 1px solid rgba(56, 205, 231, 0.3);
+    border-radius: 10px;
+    background: #0e1923;
+}
+
+.professional-booking-detail-v119 .professional-incident-shortcut-v123__copy {
+    min-width: 0;
+}
+
+.professional-booking-detail-v119 .professional-incident-shortcut-v123__eyebrow {
+    display: block;
+    margin-bottom: 6px;
+    color: #39d3ed;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+}
+
+.professional-booking-detail-v119 .professional-incident-shortcut-v123__copy > strong {
+    display: block;
+    color: #f5f8fb;
+    font-size: 14px;
+}
+
+.professional-booking-detail-v119 .professional-incident-shortcut-v123__copy > p {
+    margin: 6px 0 10px;
+    color: #a0b0c2;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.professional-booking-detail-v119 .professional-incident-shortcut-v123__status {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 999px;
+    color: #3bd0eb;
+    border: 1px solid rgba(59, 208, 235, 0.3);
+    background: rgba(59, 208, 235, 0.07);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.professional-booking-detail-v119 .professional-incident-shortcut-v123__status--open {
+    color: #f0bb65;
+    border-color: rgba(240, 187, 101, 0.35);
+    background: rgba(240, 187, 101, 0.07);
+}
+
+.professional-booking-detail-v119 .professional-incident-shortcut-v123__status--resolved {
+    color: #48d3ad;
+    border-color: rgba(72, 211, 173, 0.35);
+    background: rgba(72, 211, 173, 0.07);
+}
+
+.professional-booking-detail-v119 .professional-incident-shortcut-v123__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    padding: 12px 15px;
+    border: 1px solid rgba(57, 210, 237, 0.5);
+    border-radius: 8px;
+    color: #39d2ed;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.professional-booking-detail-v119 .professional-incident-shortcut-v123__link:hover,
+.professional-booking-detail-v119 .professional-incident-shortcut-v123__link:focus-visible {
+    background: rgba(57, 210, 237, 0.09);
+    border-color: #39d2ed;
+}
+
+@media (max-width: 700px) {
+
+    .professional-booking-detail-v119 .professional-incident-shortcut-v123 {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .professional-booking-detail-v119 .professional-incident-shortcut-v123__link {
+        width: 100%;
+        text-align: center;
+    }
+
+}
+
 </style>
 
+
+<!-- ==========================================
+     JAVASCRIPT EXISTENTE
+=========================================== -->
+
 <script>
+
 document.addEventListener('DOMContentLoaded', function () {
+
     const showButton = document.getElementById('show-rejection-form');
     const hideButton = document.getElementById('hide-rejection-form');
     const panel = document.getElementById('rejection-form-panel');
@@ -929,22 +1171,30 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     showButton.addEventListener('click', function () {
+
         panel.hidden = false;
         showButton.setAttribute('aria-expanded', 'true');
 
         if (reasonField) {
             reasonField.focus();
         }
+
     });
 
     if (hideButton) {
+
         hideButton.addEventListener('click', function () {
+
             panel.hidden = true;
             showButton.setAttribute('aria-expanded', 'false');
             showButton.focus();
+
         });
+
     }
+
 });
+
 </script>
 
 {% endblock %}

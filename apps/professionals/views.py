@@ -15,6 +15,7 @@ from django.utils.dateparse import parse_date
 from apps.locations.models import Commune
 from apps.bookings.models import Booking, BookingHistory
 from apps.bookings.services import expire_pending_bookings
+from apps.bookings.incident_notifications import get_session_incident_updates
 
 from .forms import (
     ProfessionalCredentialForm,
@@ -402,8 +403,9 @@ def professional_dashboard(request):
     # NOVEDADES PROFESIONALES
     # =====================================================
     #
-    # Se construyen directamente desde BookingHistory para no crear
-    # una segunda fuente de verdad ni requerir nuevas migraciones.
+    # Las novedades de reservas se construyen desde BookingHistory.
+    # Las incidencias se consultan desde los modelos de V123,
+    # sin crear otras fuentes de verdad ni nuevas migraciones.
     #
     # Solo mostramos cambios originados por el Miembro:
     # - solicitud nueva que todavía sigue Pendiente;
@@ -437,7 +439,7 @@ def professional_dashboard(request):
         )[:40]
     )
 
-    professional_updates = []
+    booking_updates = []
     seen_booking_ids = set()
 
     for event in professional_history_events:
@@ -504,7 +506,7 @@ def professional_dashboard(request):
         else:
             continue
 
-        professional_updates.append(
+        booking_updates.append(
             {
                 'key': f'booking-history-{event.id}',
                 'kind': kind,
@@ -519,8 +521,27 @@ def professional_dashboard(request):
 
         seen_booking_ids.add(booking.id)
 
-        if len(professional_updates) >= 6:
-            break
+    # =====================================================
+    # V123 - INTEGRAR NOVEDADES DE INCIDENCIAS
+    # =====================================================
+    # No reemplaza las novedades antiguas. La función de bookings
+    # filtra las incidencias del Profesional autenticado y devuelve
+    # una novedad vigente por incidencia con clave propia y enlace.
+
+    incident_updates = get_session_incident_updates(
+        request.user,
+        'professional',
+        limit=30,
+    )
+
+    # Reservas e incidencias se ordenan juntas por fecha real.
+    # Conservamos el límite original de seis tarjetas del panel.
+    professional_updates = booking_updates + incident_updates
+    professional_updates.sort(
+        key=lambda update: (update['created_at'], update['key']),
+        reverse=True,
+    )
+    professional_updates = professional_updates[:6]
 
     return render(
         request,

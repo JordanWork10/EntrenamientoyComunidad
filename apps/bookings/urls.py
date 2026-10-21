@@ -1,6 +1,10 @@
 from django.urls import path
 
-from . import views, review_views
+from . import (
+    views,
+    review_views,
+    incident_response_views,
+)
 
 
 app_name = 'bookings'
@@ -34,6 +38,28 @@ urlpatterns = [
         '<int:booking_id>/conformidad/evaluar/',
         review_views.rate_session,
         name='session_review_rate',
+    ),
+
+
+    # ==========================================
+    # V123 - SEGUIMIENTO DE INCIDENCIAS
+    # ==========================================
+
+    path(
+        'profesional/<int:booking_id>/incidencia/',
+        review_views.professional_incident_status,
+        name='professional_incident_status',
+    ),
+
+
+    # ==========================================
+    # V123 - RESPUESTA DEL PROFESIONAL
+    # ==========================================
+
+    path(
+        'profesional/<int:booking_id>/incidencia/responder/',
+        incident_response_views.submit_professional_incident_response,
+        name='professional_incident_respond',
     ),
 
 

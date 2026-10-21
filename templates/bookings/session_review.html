@@ -10,38 +10,53 @@ Confirmar sesión | EntrenamientoyComunidad
 
     <div class="account-container">
 
-        <!-- CABECERA -->
+        <!-- ==========================================
+             CABECERA
+        =========================================== -->
+
         <header class="account-hero">
 
             <div>
+
                 <span class="page-overline">
                     SERVICIOS PROFESIONALES
                 </span>
 
-                <h1>Tu <span>sesión</span></h1>
+                <h1>
+                    Tu <span>sesión</span>
+                </h1>
 
                 <p>
                     Tu respuesta ayuda a mantener un registro claro
                     de los servicios recibidos.
                 </p>
+
             </div>
 
         </header>
 
 
-        <!-- MENSAJES DEL SISTEMA -->
+        <!-- ==========================================
+             MENSAJES DEL SISTEMA
+        =========================================== -->
+
         {% if messages %}
 
             {% for message in messages %}
+
                 <div class="ec-review-flash" role="status">
                     {{ message }}
                 </div>
+
             {% endfor %}
 
         {% endif %}
 
 
-        <!-- 01: DETALLES DE LA SESIÓN -->
+        <!-- ==========================================
+             01 - DETALLES DE LA SESIÓN
+        =========================================== -->
+
         <section class="account-panel">
 
             <div class="account-panel-header">
@@ -75,6 +90,7 @@ Confirmar sesión | EntrenamientoyComunidad
 
                     <div>
                         <small>FECHA</small>
+
                         <strong>
                             {{ booking.session_date|date:"d/m/Y" }}
                         </strong>
@@ -82,6 +98,7 @@ Confirmar sesión | EntrenamientoyComunidad
 
                     <div>
                         <small>HORARIO</small>
+
                         <strong>
                             {{ booking.start_time|time:"H:i" }}–{{ booking.end_time|time:"H:i" }}
                         </strong>
@@ -89,6 +106,7 @@ Confirmar sesión | EntrenamientoyComunidad
 
                     <div>
                         <small>ESTADO DE RESERVA</small>
+
                         <strong>
                             {{ booking.get_status_display }}
                         </strong>
@@ -101,7 +119,10 @@ Confirmar sesión | EntrenamientoyComunidad
         </section>
 
 
-        <!-- 02: CONFIRMACIÓN DEL MIEMBRO -->
+        <!-- ==========================================
+             02 - CONFIRMACIÓN DEL MIEMBRO
+        =========================================== -->
+
         <section class="account-panel">
 
             <div class="account-panel-header">
@@ -119,6 +140,10 @@ Confirmar sesión | EntrenamientoyComunidad
 
             <div class="ec-session-review-content">
 
+                <!-- ==================================
+                     CONFIRMACIÓN PENDIENTE
+                =================================== -->
+
                 {% if review.status == 'pending' and window_open %}
 
                     <h3>
@@ -126,8 +151,9 @@ Confirmar sesión | EntrenamientoyComunidad
                     </h3>
 
                     <p>
-                        El profesional registró el servicio como realizado,
-                        pero todavía necesitamos tu confirmación.
+                        El profesional registró el servicio como
+                        realizado, pero todavía necesitamos tu
+                        confirmación.
                     </p>
 
                     <p>
@@ -151,17 +177,68 @@ Confirmar sesión | EntrenamientoyComunidad
                     </form>
 
 
-                    <!-- REPORTAR PROBLEMA -->
-                    <div class="ec-review-issue-box" id="reportar">
+                    <!-- ==============================
+                         REPORTAR UN PROBLEMA
+                    =============================== -->
+
+                    <div
+                        class="ec-review-issue-box"
+                        id="reportar"
+                    >
 
                         <h3>
                             ¿Ocurrió algún inconveniente?
                         </h3>
 
                         <p>
-                            Cuéntanos qué pasó. El reporte quedará
-                            pendiente de revisión por la plataforma.
+                            Cuéntanos qué pasó. La plataforma
+                            registrará tu reporte para revisar
+                            lo ocurrido.
                         </p>
+
+
+                        <!-- AVISO DE PRIVACIDAD V123 -->
+
+                        <div class="ec-incident-report-privacy">
+
+                            <span
+                                class="ec-incident-report-privacy-icon"
+                                aria-hidden="true"
+                            >
+                                i
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Información sobre tu reporte
+                                </strong>
+
+                                <p>
+                                    El profesional involucrado podrá
+                                    consultar tu nombre, la reserva
+                                    correspondiente y la descripción
+                                    del problema.
+                                </p>
+
+                                <p>
+                                    La administración revisará los
+                                    antecedentes de ambas partes.
+                                    Las observaciones internas
+                                    permanecerán privadas.
+                                </p>
+
+                                <p>
+                                    Presentar un reporte no significa
+                                    que se haya determinado
+                                    responsabilidad de alguna
+                                    de las partes.
+                                </p>
+
+                            </div>
+
+                        </div>
+
 
                         <form
                             method="post"
@@ -170,8 +247,13 @@ Confirmar sesión | EntrenamientoyComunidad
                             {% csrf_token %}
 
                             <label for="issue-reason">
+
                                 Explica lo ocurrido
-                                <span aria-hidden="true">*</span>
+
+                                <span aria-hidden="true">
+                                    *
+                                </span>
+
                             </label>
 
                             <textarea
@@ -196,6 +278,10 @@ Confirmar sesión | EntrenamientoyComunidad
                     </div>
 
 
+                <!-- ==================================
+                     SESIÓN CONFIRMADA
+                =================================== -->
+
                 {% elif review.status == 'confirmed' %}
 
                     <div class="ec-review-success">
@@ -211,6 +297,10 @@ Confirmar sesión | EntrenamientoyComunidad
                     </div>
 
 
+                <!-- ==================================
+                     PROBLEMA REPORTADO
+                =================================== -->
+
                 {% elif review.status == 'reported' %}
 
                     <div class="ec-review-issue-box">
@@ -219,17 +309,61 @@ Confirmar sesión | EntrenamientoyComunidad
                             Problema reportado
                         </strong>
 
-                        <p>
-                            Tu reporte quedó registrado y pendiente
-                            de revisión.
-                        </p>
+                        {% if incident_info %}
 
-                        <p>
-                            {{ review.issue_reason }}
-                        </p>
+                            {% if incident_info.status == 'resolved' %}
+
+                                <p>
+                                    Tu reporte fue revisado y
+                                    la administración registró
+                                    una resolución.
+                                </p>
+
+                            {% elif incident_info.status == 'in_review' %}
+
+                                <p>
+                                    Tu reporte está siendo revisado
+                                    por la administración
+                                    de la plataforma.
+                                </p>
+
+                            {% else %}
+
+                                <p>
+                                    Tu reporte quedó registrado
+                                    y está pendiente de revisión.
+                                </p>
+
+                            {% endif %}
+
+                        {% else %}
+
+                            <p>
+                                Tu problema quedó registrado.
+                                El seguimiento administrativo
+                                todavía no está disponible.
+                            </p>
+
+                        {% endif %}
+
+                        <div class="ec-incident-original-report">
+
+                            <span>
+                                TU REPORTE
+                            </span>
+
+                            <p>
+                                {{ review.issue_reason }}
+                            </p>
+
+                        </div>
 
                     </div>
 
+
+                <!-- ==================================
+                     PLAZO TERMINADO
+                =================================== -->
 
                 {% else %}
 
@@ -240,9 +374,9 @@ Confirmar sesión | EntrenamientoyComunidad
                         </strong>
 
                         <p>
-                            Esta sesión quedó registrada como realizada
-                            por el profesional, pero sin confirmación
-                            del miembro.
+                            Esta sesión queda registrada como
+                            realizada por el profesional,
+                            pero sin confirmación del miembro.
                         </p>
 
                     </div>
@@ -254,7 +388,334 @@ Confirmar sesión | EntrenamientoyComunidad
         </section>
 
 
-        <!-- 03: EVALUACIÓN OPCIONAL -->
+        <!-- ==========================================
+             03 - SEGUIMIENTO DE INCIDENCIA V123
+             SOLO CUANDO SE REPORTÓ UN PROBLEMA
+        =========================================== -->
+
+        {% if review.status == 'reported' %}
+
+            <section class="account-panel ec-incident-v123">
+
+                <div class="account-panel-header">
+
+                    <div>
+                        <span class="account-panel-number">
+                            03
+                        </span>
+
+                        <h2>
+                            Seguimiento de tu incidencia
+                        </h2>
+                    </div>
+
+                    <span class="account-panel-tag">
+                        SEGUIMIENTO
+                    </span>
+
+                </div>
+
+
+                <div class="ec-session-review-content">
+
+                    {% if incident_info %}
+
+                        <!-- ==========================
+                             ESTADO ADMINISTRATIVO
+                        =========================== -->
+
+                        <div
+                            class="ec-incident-status ec-incident-status-{{ incident_info.status }}"
+                        >
+
+                            <div class="ec-incident-status-heading">
+
+                                <div>
+
+                                    <span class="ec-review-overline">
+                                        ESTADO DE TU INCIDENCIA
+                                    </span>
+
+                                    <h3>
+                                        {{ incident_info.status_label }}
+                                    </h3>
+
+                                </div>
+
+                                <span class="ec-incident-status-badge">
+
+                                    {% if incident_info.status == 'resolved' %}
+
+                                        ✓ Resuelta
+
+                                    {% elif incident_info.status == 'in_review' %}
+
+                                        En revisión
+
+                                    {% else %}
+
+                                        Reportada
+
+                                    {% endif %}
+
+                                </span>
+
+                            </div>
+
+
+                            {% if incident_info.status == 'resolved' %}
+
+                                <p>
+                                    La administración finalizó
+                                    la revisión de tu incidencia.
+                                    Puedes consultar la decisión
+                                    y su explicación más abajo.
+                                </p>
+
+                            {% elif incident_info.status == 'in_review' %}
+
+                                <p>
+                                    Estamos revisando el caso
+                                    y los antecedentes disponibles.
+                                    Todavía no existe una resolución
+                                    administrativa.
+                                </p>
+
+                            {% else %}
+
+                                <p>
+                                    Recibimos tu reporte.
+                                    La revisión administrativa
+                                    todavía no ha comenzado.
+                                </p>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- ==========================
+                             HISTORIAL DE SEGUIMIENTO
+                        =========================== -->
+
+                        <div class="ec-incident-timeline">
+
+                            <!-- REPORTE -->
+
+                            <div class="ec-incident-timeline-item">
+
+                                <span class="ec-incident-step">
+                                    1
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        Problema reportado
+                                    </strong>
+
+                                    <p>
+                                        Registraste un inconveniente
+                                        relacionado con esta sesión.
+                                    </p>
+
+                                    <small>
+                                        {% if incident_info.reported_at %}
+
+                                            {{ incident_info.reported_at|date:"d/m/Y H:i" }}
+
+                                        {% else %}
+
+                                            Fecha no disponible
+
+                                        {% endif %}
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- INICIO DE REVISIÓN -->
+
+                            <div class="ec-incident-timeline-item">
+
+                                <span class="ec-incident-step">
+                                    2
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        Revisión administrativa
+                                    </strong>
+
+                                    {% if incident_info.reviewed_at %}
+
+                                        <p>
+                                            La plataforma comenzó
+                                            a revisar tu reporte.
+                                        </p>
+
+                                        <small>
+                                            {{ incident_info.reviewed_at|date:"d/m/Y H:i" }}
+                                        </small>
+
+                                    {% else %}
+
+                                        <p>
+                                            Pendiente de revisión.
+                                        </p>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- RESOLUCIÓN -->
+
+                            <div class="ec-incident-timeline-item">
+
+                                <span class="ec-incident-step">
+                                    3
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        Resolución administrativa
+                                    </strong>
+
+                                    {% if incident_info.status == 'resolved' %}
+
+                                        <p>
+                                            La plataforma registró
+                                            una decisión sobre tu caso.
+                                        </p>
+
+                                        {% if incident_info.resolved_at %}
+
+                                            <small>
+                                                {{ incident_info.resolved_at|date:"d/m/Y H:i" }}
+                                            </small>
+
+                                        {% endif %}
+
+                                    {% else %}
+
+                                        <p>
+                                            Pendiente de resolución.
+                                        </p>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ==========================
+                             RESULTADO DEL CASO
+                        =========================== -->
+
+                        {% if incident_info.status == 'resolved' %}
+
+                            <div class="ec-incident-resolution">
+
+                                <span class="ec-review-overline">
+                                    RESULTADO DE LA INVESTIGACIÓN
+                                </span>
+
+                                <h3>
+                                    {{ incident_info.resolution_type_label|default:"Resolución registrada" }}
+                                </h3>
+
+                                <div class="ec-incident-resolution-description">
+
+                                    <span>
+                                        EXPLICACIÓN DE LA RESOLUCIÓN
+                                    </span>
+
+                                    <p>
+                                        {{ incident_info.resolution_summary|default:"No hay una explicación disponible." }}
+                                    </p>
+
+                                </div>
+
+                                <p class="ec-incident-resolution-note">
+                                    Esta decisión corresponde al cierre
+                                    administrativo del reporte.
+                                    No modifica por sí sola el estado
+                                    original de la reserva.
+                                </p>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        <!-- ==========================
+                             PRIVACIDAD
+                        =========================== -->
+
+                        <div class="ec-incident-privacy-footer">
+
+                            <span aria-hidden="true">
+                                i
+                            </span>
+
+                            <p>
+                                El profesional puede conocer
+                                el reporte relacionado con su servicio.
+                                Las observaciones internas de la
+                                administración no se muestran
+                                a los participantes.
+                            </p>
+
+                        </div>
+
+
+                    {% else %}
+
+                        <!-- SI TODAVÍA NO EXISTE
+                             SEGUIMIENTO ADMINISTRATIVO -->
+
+                        <div class="ec-incident-status">
+
+                            <span class="ec-review-overline">
+                                REPORTE REGISTRADO
+                            </span>
+
+                            <h3>
+                                Seguimiento no disponible
+                            </h3>
+
+                            <p>
+                                Tu reporte fue registrado,
+                                pero todavía no existe información
+                                administrativa para mostrar.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+        {% endif %}
+
+
+        <!-- ==========================================
+             03 - EVALUACIÓN OPCIONAL
+             SOLO PARA SESIONES CONFIRMADAS
+        =========================================== -->
+
         {% if review.status == 'confirmed' %}
 
             <section class="account-panel" id="evaluar">
@@ -262,8 +723,13 @@ Confirmar sesión | EntrenamientoyComunidad
                 <div class="account-panel-header">
 
                     <div>
-                        <span class="account-panel-number">03</span>
-                        <h2>Evalúa tu experiencia</h2>
+                        <span class="account-panel-number">
+                            03
+                        </span>
+
+                        <h2>
+                            Evalúa tu experiencia
+                        </h2>
                     </div>
 
                     <span class="account-panel-tag">
@@ -272,11 +738,13 @@ Confirmar sesión | EntrenamientoyComunidad
 
                 </div>
 
+
                 <div class="ec-session-review-content">
+
+                    <!-- EVALUACIÓN GUARDADA -->
 
                     {% if review.rated_at %}
 
-                        <!-- EVALUACIÓN YA GUARDADA -->
                         <div class="ec-rating-thanks">
 
                             <span class="ec-review-overline">
@@ -307,10 +775,12 @@ Confirmar sesión | EntrenamientoyComunidad
 
                             <p>
                                 Calificaste esta sesión con
+
                                 <strong>
                                     {{ review.rating }} de 5 estrellas.
                                 </strong>
                             </p>
+
 
                             {% if review.rating_comment %}
 
@@ -331,17 +801,18 @@ Confirmar sesión | EntrenamientoyComunidad
                         </div>
 
 
+                    <!-- FORMULARIO DE EVALUACIÓN -->
+
                     {% else %}
 
-                        <!-- NUEVA EVALUACIÓN -->
                         <h3>
                             ¿Cómo estuvo tu sesión?
                         </h3>
 
                         <p>
-                            Tu evaluación es opcional. Puedes escoger
-                            de 1 a 5 estrellas y añadir un comentario
-                            si quieres.
+                            Tu evaluación es opcional.
+                            Puedes escoger de 1 a 5 estrellas
+                            y añadir un comentario si quieres.
                         </p>
 
                         <form
@@ -386,6 +857,7 @@ Confirmar sesión | EntrenamientoyComunidad
 
                             </fieldset>
 
+
                             <label
                                 for="rating-comment"
                                 class="ec-rating-comment-label"
@@ -419,7 +891,10 @@ Confirmar sesión | EntrenamientoyComunidad
         {% endif %}
 
 
-        <!-- NAVEGACIÓN -->
+        <!-- ==========================================
+             NAVEGACIÓN
+        =========================================== -->
+
         <div class="ec-review-bottom-nav">
 
             <a
@@ -441,5 +916,321 @@ Confirmar sesión | EntrenamientoyComunidad
     </div>
 
 </section>
+
+
+<!-- ==============================================
+     ESTILOS V123
+     SEGUIMIENTO DE INCIDENCIAS DEL MIEMBRO
+
+     Los estilos están limitados a esta pantalla.
+     Se mantienen los estilos generales V122.
+================================================ -->
+
+<style>
+
+.ec-session-review-page .ec-incident-status {
+    padding: 20px;
+    background: #101922;
+    border: 1px solid rgba(55, 207, 236, 0.35);
+    border-radius: 12px;
+}
+
+.ec-session-review-page .ec-incident-status-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.ec-session-review-page .ec-incident-status-heading h3 {
+    margin: 7px 0 0;
+    color: #f3f7fb;
+    font-size: 20px;
+}
+
+.ec-session-review-page .ec-incident-status > p {
+    margin: 13px 0 0;
+    color: #a4b4c7;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.ec-session-review-page .ec-incident-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 12px;
+    border: 1px solid rgba(55, 207, 236, 0.4);
+    border-radius: 999px;
+    color: #3bd2ef;
+    background: rgba(55, 207, 236, 0.08);
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.ec-session-review-page
+.ec-incident-status-resolved {
+    border-color: rgba(53, 211, 170, 0.36);
+}
+
+.ec-session-review-page
+.ec-incident-status-resolved
+.ec-incident-status-badge {
+    color: #45d6ac;
+    background: rgba(53, 211, 170, 0.09);
+    border-color: rgba(53, 211, 170, 0.38);
+}
+
+.ec-session-review-page
+.ec-incident-status-open
+.ec-incident-status-badge {
+    color: #e9b862;
+    background: rgba(233, 184, 98, 0.08);
+    border-color: rgba(233, 184, 98, 0.35);
+}
+
+
+/* HISTORIAL DE SEGUIMIENTO */
+
+.ec-session-review-page .ec-incident-timeline {
+    display: grid;
+    gap: 11px;
+    margin-top: 16px;
+}
+
+.ec-session-review-page .ec-incident-timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 17px;
+    border: 1px solid #253443;
+    border-radius: 10px;
+    background: #0b1119;
+}
+
+.ec-session-review-page .ec-incident-step {
+    display: grid;
+    place-items: center;
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(58, 210, 236, 0.35);
+    border-radius: 8px;
+    background: rgba(58, 210, 236, 0.07);
+    color: #3bd2ef;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.ec-session-review-page .ec-incident-timeline-item strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #f5f7fa;
+    font-size: 13px;
+}
+
+.ec-session-review-page .ec-incident-timeline-item p {
+    margin: 0 0 6px;
+    color: #a5b3c3;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.ec-session-review-page .ec-incident-timeline-item small {
+    color: #39d2ec;
+    font-size: 11px;
+}
+
+
+/* RESOLUCIÓN */
+
+.ec-session-review-page .ec-incident-resolution {
+    margin-top: 17px;
+    padding: 20px;
+    border: 1px solid rgba(53, 211, 170, 0.35);
+    border-radius: 12px;
+    background: #101922;
+}
+
+.ec-session-review-page .ec-incident-resolution h3 {
+    margin: 8px 0 0;
+    color: #49dbb0;
+    font-size: 19px;
+}
+
+.ec-session-review-page
+.ec-incident-resolution-description {
+    margin-top: 18px;
+    padding: 16px;
+    border: 1px solid #283744;
+    border-radius: 9px;
+    background: #0b1119;
+}
+
+.ec-session-review-page
+.ec-incident-resolution-description > span,
+.ec-session-review-page
+.ec-incident-original-report > span {
+    display: block;
+    margin-bottom: 9px;
+    color: #8092aa;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+}
+
+.ec-session-review-page
+.ec-incident-resolution-description p {
+    margin: 0;
+    color: #eef3f9;
+    font-size: 13px;
+    line-height: 1.75;
+    text-align: left;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.ec-session-review-page
+.ec-incident-resolution-note {
+    margin: 14px 0 0;
+    color: #94a4b7;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+
+/* REPORTE ORIGINAL */
+
+.ec-session-review-page .ec-incident-original-report {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border: 1px solid rgba(231, 85, 104, 0.2);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.ec-session-review-page .ec-incident-original-report p {
+    margin: 0;
+    line-height: 1.65;
+    text-align: left;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+
+/* AVISO DE PRIVACIDAD DEL SEGUIMIENTO */
+
+.ec-session-review-page
+.ec-incident-privacy-footer {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 17px;
+    padding: 14px;
+    border: 1px solid rgba(58, 210, 236, 0.22);
+    border-radius: 9px;
+    background: rgba(58, 210, 236, 0.035);
+}
+
+.ec-session-review-page
+.ec-incident-privacy-footer > span {
+    display: grid;
+    place-items: center;
+    flex: 0 0 25px;
+    width: 25px;
+    height: 25px;
+    border: 1px solid #3bd2ef;
+    border-radius: 50%;
+    color: #3bd2ef;
+    font-weight: 800;
+}
+
+.ec-session-review-page
+.ec-incident-privacy-footer p {
+    margin: 0;
+    color: #9eafc3;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+
+/* AVISO ANTES DE REPORTAR */
+
+.ec-session-review-page
+.ec-incident-report-privacy {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 16px 0;
+    padding: 15px;
+    background: rgba(58, 210, 236, 0.045);
+    border: 1px solid rgba(58, 210, 236, 0.25);
+    border-radius: 9px;
+}
+
+.ec-session-review-page
+.ec-incident-report-privacy-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 26px;
+    width: 26px;
+    height: 26px;
+    border: 1px solid #3bd2ef;
+    border-radius: 50%;
+    color: #3bd2ef;
+    font-weight: 800;
+}
+
+.ec-session-review-page
+.ec-incident-report-privacy strong {
+    display: block;
+    margin-bottom: 7px;
+    color: #eaf5fb;
+    font-size: 13px;
+}
+
+.ec-session-review-page
+.ec-incident-report-privacy p {
+    margin: 0 0 8px;
+    color: #a4b4c7;
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.ec-session-review-page
+.ec-incident-report-privacy p:last-child {
+    margin-bottom: 0;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 700px) {
+
+    .ec-session-review-page
+    .ec-incident-status-heading {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ec-session-review-page .ec-incident-status,
+    .ec-session-review-page .ec-incident-resolution {
+        padding: 15px;
+    }
+
+    .ec-session-review-page
+    .ec-incident-report-privacy {
+        padding: 12px;
+    }
+
+    .ec-session-review-page
+    .ec-incident-timeline-item {
+        padding: 13px;
+    }
+
+}
+
+</style>
 
 {% endblock %}

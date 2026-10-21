@@ -724,3 +724,322 @@ class BookingSessionReview(models.Model):
 
     def __str__(self):
         return f'Reserva #{self.booking_id}: {self.get_status_display()}'
+
+
+# =====================================================
+# V123 - GESTIÓN ADMINISTRATIVA DE INCIDENCIAS
+# =====================================================
+
+class BookingSessionIncident(models.Model):
+    """
+    Incidencia administrativa asociada a una conformidad
+    donde el Miembro reportó un problema.
+
+    Es independiente del estado de la reserva.
+    """
+
+    class Status(models.TextChoices):
+        OPEN = 'open', 'Reportada'
+        IN_REVIEW = 'in_review', 'En revisión'
+        RESOLVED = 'resolved', 'Resuelta'
+
+    class Resolution(models.TextChoices):
+        SERVICE_CONFIRMED = (
+            'service_confirmed',
+            'Servicio acreditado',
+        )
+        SERVICE_NOT_PROVIDED = (
+            'service_not_provided',
+            'Servicio no acreditado',
+        )
+        AGREEMENT = (
+            'agreement',
+            'Acuerdo entre las partes',
+        )
+        INCONCLUSIVE = (
+            'inconclusive',
+            'Información insuficiente',
+        )
+
+    # Relación con el reporte del miembro
+    review = models.OneToOneField(
+        BookingSessionReview,
+        on_delete=models.PROTECT,
+        related_name='incident',
+        verbose_name='Reporte asociado',
+    )
+
+    # Estado administrativo
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.OPEN,
+        verbose_name='Estado de la incidencia',
+    )
+
+    # Administrador responsable
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='booking_incidents_assigned',
+        verbose_name='Administrador asignado',
+    )
+
+    # Información privada para administración
+    internal_notes = models.TextField(
+        blank=True,
+        verbose_name='Observaciones internas',
+    )
+
+    # Resultado de la investigación
+    resolution_type = models.CharField(
+        max_length=30,
+        choices=Resolution.choices,
+        blank=True,
+        verbose_name='Tipo de resolución',
+    )
+
+    resolution_summary = models.TextField(
+        blank=True,
+        max_length=1500,
+        verbose_name='Explicación de la resolución',
+    )
+
+    # Administrador que resolvió
+    resolved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='booking_incidents_resolved',
+        verbose_name='Resuelta por',
+    )
+
+    # Fechas
+    reviewed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Inicio de revisión',
+    )
+
+    resolved_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Fecha de resolución',
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Fecha del reporte administrativo',
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Última actualización',
+    )
+
+    class Meta:
+        verbose_name = 'Incidencia de sesión'
+        verbose_name_plural = 'Incidencias de sesiones'
+        ordering = ['-created_at']
+
+    def clean(self):
+        super().clean()
+
+        # Solo se permite crear incidencias sobre
+        # conformidades con problemas reportados.
+        if self.review_id:
+            if (
+                self.review.status
+                != BookingSessionReview.Status.REPORTED
+            ):
+                raise ValidationError({
+                    'review': (
+                        'La conformidad debe tener '
+                        'un problema reportado.'
+                    )
+                })
+
+        # Toda incidencia resuelta debe tener
+        # una decisión y una explicación.
+        if self.status == self.Status.RESOLVED:
+
+            if not self.resolution_type:
+                raise ValidationError({
+                    'resolution_type': (
+                        'Debes seleccionar el tipo '
+                        'de resolución.'
+                    )
+                })
+
+            if not self.resolution_summary.strip():
+                raise ValidationError({
+                    'resolution_summary': (
+                        'Debes explicar la resolución.'
+                    )
+                })
+
+    def __str__(self):
+        return (
+            f'Incidencia de reserva '
+            f'#{self.review.booking_id} - '
+            f'{self.get_status_display()}'
+        )
+
+# =====================================================
+# V123 - RESPUESTA DEL PROFESIONAL A UNA INCIDENCIA
+# =====================================================
+
+class BookingIncidentProfessionalResponse(models.Model):
+    """
+    Declaración presentada por el Profesional
+    ante una incidencia relacionada con su servicio.
+
+    Se permite una respuesta escrita por incidencia.
+    El registro conserva su autor y fecha original.
+    """
+
+    # -------------------------------------------------
+    # RELACIÓN CON LA INCIDENCIA
+    # -------------------------------------------------
+
+    incident = models.OneToOneField(
+        BookingSessionIncident,
+        on_delete=models.PROTECT,
+        related_name='professional_response',
+        verbose_name='Incidencia asociada',
+    )
+
+    # -------------------------------------------------
+    # PROFESIONAL QUE PRESENTA LA RESPUESTA
+    # -------------------------------------------------
+
+    submitted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name='incident_professional_responses',
+        verbose_name='Profesional responsable',
+    )
+
+    # -------------------------------------------------
+    # DECLARACIÓN DEL PROFESIONAL
+    # -------------------------------------------------
+
+    statement = models.TextField(
+        max_length=3000,
+        verbose_name='Versión de los hechos',
+    )
+
+    # -------------------------------------------------
+    # REGISTRO DE FECHA
+    # -------------------------------------------------
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Fecha de presentación',
+    )
+
+    # -------------------------------------------------
+    # CONFIGURACIÓN
+    # -------------------------------------------------
+
+    class Meta:
+        verbose_name = 'Respuesta del profesional'
+        verbose_name_plural = 'Respuestas de profesionales'
+        ordering = ['-created_at']
+
+    # -------------------------------------------------
+    # VALIDACIONES DE SEGURIDAD Y COHERENCIA
+    # -------------------------------------------------
+
+    def clean(self):
+
+        super().clean()
+
+        # No admitir declaraciones vacías o demasiado cortas.
+        statement = (self.statement or '').strip()
+
+        if len(statement) < 20:
+            raise ValidationError({
+                'statement': (
+                    'La respuesta debe contener al menos '
+                    '20 caracteres.'
+                )
+            })
+
+        if len(statement) > 3000:
+            raise ValidationError({
+                'statement': (
+                    'La respuesta no puede superar '
+                    'los 3000 caracteres.'
+                )
+            })
+
+        # Solo admitir nuevas respuestas mientras
+        # la incidencia esté abierta o en revisión.
+        if self.incident_id:
+
+            allowed_statuses = [
+                BookingSessionIncident.Status.OPEN,
+                BookingSessionIncident.Status.IN_REVIEW,
+            ]
+
+            if self.incident.status not in allowed_statuses:
+                raise ValidationError({
+                    'incident': (
+                        'Esta incidencia ya está resuelta '
+                        'y no admite nuevas respuestas.'
+                    )
+                })
+
+            # El autor debe ser el Profesional
+            # propietario de la sesión.
+            if self.submitted_by_id:
+
+                professional_user_id = (
+                    self.incident.review.booking
+                    .professional_profile.user_id
+                )
+
+                if self.submitted_by_id != professional_user_id:
+                    raise ValidationError({
+                        'submitted_by': (
+                            'Solo el Profesional asociado '
+                            'a esta reserva puede responder.'
+                        )
+                    })
+
+    # -------------------------------------------------
+    # GUARDADO
+    # -------------------------------------------------
+
+    def save(self, *args, **kwargs):
+
+        # Impedir la edición de una declaración
+        # previamente presentada mediante save().
+        if self.pk is not None:
+            raise ValidationError(
+                'La respuesta ya fue registrada '
+                'y no puede modificarse.'
+            )
+
+        self.statement = (
+            self.statement or ''
+        ).strip()
+
+        self.full_clean()
+
+        return super().save(*args, **kwargs)
+
+    # -------------------------------------------------
+    # REPRESENTACIÓN
+    # -------------------------------------------------
+
+    def __str__(self):
+
+        return (
+            f'Respuesta profesional - '
+            f'Incidencia #{self.incident_id}'
+        )

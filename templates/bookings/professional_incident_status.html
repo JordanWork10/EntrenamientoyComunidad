@@ -1,0 +1,1396 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Seguimiento de incidencia | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<section class="account-page professional-incident-v123">
+
+    <div class="account-container">
+
+        <!-- ==========================================
+             CABECERA
+        =========================================== -->
+
+        <header class="account-hero">
+
+            <div>
+
+                <span class="page-overline">
+                    CENTRO PROFESIONAL
+                </span>
+
+                <h1>
+                    Seguimiento de <span>incidencia</span>
+                </h1>
+
+                <p>
+                    Consulta el estado de una incidencia relacionada
+                    con uno de tus servicios profesionales.
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <!-- ==========================================
+             MENSAJES DEL SISTEMA
+        =========================================== -->
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="incident-flash-message" role="status">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        <!-- ==========================================
+             01 - INFORMACIÓN DE LA SESIÓN
+        =========================================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+                    <span class="account-panel-number">01</span>
+                    <h2>Información de la sesión</h2>
+                </div>
+
+                <span class="account-panel-tag">
+                    RESERVA #{{ booking.id }}
+                </span>
+
+            </div>
+
+            <div class="incident-content">
+
+                <div class="incident-session-card">
+
+                    <div class="incident-session-heading">
+
+                        <div class="incident-member">
+
+                            <div class="incident-avatar">
+
+                                {% if booking.booked_by.profile_image %}
+
+                                    <img
+                                        src="{{ booking.booked_by.profile_image.url }}"
+                                        alt="Foto del miembro"
+                                    >
+
+                                {% else %}
+
+                                    <span>
+                                        {{ booking.booked_by.first_name|first|upper }}{{ booking.booked_by.last_name|first|upper }}
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                            <div class="incident-member-info">
+
+                                <span class="incident-label">
+                                    MIEMBRO
+                                </span>
+
+                                <h3>
+                                    {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}
+                                </h3>
+
+                                <p>
+                                    {{ booking.service_name_snapshot }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <span class="incident-session-badge">
+                            {{ booking.get_status_display }}
+                        </span>
+
+                    </div>
+
+                    <div class="incident-session-data">
+
+                        <div>
+                            <span class="incident-label">FECHA</span>
+
+                            <strong>
+                                {{ booking.session_date|date:"d M Y"|upper }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span class="incident-label">HORARIO</span>
+
+                            <strong>
+                                {{ booking.start_time|time:"H:i" }}
+                                –
+                                {{ booking.end_time|time:"H:i" }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span class="incident-label">DURACIÓN</span>
+
+                            <strong>
+                                {{ booking.duration_minutes }} minutos
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span class="incident-label">
+                                NÚMERO DE RESERVA
+                            </span>
+
+                            <strong>
+                                #{{ booking.id }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==========================================
+             02 - PROBLEMA REPORTADO
+        =========================================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+                    <span class="account-panel-number">02</span>
+                    <h2>Problema reportado</h2>
+                </div>
+
+                <span class="account-panel-tag">
+                    REPORTE DEL MIEMBRO
+                </span>
+
+            </div>
+
+            <div class="incident-content">
+
+                <div class="incident-report-card">
+
+                    <div class="incident-report-header">
+
+                        <span class="incident-report-icon">
+                            !
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                El miembro informó un inconveniente
+                            </strong>
+
+                            <p>
+                                La plataforma registró este reporte
+                                para realizar el seguimiento correspondiente.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="incident-reason">
+
+                        <span class="incident-label">
+                            DESCRIPCIÓN DEL PROBLEMA
+                        </span>
+
+                        <p>{{ issue_reason|default:"No se registró una descripción." }}</p>
+
+                    </div>
+
+                    <div class="incident-report-note">
+
+                        Este reporte corresponde a la declaración
+                        del miembro y no constituye por sí solo
+                        una determinación de responsabilidad.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==========================================
+             03 - SEGUIMIENTO ADMINISTRATIVO
+        =========================================== -->
+
+        <section class="account-panel">
+
+            <div class="account-panel-header">
+
+                <div>
+                    <span class="account-panel-number">03</span>
+                    <h2>Seguimiento administrativo</h2>
+                </div>
+
+                <span class="account-panel-tag">
+                    ESTADO ACTUAL
+                </span>
+
+            </div>
+
+            <div class="incident-content">
+
+                <div class="incident-status-card">
+
+                    <div class="incident-status-top">
+
+                        <div>
+
+                            <span class="incident-label">
+                                ESTADO DE LA INCIDENCIA
+                            </span>
+
+                            <h3>
+                                {{ incident_info.status_label }}
+                            </h3>
+
+                        </div>
+
+                        {% if incident_info.status == 'resolved' %}
+
+                            <span class="incident-status-pill resolved">
+                                ✓ Resuelta
+                            </span>
+
+                        {% elif incident_info.status == 'in_review' %}
+
+                            <span class="incident-status-pill reviewing">
+                                En revisión
+                            </span>
+
+                        {% else %}
+
+                            <span class="incident-status-pill open">
+                                Reportada
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                    {% if incident_info.status == 'resolved' %}
+
+                        <p>
+                            La administración registró una resolución.
+                            Puedes consultar el resultado más abajo.
+                        </p>
+
+                    {% elif incident_info.status == 'in_review' %}
+
+                        <p>
+                            La incidencia está siendo revisada por
+                            la administración de la plataforma.
+                        </p>
+
+                    {% else %}
+
+                        <p>
+                            La incidencia fue recibida y está pendiente
+                            de comenzar su revisión administrativa.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- HISTORIAL ADMINISTRATIVO -->
+
+                <div class="incident-timeline">
+
+                    <div class="incident-timeline-item">
+
+                        <span class="incident-timeline-icon">
+                            1
+                        </span>
+
+                        <div>
+
+                            <strong>Problema reportado</strong>
+
+                            <p>
+                                El miembro registró el inconveniente.
+                            </p>
+
+                            <small>
+                                {% if incident_info.reported_at %}
+                                    {{ incident_info.reported_at|date:"d/m/Y H:i" }}
+                                {% else %}
+                                    Fecha no disponible
+                                {% endif %}
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="incident-timeline-item">
+
+                        <span class="incident-timeline-icon">
+                            2
+                        </span>
+
+                        <div>
+
+                            <strong>Inicio de revisión</strong>
+
+                            {% if incident_info.reviewed_at %}
+
+                                <p>
+                                    La plataforma comenzó la revisión del caso.
+                                </p>
+
+                                <small>
+                                    {{ incident_info.reviewed_at|date:"d/m/Y H:i" }}
+                                </small>
+
+                            {% else %}
+
+                                <p>
+                                    Pendiente de revisión.
+                                </p>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="incident-timeline-item">
+
+                        <span class="incident-timeline-icon">
+                            3
+                        </span>
+
+                        <div>
+
+                            <strong>Resolución administrativa</strong>
+
+                            {% if incident_info.status == 'resolved' %}
+
+                                <p>
+                                    La plataforma registró una decisión.
+                                </p>
+
+                                {% if incident_info.resolved_at %}
+
+                                    <small>
+                                        {{ incident_info.resolved_at|date:"d/m/Y H:i" }}
+                                    </small>
+
+                                {% endif %}
+
+                            {% else %}
+
+                                <p>
+                                    Pendiente de resolución.
+                                </p>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==========================================
+             V123 - RESPUESTA DEL PROFESIONAL
+
+             Utilizamos la relación existente:
+             reserva > conformidad > incidencia >
+             respuesta profesional.
+
+             No requiere modificar la vista Python.
+        =========================================== -->
+
+        {% with professional_response=booking.session_review.incident.professional_response %}
+
+            {% if professional_response or incident_info.status != 'resolved' %}
+
+                <section class="account-panel" id="antecedentes-profesional">
+
+                    <div class="account-panel-header">
+
+                        <div>
+                            <span class="account-panel-number">04</span>
+
+                            <h2>
+                                Tu versión de los hechos
+                            </h2>
+                        </div>
+
+                        <span class="account-panel-tag">
+                            ANTECEDENTES
+                        </span>
+
+                    </div>
+
+                    <div class="incident-content">
+
+                        <!-- ==========================
+                             RESPUESTA YA PRESENTADA
+                        =========================== -->
+
+                        {% if professional_response %}
+
+                            <div class="incident-response-saved">
+
+                                <div class="incident-response-saved-heading">
+
+                                    <div>
+
+                                        <span class="incident-label">
+                                            DECLARACIÓN REGISTRADA
+                                        </span>
+
+                                        <h3>
+                                            Tus antecedentes fueron presentados
+                                        </h3>
+
+                                    </div>
+
+                                    <span class="incident-response-saved-badge">
+                                        ✓ Registrada
+                                    </span>
+
+                                </div>
+
+                                <p>
+                                    Tu declaración quedó registrada como
+                                    antecedente de esta incidencia.
+                                    No puede ser modificada después
+                                    de su presentación.
+                                </p>
+
+                                <div class="incident-response-statement">
+
+                                    <span class="incident-label">
+                                        TU DECLARACIÓN
+                                    </span>
+
+                                    <p>{{ professional_response.statement }}</p>
+
+                                </div>
+
+                                <div class="incident-response-date">
+
+                                    <span class="incident-label">
+                                        FECHA DE PRESENTACIÓN
+                                    </span>
+
+                                    <strong>
+                                        {{ professional_response.created_at|date:"d/m/Y H:i" }}
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                        <!-- ==========================
+                             FORMULARIO DISPONIBLE
+                        =========================== -->
+
+                        {% elif incident_info.status == 'open' or incident_info.status == 'in_review' %}
+
+                            <div class="incident-response-form-card">
+
+                                <span class="incident-label">
+                                    DERECHO A RESPUESTA
+                                </span>
+
+                                <h3>
+                                    Presenta tus antecedentes
+                                </h3>
+
+                                <p>
+                                    Puedes explicar qué ocurrió durante
+                                    la sesión y aportar información que
+                                    consideres relevante para la investigación.
+                                </p>
+
+                                <p>
+                                    La administración podrá consultar
+                                    tu declaración antes de registrar
+                                    una resolución.
+                                </p>
+
+
+                                <div class="incident-response-information">
+
+                                    <span class="incident-response-information-icon">
+                                        i
+                                    </span>
+
+                                    <div>
+
+                                        <strong>
+                                            Antes de enviar tu declaración
+                                        </strong>
+
+                                        <p>
+                                            Solo puedes presentar una respuesta
+                                            por incidencia. Una vez enviada,
+                                            quedará registrada y no podrás
+                                            modificarla.
+                                        </p>
+
+                                        <p>
+                                            Presentar antecedentes no modifica
+                                            el estado de la incidencia ni
+                                            determina automáticamente su resultado.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- FORMULARIO DE ENVÍO -->
+
+                                <form
+                                    method="post"
+                                    action="{% url 'bookings:professional_incident_respond' booking.id %}"
+                                    class="incident-response-form"
+                                >
+
+                                    {% csrf_token %}
+
+                                    <label for="professional-statement">
+                                        Tu versión de los hechos
+                                        <span aria-hidden="true">*</span>
+                                    </label>
+
+                                    <textarea
+                                        id="professional-statement"
+                                        name="statement"
+                                        rows="6"
+                                        minlength="20"
+                                        maxlength="3000"
+                                        placeholder="Explica qué ocurrió durante la sesión, incluyendo los antecedentes que consideres relevantes."
+                                        aria-describedby="professional-statement-help"
+                                        required
+                                    ></textarea>
+
+                                    <small id="professional-statement-help">
+                                        Entre 20 y 3000 caracteres.
+                                    </small>
+
+                                    <div class="incident-response-form-footer">
+
+                                        <p>
+                                            Tu respuesta quedará registrada
+                                            con la fecha y hora de presentación.
+                                        </p>
+
+                                        <button
+                                            type="submit"
+                                            class="incident-response-submit"
+                                        >
+                                            Enviar antecedentes
+                                            <span aria-hidden="true">→</span>
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </section>
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <!-- ==========================================
+             RESULTADO ADMINISTRATIVO
+        =========================================== -->
+
+        {% if incident_info.status == 'resolved' %}
+
+            <section class="account-panel">
+
+                <div class="account-panel-header">
+
+                    <div>
+
+                        {% if booking.session_review.incident.professional_response %}
+                            <span class="account-panel-number">05</span>
+                        {% else %}
+                            <span class="account-panel-number">04</span>
+                        {% endif %}
+
+                        <h2>
+                            Resultado de la incidencia
+                        </h2>
+
+                    </div>
+
+                    <span class="account-panel-tag">
+                        RESOLUCIÓN
+                    </span>
+
+                </div>
+
+                <div class="incident-content">
+
+                    <div class="incident-resolution-card">
+
+                        <span class="incident-label">
+                            DECISIÓN ADMINISTRATIVA
+                        </span>
+
+                        <h3>
+                            {{ incident_info.resolution_type_label|default:"Resolución registrada" }}
+                        </h3>
+
+                        <div class="incident-resolution-text">
+
+                            <span class="incident-label">
+                                EXPLICACIÓN DE LA RESOLUCIÓN
+                            </span>
+
+                            <p>{{ incident_info.resolution_summary|default:"No hay una explicación disponible." }}</p>
+
+                        </div>
+
+                        <div class="incident-resolution-footer">
+
+                            Esta resolución corresponde al seguimiento
+                            administrativo del caso.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        {% endif %}
+
+
+        <!-- ==========================================
+             PRIVACIDAD
+        =========================================== -->
+
+        <div class="incident-privacy-note">
+
+            <span class="incident-privacy-icon">
+                i
+            </span>
+
+            <p>
+                Esta página permite consultar el seguimiento de
+                la incidencia y presentar antecedentes cuando
+                corresponda. Las observaciones internas de la
+                administración son privadas y no están disponibles
+                para los participantes.
+            </p>
+
+        </div>
+
+
+        <!-- ==========================================
+             NAVEGACIÓN
+        =========================================== -->
+
+        <div class="incident-footer-actions">
+
+            <a
+                href="{% url 'bookings:professional_detail' booking.id %}"
+                class="account-professional-action"
+            >
+                ← Volver a la reserva
+            </a>
+
+            <a
+                href="{% url 'professionals:dashboard' %}"
+                class="account-professional-action"
+            >
+                Centro Profesional →
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ==============================================
+     ESTILOS V123
+     SEGUIMIENTO Y RESPUESTA PROFESIONAL
+================================================ -->
+
+<style>
+
+/* IDENTIDAD VISUAL PROFESIONAL */
+
+.professional-incident-v123 .account-hero h1 span {
+    color: #39d3ef !important;
+}
+
+.professional-incident-v123 .page-overline,
+.professional-incident-v123 .account-panel-number {
+    color: #39d3ef !important;
+}
+
+
+/* ESTRUCTURA GENERAL */
+
+.professional-incident-v123 .incident-content {
+    padding: 18px;
+}
+
+.professional-incident-v123 .incident-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #8191a9;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.10em;
+}
+
+
+/* MENSAJES */
+
+.professional-incident-v123 .incident-flash-message {
+    margin-bottom: 14px;
+    padding: 14px 17px;
+    background: #0b2630;
+    border: 1px solid rgba(57, 211, 239, 0.45);
+    border-radius: 9px;
+    color: #e9faff;
+    font-size: 13px;
+}
+
+
+/* INFORMACIÓN DE LA SESIÓN */
+
+.professional-incident-v123 .incident-session-card {
+    padding: 20px;
+    background: #101922;
+    border: 1px solid rgba(55, 207, 236, 0.35);
+    border-radius: 12px;
+}
+
+.professional-incident-v123 .incident-session-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.professional-incident-v123 .incident-member {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.professional-incident-v123 .incident-avatar {
+    width: 56px;
+    height: 56px;
+    flex: 0 0 56px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(55, 207, 236, 0.45);
+    background: rgba(55, 207, 236, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    color: #39d5ee;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.professional-incident-v123 .incident-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.professional-incident-v123 .incident-member-info h3 {
+    margin: 0 0 5px;
+    color: #f6f8fb;
+    font-size: 18px;
+}
+
+.professional-incident-v123 .incident-member-info p {
+    margin: 0;
+    color: #38d1ee;
+    font-size: 13px;
+}
+
+.professional-incident-v123 .incident-session-badge {
+    padding: 7px 12px;
+    color: #49dec5;
+    background: rgba(44, 192, 159, 0.09);
+    border: 1px solid rgba(44, 192, 159, 0.35);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.professional-incident-v123 .incident-session-data {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px solid #253645;
+}
+
+.professional-incident-v123 .incident-session-data strong {
+    display: block;
+    color: #f5f7fa;
+    font-size: 13px;
+}
+
+
+/* PROBLEMA REPORTADO */
+
+.professional-incident-v123 .incident-report-card {
+    padding: 20px;
+    background: rgba(218, 78, 96, 0.045);
+    border: 1px solid rgba(218, 78, 96, 0.35);
+    border-radius: 12px;
+}
+
+.professional-incident-v123 .incident-report-header {
+    display: flex;
+    gap: 13px;
+    align-items: flex-start;
+}
+
+.professional-incident-v123 .incident-report-icon {
+    width: 35px;
+    height: 35px;
+    flex: 0 0 35px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(235, 89, 107, 0.5);
+    background: rgba(235, 89, 107, 0.1);
+    border-radius: 9px;
+    color: #f17e8c;
+    font-weight: 900;
+}
+
+.professional-incident-v123 .incident-report-header strong {
+    color: #f7f8fc;
+}
+
+.professional-incident-v123 .incident-report-header p,
+.professional-incident-v123 .incident-report-note {
+    margin-top: 6px;
+    color: #a1aec0;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.professional-incident-v123 .incident-reason {
+    margin-top: 18px;
+    padding: 15px;
+    background: #0b1119;
+    border: 1px solid rgba(218, 78, 96, 0.28);
+    border-radius: 9px;
+}
+
+.professional-incident-v123 .incident-reason p {
+    margin: 0;
+    color: #eef2f7;
+    font-size: 13px;
+    line-height: 1.7;
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+
+/* ESTADO DE LA INCIDENCIA */
+
+.professional-incident-v123 .incident-status-card {
+    padding: 20px;
+    border: 1px solid rgba(56, 210, 237, 0.3);
+    background: #101922;
+    border-radius: 12px;
+}
+
+.professional-incident-v123 .incident-status-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.professional-incident-v123 .incident-status-top h3 {
+    margin: 0;
+    color: #f4f7fb;
+    font-size: 19px;
+}
+
+.professional-incident-v123 .incident-status-card p {
+    margin: 12px 0 0;
+    color: #a4b2c4;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.professional-incident-v123 .incident-status-pill {
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.professional-incident-v123 .incident-status-pill.open {
+    color: #f0bd64;
+    background: rgba(240, 189, 100, 0.08);
+    border: 1px solid rgba(240, 189, 100, 0.38);
+}
+
+.professional-incident-v123 .incident-status-pill.reviewing {
+    color: #3ad5ef;
+    background: rgba(58, 213, 239, 0.08);
+    border: 1px solid rgba(58, 213, 239, 0.38);
+}
+
+.professional-incident-v123 .incident-status-pill.resolved {
+    color: #46d4a5;
+    background: rgba(70, 212, 165, 0.08);
+    border: 1px solid rgba(70, 212, 165, 0.38);
+}
+
+
+/* HISTORIAL DE SEGUIMIENTO */
+
+.professional-incident-v123 .incident-timeline {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.professional-incident-v123 .incident-timeline-item {
+    display: flex;
+    gap: 13px;
+    padding: 16px;
+    background: #0b1119;
+    border: 1px solid #263240;
+    border-radius: 10px;
+}
+
+.professional-incident-v123 .incident-timeline-icon {
+    width: 29px;
+    height: 29px;
+    flex: 0 0 29px;
+    display: grid;
+    place-items: center;
+    color: #3bd2ef;
+    background: rgba(59, 210, 239, 0.07);
+    border: 1px solid rgba(59, 210, 239, 0.3);
+    border-radius: 8px;
+    font-weight: 800;
+}
+
+.professional-incident-v123 .incident-timeline-item strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #f6f7fb;
+    font-size: 13px;
+}
+
+.professional-incident-v123 .incident-timeline-item p {
+    margin: 0 0 5px;
+    color: #a4b2c4;
+    font-size: 12px;
+}
+
+.professional-incident-v123 .incident-timeline-item small {
+    color: #3bd2ef;
+    font-size: 11px;
+}
+
+
+/* ==========================================
+   V123 - FORMULARIO DE RESPUESTA
+=========================================== */
+
+.professional-incident-v123 .incident-response-form-card,
+.professional-incident-v123 .incident-response-saved {
+    padding: 20px;
+    background: #101922;
+    border: 1px solid rgba(58, 210, 239, 0.32);
+    border-radius: 12px;
+}
+
+.professional-incident-v123 .incident-response-form-card h3,
+.professional-incident-v123 .incident-response-saved h3 {
+    margin: 0 0 10px;
+    color: #f5f8fc;
+    font-size: 19px;
+}
+
+.professional-incident-v123 .incident-response-form-card > p,
+.professional-incident-v123 .incident-response-saved > p {
+    margin: 0 0 10px;
+    color: #a6b6c8;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.professional-incident-v123 .incident-response-information {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 20px 0;
+    padding: 16px;
+    background: rgba(58, 210, 239, 0.04);
+    border: 1px solid rgba(58, 210, 239, 0.25);
+    border-radius: 9px;
+}
+
+.professional-incident-v123 .incident-response-information-icon {
+    width: 27px;
+    height: 27px;
+    flex: 0 0 27px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #39d3ef;
+    border-radius: 50%;
+    color: #39d3ef;
+    font-weight: 800;
+}
+
+.professional-incident-v123 .incident-response-information strong {
+    display: block;
+    margin-bottom: 7px;
+    color: #e9f6fc;
+    font-size: 13px;
+}
+
+.professional-incident-v123 .incident-response-information p {
+    margin: 0 0 9px;
+    color: #a5b6c8;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.professional-incident-v123 .incident-response-information p:last-child {
+    margin-bottom: 0;
+}
+
+.professional-incident-v123 .incident-response-form {
+    margin-top: 22px;
+}
+
+.professional-incident-v123 .incident-response-form label {
+    display: block;
+    margin-bottom: 9px;
+    color: #eff6fb;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.professional-incident-v123 .incident-response-form label span {
+    color: #39d3ef;
+}
+
+.professional-incident-v123 .incident-response-form textarea {
+    display: block;
+    width: 100%;
+    min-height: 155px;
+    padding: 15px;
+    box-sizing: border-box;
+    resize: vertical;
+    background: #0a1017;
+    border: 1px solid #344454;
+    border-radius: 9px;
+    outline: none;
+    color: #f3f7fb;
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.professional-incident-v123 .incident-response-form textarea:focus {
+    border-color: #39d3ef;
+    box-shadow: 0 0 0 3px rgba(57, 211, 239, 0.1);
+}
+
+.professional-incident-v123 .incident-response-form textarea::placeholder {
+    color: #73869a;
+}
+
+.professional-incident-v123 .incident-response-form > small {
+    display: block;
+    margin-top: 8px;
+    color: #8698ad;
+    font-size: 11px;
+}
+
+.professional-incident-v123 .incident-response-form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 18px;
+}
+
+.professional-incident-v123 .incident-response-form-footer p {
+    margin: 0;
+    color: #92a4b8;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.professional-incident-v123 .incident-response-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex: 0 0 auto;
+    padding: 13px 17px;
+    border: 1px solid #39d3ef;
+    border-radius: 8px;
+    background: #39d3ef;
+    color: #06131c;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: background 0.18s ease;
+}
+
+.professional-incident-v123 .incident-response-submit:hover {
+    background: #74e6f7;
+}
+
+
+/* DECLARACIÓN GUARDADA */
+
+.professional-incident-v123 .incident-response-saved {
+    border-color: rgba(70, 212, 165, 0.35);
+}
+
+.professional-incident-v123 .incident-response-saved-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 15px;
+}
+
+.professional-incident-v123 .incident-response-saved-badge {
+    padding: 7px 12px;
+    border: 1px solid rgba(70, 212, 165, 0.38);
+    border-radius: 999px;
+    color: #48d5ac;
+    background: rgba(70, 212, 165, 0.08);
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.professional-incident-v123 .incident-response-statement {
+    margin-top: 18px;
+    padding: 16px;
+    background: #0b1119;
+    border: 1px solid #293946;
+    border-radius: 9px;
+}
+
+.professional-incident-v123 .incident-response-statement p {
+    margin: 0;
+    color: #edf3f9;
+    font-size: 13px;
+    line-height: 1.75;
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.professional-incident-v123 .incident-response-date {
+    margin-top: 16px;
+}
+
+.professional-incident-v123 .incident-response-date strong {
+    color: #44d3ee;
+    font-size: 12px;
+}
+
+
+/* RESULTADO ADMINISTRATIVO */
+
+.professional-incident-v123 .incident-resolution-card {
+    padding: 20px;
+    background: #101922;
+    border: 1px solid rgba(70, 212, 165, 0.35);
+    border-radius: 12px;
+}
+
+.professional-incident-v123 .incident-resolution-card h3 {
+    margin: 0;
+    color: #52dbb0;
+    font-size: 19px;
+}
+
+.professional-incident-v123 .incident-resolution-text {
+    margin-top: 20px;
+    padding: 16px;
+    background: #0b1119;
+    border: 1px solid #263240;
+    border-radius: 9px;
+}
+
+.professional-incident-v123 .incident-resolution-text p {
+    margin: 0;
+    color: #eef2f7;
+    font-size: 13px;
+    line-height: 1.75;
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.professional-incident-v123 .incident-resolution-footer {
+    margin-top: 15px;
+    color: #8f9fb4;
+    font-size: 11px;
+}
+
+
+/* PRIVACIDAD Y NAVEGACIÓN */
+
+.professional-incident-v123 .incident-privacy-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(58, 213, 239, 0.035);
+    border: 1px solid rgba(58, 213, 239, 0.22);
+    border-radius: 9px;
+}
+
+.professional-incident-v123 .incident-privacy-icon {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #3bd2ef;
+    border-radius: 50%;
+    color: #3bd2ef;
+    font-weight: 800;
+}
+
+.professional-incident-v123 .incident-privacy-note p {
+    margin: 0;
+    color: #9baec2;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.professional-incident-v123 .incident-footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 700px) {
+
+    .professional-incident-v123 .incident-session-heading,
+    .professional-incident-v123 .incident-status-top,
+    .professional-incident-v123 .incident-response-saved-heading {
+        flex-direction: column;
+    }
+
+    .professional-incident-v123 .incident-session-data {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .professional-incident-v123 .incident-content {
+        padding: 12px;
+    }
+
+    .professional-incident-v123 .incident-response-form-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .professional-incident-v123 .incident-response-submit {
+        width: 100%;
+    }
+
+}
+
+@media (max-width: 420px) {
+
+    .professional-incident-v123 .incident-session-data {
+        grid-template-columns: 1fr;
+    }
+
+    .professional-incident-v123 .incident-session-card,
+    .professional-incident-v123 .incident-report-card,
+    .professional-incident-v123 .incident-status-card,
+    .professional-incident-v123 .incident-resolution-card,
+    .professional-incident-v123 .incident-response-form-card,
+    .professional-incident-v123 .incident-response-saved {
+        padding: 15px;
+    }
+
+}
+
+</style>
+
+{% endblock %}

@@ -163,3 +163,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # En desarrollo se habilita una simulación local.
 # Al pasar DEBUG=False, estos controles dejan de estar disponibles.
 PAYMENTS_SANDBOX = DEBUG
+
+# V129 - Enlaces de recuperacion validos durante 1 hora.
+PASSWORD_RESET_TIMEOUT = 60 * 60

@@ -1,5 +1,4 @@
 {% load static %}
-{% load session_review_widgets %}
 
 <!DOCTYPE html>
 <html lang="es">
@@ -26,14 +25,284 @@
 
     <link
         rel="stylesheet"
-        href="{% static 'css/styles.css' %}?v=122"
+        href="{% static 'css/styles.css' %}?v=106"
     >
+
+    <!-- =====================================================
+         V124 - NAVEGACIÓN / IDENTIDAD DE LA SESIÓN
+         Estilos aislados para conservar styles.css existente.
+    ====================================================== -->
+    <style>
+        .v124-nav-link[aria-current="page"] {
+            color: #c6ff33;
+        }
+
+        .v124-user-menu {
+            position: relative;
+            flex: 0 0 auto;
+        }
+
+        .v124-user-trigger {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-height: 42px;
+            padding: 5px 10px 5px 5px;
+            color: #f3f6fb;
+            background: #131923;
+            border: 1px solid #303a4a;
+            border-radius: 11px;
+            cursor: pointer;
+            font: inherit;
+            text-align: left;
+            transition: border-color .2s ease, background .2s ease;
+        }
+
+        .v124-user-trigger:hover,
+        .v124-user-trigger[aria-expanded="true"] {
+            border-color: rgba(198, 255, 51, .65);
+            background: #19212b;
+        }
+
+        .v124-user-trigger:focus-visible,
+        .v124-user-dropdown a:focus-visible,
+        .v124-nav-link:focus-visible {
+            outline: 2px solid #c6ff33;
+            outline-offset: 3px;
+        }
+
+        .v124-user-avatar {
+            display: grid;
+            place-items: center;
+            width: 34px;
+            height: 34px;
+            overflow: hidden;
+            flex: 0 0 34px;
+            color: #c6ff33;
+            background: rgba(198, 255, 51, .09);
+            border: 1px solid rgba(198, 255, 51, .33);
+            border-radius: 9px;
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .v124-user-avatar img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .v124-user-copy {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .v124-user-copy small {
+            color: #97a5b9;
+            font-size: 9px;
+            line-height: 1.1;
+        }
+
+        .v124-user-copy strong {
+            display: block;
+            max-width: 125px;
+            overflow: hidden;
+            color: #f5f7fb;
+            font-size: 12px;
+            line-height: 1.3;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .v124-user-chevron {
+            flex: 0 0 auto;
+            color: #c6ff33;
+            font-size: 11px;
+            transition: transform .2s ease;
+        }
+
+        .v124-user-trigger[aria-expanded="true"] .v124-user-chevron {
+            transform: rotate(180deg);
+        }
+
+        .v124-user-dropdown[hidden] {
+            display: none !important;
+        }
+
+        .v124-user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            z-index: 150;
+            width: min(284px, calc(100vw - 24px));
+            padding: 9px;
+            background: #141b25;
+            border: 1px solid #364251;
+            border-radius: 12px;
+            box-shadow: 0 18px 38px rgba(0, 0, 0, .43);
+        }
+
+        .v124-dropdown-heading {
+            padding: 9px 10px 12px;
+            margin-bottom: 4px;
+            border-bottom: 1px solid #293444;
+        }
+
+        .v124-dropdown-heading small {
+            display: block;
+            color: #a6b1c1;
+            font-size: 10px;
+        }
+
+        .v124-dropdown-heading strong {
+            display: block;
+            margin-top: 3px;
+            overflow-wrap: anywhere;
+            color: #f5f7fb;
+            font-size: 13px;
+        }
+
+        .v124-user-dropdown a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            color: #dce5f0;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .v124-user-dropdown a:hover {
+            color: #c6ff33;
+            background: rgba(198, 255, 51, .07);
+        }
+
+        .v124-user-dropdown .v124-dropdown-logout {
+            margin-top: 5px;
+            color: #ffb3b8;
+            border-top: 1px solid #293444;
+            border-radius: 0 0 7px 7px;
+        }
+
+        /* styles.css oculta .main-nav en tablet: V124 la mantiene accesible. */
+        @media (max-width: 1040px) {
+            .navbar-container {
+                gap: 14px;
+            }
+
+            .main-nav {
+                gap: 15px;
+            }
+
+            .navbar-account {
+                gap: 9px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .navbar-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 8px 12px;
+                padding-top: 10px;
+                padding-bottom: 8px;
+            }
+
+            .main-nav {
+                display: flex;
+                flex: 1 0 100%;
+                order: 3;
+                justify-content: center;
+                gap: clamp(14px, 5vw, 34px);
+                margin: 0;
+                padding-top: 7px;
+                border-top: 1px solid #25303d;
+            }
+
+            .main-nav a {
+                font-size: 12px;
+            }
+
+            .navbar-account {
+                margin-left: auto;
+            }
+
+            .v124-desktop-logout {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar-container {
+                min-height: 64px;
+            }
+
+            .v124-user-copy small {
+                display: none;
+            }
+
+            .v124-user-copy strong {
+                max-width: 94px;
+                font-size: 11px;
+            }
+
+            .v124-user-trigger {
+                min-height: 36px;
+                gap: 6px;
+                padding-right: 7px;
+            }
+
+            .v124-user-avatar {
+                width: 29px;
+                height: 29px;
+                flex-basis: 29px;
+                font-size: 10px;
+            }
+
+            .v124-navbar-guest .nav-account-link {
+                display: inline-flex;
+                font-size: 11px;
+            }
+
+            .v124-navbar-guest {
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .v124-user-copy strong {
+                max-width: 63px;
+            }
+
+            .navbar-container > .brand {
+                font-size: 12px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .v124-user-trigger,
+            .v124-user-chevron {
+                transition: none;
+            }
+        }
+    </style>
 
 </head>
 
+
 <body>
 
-    <!-- NAVEGACIÓN PRINCIPAL -->
+    <!-- =========================
+         NAVEGACIÓN PRINCIPAL
+    ========================== -->
+
     <header class="site-header">
 
         <div class="navbar-container">
@@ -54,32 +323,135 @@
 
             </a>
 
-            <nav class="main-nav">
 
-                <a href="{% url 'core:home' %}">
+            <nav class="main-nav" aria-label="Navegación principal">
+
+                <a
+                    href="{% url 'core:home' %}"
+                    class="v124-nav-link"
+                    {% if request.resolver_match.view_name == 'core:home' %}aria-current="page"{% endif %}
+                >
                     Inicio
                 </a>
 
-                <a href="{% url 'core:explore' %}">
+                <a
+                    href="{% url 'core:explore' %}"
+                    class="v124-nav-link"
+                    {% if request.resolver_match.view_name == 'core:explore' %}aria-current="page"{% endif %}
+                >
                     Explorar
                 </a>
 
-            </nav>
-
-            <div class="navbar-account">
+                <a
+                    href="{% url 'subscriptions:plans' %}"
+                    class="v124-nav-link"
+                    {% if request.resolver_match.view_name == 'subscriptions:plans' %}aria-current="page"{% endif %}
+                >
+                    Planes
+                </a>
 
                 {% if request.user.is_authenticated %}
 
                     <a
                         href="{% url 'accounts:dashboard' %}"
-                        class="nav-account-link"
+                        class="v124-nav-link"
+                        {% if request.resolver_match.view_name == 'accounts:dashboard' %}aria-current="page"{% endif %}
                     >
                         Mi cuenta
                     </a>
 
+                {% endif %}
+
+            </nav>
+
+            <div class="navbar-account{% if not request.user.is_authenticated %} v124-navbar-guest{% endif %}">
+
+                {% if request.user.is_authenticated %}
+
+                    <!-- V124: identidad visible de la sesión en todas las páginas. -->
+                    <div class="v124-user-menu" data-v124-user-menu>
+
+                        <button
+                            type="button"
+                            class="v124-user-trigger"
+                            aria-label="Menú de cuenta de {{ request.user.get_full_name|default:request.user.email }}"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            aria-controls="v124-user-dropdown"
+                            data-v124-user-toggle
+                        >
+                            <span class="v124-user-avatar" aria-hidden="true">
+                                {% if request.user.profile_image %}
+                                    <img
+                                        src="{{ request.user.profile_image.url }}"
+                                        alt=""
+                                        width="34"
+                                        height="34"
+                                    >
+                                {% else %}
+                                    {{ request.user.first_name|slice:':1'|upper }}{{ request.user.last_name|slice:':1'|upper }}
+                                {% endif %}
+                            </span>
+
+                            <span class="v124-user-copy">
+                                <small>Conectado como</small>
+                                <strong>
+                                    {{ request.user.first_name|default:request.user.email }}
+                                </strong>
+                            </span>
+
+                            <span class="v124-user-chevron" aria-hidden="true">▾</span>
+                        </button>
+
+                        <div
+                            id="v124-user-dropdown"
+                            class="v124-user-dropdown"
+                            data-v124-user-dropdown
+                            hidden
+                        >
+                            <div class="v124-dropdown-heading">
+                                <small>Sesión iniciada como</small>
+                                <strong>
+                                    {{ request.user.get_full_name|default:request.user.email }}
+                                </strong>
+                            </div>
+
+                            <a href="{% url 'accounts:dashboard' %}">
+                                Mi cuenta <span aria-hidden="true">→</span>
+                            </a>
+
+                            {% if request.user.professional_profile.verification_status == 'verified' %}
+                                <a href="{% url 'professionals:dashboard' %}">
+                                    Centro Profesional <span aria-hidden="true">→</span>
+                                </a>
+                            {% endif %}
+
+                            {% if request.user.space_provider_profile.verification_status == 'verified' %}
+                                <a href="{% url 'spaces:dashboard' %}">
+                                    Centro de Espacios <span aria-hidden="true">→</span>
+                                </a>
+                            {% endif %}
+
+                            <a href="{% url 'subscriptions:plans' %}">
+                                Ver planes y suscripciones <span aria-hidden="true">→</span>
+                            </a>
+
+                            <a href="{% url 'accounts:profile_settings' %}">
+                                Configuración del perfil <span aria-hidden="true">→</span>
+                            </a>
+
+                            <a
+                                href="{% url 'accounts:logout' %}"
+                                class="v124-dropdown-logout"
+                            >
+                                Cerrar sesión <span aria-hidden="true">→</span>
+                            </a>
+                        </div>
+                    </div>
+
                     <a
                         href="{% url 'accounts:logout' %}"
-                        class="button button-primary button-small"
+                        class="button button-primary button-small v124-desktop-logout"
                     >
                         Cerrar sesión
                     </a>
@@ -109,10 +481,11 @@
     </header>
 
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="site-main">
+    <!-- =========================
+         CONTENIDO DE CADA PÁGINA
+    ========================== -->
 
-        {% session_attention_panel %}
+    <main class="site-main">
 
         {% block content %}
         {% endblock %}
@@ -120,7 +493,10 @@
     </main>
 
 
-    <!-- PIE DE PÁGINA -->
+    <!-- =========================
+         PIE DE PÁGINA
+    ========================== -->
+
     <footer class="site-footer">
 
         <div class="footer-container">
@@ -146,9 +522,12 @@
 
             </div>
 
+
             <div class="footer-column">
 
-                <h4>Plataforma</h4>
+                <h4>
+                    Plataforma
+                </h4>
 
                 <a href="{% url 'core:home' %}">
                     Inicio
@@ -168,9 +547,12 @@
 
             </div>
 
+
             <div class="footer-column">
 
-                <h4>Cuenta</h4>
+                <h4>
+                    Cuenta
+                </h4>
 
                 {% if request.user.is_authenticated %}
 
@@ -192,17 +574,25 @@
 
             </div>
 
+
             <div class="footer-column">
 
-                <h4>Legal</h4>
+                <h4>
+                    Legal
+                </h4>
 
-                <span>Términos y condiciones</span>
+                <span>
+                    Términos y condiciones
+                </span>
 
-                <span>Política de privacidad</span>
+                <span>
+                    Política de privacidad
+                </span>
 
             </div>
 
         </div>
+
 
         <div class="footer-bottom">
 
@@ -216,54 +606,47 @@
     </footer>
 
 
-    <!-- V122: UBICACIÓN DE LOS PANELES -->
+    <!-- =====================================================
+         V124 - Apertura accesible del menú de cuenta
+    ====================================================== -->
     <script>
-        document.addEventListener(
-            'DOMContentLoaded',
-            function () {
+        (function () {
+            'use strict';
 
-                const main = document.querySelector(
-                    'main.site-main'
-                );
-
-                if (!main) {
-                    return;
-                }
-
-                const panels = Array.from(
-                    main.querySelectorAll(
-                        ':scope > .ec-review-alerts'
-                    )
-                );
-
-                if (!panels.length) {
-                    return;
-                }
-
-                /*
-                 * MIEMBRO:
-                 * Después de Mi agenda.
-                 *
-                 * PROFESIONAL:
-                 * Después de Gestión profesional.
-                 */
-
-                const target = document.querySelector(
-                    '.account-page .member-agenda-access, ' +
-                    '.professional-page .professional-management-strip, ' +
-                    '.professional-management-strip'
-                );
-
-                if (!target) {
-                    return;
-                }
-
-                target.after(...panels);
-
+            const container = document.querySelector('[data-v124-user-menu]');
+            if (!container) {
+                return;
             }
-        );
-    </script>
 
+            const toggle = container.querySelector('[data-v124-user-toggle]');
+            const dropdown = container.querySelector('[data-v124-user-dropdown]');
+            if (!toggle || !dropdown) {
+                return;
+            }
+
+            function setOpen(open) {
+                dropdown.hidden = !open;
+                toggle.setAttribute('aria-expanded', String(open));
+            }
+
+            toggle.addEventListener('click', function () {
+                setOpen(dropdown.hidden);
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!container.contains(event.target)) {
+                    setOpen(false);
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && !dropdown.hidden) {
+                    setOpen(false);
+                    toggle.focus();
+                }
+            });
+        }());
+    </script>
 
     {% block extra_js %}
     {% endblock %}

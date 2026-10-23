@@ -1,16 +1,76 @@
 {% extends 'base.html' %}
 
-
 {% block title %}
 Iniciar sesión | EntrenamientoyComunidad
 {% endblock %}
 
-
 {% block content %}
+
+<style>
+    .login-recovery-link {
+        color: #c6ff33;
+        font-size: 11px;
+        font-weight: 800;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .login-recovery-link:hover {
+        text-decoration: underline;
+    }
+
+    .login-password-wrapper {
+        position: relative;
+    }
+
+    .login-password-wrapper input {
+        width: 100%;
+        padding-right: 95px;
+    }
+
+    .login-password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        transform: translateY(-50%);
+        padding: 7px 8px;
+        color: #8b98ae;
+        background: transparent;
+        border: 0;
+        border-radius: 5px;
+        font: inherit;
+        font-size: 11px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .login-password-toggle:hover,
+    .login-password-toggle:focus-visible {
+        color: #c6ff33;
+    }
+
+    .login-password-toggle:focus-visible,
+    .login-recovery-link:focus-visible {
+        outline: 2px solid #c6ff33;
+        outline-offset: 3px;
+    }
+
+    @media (max-width: 480px) {
+        .login-actions-row {
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+    }
+</style>
 
 <section class="login-page">
 
     <div class="login-container">
+
+        <!-- =====================================
+             FORMULARIO DE INICIO DE SESIÓN
+        ====================================== -->
 
         <div class="login-main">
 
@@ -24,28 +84,28 @@ Iniciar sesión | EntrenamientoyComunidad
             </h1>
 
             <p class="login-intro">
-                Accede a tu cuenta para administrar tu perfil,
-                reservas, actividades y futuros perfiles
-                profesionales o de proveedor.
+                Accede a tu cuenta para administrar tus
+                reservas, actividades, perfiles profesionales
+                y espacios deportivos desde un solo lugar.
             </p>
-
 
             {% if error %}
 
-                <div class="login-error">
+                <div class="login-error" role="alert">
                     {{ error }}
                 </div>
 
             {% endif %}
 
-
             <form
-                method="POST"
+                method="post"
+                action="{% url 'accounts:login' %}"
                 class="login-form"
             >
 
                 {% csrf_token %}
 
+                <!-- CORREO ELECTRÓNICO -->
 
                 <div class="form-field">
 
@@ -57,14 +117,16 @@ Iniciar sesión | EntrenamientoyComunidad
                         type="email"
                         id="id_email"
                         name="email"
-                        value="{{ email }}"
+                        value="{{ email|default:'' }}"
                         placeholder="correo@ejemplo.cl"
                         autocomplete="email"
+                        maxlength="254"
                         required
                     >
 
                 </div>
 
+                <!-- CONTRASEÑA -->
 
                 <div class="form-field">
 
@@ -72,17 +134,33 @@ Iniciar sesión | EntrenamientoyComunidad
                         Contraseña
                     </label>
 
-                    <input
-                        type="password"
-                        id="id_password"
-                        name="password"
-                        placeholder="Ingresa tu contraseña"
-                        autocomplete="current-password"
-                        required
-                    >
+                    <div class="login-password-wrapper">
+
+                        <input
+                            type="password"
+                            id="id_password"
+                            name="password"
+                            placeholder="Ingresa tu contraseña"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="login-password-toggle"
+                            id="login-password-toggle"
+                            aria-controls="id_password"
+                            aria-pressed="false"
+                            aria-label="Mostrar contraseña"
+                        >
+                            Mostrar
+                        </button>
+
+                    </div>
 
                 </div>
 
+                <!-- RECUPERACIÓN DE CONTRASEÑA -->
 
                 <div class="login-actions-row">
 
@@ -90,12 +168,16 @@ Iniciar sesión | EntrenamientoyComunidad
                         Acceso protegido mediante tu Cuenta Única.
                     </span>
 
-                    <span class="login-recovery-placeholder">
-                        Recuperar contraseña
-                    </span>
+                    <a
+                        href="{% url 'accounts:password_reset' %}"
+                        class="login-recovery-link"
+                    >
+                        ¿Olvidaste tu contraseña?
+                    </a>
 
                 </div>
 
+                <!-- INICIAR SESIÓN -->
 
                 <button
                     type="submit"
@@ -107,6 +189,7 @@ Iniciar sesión | EntrenamientoyComunidad
 
             </form>
 
+            <!-- REGISTRO -->
 
             <div class="login-register">
 
@@ -122,6 +205,9 @@ Iniciar sesión | EntrenamientoyComunidad
 
         </div>
 
+        <!-- =====================================
+             PANEL INFORMATIVO
+        ====================================== -->
 
         <aside class="login-side">
 
@@ -133,7 +219,6 @@ Iniciar sesión | EntrenamientoyComunidad
                 Una cuenta.
                 Distintas posibilidades.
             </h2>
-
 
             <div class="login-benefits">
 
@@ -147,13 +232,12 @@ Iniciar sesión | EntrenamientoyComunidad
                         </strong>
 
                         <p>
-                            Accede progresivamente al directorio
-                            de profesionales verificados.
+                            Descubre servicios de profesionales
+                            verificados y consulta sus horarios.
                         </p>
                     </div>
 
                 </div>
-
 
                 <div class="login-benefit">
 
@@ -165,13 +249,12 @@ Iniciar sesión | EntrenamientoyComunidad
                         </strong>
 
                         <p>
-                            Consulta infraestructura deportiva
-                            disponible dentro de la plataforma.
+                            Explora gimnasios, salas y recintos
+                            deportivos según su disponibilidad.
                         </p>
                     </div>
 
                 </div>
-
 
                 <div class="login-benefit">
 
@@ -183,15 +266,14 @@ Iniciar sesión | EntrenamientoyComunidad
                         </strong>
 
                         <p>
-                            Centraliza futuras reservas,
-                            actividades y servicios.
+                            Participa en actividades, organiza
+                            encuentros y administra tus reservas.
                         </p>
                     </div>
 
                 </div>
 
             </div>
-
 
             <div class="login-security">
 
@@ -200,8 +282,8 @@ Iniciar sesión | EntrenamientoyComunidad
                 </span>
 
                 <p>
-                    Las credenciales se validan directamente
-                    contra tu cuenta almacenada en PostgreSQL.
+                    Tu cuenta está protegida mediante
+                    autenticación y controles de acceso.
                 </p>
 
             </div>
@@ -211,5 +293,40 @@ Iniciar sesión | EntrenamientoyComunidad
     </div>
 
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
+
+    const passwordInput = document.getElementById('id_password');
+    const toggleButton = document.getElementById('login-password-toggle');
+
+    if (!passwordInput || !toggleButton) {
+        return;
+    }
+
+    toggleButton.addEventListener('click', function () {
+        const isVisible = passwordInput.type === 'text';
+
+        passwordInput.type = isVisible ? 'password' : 'text';
+
+        toggleButton.textContent = isVisible
+            ? 'Mostrar'
+            : 'Ocultar';
+
+        toggleButton.setAttribute(
+            'aria-pressed',
+            String(!isVisible)
+        );
+
+        toggleButton.setAttribute(
+            'aria-label',
+            isVisible
+                ? 'Mostrar contraseña'
+                : 'Ocultar contraseña'
+        );
+    });
+});
+</script>
 
 {% endblock %}

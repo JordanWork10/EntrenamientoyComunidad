@@ -10,3468 +10,2486 @@ Mi Cuenta | EntrenamientoyComunidad
 {% subscription_identity request.user as subscription_identity %}
 
 <style>
+.account-v109-status-stack {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 8px;
+}
+.account-v109-plan-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 11px;
+    color: #b4ff29;
+    background: rgba(180, 255, 41, .05);
+    border: 1px solid rgba(180, 255, 41, .32);
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: 900;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.account-v109-plan-badge span {
+    margin-left: 6px;
+    color: #78859d;
+    font-weight: 800;
+}
+/* V123 - Indicadores de incidencias en Mi cuenta. */
+.account-update-card-incident {
+    border-color: rgba(50, 209, 201, .38);
+    border-top-color: #36dec0;
+}
+.account-update-card-incident .account-update-icon {
+    color: #39e7c0;
+    border-color: rgba(57, 231, 192, .48);
+    background: rgba(57, 231, 192, .08);
+}
+.account-update-card-incident .account-update-title-copy > span {
+    color: #3edac8;
+}
+.account-update-state-incident_resolved {
+    color: #41e6aa;
+    border: 1px solid rgba(65, 230, 170, .43);
+    background: rgba(65, 230, 170, .08);
+}
+.account-update-state-incident_in_review,
+.account-update-state-incident_response {
+    color: #3ed3ff;
+    border: 1px solid rgba(62, 211, 255, .43);
+    background: rgba(62, 211, 255, .08);
+}
+.account-update-state-incident_reported {
+    color: #ff8394;
+    border: 1px solid rgba(255, 91, 112, .43);
+    background: rgba(255, 91, 112, .08);
+}
+.account-update-card-incident .account-update-summary {
+    line-height: 1.5;
+}
+.account-update-card-incident .account-update-actions a {
+    color: #41e6aa;
+}
+@media (max-width: 760px) {
     .account-v109-status-stack {
-        display: flex;
-        align-items: flex-end;
-        flex-direction: column;
-        gap: 8px;
+        align-items: flex-start;
     }
-
-    .account-v109-plan-badge {
-        display: inline-flex;
-        align-items: center;
-        min-height: 32px;
-        padding: 0 11px;
-        color: #b4ff29;
-        background: rgba(180, 255, 41, .05);
-        border: 1px solid rgba(180, 255, 41, .32);
-        border-radius: 8px;
-        font-size: 9px;
-        font-weight: 900;
-        text-decoration: none;
-        white-space: nowrap;
-    }
-
-    .account-v109-plan-badge span {
-        margin-left: 6px;
-        color: #78859d;
-        font-weight: 800;
-    }
-
-    /* =====================================================
-       V123 - NOVEDADES DE INCIDENCIAS DEL MIEMBRO
-    ===================================================== */
-
-    .account-update-card-incident {
-        border-color: rgba(50, 209, 201, .38);
-        border-top-color: #36dec0;
-    }
-
-    .account-update-card-incident .account-update-icon {
-        color: #39e7c0;
-        border-color: rgba(57, 231, 192, .48);
-        background: rgba(57, 231, 192, .08);
-    }
-
-    .account-update-card-incident .account-update-title-copy > span {
-        color: #3edac8;
-    }
-
-    .account-update-state-incident_resolved {
-        color: #41e6aa;
-        border: 1px solid rgba(65, 230, 170, .43);
-        background: rgba(65, 230, 170, .08);
-    }
-
-    .account-update-state-incident_in_review,
-    .account-update-state-incident_response {
-        color: #3ed3ff;
-        border: 1px solid rgba(62, 211, 255, .43);
-        background: rgba(62, 211, 255, .08);
-    }
-
-    .account-update-state-incident_reported {
-        color: #ff8394;
-        border: 1px solid rgba(255, 91, 112, .43);
-        background: rgba(255, 91, 112, .08);
-    }
-
-    .account-update-card-incident .account-update-summary {
-        line-height: 1.5;
-    }
-
-    .account-update-card-incident .account-update-actions a {
-        color: #41e6aa;
-    }
-
-    @media (max-width: 760px) {
-        .account-v109-status-stack {
-            align-items: flex-start;
-        }
-    }
+}
 </style>
 
 <section class="account-page">
-
-    <div class="account-container">
-
-        <!-- =========================
-             CABECERA
-        ========================== -->
-
-        <header class="account-hero">
-
-            <div class="account-hero-identity">
-
-                <a
-                    href="{% url 'accounts:profile_settings' %}"
-                    class="account-hero-avatar"
-                    aria-label="Editar foto de perfil"
-                >
-
-                    {% if request.user.profile_image %}
-
-                        <img
-                            src="{{ request.user.profile_image.url }}"
-                            alt="Foto de perfil de {{ request.user.get_full_name|default:request.user.email }}"
-                            class="account-hero-avatar-image"
-                            width="92"
-                            height="92"
-                        >
-
-                    {% else %}
-
-                        <span class="account-hero-avatar-initials">
-                            {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
-                        </span>
-
-                    {% endif %}
-
-                </a>
-
-                <div class="account-hero-copy">
-
-                    <span class="page-overline">
-                        CUENTA ÚNICA UNIVERSAL
-                    </span>
-
-                    <h1>
-                        Hola,
-                        <span>
-                            {{ request.user.first_name|default:request.user.email }}
-                        </span>
-                    </h1>
-
-                    <p>
-                        Desde aquí podrás administrar progresivamente
-                        toda tu actividad dentro de EntrenamientoyComunidad.
-                    </p>
-
-                </div>
-
-            </div>
-
-            <div class="account-v109-status-stack">
-
-                <div class="account-status">
-                    <span class="account-status-dot"></span>
-                    Cuenta activa
-                </div>
-
-                {% if subscription_identity.subscription %}
-
-                    <a
-                        href="{% url 'subscriptions:plans' %}"
-                        class="account-v109-plan-badge"
-                    >
-                        {{ subscription_identity.plan_name }}
-
-                        <span>
-                            · {{ subscription_identity.status_label }}
-                        </span>
-                    </a>
-
-                {% endif %}
-
-            </div>
-
-        </header>
-
-        <!-- =========================
-             RESUMEN
-        ========================== -->
-
-        <section class="account-summary-grid">
-
-            <article class="account-summary-card">
-
-                <span class="account-summary-label">
-                    PERFIL BASE
-                </span>
-
-                <strong>
-                    Miembro
-                </strong>
-
-                <p>
-                    Activo
-                </p>
-
-            </article>
-
-            <article class="account-summary-card">
-
-                <span class="account-summary-label">
-                    UBICACIÓN
-                </span>
-
-                {% if request.user.commune %}
-
-                    <strong>
-                        {{ request.user.commune.name }}
-                    </strong>
-
-                    <p>
-                        {{ request.user.commune.region.name }}
-                    </p>
-
-                {% else %}
-
-                    <strong>
-                        Sin configurar
-                    </strong>
-
-                    <p>
-                        Ubicación pendiente
-                    </p>
-
-                {% endif %}
-
-            </article>
-
-            <article class="account-summary-card">
-
-                <span class="account-summary-label">
-                    ACTIVIDAD FÍSICA
-                </span>
-
-                {% if member_profile and member_profile.activity_level %}
-
-                    <strong>
-                        {{ member_profile.get_activity_level_display }}
-                    </strong>
-
-                    <p>
-                        Nivel registrado
-                    </p>
-
-                {% else %}
-
-                    <strong>
-                        Sin configurar
-                    </strong>
-
-                    <p>
-                        Información pendiente
-                    </p>
-
-                {% endif %}
-
-            </article>
-
-            <article class="account-summary-card">
-
-                <span class="account-summary-label">
-                    PLAN ACTUAL
-                </span>
-
-                {% if subscription_identity.subscription %}
-
-                    <strong>
-                        {{ subscription_identity.plan_name }}
-                    </strong>
-
-                    <p>
-                        {% if subscription_identity.status == 'trial' and subscription_identity.trial_ends_at %}
-                            Prueba hasta {{ subscription_identity.trial_ends_at|date:"d/m/Y" }}
-                        {% else %}
-                            {{ subscription_identity.status_label }}
-                        {% endif %}
-                    </p>
-
-                {% else %}
-
-                    <strong>
-                        Sin plan activo
-                    </strong>
-
-                    <p>
-                        Beneficios base
-                    </p>
-
-                {% endif %}
-
-            </article>
-
-        </section>
-
-        <!-- =========================
-             CONTEXTO DE PERFIL
-        ========================== -->
-
-        <section class="role-context-strip">
-
-            <div class="role-context-main">
-
-                <span class="role-context-dot"></span>
-
-                <span class="role-context-label">
-                    MI CUENTA
-                </span>
-
-                <strong>
-                    Miembro{% if subscription_identity.subscription %} · {{ subscription_identity.plan_name }}{% endif %}
-                </strong>
-
-            </div>
-
-            <div class="role-context-actions">
-
-                {% if professional_profile and professional_profile.verification_status == 'verified' %}
-
-                    <a
-                        href="{% url 'professionals:dashboard' %}"
-                        class="role-context-switch"
-                    >
-                        Centro Profesional
-                        <span>→</span>
-                    </a>
-
-                {% endif %}
-
-                {% if request.user.space_provider_profile and request.user.space_provider_profile.verification_status == 'verified' %}
-
-                    <a
-                        href="{% url 'spaces:dashboard' %}"
-                        class="role-context-switch"
-                    >
-                        Centro de Espacios
-                        <span>→</span>
-                    </a>
-
-                {% endif %}
-
-            </div>
-
-        </section>
-
-        <!-- =========================
-             MI AGENDA
-        ========================== -->
-
-        <section class="member-agenda-access">
-
-            <div class="member-agenda-access-copy">
-
-                <span class="page-overline">
-                    ORGANIZA TU ACTIVIDAD
-                </span>
-
-                <h2>
-                    Mi agenda.
-                </h2>
-
-                <p>
-                    Revisa en un solo calendario tus sesiones con profesionales,
-                    tus arriendos de espacios y las actividades en las que participas
-                    o que organizas.
-                </p>
-
-            </div>
-
-            <a
-                href="{% url 'accounts:member_agenda' %}"
-                class="member-agenda-access-link"
-            >
-
-                <span>
-                    AGENDA DEL MIEMBRO
-                </span>
-
-                <strong>
-                    Abrir mi agenda
-                </strong>
-
-                <b>→</b>
-
-            </a>
-
-        </section>
-
-        <!-- =========================
-             NOVEDADES DE MI CUENTA
-        ========================== -->
-
-        {% if account_updates %}
-
-            <section
-                class="account-updates-section"
-                id="account-updates-section"
-                data-user-id="{{ request.user.id }}"
-            >
-
-                <div class="account-updates-heading">
-
-                    <div>
-
-                        <span class="page-overline">
-                            NOVEDADES
-                        </span>
-
-                        <h2>
-                            Cambios importantes en tu cuenta
-                        </h2>
-
-                        <p>
-                            Confirmaciones, inscripciones, actualizaciones,
-                            cancelaciones y seguimiento de incidencias
-                            que conviene revisar.
-                        </p>
-
-                    </div>
-
-                    <div class="account-updates-heading-actions">
-
-                        <span
-                            class="account-updates-unread-count"
-                            id="account-updates-unread-count"
-                        ></span>
-
-                        <button
-                            type="button"
-                            class="account-updates-mark-all-top"
-                            id="account-updates-mark-all"
-                        >
-                            ✓ Marcar todas como revisadas
-                        </button>
-
-                        <button
-                            type="button"
-                            class="account-updates-show-all"
-                            id="account-updates-show-all"
-                        >
-                            Ver todas las novedades
-                            <span>→</span>
-                        </button>
-
-                    </div>
-
-                </div>
-
-                <!-- RESUMEN: SOLO NOVEDADES SIN REVISAR -->
-
-                <div
-                    class="account-updates-summary"
-                    id="account-updates-summary"
-                >
-
-                    <div
-                        class="account-updates-grid"
-                        id="account-updates-grid"
-                    >
-
-                        {% for update in account_updates %}
-
-                            <article
-                                class="account-update-card account-update-card-{{ update.module }} account-update-card-{{ update.kind }}"
-                                data-update-id="{{ update.key }}"
-                                data-update-module="{{ update.module }}"
-                            >
-
-                                <div class="account-update-card-top">
-
-                                    <div class="account-update-icon">
-
-                                        {% if update.kind == 'confirmed' or update.kind == 'joined' or update.kind == 'member_joined' or update.kind == 'incident_resolved' %}
-
-                                            ✓
-
-                                        {% elif update.kind == 'updated' or update.kind == 'incident_in_review' %}
-
-                                            ↻
-
-                                        {% elif update.kind == 'incident_response' %}
-
-                                            i
-
-                                        {% elif update.kind == 'member_left' %}
-
-                                            −
-
-                                        {% else %}
-
-                                            !
-
-                                        {% endif %}
-
-                                    </div>
-
-                                    <div class="account-update-title-copy">
-
-                                        <span>
-                                            {{ update.module_label }}
-                                        </span>
-
-                                        <h3>
-                                            {{ update.title }}
-                                        </h3>
-
-                                    </div>
-
-                                    <span class="account-update-state account-update-state-{{ update.kind }}">
-
-                                        {% if update.kind == 'confirmed' %}
-
-                                            Confirmada
-
-                                        {% elif update.kind == 'rejected' %}
-
-                                            No aceptada
-
-                                        {% elif update.kind == 'joined' %}
-
-                                            Inscrito
-
-                                        {% elif update.kind == 'updated' %}
-
-                                            Actualizada
-
-                                        {% elif update.kind == 'member_joined' %}
-
-                                            Nuevo inscrito
-
-                                        {% elif update.kind == 'member_left' %}
-
-                                            Cupo liberado
-
-                                        {% elif update.kind == 'incident_resolved' %}
-
-                                            Resuelta
-
-                                        {% elif update.kind == 'incident_in_review' %}
-
-                                            En revisión
-
-                                        {% elif update.kind == 'incident_response' %}
-
-                                            Antecedentes
-
-                                        {% elif update.kind == 'incident_reported' %}
-
-                                            Reportada
-
-                                        {% else %}
-
-                                            Cancelada
-
-                                        {% endif %}
-
-                                    </span>
-
-                                </div>
-
-                                <p class="account-update-summary">
-                                    {{ update.summary }}
-                                </p>
-
-                                <div class="account-update-session">
-
-                                    <div>
-
-                                        <span>
-                                            FECHA
-                                        </span>
-
-                                        <strong>
-                                            {{ update.session_date|date:"d M"|upper }}
-                                        </strong>
-
-                                    </div>
-
-                                    <div>
-
-                                        <span>
-                                            HORARIO
-                                        </span>
-
-                                        <strong>
-                                            {{ update.start_time|time:"H:i" }}
-                                            –
-                                            {{ update.end_time|time:"H:i" }}
-                                        </strong>
-
-                                    </div>
-
-                                </div>
-
-                                {% if update.reason and update.kind != 'confirmed' %}
-
-                                    <div class="account-update-reason">
-
-                                        <span>
-                                            MOTIVO
-                                        </span>
-
-                                        <strong>
-                                            {{ update.reason }}
-                                        </strong>
-
-                                    </div>
-
-                                {% endif %}
-
-                                <div class="account-update-actions">
-
-                                    <button
-                                        type="button"
-                                        class="account-update-seen-button"
-                                        data-mark-seen
-                                    >
-                                        ✓ Marcar como revisada
-                                    </button>
-
-                                    <a
-                                        href="{{ update.detail_url }}"
-                                        data-update-detail-link
-                                    >
-
-                                        {% if update.module == 'incident' %}
-
-                                            {{ update.action_label|default:'Ver mi incidencia' }}
-
-                                        {% elif update.module == 'professional' %}
-
-                                            Ver reserva
-
-                                        {% elif update.module == 'space' %}
-
-                                            Ver arriendo
-
-                                        {% else %}
-
-                                            Ver actividad
-
-                                        {% endif %}
-
-                                        <span>→</span>
-
-                                    </a>
-
-                                </div>
-
-                            </article>
-
-                        {% endfor %}
-
-                    </div>
-
-                    <div
-                        class="account-updates-empty"
-                        id="account-updates-empty"
-                        hidden
-                    >
-
-                        <span>✓</span>
-
-                        <div>
-
-                            <strong>
-                                Estás al día
-                            </strong>
-
-                            <p>
-                                No tienes novedades pendientes por revisar.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                    <div
-                        class="account-updates-more-note"
-                        id="account-updates-more-note"
-                        hidden
-                    >
-
-                        <span id="account-updates-more-text"></span>
-
-                        <button
-                            type="button"
-                            data-open-all-updates
-                        >
-                            Ver las demás
-                            <span>→</span>
-                        </button>
-
-                    </div>
-
-                </div>
-
-                <!-- =========================
-                     VISTA COMPLETA
-                ========================== -->
-
-                <div
-                    class="account-updates-archive"
-                    id="account-updates-archive"
-                    hidden
-                >
-
-                    <section class="account-updates-archive-group">
-
-                        <div class="account-updates-archive-heading">
-
-                            <div>
-
-                                <span>
-                                    POR REVISAR
-                                </span>
-
-                                <h3>
-                                    Novedades pendientes
-                                </h3>
-
-                                <p>
-                                    Cambios que todavía no has marcado como revisados.
-                                </p>
-
-                            </div>
-
-                            <span
-                                class="account-updates-archive-count"
-                                id="account-updates-archive-unread-count"
-                            ></span>
-
-                        </div>
-
-                        <div
-                            class="account-updates-grid account-updates-archive-unread-grid"
-                            id="account-updates-archive-unread-grid"
-                        ></div>
-
-                        <div
-                            class="account-updates-archive-empty"
-                            id="account-updates-archive-unread-empty"
-                            hidden
-                        >
-
-                            <span>✓</span>
-
-                            <div>
-
-                                <strong>
-                                    No tienes novedades por revisar
-                                </strong>
-
-                                <p>
-                                    Todo lo revisado seguirá disponible en tu historial.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </section>
-
-                    <section class="account-updates-archive-group account-updates-history-group">
-
-                        <div class="account-updates-archive-heading">
-
-                            <div>
-
-                                <span>
-                                    HISTORIAL
-                                </span>
-
-                                <h3>
-                                    Historial de novedades
-                                </h3>
-
-                                <p>
-                                    Aquí puedes volver a consultar los cambios que ya revisaste.
-                                </p>
-
-                            </div>
-
-                            <span
-                                class="account-updates-archive-count account-updates-archive-count-seen"
-                                id="account-updates-archive-seen-count"
-                            ></span>
-
-                        </div>
-
-                        <div
-                            class="account-updates-grid account-updates-archive-history-grid"
-                            id="account-updates-archive-history-grid"
-                        ></div>
-
-                        <div
-                            class="account-updates-archive-empty"
-                            id="account-updates-archive-seen-empty"
-                            hidden
-                        >
-
-                            <span>↻</span>
-
-                            <div>
-
-                                <strong>
-                                    Tu historial todavía está vacío
-                                </strong>
-
-                                <p>
-                                    Cuando marques una novedad como revisada, aparecerá aquí.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </section>
-
-                </div>
-
-            </section>
-
-            <!-- =========================
-                 JAVASCRIPT NOVEDADES
-            ========================== -->
-
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-
-                    const section = document.getElementById(
-                        'account-updates-section'
-                    );
-
-                    if (!section) {
-                        return;
-                    }
-
-                    const userId = section.dataset.userId;
-
-                    /*
-                    Conservamos la misma clave para no perder
-                    las novedades que ya fueron revisadas.
-                    */
-
-                    const storageKey =
-                        'entrenamientoycomunidad_updates_seen_v1_' + userId;
-
-                    const summary = document.getElementById(
-                        'account-updates-summary'
-                    );
-
-                    const archive = document.getElementById(
-                        'account-updates-archive'
-                    );
-
-                    const summaryGrid = document.getElementById(
-                        'account-updates-grid'
-                    );
-
-                    const archiveUnreadGrid = document.getElementById(
-                        'account-updates-archive-unread-grid'
-                    );
-
-                    const archiveSeenGrid = document.getElementById(
-                        'account-updates-archive-history-grid'
-                    );
-
-                    const countLabel = document.getElementById(
-                        'account-updates-unread-count'
-                    );
-
-                    const showAllButton = document.getElementById(
-                        'account-updates-show-all'
-                    );
-
-                    const markAllButton = document.getElementById(
-                        'account-updates-mark-all'
-                    );
-
-                    const emptyState = document.getElementById(
-                        'account-updates-empty'
-                    );
-
-                    const moreNote = document.getElementById(
-                        'account-updates-more-note'
-                    );
-
-                    const moreText = document.getElementById(
-                        'account-updates-more-text'
-                    );
-
-                    const archiveUnreadCount = document.getElementById(
-                        'account-updates-archive-unread-count'
-                    );
-
-                    const archiveSeenCount = document.getElementById(
-                        'account-updates-archive-seen-count'
-                    );
-
-                    const archiveUnreadEmpty = document.getElementById(
-                        'account-updates-archive-unread-empty'
-                    );
-
-                    const archiveSeenEmpty = document.getElementById(
-                        'account-updates-archive-seen-empty'
-                    );
-
-                    let cards = Array.from(
-                        summaryGrid.querySelectorAll('[data-update-id]')
-                    );
-
-                    const originalOrder = new Map();
-
-                    cards.forEach(function (card, index) {
-                        originalOrder.set(card.dataset.updateId, index);
-                    });
-
-                    let archiveMode = false;
-                    let seen = [];
-
-                    try {
-                        seen = JSON.parse(
-                            localStorage.getItem(storageKey) || '[]'
-                        );
-
-                        if (!Array.isArray(seen)) {
-                            seen = [];
-                        }
-
-                    } catch (error) {
-                        seen = [];
-                    }
-
-                    function saveSeen() {
-                        try {
-                            localStorage.setItem(
-                                storageKey,
-                                JSON.stringify(seen)
-                            );
-                        } catch (error) {
-                            // Conservamos el funcionamiento visual.
-                        }
-                    }
-
-                    function isSeen(card) {
-                        return seen.includes(card.dataset.updateId);
-                    }
-
-                    function sortByOriginalOrder(cardList) {
-                        return cardList.sort(function (a, b) {
-                            return (
-                                originalOrder.get(a.dataset.updateId)
-                                -
-                                originalOrder.get(b.dataset.updateId)
-                            );
-                        });
-                    }
-
-                    function updateCardState(card) {
-
-                        const reviewed = isSeen(card);
-
-                        const button = card.querySelector(
-                            '[data-mark-seen]'
-                        );
-
-                        card.classList.toggle('is-seen', reviewed);
-                        card.classList.remove('is-overflow');
-
-                        if (button) {
-                            button.textContent = reviewed
-                                ? '✓ Revisada'
-                                : '✓ Marcar como revisada';
-
-                            button.disabled = reviewed;
-                        }
-                    }
-
-                    function returnCardsToSummary() {
-
-                        sortByOriginalOrder(
-                            cards.slice()
-                        ).forEach(function (card) {
-                            summaryGrid.appendChild(card);
-                        });
-                    }
-
-                    function renderSummary() {
-
-                        archiveMode = false;
-                        archive.hidden = true;
-                        summary.hidden = false;
-
-                        returnCardsToSummary();
-
-                        const unreadCards = cards.filter(function (card) {
-                            updateCardState(card);
-                            return !isSeen(card);
-                        });
-
-                        unreadCards.slice(3).forEach(function (card) {
-                            card.classList.add('is-overflow');
-                        });
-
-                        summaryGrid.classList.remove(
-                            'updates-visible-0',
-                            'updates-visible-1',
-                            'updates-visible-2',
-                            'updates-visible-3'
-                        );
-
-                        const visibleCount = Math.min(
-                            unreadCards.length,
-                            3
-                        );
-
-                        summaryGrid.classList.add(
-                            'updates-visible-' + visibleCount
-                        );
-
-                        countLabel.textContent = unreadCards.length
-                            ? unreadCards.length + ' sin revisar'
-                            : 'Sin pendientes';
-
-                        emptyState.hidden = unreadCards.length !== 0;
-
-                        const remaining = Math.max(
-                            unreadCards.length - 3,
-                            0
-                        );
-
-                        moreNote.hidden = remaining === 0;
-
-                        if (remaining > 0) {
-                            moreText.textContent =
-                                'Tienes '
-                                + remaining
-                                + (
-                                    remaining === 1
-                                        ? ' novedad más por revisar.'
-                                        : ' novedades más por revisar.'
-                                );
-                        }
-
-                        markAllButton.hidden = unreadCards.length === 0;
-
-                        showAllButton.innerHTML =
-                            'Ver todas las novedades <span>→</span>';
-                    }
-
-                    function renderArchive() {
-
-                        archiveMode = true;
-                        summary.hidden = true;
-                        archive.hidden = false;
-
-                        const unreadCards = [];
-                        const seenCards = [];
-
-                        cards.forEach(function (card) {
-
-                            updateCardState(card);
-
-                            if (isSeen(card)) {
-                                seenCards.push(card);
-                            } else {
-                                unreadCards.push(card);
-                            }
-                        });
-
-                        sortByOriginalOrder(unreadCards).forEach(
-                            function (card) {
-                                archiveUnreadGrid.appendChild(card);
-                            }
-                        );
-
-                        sortByOriginalOrder(seenCards).forEach(
-                            function (card) {
-                                archiveSeenGrid.appendChild(card);
-                            }
-                        );
-
-                        archiveUnreadCount.textContent =
-                            unreadCards.length
-                            + (
-                                unreadCards.length === 1
-                                    ? ' pendiente'
-                                    : ' pendientes'
-                            );
-
-                        archiveSeenCount.textContent =
-                            seenCards.length
-                            + (
-                                seenCards.length === 1
-                                    ? ' revisada'
-                                    : ' revisadas'
-                            );
-
-                        [
-                            archiveUnreadGrid,
-                            archiveSeenGrid
-                        ].forEach(function (grid) {
-
-                            grid.classList.remove(
-                                'updates-archive-count-0',
-                                'updates-archive-count-1',
-                                'updates-archive-count-2',
-                                'updates-archive-count-3',
-                                'updates-archive-count-4',
-                                'updates-archive-count-5',
-                                'updates-archive-count-many'
-                            );
-                        });
-
-                        function archiveCountClass(count) {
-
-                            if (count <= 5) {
-                                return 'updates-archive-count-' + count;
-                            }
-
-                            return 'updates-archive-count-many';
-                        }
-
-                        archiveUnreadGrid.classList.add(
-                            archiveCountClass(unreadCards.length)
-                        );
-
-                        archiveSeenGrid.classList.add(
-                            archiveCountClass(seenCards.length)
-                        );
-
-                        archiveUnreadEmpty.hidden =
-                            unreadCards.length !== 0;
-
-                        archiveSeenEmpty.hidden =
-                            seenCards.length !== 0;
-
-                        countLabel.textContent =
-                            cards.length + ' en total';
-
-                        markAllButton.hidden =
-                            unreadCards.length === 0;
-
-                        showAllButton.innerHTML =
-                            'Ocultar novedades <span>↑</span>';
-                    }
-
-                    function refresh() {
-                        if (archiveMode) {
-                            renderArchive();
-                        } else {
-                            renderSummary();
-                        }
-                    }
-
-                    cards.forEach(function (card) {
-
-                        const button = card.querySelector(
-                            '[data-mark-seen]'
-                        );
-
-                        if (!button) {
-                            return;
-                        }
-
-                        button.addEventListener('click', function () {
-
-                            const id = card.dataset.updateId;
-
-                            if (!seen.includes(id)) {
-                                seen.push(id);
-                                saveSeen();
-                            }
-
-                            refresh();
-                        });
-                    });
-
-                    // V123 - Al abrir el detalle se marca revisada.
-
-                    cards.forEach(function (card) {
-
-                        const detailLink = card.querySelector(
-                            '[data-update-detail-link]'
-                        );
-
-                        if (!detailLink) {
-                            return;
-                        }
-
-                        detailLink.addEventListener('click', function () {
-
-                            const id = card.dataset.updateId;
-
-                            if (!seen.includes(id)) {
-                                seen.push(id);
-                                saveSeen();
-                            }
-                        });
-                    });
-
-                    showAllButton.addEventListener('click', function () {
-
-                        if (archiveMode) {
-                            renderSummary();
-                        } else {
-                            renderArchive();
-                        }
-                    });
-
-                    section.querySelectorAll(
-                        '[data-open-all-updates]'
-                    ).forEach(function (button) {
-
-                        button.addEventListener('click', function () {
-                            renderArchive();
-                        });
-                    });
-
-                    markAllButton.addEventListener('click', function () {
-
-                        cards.forEach(function (card) {
-
-                            const id = card.dataset.updateId;
-
-                            if (!seen.includes(id)) {
-                                seen.push(id);
-                            }
-                        });
-
-                        saveSeen();
-                        refresh();
-                    });
-
-                    renderSummary();
-
-                });
-            </script>
-
-        {% endif %}
-
-        <!-- =========================
-             LO PRÓXIMO
-        ========================== -->
-
-        {% if professional_upcoming_count and space_upcoming_count %}
-
-            <section class="account-upcoming-mixed-section">
-
-                <div class="account-upcoming-mixed-heading">
-
-                    <div>
-
-                        <span class="page-overline">
-                            LO PRÓXIMO
-                        </span>
-
-                        <h2>
-                            Tu agenda próxima
-                        </h2>
-
-                        <p>
-                            Tus sesiones y arriendos en un solo lugar,
-                            ordenados por fecha.
-                        </p>
-
-                    </div>
-
-                    <div class="account-upcoming-mixed-summary">
-
-                        <a
-                            href="{% url 'bookings:my_bookings' %}"
-                            class="account-upcoming-mixed-pill account-upcoming-mixed-pill-professional"
-                        >
-                            {{ professional_upcoming_count }}
-                            profesional{{ professional_upcoming_count|pluralize:"es" }}
-                            <span>→</span>
-                        </a>
-
-                        <a
-                            href="{% url 'spaces:my_bookings' %}"
-                            class="account-upcoming-mixed-pill account-upcoming-mixed-pill-space"
-                        >
-                            {{ space_upcoming_count }}
-                            espacio{{ space_upcoming_count|pluralize }}
-                            <span>→</span>
-                        </a>
-
-                    </div>
-
-                </div>
-
-                <div class="account-upcoming-mixed-grid account-upcoming-count-{{ mixed_upcoming_preview|length }}">
-
-                    {% for item in mixed_upcoming_preview %}
-
-                        {% with booking=item.booking %}
-
-                            {% if item.kind == 'professional' %}
-
-                                <article class="account-upcoming-professional-card account-upcoming-mixed-card">
-
-                                    <div class="account-upcoming-professional-card-top">
-
-                                        <div class="account-upcoming-professional-person">
-
-                                            <div class="account-upcoming-professional-avatar">
-
-                                                {% if booking.professional_profile.user.profile_image %}
-
-                                                    <img
-                                                        src="{{ booking.professional_profile.user.profile_image.url }}"
-                                                        alt="Foto de {{ booking.professional_profile.user.get_full_name|default:booking.professional_profile.user.email }}"
-                                                    >
-
-                                                {% else %}
-
-                                                    <span>
-                                                        {{ booking.professional_profile.user.first_name|first|upper }}{{ booking.professional_profile.user.last_name|first|upper }}
-                                                    </span>
-
-                                                {% endif %}
-
-                                            </div>
-
-                                            <div class="account-upcoming-professional-copy">
-
-                                                <span>
-                                                    SERVICIO PROFESIONAL
-                                                </span>
-
-                                                <h3>
-                                                    {{ booking.service_name_snapshot }}
-                                                </h3>
-
-                                                <p>
-                                                    con
-                                                    <strong>
-                                                        {{ booking.professional_profile.user.get_full_name|default:booking.professional_profile.user.email }}
-                                                    </strong>
-                                                </p>
-
-                                            </div>
-
-                                        </div>
-
-                                        <span class="account-next-status account-next-status-{{ booking.status }}">
-                                            {{ booking.get_status_display }}
-                                        </span>
-
-                                    </div>
-
-                                    <div class="account-upcoming-professional-main">
-
-                                        <div class="account-upcoming-professional-date">
-
-                                            <span>FECHA</span>
-
-                                            <strong>
-                                                {{ booking.session_date|date:"d M"|upper }}
-                                            </strong>
-
-                                            <small>
-                                                {{ booking.session_date|date:"Y" }}
-                                            </small>
-
-                                        </div>
-
-                                        <div>
-
-                                            <span>HORARIO</span>
-
-                                            <strong>
-                                                {{ booking.start_time|time:"H:i" }}
-                                                –
-                                                {{ booking.end_time|time:"H:i" }}
-                                            </strong>
-
-                                            <small>
-                                                {{ booking.duration_minutes }} min
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="account-upcoming-professional-secondary">
-
-                                        <div>
-
-                                            <span>MODALIDAD</span>
-
-                                            <strong>
-                                                {{ booking.get_mode_snapshot_display }}
-                                            </strong>
-
-                                        </div>
-
-                                        <div>
-
-                                            <span>PRECIO</span>
-
-                                            <strong class="account-upcoming-professional-price">
-                                                {{ booking.price_clp|clp }}
-                                            </strong>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="account-upcoming-professional-footer">
-
-                                        <span>
-
-                                            {% if booking.status == 'pending' %}
-
-                                                Esperando confirmación de
-                                                {{ booking.professional_profile.user.first_name|default:"tu profesional" }}.
-
-                                            {% else %}
-
-                                                Tu sesión está confirmada.
-
-                                            {% endif %}
-
-                                        </span>
-
-                                        <a href="{% url 'bookings:detail' booking.id %}">
-                                            Ver reserva
-                                            <span>→</span>
-                                        </a>
-
-                                    </div>
-
-                                </article>
-
-                            {% else %}
-
-                                <article class="account-upcoming-space-card account-upcoming-mixed-card">
-
-                                    <div class="account-upcoming-space-card-top">
-
-                                        <div class="account-upcoming-space-place">
-
-                                            <div class="account-upcoming-space-image">
-
-                                                {% if item.cover %}
-
-                                                    <img
-                                                        src="{{ item.cover.image.url }}"
-                                                        alt="{{ booking.space_name_snapshot }}"
-                                                    >
-
-                                                {% else %}
-
-                                                    <span>
-                                                        {{ booking.space_name_snapshot|first|upper }}
-                                                    </span>
-
-                                                {% endif %}
-
-                                            </div>
-
-                                            <div class="account-upcoming-space-copy">
-
-                                                <span>
-                                                    ESPACIO RESERVADO
-                                                </span>
-
-                                                <h3>
-                                                    {{ booking.space_name_snapshot }}
-                                                </h3>
-
-                                                <p>
-                                                    con
-                                                    <strong>
-                                                        {{ booking.provider_name_snapshot }}
-                                                    </strong>
-                                                </p>
-
-                                            </div>
-
-                                        </div>
-
-                                        <span class="account-next-status account-next-status-{{ booking.status }}">
-                                            {{ booking.get_status_display }}
-                                        </span>
-
-                                    </div>
-
-                                    <div class="account-upcoming-space-main">
-
-                                        <div class="account-upcoming-space-date">
-
-                                            <span>FECHA</span>
-
-                                            <strong>
-                                                {{ booking.session_date|date:"d M"|upper }}
-                                            </strong>
-
-                                            <small>
-                                                {{ booking.session_date|date:"Y" }}
-                                            </small>
-
-                                        </div>
-
-                                        <div>
-
-                                            <span>HORARIO</span>
-
-                                            <strong>
-                                                {{ booking.start_time|time:"H:i" }}
-                                                –
-                                                {{ booking.end_time|time:"H:i" }}
-                                            </strong>
-
-                                            <small>
-                                                {{ booking.duration_minutes }} min
-                                            </small>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="account-upcoming-space-secondary">
-
-                                        <div>
-
-                                            <span>UBICACIÓN</span>
-
-                                            <strong>
-                                                {{ booking.commune_snapshot }}
-                                            </strong>
-
-                                        </div>
-
-                                        <div>
-
-                                            <span>PRECIO</span>
-
-                                            <strong class="account-upcoming-space-price">
-                                                {{ booking.price_clp|clp }}
-                                            </strong>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="account-upcoming-space-footer">
-
-                                        <span>
-
-                                            {% if booking.status == 'pending' %}
-
-                                                Esperando confirmación de
-                                                {{ booking.provider_name_snapshot }}.
-
-                                            {% else %}
-
-                                                Tu arriendo está confirmado.
-
-                                            {% endif %}
-
-                                        </span>
-
-                                        <a href="{% url 'spaces:booking_detail' booking.id %}">
-                                            Ver arriendo
-                                            <span>→</span>
-                                        </a>
-
-                                    </div>
-
-                                </article>
-
-                            {% endif %}
-
-                        {% endwith %}
-
-                    {% endfor %}
-
-                </div>
-
-                {% if mixed_remaining_count > 0 %}
-
-                    <div class="account-upcoming-mixed-more">
-
-                        <span>
-                            También tienes
-                            {{ mixed_remaining_count }}
-                            actividad{{ mixed_remaining_count|pluralize:"es" }}
-                            próxima{{ mixed_remaining_count|pluralize }}.
-                        </span>
-
-                        <div>
-
-                            <a
-                                href="{% url 'bookings:my_bookings' %}"
-                                class="account-upcoming-mixed-more-professional"
-                            >
-                                Reservas profesionales →
-                            </a>
-
-                            <a
-                                href="{% url 'spaces:my_bookings' %}"
-                                class="account-upcoming-mixed-more-space"
-                            >
-                                Arriendos de espacios →
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                {% endif %}
-
-            </section>
-
-        {% elif professional_upcoming_count > 1 and not space_upcoming_count %}
-
-            <section class="account-upcoming-professional-section">
-
-                <div class="account-upcoming-professional-heading">
-
-                    <div>
-
-                        <span class="page-overline">
-                            LO PRÓXIMO
-                        </span>
-
-                        <h2>
-                            Tus próximas reservas
-                        </h2>
-
-                        <p>
-                            Tienes {{ professional_upcoming_count }}
-                            sesiones profesionales próximas.
-                            Revísalas sin salir de Mi cuenta.
-                        </p>
-
-                    </div>
-
-                    <a
-                        href="{% url 'bookings:my_bookings' %}"
-                        class="account-upcoming-professional-all"
-                    >
-                        Todas mis reservas
-                        <span>→</span>
-                    </a>
-
-                </div>
-
-                <div class="account-upcoming-professional-grid account-upcoming-count-{{ professional_booking_preview|length }}">
-
-                    {% for booking in professional_booking_preview %}
-
-                        <article class="account-upcoming-professional-card">
-
-                            <div class="account-upcoming-professional-card-top">
-
-                                <div class="account-upcoming-professional-person">
-
-                                    <div class="account-upcoming-professional-avatar">
-
-                                        {% if booking.professional_profile.user.profile_image %}
-
-                                            <img
-                                                src="{{ booking.professional_profile.user.profile_image.url }}"
-                                                alt="Foto de {{ booking.professional_profile.user.get_full_name|default:booking.professional_profile.user.email }}"
-                                            >
-
-                                        {% else %}
-
-                                            <span>
-                                                {{ booking.professional_profile.user.first_name|first|upper }}{{ booking.professional_profile.user.last_name|first|upper }}
-                                            </span>
-
-                                        {% endif %}
-
-                                    </div>
-
-                                    <div class="account-upcoming-professional-copy">
-
-                                        <span>
-                                            SERVICIO PROFESIONAL
-                                        </span>
-
-                                        <h3>
-                                            {{ booking.service_name_snapshot }}
-                                        </h3>
-
-                                        <p>
-                                            con
-                                            <strong>
-                                                {{ booking.professional_profile.user.get_full_name|default:booking.professional_profile.user.email }}
-                                            </strong>
-                                        </p>
-
-                                    </div>
-
-                                </div>
-
-                                <span class="account-next-status account-next-status-{{ booking.status }}">
-                                    {{ booking.get_status_display }}
-                                </span>
-
-                            </div>
-
-                            <div class="account-upcoming-professional-main">
-
-                                <div class="account-upcoming-professional-date">
-
-                                    <span>FECHA</span>
-
-                                    <strong>
-                                        {{ booking.session_date|date:"d M"|upper }}
-                                    </strong>
-
-                                    <small>
-                                        {{ booking.session_date|date:"Y" }}
-                                    </small>
-
-                                </div>
-
-                                <div>
-
-                                    <span>HORARIO</span>
-
-                                    <strong>
-                                        {{ booking.start_time|time:"H:i" }}
-                                        –
-                                        {{ booking.end_time|time:"H:i" }}
-                                    </strong>
-
-                                    <small>
-                                        {{ booking.duration_minutes }} min
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                            <div class="account-upcoming-professional-secondary">
-
-                                <div>
-
-                                    <span>MODALIDAD</span>
-
-                                    <strong>
-                                        {{ booking.get_mode_snapshot_display }}
-                                    </strong>
-
-                                </div>
-
-                                <div>
-
-                                    <span>PRECIO</span>
-
-                                    <strong class="account-upcoming-professional-price">
-                                        {{ booking.price_clp|clp }}
-                                    </strong>
-
-                                </div>
-
-                            </div>
-
-                            <div class="account-upcoming-professional-footer">
-
-                                <span>
-
-                                    {% if booking.status == 'pending' %}
-
-                                        Esperando confirmación de
-                                        {{ booking.professional_profile.user.first_name|default:"tu profesional" }}.
-
-                                    {% else %}
-
-                                        Tu sesión está confirmada.
-
-                                    {% endif %}
-
-                                </span>
-
-                                <a href="{% url 'bookings:detail' booking.id %}">
-                                    Ver reserva
-                                    <span>→</span>
-                                </a>
-
-                            </div>
-
-                        </article>
-
-                    {% endfor %}
-
-                </div>
-
-                {% if professional_remaining_count > 0 %}
-
-                    <div class="account-upcoming-professional-more">
-
-                        <span>
-                            También tienes
-                            {{ professional_remaining_count }}
-                            reserva{{ professional_remaining_count|pluralize }}
-                            profesional{{ professional_remaining_count|pluralize:"es" }}
-                            próxima{{ professional_remaining_count|pluralize }}.
-                        </span>
-
-                        <a href="{% url 'bookings:my_bookings' %}">
-                            Ver todas
-                            <span>→</span>
-                        </a>
-
-                    </div>
-
-                {% endif %}
-
-            </section>
-
-        {% elif space_upcoming_count > 1 and not professional_upcoming_count %}
-
-            <section class="account-upcoming-space-section">
-
-                <div class="account-upcoming-space-heading">
-
-                    <div>
-
-                        <span class="page-overline">
-                            LO PRÓXIMO
-                        </span>
-
-                        <h2>
-                            Tus próximos arriendos
-                        </h2>
-
-                        <p>
-                            Tienes {{ space_upcoming_count }}
-                            espacios reservados próximos.
-                            Revísalos sin salir de Mi cuenta.
-                        </p>
-
-                    </div>
-
-                    <a
-                        href="{% url 'spaces:my_bookings' %}"
-                        class="account-upcoming-space-all"
-                    >
-                        Todos mis arriendos
-                        <span>→</span>
-                    </a>
-
-                </div>
-
-                <div class="account-upcoming-space-grid account-upcoming-count-{{ space_booking_preview|length }}">
-
-                    {% for booking in space_booking_preview %}
-
-                        <article class="account-upcoming-space-card">
-
-                            <div class="account-upcoming-space-card-top">
-
-                                <div class="account-upcoming-space-place">
-
-                                    <div class="account-upcoming-space-image">
-
-                                        {% with cover=booking.space.images.all.0 %}
-
-                                            {% if cover %}
-
-                                                <img
-                                                    src="{{ cover.image.url }}"
-                                                    alt="{{ booking.space_name_snapshot }}"
-                                                >
-
-                                            {% else %}
-
-                                                <span>
-                                                    {{ booking.space_name_snapshot|first|upper }}
-                                                </span>
-
-                                            {% endif %}
-
-                                        {% endwith %}
-
-                                    </div>
-
-                                    <div class="account-upcoming-space-copy">
-
-                                        <span>
-                                            ESPACIO RESERVADO
-                                        </span>
-
-                                        <h3>
-                                            {{ booking.space_name_snapshot }}
-                                        </h3>
-
-                                        <p>
-                                            con
-                                            <strong>
-                                                {{ booking.provider_name_snapshot }}
-                                            </strong>
-                                        </p>
-
-                                    </div>
-
-                                </div>
-
-                                <span class="account-next-status account-next-status-{{ booking.status }}">
-                                    {{ booking.get_status_display }}
-                                </span>
-
-                            </div>
-
-                            <div class="account-upcoming-space-main">
-
-                                <div class="account-upcoming-space-date">
-
-                                    <span>FECHA</span>
-
-                                    <strong>
-                                        {{ booking.session_date|date:"d M"|upper }}
-                                    </strong>
-
-                                    <small>
-                                        {{ booking.session_date|date:"Y" }}
-                                    </small>
-
-                                </div>
-
-                                <div>
-
-                                    <span>HORARIO</span>
-
-                                    <strong>
-                                        {{ booking.start_time|time:"H:i" }}
-                                        –
-                                        {{ booking.end_time|time:"H:i" }}
-                                    </strong>
-
-                                    <small>
-                                        {{ booking.duration_minutes }} min
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                            <div class="account-upcoming-space-secondary">
-
-                                <div>
-
-                                    <span>UBICACIÓN</span>
-
-                                    <strong>
-                                        {{ booking.commune_snapshot }}
-                                    </strong>
-
-                                </div>
-
-                                <div>
-
-                                    <span>PRECIO</span>
-
-                                    <strong class="account-upcoming-space-price">
-                                        {{ booking.price_clp|clp }}
-                                    </strong>
-
-                                </div>
-
-                            </div>
-
-                            <div class="account-upcoming-space-footer">
-
-                                <span>
-
-                                    {% if booking.status == 'pending' %}
-
-                                        Esperando confirmación de
-                                        {{ booking.provider_name_snapshot }}.
-
-                                    {% else %}
-
-                                        Tu arriendo está confirmado.
-
-                                    {% endif %}
-
-                                </span>
-
-                                <a href="{% url 'spaces:booking_detail' booking.id %}">
-                                    Ver arriendo
-                                    <span>→</span>
-                                </a>
-
-                            </div>
-
-                        </article>
-
-                    {% endfor %}
-
-                </div>
-
-                {% if space_remaining_count > 0 %}
-
-                    <div class="account-upcoming-space-more">
-
-                        <span>
-                            También tienes
-                            {{ space_remaining_count }}
-                            arriendo{{ space_remaining_count|pluralize }}
-                            próximo{{ space_remaining_count|pluralize }}.
-                        </span>
-
-                        <a href="{% url 'spaces:my_bookings' %}">
-                            Ver todos
-                            <span>→</span>
-                        </a>
-
-                    </div>
-
-                {% endif %}
-
-            </section>
-
-        {% elif next_booking %}
-
-            <section class="account-next-section">
-
-                <div class="account-next-heading">
-
-                    <div>
-
-                        <span class="page-overline">
-                            LO PRÓXIMO
-                        </span>
-
-                        <h2>
-
-                            {% if next_booking_kind == 'professional' %}
-
-                                Tu próxima reserva
-
-                            {% else %}
-
-                                Tu próximo arriendo
-
-                            {% endif %}
-
-                        </h2>
-
-                        <p>
-                            Lo más cercano en tu agenda,
-                            directamente desde Mi cuenta.
-                        </p>
-
-                    </div>
-
-                    <span class="account-next-type account-next-type-{{ next_booking_kind }}">
-
-                        {% if next_booking_kind == 'professional' %}
-
-                            SERVICIO PROFESIONAL
-
-                        {% else %}
-
-                            ESPACIO RESERVADO
-
-                        {% endif %}
-
-                    </span>
-
-                </div>
-
-                {% if next_booking_kind == 'professional' %}
-
-                    <a
-                        href="{% url 'bookings:detail' next_booking.id %}"
-                        class="account-next-card account-next-card-professional"
-                    >
-
-                        <div class="account-next-card-header">
-
-                            <div class="account-next-identity">
-
-                                <div class="account-next-avatar account-next-avatar-professional">
-
-                                    {% if next_booking.professional_profile.user.profile_image %}
-
-                                        <img
-                                            src="{{ next_booking.professional_profile.user.profile_image.url }}"
-                                            alt="Foto de {{ next_booking.professional_profile.user.get_full_name|default:next_booking.professional_profile.user.email }}"
-                                        >
-
-                                    {% else %}
-
-                                        <span>
-                                            {{ next_booking.professional_profile.user.first_name|first|upper }}{{ next_booking.professional_profile.user.last_name|first|upper }}
-                                        </span>
-
-                                    {% endif %}
-
-                                </div>
-
-                                <div class="account-next-copy">
-
-                                    <span class="account-next-eyebrow">
-                                        SERVICIO PROFESIONAL
-                                    </span>
-
-                                    <h3>
-                                        {{ next_booking.service_name_snapshot }}
-                                    </h3>
-
-                                    <p>
-                                        con
-                                        <strong>
-                                            {{ next_booking.professional_profile.user.get_full_name|default:next_booking.professional_profile.user.email }}
-                                        </strong>
-                                    </p>
-
-                                    <small>
-
-                                        {{ next_booking.get_mode_snapshot_display }}
-
-                                        {% if next_booking.location_name_snapshot %}
-
-                                            · {{ next_booking.location_name_snapshot }}
-
-                                        {% elif next_booking.location_type_snapshot == 'user_home' %}
-
-                                            · Tu domicilio
-
-                                        {% elif next_booking.location_type_snapshot == 'agreed_place' %}
-
-                                            · Lugar acordado
-
-                                        {% endif %}
-
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                            <span class="account-next-status account-next-status-{{ next_booking.status }}">
-                                {{ next_booking.get_status_display }}
-                            </span>
-
-                        </div>
-
-                        <div class="account-next-details">
-
-                            <div>
-
-                                <span>FECHA</span>
-
-                                <strong class="account-next-highlight-professional">
-                                    {{ next_booking.session_date|date:"d M"|upper }}
-                                </strong>
-
-                                <small>
-                                    {{ next_booking.session_date|date:"Y" }}
-                                </small>
-
-                            </div>
-
-                            <div>
-
-                                <span>HORARIO</span>
-
-                                <strong>
-                                    {{ next_booking.start_time|time:"H:i" }}
-                                    –
-                                    {{ next_booking.end_time|time:"H:i" }}
-                                </strong>
-
-                                <small>
-                                    Tu sesión
-                                </small>
-
-                            </div>
-
-                            <div>
-
-                                <span>DURACIÓN</span>
-
-                                <strong>
-                                    {{ next_booking.duration_minutes }} min
-                                </strong>
-
-                                <small>
-                                    Duración reservada
-                                </small>
-
-                            </div>
-
-                            <div>
-
-                                <span>PRECIO</span>
-
-                                <strong class="account-next-highlight-professional account-next-price">
-                                    {{ next_booking.price_clp|clp }}
-                                </strong>
-
-                                <small>
-                                    Precio de tu reserva
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                        <div class="account-next-footer">
-
-                            <span>
-
-                                {% if next_booking.status == 'pending' %}
-
-                                    Esperando confirmación de
-                                    {{ next_booking.professional_profile.user.first_name|default:"tu profesional" }}.
-
-                                {% else %}
-
-                                    Tu sesión está confirmada.
-
-                                {% endif %}
-
-                            </span>
-
-                            <strong>
-                                Ver mi reserva
-                                <span>→</span>
-                            </strong>
-
-                        </div>
-
-                    </a>
-
-                {% else %}
-
-                    <a
-                        href="{% url 'spaces:booking_detail' next_booking.id %}"
-                        class="account-next-card account-next-card-space"
-                    >
-
-                        <div class="account-next-card-header">
-
-                            <div class="account-next-identity">
-
-                                <div class="account-next-avatar account-next-avatar-space">
-
-                                    {% if next_space_cover %}
-
-                                        <img
-                                            src="{{ next_space_cover.image.url }}"
-                                            alt="{{ next_booking.space_name_snapshot }}"
-                                        >
-
-                                    {% else %}
-
-                                        <span>
-                                            {{ next_booking.space_name_snapshot|first|upper }}
-                                        </span>
-
-                                    {% endif %}
-
-                                </div>
-
-                                <div class="account-next-copy">
-
-                                    <span class="account-next-eyebrow account-next-eyebrow-space">
-                                        ESPACIO RESERVADO
-                                    </span>
-
-                                    <h3>
-                                        {{ next_booking.space_name_snapshot }}
-                                    </h3>
-
-                                    <p>
-                                        {{ next_booking.provider_name_snapshot }}
-                                    </p>
-
-                                    <small>
-                                        {{ next_booking.space_type_snapshot }}
-                                        ·
-                                        {{ next_booking.commune_snapshot }}
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                            <span class="account-next-status account-next-status-{{ next_booking.status }}">
-                                {{ next_booking.get_status_display }}
-                            </span>
-
-                        </div>
-
-                        <div class="account-next-details account-next-details-space">
-
-                            <div>
-
-                                <span>FECHA</span>
-
-                                <strong class="account-next-highlight-space">
-                                    {{ next_booking.session_date|date:"d M"|upper }}
-                                </strong>
-
-                                <small>
-                                    {{ next_booking.session_date|date:"Y" }}
-                                </small>
-
-                            </div>
-
-                            <div>
-
-                                <span>HORARIO</span>
-
-                                <strong>
-                                    {{ next_booking.start_time|time:"H:i" }}
-                                    –
-                                    {{ next_booking.end_time|time:"H:i" }}
-                                </strong>
-
-                                <small>
-                                    Bloque reservado
-                                </small>
-
-                            </div>
-
-                            <div>
-
-                                <span>DURACIÓN</span>
-
-                                <strong>
-                                    {{ next_booking.duration_minutes }} min
-                                </strong>
-
-                                <small>
-                                    Duración del arriendo
-                                </small>
-
-                            </div>
-
-                            <div>
-
-                                <span>PRECIO</span>
-
-                                <strong class="account-next-highlight-space account-next-price">
-                                    {{ next_booking.price_clp|clp }}
-                                </strong>
-
-                                <small>
-                                    Precio del arriendo
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                        <div class="account-next-footer">
-
-                            <span>
-
-                                {% if next_booking.status == 'pending' %}
-
-                                    Esperando confirmación del proveedor.
-
-                                {% else %}
-
-                                    Tu arriendo está confirmado.
-
-                                {% endif %}
-
-                            </span>
-
-                            <strong>
-                                Ver reserva del espacio
-                                <span>→</span>
-                            </strong>
-
-                        </div>
-
-                    </a>
-
-                {% endif %}
-
-                {% if upcoming_booking_total > 1 %}
-
-                    <div class="account-next-more">
-
-                        <span>
-
-                            {% if upcoming_booking_total == 2 %}
-
-                                También tienes 1 reserva próxima.
-
-                            {% else %}
-
-                                También tienes
-                                {{ upcoming_booking_total|add:"-1" }}
-                                reservas próximas.
-
-                            {% endif %}
-
-                        </span>
-
-                        <div>
-
-                            {% if professional_upcoming_count %}
-
-                                <a href="{% url 'bookings:my_bookings' %}">
-                                    Reservas profesionales →
-                                </a>
-
-                            {% endif %}
-
-                            {% if space_upcoming_count %}
-
-                                <a href="{% url 'spaces:my_bookings' %}">
-                                    Arriendos de espacios →
-                                </a>
-
-                            {% endif %}
-
-                        </div>
-
-                    </div>
-
-                {% endif %}
-
-            </section>
-
-        {% endif %}
-
-        <!-- =========================
-             MIS RESERVAS Y ACTIVIDAD
-        ========================== -->
-
-        <section class="member-quick-section">
-
-            <div class="member-quick-heading">
-
-                <div>
-
-                    <span class="page-overline">
-                        ACCESOS RÁPIDOS
-                    </span>
-
-                    <h2>
-                        Mis reservas y actividad
-                    </h2>
-
-                    <p>
-                        Entra directamente a tus sesiones, arriendos,
-                        actividades e historiales sin tener que buscarlos
-                        dentro de tu perfil.
-                    </p>
-
-                </div>
-
-            </div>
-
-            <div class="member-quick-grid">
-
-                <!-- PROFESIONALES -->
-
-                <a
-                    href="{% url 'bookings:my_bookings' %}"
-                    class="member-quick-card member-quick-card-professional"
-                >
-
-                    <div class="member-quick-card-top">
-
-                        <span class="member-quick-icon member-quick-icon-professional">
-                            PRO
-                        </span>
-
-                        <span class="member-quick-count member-quick-count-professional">
-
-                            {% if professional_upcoming_count == 1 %}
-
-                                1 próxima
-
-                            {% elif professional_upcoming_count > 1 %}
-
-                                {{ professional_upcoming_count }} próximas
-
-                            {% else %}
-
-                                Sin próximas
-
-                            {% endif %}
-
-                        </span>
-
-                    </div>
-
-                    <span class="member-quick-eyebrow member-quick-eyebrow-professional">
-                        SERVICIOS PROFESIONALES
-                    </span>
-
-                    <h3>
-                        Mis reservas profesionales
-                    </h3>
-
-                    <p>
-                        Revisa tus próximas sesiones, estados,
-                        cancelaciones y el historial de reservas
-                        con profesionales.
-                    </p>
-
-                    <strong class="member-quick-link">
-                        Ver mis reservas
-                        <span>→</span>
-                    </strong>
-
-                </a>
-
-                <!-- ESPACIOS -->
-
-                <a
-                    href="{% url 'spaces:my_bookings' %}"
-                    class="member-quick-card member-quick-card-space"
-                >
-
-                    <div class="member-quick-card-top">
-
-                        <span class="member-quick-icon member-quick-icon-space">
-                            ESP
-                        </span>
-
-                        <span class="member-quick-count member-quick-count-space">
-
-                            {% if space_upcoming_count == 1 %}
-
-                                1 próximo
-
-                            {% elif space_upcoming_count > 1 %}
-
-                                {{ space_upcoming_count }} próximos
-
-                            {% else %}
-
-                                Sin próximos
-
-                            {% endif %}
-
-                        </span>
-
-                    </div>
-
-                    <span class="member-quick-eyebrow member-quick-eyebrow-space">
-                        ESPACIOS
-                    </span>
-
-                    <h3>
-                        Mis arriendos de espacios
-                    </h3>
-
-                    <p>
-                        Consulta los espacios que reservaste,
-                        próximos arriendos y su historial
-                        en un solo lugar.
-                    </p>
-
-                    <strong class="member-quick-link member-quick-link-space">
-                        Ver mis arriendos
-                        <span>→</span>
-                    </strong>
-
-                </a>
-
-                <!-- ACTIVIDADES -->
-
-                <a
-                    href="{% url 'activities:my_activities' %}"
-                    class="member-quick-card member-quick-card-activity"
-                >
-
-                    <div class="member-quick-card-top">
-
-                        <span class="member-quick-icon member-quick-icon-activity">
-                            ACT
-                        </span>
-
-                        <span class="member-quick-count member-quick-count-activity">
-
-                            {% if activity_upcoming_count == 1 %}
-
-                                1 próxima
-
-                            {% elif activity_upcoming_count > 1 %}
-
-                                {{ activity_upcoming_count }} próximas
-
-                            {% else %}
-
-                                Sin próximas
-
-                            {% endif %}
-
-                        </span>
-
-                    </div>
-
-                    <span class="member-quick-eyebrow member-quick-eyebrow-activity">
-                        ACTIVIDADES
-                    </span>
-
-                    <h3>
-                        Mis actividades
-                    </h3>
-
-                    <p>
-                        Revisa las actividades que organizas
-                        y aquellas en las que decidiste participar
-                        como Miembro.
-                    </p>
-
-                    <strong class="member-quick-link member-quick-link-activity">
-                        Ver mis actividades
-                        <span>→</span>
-                    </strong>
-
-                </a>
-
-            </div>
-
-            <!-- MI ACTIVIDAD -->
-
-            <a
-                href="{% url 'accounts:activity_history' %}"
-                class="member-history-access"
-            >
-
-                <div class="member-history-access-icon">
-                    HIS
-                </div>
-
-                <div class="member-history-access-copy">
-
-                    <span>
-                        MI ACTIVIDAD
-                    </span>
-
-                    <strong>
-                        Mi actividad
-                    </strong>
-
-                    <p>
-                        Encuentra reservas profesionales,
-                        arriendos y actividades en un solo lugar.
-                        Busca por nombre, fecha, tipo o estado.
-                    </p>
-
-                </div>
-
-                <div class="member-history-access-meta">
-
-                    <span>
-                        {{ account_upcoming_total }}
-                        próxima{{ account_upcoming_total|pluralize:"s" }}
-                        ·
-                        {{ account_activity_history_count }}
-                        anterior{{ account_activity_history_count|pluralize:"es" }}
-                    </span>
-
-                    <strong>
-                        Buscar y filtrar
-                        <span>→</span>
-                    </strong>
-
-                </div>
-
-            </a>
-
-            <!-- MIS PAGOS -->
-
-            {% member_payment_summary request.user as payment_summary %}
-
-            <a
-                href="{% url 'payments:my_payments' %}"
-                class="member-payments-access"
-            >
-
-                <div class="member-payments-access-icon">
-                    PAY
-                </div>
-
-                <div class="member-payments-access-copy">
-
-                    <span>
-                        PAGOS Y COMPROBANTES
-                    </span>
-
-                    <strong>
-                        Mis pagos
-                    </strong>
-
-                    <p>
-                        Consulta pagos aprobados, intentos fallidos,
-                        comprobantes y futuras devoluciones de tus
-                        actividades profesionales.
-                    </p>
-
-                </div>
-
-                <div class="member-payments-access-meta">
-
-                    <span>
-                        {{ payment_summary.movements }}
-                        movimiento{{ payment_summary.movements|pluralize:"s" }}
-                        ·
-                        {{ payment_summary.approved_total|clp }}
-                        aprobado
-                    </span>
-
-                    {% if payment_summary.pending %}
-
-                        <small>
-                            {{ payment_summary.pending }}
-                            pendiente{{ payment_summary.pending|pluralize:"s" }}
-                        </small>
-
-                    {% endif %}
-
-                    <strong>
-                        Ver mis pagos
-                        <span>→</span>
-                    </strong>
-
-                </div>
-
-            </a>
-
-        </section>
-
-        <!-- =========================
-             CONTENIDO PRINCIPAL
-        ========================== -->
-
-        <div class="account-layout">
-
-            <!-- COLUMNA PRINCIPAL -->
-
-            <div class="account-main-column">
-
-                <!-- DATOS PERSONALES -->
-
-                <section class="account-panel">
-
-                    <div class="account-panel-header">
-
-                        <div>
-
-                            <span class="account-panel-number">
-                                01
-                            </span>
-
-                            <h2>
-                                Identificación personal
-                            </h2>
-
-                        </div>
-
-                        <span class="account-panel-tag">
-                            CUENTA
-                        </span>
-
-                    </div>
-
-                    <div class="account-data-grid">
-
-                        <div class="account-data-item">
-
-                            <span>
-                                Nombre completo
-                            </span>
-
-                            <strong>
-                                {{ request.user.get_full_name|default:"Sin registrar" }}
-                            </strong>
-
-                        </div>
-
-                        <div class="account-data-item">
-
-                            <span>
-                                Correo electrónico
-                            </span>
-
-                            <strong>
-                                {{ request.user.email }}
-                            </strong>
-
-                        </div>
-
-                        <div class="account-data-item">
-
-                            <span>
-                                RUT
-                            </span>
-
-                            <strong>
-                                {{ request.user.rut|default:"Sin registrar" }}
-                            </strong>
-
-                        </div>
-
-                        <div class="account-data-item">
-
-                            <span>
-                                Teléfono
-                            </span>
-
-                            <strong>
-                                {{ request.user.phone|default:"Sin registrar" }}
-                            </strong>
-
-                        </div>
-
-                        <div class="account-data-item">
-
-                            <span>
-                                Fecha de nacimiento
-                            </span>
-
-                            <strong>
-
-                                {% if request.user.birth_date %}
-
-                                    {{ request.user.birth_date|date:"d/m/Y" }}
-
-                                {% else %}
-
-                                    Sin registrar
-
-                                {% endif %}
-
-                            </strong>
-
-                        </div>
-
-                        <div class="account-data-item">
-
-                            <span>
-                                Comuna
-                            </span>
-
-                            <strong>
-
-                                {% if request.user.commune %}
-
-                                    {{ request.user.commune.name }}
-
-                                {% else %}
-
-                                    Sin registrar
-
-                                {% endif %}
-
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-                <!-- PERFIL MIEMBRO -->
-
-                <section class="account-panel">
-
-                    <div class="account-panel-header">
-
-                        <div>
-
-                            <span class="account-panel-number">
-                                02
-                            </span>
-
-                            <h2>
-                                Perfil de miembro
-                            </h2>
-
-                        </div>
-
-                        <span class="account-panel-tag">
-                            MIEMBRO
-                        </span>
-
-                    </div>
-
-                    {% if member_profile %}
-
-                        <div class="account-data-grid">
-
-                            <div class="account-data-item">
-
-                                <span>
-                                    Nivel de actividad
-                                </span>
-
-                                <strong>
-                                    {{ member_profile.get_activity_level_display|default:"Sin registrar" }}
-                                </strong>
-
-                            </div>
-
-                            <div class="account-data-item">
-
-                                <span>
-                                    Contacto de emergencia
-                                </span>
-
-                                <strong>
-                                    {{ member_profile.emergency_contact_name|default:"Sin registrar" }}
-                                </strong>
-
-                            </div>
-
-                            <div class="account-data-item">
-
-                                <span>
-                                    Relación
-                                </span>
-
-                                <strong>
-                                    {{ member_profile.emergency_contact_relationship|default:"Sin registrar" }}
-                                </strong>
-
-                            </div>
-
-                            <div class="account-data-item">
-
-                                <span>
-                                    Teléfono de emergencia
-                                </span>
-
-                                <strong>
-                                    {{ member_profile.emergency_contact_phone|default:"Sin registrar" }}
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-                        <div class="account-interests">
-
-                            <span class="account-subtitle">
-                                INTERESES
-                            </span>
-
-                            <div class="account-interest-list">
-
-                                {% for interest in member_profile.interests.all %}
-
-                                    <span>
-                                        {{ interest.name }}
-                                    </span>
-
-                                {% empty %}
-
-                                    <p>
-                                        No tienes intereses seleccionados.
-                                    </p>
-
-                                {% endfor %}
-
-                            </div>
-
-                        </div>
-
-                    {% else %}
-
-                        <div class="account-empty">
-
-                            <strong>
-                                Perfil de miembro no disponible
-                            </strong>
-
-                            <p>
-                                Esta cuenta aún no posee información
-                                adicional de miembro.
-                            </p>
-
-                        </div>
-
-                    {% endif %}
-
-                </section>
-
-            </div>
-
-            <!-- =========================
-                 COLUMNA LATERAL
-            ========================== -->
-
-            <aside class="account-sidebar">
-
-                <!-- PERFILES -->
-
-                <section class="account-side-card">
-
-                    <span class="page-overline">
-                        PERFILES
-                    </span>
-
-                    <h3>
-                        Una cuenta,
-                        múltiples perfiles.
-                    </h3>
-
-                    <p>
-                        Tu Cuenta Única permite habilitar
-                        perfiles adicionales sin crear otra cuenta.
-                    </p>
-
-                    <!-- MIEMBRO -->
-
-                    <div class="account-role">
-
-                        <div>
-
-                            <strong>
-                                Miembro
-                            </strong>
-
-                            <span>
-                                Perfil base
-                            </span>
-
-                        </div>
-
-                        <span class="role-status role-status-active">
-                            Activo
-                        </span>
-
-                    </div>
-
-                    <!-- PROFESIONAL -->
-
-                    <div class="account-role account-role-professional">
-
-                        <div>
-
-                            <strong>
-                                Profesional
-                            </strong>
-
-                            <span>
-                                Perfil especializado
-                            </span>
-
-                        </div>
-
-                        {% if not professional_profile %}
-
-                            <span class="role-status">
-                                No habilitado
-                            </span>
-
-                        {% elif professional_profile.verification_status == 'pending' %}
-
-                            <span class="role-status role-status-pending">
-                                En revisión
-                            </span>
-
-                        {% elif professional_profile.verification_status == 'verified' %}
-
-                            <span class="role-status role-status-active">
-                                Activo
-                            </span>
-
-                        {% elif professional_profile.verification_status == 'rejected' %}
-
-                            <span class="role-status role-status-rejected">
-                                Rechazado
-                            </span>
-
-                        {% elif professional_profile.verification_status == 'suspended' %}
-
-                            <span class="role-status role-status-suspended">
-                                Suspendido
-                            </span>
-
-                        {% endif %}
-
-                    </div>
-
-                    <!-- ACCIÓN / ESTADO PROFESIONAL -->
-
-                    {% if not professional_profile %}
-
-                        {% if account_ready_for_professional %}
-
-                            <a
-                                href="{% url 'professionals:request_profile' %}"
-                                class="account-professional-action"
-                            >
-                                Solicitar Perfil Profesional
-                                <span>→</span>
-                            </a>
-
-                        {% else %}
-
-                            <div class="account-professional-message">
-
-                                <strong>
-                                    Cuenta base incompleta
-                                </strong>
-
-                                <p>
-                                    Para solicitar un Perfil Profesional
-                                    necesitas completar primero los datos
-                                    obligatorios de tu Cuenta Única Universal.
-                                </p>
-
-                            </div>
-
-                        {% endif %}
-
-                    {% elif professional_profile.verification_status == 'pending' %}
-
-                        <div class="account-professional-message">
-
-                            <strong>
-                                Solicitud enviada
-                            </strong>
-
-                            <p>
-                                Tu Perfil Profesional se encuentra
-                                actualmente en revisión.
-                            </p>
-
-                        </div>
-
-                    {% elif professional_profile.verification_status == 'verified' %}
-
-                        <div class="account-professional-message account-professional-message-active">
-
-                            <strong>
-                                Perfil Profesional habilitado
-                            </strong>
-
-                            <p>
-                                Tu solicitud fue aprobada y el perfil
-                                se encuentra activo. Utiliza el acceso
-                                superior para ingresar al Centro Profesional.
-                            </p>
-
-                        </div>
-
-                    {% elif professional_profile.verification_status == 'rejected' %}
-
-                        <div class="account-professional-message account-professional-message-error">
-
-                            <strong>
-                                Solicitud rechazada
-                            </strong>
-
-                            {% if professional_profile.rejection_reason %}
-
-                                <p>
-                                    {{ professional_profile.rejection_reason }}
-                                </p>
-
-                            {% else %}
-
-                                <p>
-                                    La solicitud no fue aprobada.
-                                </p>
-
-                            {% endif %}
-
-                        </div>
-
-                    {% elif professional_profile.verification_status == 'suspended' %}
-
-                        <div class="account-professional-message account-professional-message-error">
-
-                            <strong>
-                                Perfil suspendido
-                            </strong>
-
-                            <p>
-                                Tu Perfil Profesional se encuentra
-                                temporalmente suspendido.
-                            </p>
-
-                        </div>
-
-                    {% endif %}
-
-                    <!-- PROVEEDOR -->
-
-                    <div class="account-role">
-
-                        <div>
-
-                            <strong>
-                                Proveedor de espacios
-                            </strong>
-
-                            <span>
-                                Gestión de infraestructura
-                            </span>
-
-                        </div>
-
-                        {% if request.user.space_provider_profile %}
-
-                            {% if request.user.space_provider_profile.verification_status == 'pending' %}
-
-                                <span class="role-status role-status-pending">
-                                    En revisión
-                                </span>
-
-                            {% elif request.user.space_provider_profile.verification_status == 'verified' %}
-
-                                <span class="role-status role-status-active">
-                                    Activo
-                                </span>
-
-                            {% elif request.user.space_provider_profile.verification_status == 'rejected' %}
-
-                                <span class="role-status role-status-rejected">
-                                    Rechazado
-                                </span>
-
-                            {% elif request.user.space_provider_profile.verification_status == 'suspended' %}
-
-                                <span class="role-status role-status-suspended">
-                                    Suspendido
-                                </span>
-
-                            {% endif %}
-
-                        {% else %}
-
-                            <span class="role-status">
-                                No habilitado
-                            </span>
-
-                        {% endif %}
-
-                    </div>
-
-                    {% if not request.user.space_provider_profile %}
-
-                        <a
-                            href="{% url 'spaces:request_profile' %}"
-                            class="account-professional-action"
-                        >
-                            Solicitar Perfil Proveedor de Espacios
-                            <span>→</span>
-                        </a>
-
-                    {% elif request.user.space_provider_profile.verification_status == 'pending' %}
-
-                        <div class="account-professional-message">
-
-                            {% if request.user.space_provider_profile.application_complete %}
-
-                                <strong>
-                                    Solicitud enviada
-                                </strong>
-
-                                <p>
-                                    Tu Perfil de Proveedor de Espacios
-                                    se encuentra actualmente en revisión.
-                                </p>
-
-                            {% else %}
-
-                                <strong>
-                                    Completa tu solicitud
-                                </strong>
-
-                                <p>
-                                    Agregamos información necesaria
-                                    para revisar correctamente tu
-                                    Perfil de Proveedor de Espacios.
-                                </p>
-
-                            {% endif %}
-
-                        </div>
-
-                        <a
-                            href="{% url 'spaces:request_profile' %}"
-                            class="account-professional-action"
-                        >
-
-                            {% if request.user.space_provider_profile.application_complete %}
-
-                                Revisar solicitud
-
-                            {% else %}
-
-                                Completar solicitud
-
-                            {% endif %}
-
-                            <span>→</span>
-
-                        </a>
-
-                    {% elif request.user.space_provider_profile.verification_status == 'verified' %}
-
-                        <div class="account-professional-message account-professional-message-active">
-
-                            <strong>
-                                Perfil Proveedor habilitado
-                            </strong>
-
-                            <p>
-                                Tu perfil fue aprobado y se encuentra activo.
-                                Utiliza el acceso superior para ingresar
-                                al Centro de Espacios.
-                            </p>
-
-                        </div>
-
-                    {% elif request.user.space_provider_profile.verification_status == 'rejected' %}
-
-                        <div class="account-professional-message account-professional-message-error">
-
-                            <strong>
-                                Solicitud rechazada
-                            </strong>
-
-                            {% if request.user.space_provider_profile.rejection_reason %}
-
-                                <p>
-                                    {{ request.user.space_provider_profile.rejection_reason }}
-                                </p>
-
-                            {% else %}
-
-                                <p>
-                                    La solicitud no fue aprobada.
-                                </p>
-
-                            {% endif %}
-
-                        </div>
-
-                    {% elif request.user.space_provider_profile.verification_status == 'suspended' %}
-
-                        <div class="account-professional-message account-professional-message-error">
-
-                            <strong>
-                                Perfil suspendido
-                            </strong>
-
-                            <p>
-                                Tu Perfil de Proveedor de Espacios
-                                se encuentra temporalmente suspendido.
-                            </p>
-
-                        </div>
-
-                    {% endif %}
-
-                </section>
-
-                <!-- SEGURIDAD -->
-
-                <section class="account-side-card">
-
-                    <span class="page-overline">
-                        SEGURIDAD Y CONSENTIMIENTO
-                    </span>
-
-                    <div class="account-security-item">
-
-                        <span>
-                            Términos
-                        </span>
-
-                        {% if request.user.terms_accepted %}
-
-                            <strong>
-                                ✓ Aceptados
-                            </strong>
-
-                        {% else %}
-
-                            <strong class="security-pending">
-                                Pendiente
-                            </strong>
-
-                        {% endif %}
-
-                    </div>
-
-                    <div class="account-security-item">
-
-                        <span>
-                            Privacidad
-                        </span>
-
-                        {% if request.user.privacy_accepted %}
-
-                            <strong>
-                                ✓ Aceptada
-                            </strong>
-
-                        {% else %}
-
-                            <strong class="security-pending">
-                                Pendiente
-                            </strong>
-
-                        {% endif %}
-
-                    </div>
-
-                    {% if member_profile %}
-
-                        <div class="account-security-item">
-
-                            <span>
-                                Declaración física
-                            </span>
-
-                            {% if member_profile.fitness_declaration_accepted %}
-
-                                <strong>
-                                    ✓ Aceptada
-                                </strong>
-
-                            {% else %}
-
-                                <strong class="security-pending">
-                                    Pendiente
-                                </strong>
-
-                            {% endif %}
-
-                        </div>
-
-                    {% endif %}
-
-                </section>
-
-                <!-- EDITAR CUENTA -->
-
-                <a
-                    href="{% url 'accounts:profile_settings' %}"
-                    class="account-professional-action"
-                >
-                    Configuración de perfil
-                    <span>→</span>
-                </a>
-
-                <!-- CERRAR SESIÓN -->
-
-                <a
-                    href="{% url 'accounts:logout' %}"
-                    class="account-logout"
-                >
-                    Cerrar sesión
-                </a>
-
-            </aside>
-
-        </div>
-
-    </div>
-
+<div class="account-container">
+
+<!-- =========================
+     CABECERA
+========================== -->
+
+<header class="account-hero">
+<div class="account-hero-identity">
+<a
+href="{% url 'accounts:profile_settings' %}"
+class="account-hero-avatar"
+aria-label="Editar foto de perfil"
+>
+{% if request.user.profile_image %}
+<img
+src="{{ request.user.profile_image.url }}"
+alt="Foto de perfil de {{ request.user.get_full_name|default:request.user.email }}"
+class="account-hero-avatar-image"
+width="92"
+height="92"
+>
+{% else %}
+<span class="account-hero-avatar-initials">
+{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+</span>
+{% endif %}
+</a>
+
+<div class="account-hero-copy">
+<span class="page-overline">
+CUENTA ÚNICA UNIVERSAL
+</span>
+<h1>
+Hola,
+<span>
+{{ request.user.first_name|default:request.user.email }}
+</span>
+</h1>
+<p>
+Desde aquí podrás administrar progresivamente
+toda tu actividad dentro de EntrenamientoyComunidad.
+</p>
+</div>
+</div>
+
+<div class="account-v109-status-stack">
+<div class="account-status">
+<span class="account-status-dot"></span>
+Cuenta activa
+</div>
+{% if subscription_identity.subscription %}
+<a
+href="{% url 'subscriptions:plans' %}"
+class="account-v109-plan-badge"
+>
+{{ subscription_identity.plan_name }}
+<span>
+· {{ subscription_identity.status_label }}
+</span>
+</a>
+{% endif %}
+</div>
+</header>
+
+<!-- =========================
+     RESUMEN
+========================== -->
+
+<section class="account-summary-grid">
+<article class="account-summary-card">
+<span class="account-summary-label">
+PERFIL BASE
+</span>
+<strong>
+Miembro
+</strong>
+<p>
+Activo
+</p>
+</article>
+
+<article class="account-summary-card">
+<span class="account-summary-label">
+UBICACIÓN
+</span>
+{% if request.user.commune %}
+<strong>
+{{ request.user.commune.name }}
+</strong>
+<p>
+{{ request.user.commune.region.name }}
+</p>
+{% else %}
+<strong>
+Sin configurar
+</strong>
+<p>
+Ubicación pendiente
+</p>
+{% endif %}
+</article>
+
+<article class="account-summary-card">
+<span class="account-summary-label">
+ACTIVIDAD FÍSICA
+</span>
+{% if member_profile and member_profile.activity_level %}
+<strong>
+{{ member_profile.get_activity_level_display }}
+</strong>
+<p>
+Nivel registrado
+</p>
+{% else %}
+<strong>
+Sin configurar
+</strong>
+<p>
+Información pendiente
+</p>
+{% endif %}
+</article>
+
+<article class="account-summary-card">
+<span class="account-summary-label">
+PLAN ACTUAL
+</span>
+{% if subscription_identity.subscription %}
+<strong>
+{{ subscription_identity.plan_name }}
+</strong>
+<p>
+{% if subscription_identity.status == 'trial' and subscription_identity.trial_ends_at %}
+Prueba hasta {{ subscription_identity.trial_ends_at|date:"d/m/Y" }}
+{% else %}
+{{ subscription_identity.status_label }}
+{% endif %}
+</p>
+{% else %}
+<strong>
+Sin plan activo
+</strong>
+<p>
+Beneficios base
+</p>
+{% endif %}
+</article>
+</section>
+
+<!-- =========================
+     CONTEXTO DE PERFIL
+========================== -->
+
+<section class="role-context-strip">
+<div class="role-context-main">
+<span class="role-context-dot"></span>
+<span class="role-context-label">
+MI CUENTA
+</span>
+<strong>
+Miembro{% if subscription_identity.subscription %} · {{ subscription_identity.plan_name }}{% endif %}
+</strong>
+</div>
+<div class="role-context-actions">
+
+{% if professional_profile and professional_profile.verification_status == 'verified' %}
+<a
+href="{% url 'professionals:dashboard' %}"
+class="role-context-switch"
+>
+Centro Profesional
+<span>→</span>
+</a>
+{% endif %}
+
+{% if request.user.space_provider_profile and request.user.space_provider_profile.verification_status == 'verified' %}
+<a
+href="{% url 'spaces:dashboard' %}"
+class="role-context-switch"
+>
+Centro de Espacios
+<span>→</span>
+</a>
+{% endif %}
+</div>
+</section>
+
+<!-- =========================
+     MI AGENDA
+========================== -->
+
+<section class="member-agenda-access">
+<div class="member-agenda-access-copy">
+<span class="page-overline">
+ORGANIZA TU ACTIVIDAD
+</span>
+<h2>
+Mi agenda.
+</h2>
+<p>
+Revisa en un solo calendario tus sesiones con profesionales,
+tus arriendos de espacios y las actividades en las que participas
+o que organizas.
+</p>
+</div>
+<a
+href="{% url 'accounts:member_agenda' %}"
+class="member-agenda-access-link"
+>
+<span>
+AGENDA DEL MIEMBRO
+</span>
+<strong>
+Abrir mi agenda
+</strong>
+<b>
+→
+</b>
+</a>
+</section>
+
+{% if account_updates %}
+<section
+class="account-updates-section"
+id="account-updates-section"
+data-user-id="{{ request.user.id }}"
+data-state-url="{% url 'accounts:member_notification_state' %}"
+data-mark-url="{% url 'accounts:member_notification_mark_read' %}"
+>
+<div class="account-updates-heading">
+<div>
+<span class="page-overline">
+NOVEDADES
+</span>
+<h2>
+Cambios importantes en tu cuenta
+</h2>
+<p>
+Confirmaciones, inscripciones, actualizaciones, cancelaciones
+y seguimiento de incidencias que conviene revisar.
+</p>
+</div>
+<div class="account-updates-heading-actions">
+<span
+class="account-updates-unread-count"
+id="account-updates-unread-count"
+></span>
+<button
+type="button"
+class="account-updates-mark-all-top"
+id="account-updates-mark-all"
+>
+✓ Marcar todas como revisadas
+</button>
+<button
+type="button"
+class="account-updates-show-all"
+id="account-updates-show-all"
+>
+Ver todas las novedades
+<span>→</span>
+</button>
+</div>
+</div>
+
+<p id="v128-sync-status" role="status" aria-live="polite"
+style="margin:8px 0 0;font-size:11px;color:#d3a2ff;" hidden></p>
+
+<!-- RESUMEN: SOLO NOVEDADES SIN REVISAR -->
+
+<div
+class="account-updates-summary"
+id="account-updates-summary"
+>
+<div
+class="account-updates-grid"
+id="account-updates-grid"
+>
+{% for update in account_updates %}
+<article
+class="account-update-card account-update-card-{{ update.module }} account-update-card-{{ update.kind }}"
+data-update-id="{{ update.key }}"
+data-update-module="{{ update.module }}"
+>
+<div class="account-update-card-top">
+<div class="account-update-icon">
+{% if update.kind == 'confirmed' or update.kind == 'joined' or update.kind == 'member_joined' or update.kind == 'incident_resolved' %}
+✓
+{% elif update.kind == 'updated' or update.kind == 'incident_in_review' %}
+↻
+{% elif update.kind == 'incident_response' %}
+i
+{% elif update.kind == 'member_left' %}
+−
+{% else %}
+!
+{% endif %}
+</div>
+<div class="account-update-title-copy">
+<span>
+{{ update.module_label }}
+</span>
+<h3>
+{{ update.title }}
+</h3>
+</div>
+
+<span class="account-update-state account-update-state-{{ update.kind }}">
+{% if update.kind == 'confirmed' %}
+Confirmada
+{% elif update.kind == 'rejected' %}
+No aceptada
+{% elif update.kind == 'joined' %}
+Inscrito
+{% elif update.kind == 'updated' %}
+Actualizada
+{% elif update.kind == 'member_joined' %}
+Nuevo inscrito
+{% elif update.kind == 'member_left' %}
+Cupo liberado
+{% elif update.kind == 'incident_resolved' %}
+Resuelta
+{% elif update.kind == 'incident_in_review' %}
+En revisión
+{% elif update.kind == 'incident_response' %}
+Antecedentes
+{% elif update.kind == 'incident_reported' %}
+Reportada
+{% else %}
+Cancelada
+{% endif %}
+</span>
+</div>
+
+<p class="account-update-summary">
+{{ update.summary }}
+</p>
+
+<div class="account-update-session">
+<div>
+<span>
+FECHA
+</span>
+<strong>
+{{ update.session_date|date:"d M"|upper }}
+</strong>
+</div>
+<div>
+<span>
+HORARIO
+</span>
+<strong>
+{{ update.start_time|time:"H:i" }}
+–
+{{ update.end_time|time:"H:i" }}
+</strong>
+</div>
+</div>
+
+{% if update.reason and update.kind != 'confirmed' %}
+<div class="account-update-reason">
+<span>
+MOTIVO
+</span>
+<strong>
+{{ update.reason }}
+</strong>
+</div>
+{% endif %}
+
+<div class="account-update-actions">
+<button
+type="button"
+class="account-update-seen-button"
+data-mark-seen
+>
+✓ Marcar como revisada
+</button>
+<a href="{{ update.detail_url }}" data-update-detail-link>
+{% if update.module == 'incident' %}
+{{ update.action_label|default:'Ver mi incidencia' }}
+{% elif update.module == 'professional' %}
+Ver reserva
+{% elif update.module == 'space' %}
+Ver arriendo
+{% else %}
+Ver actividad
+{% endif %}
+<span>
+→
+</span>
+</a>
+</div>
+</article>
+{% endfor %}
+</div>
+
+<div
+class="account-updates-empty"
+id="account-updates-empty"
+hidden
+>
+<span>
+✓
+</span>
+<div>
+<strong>
+Estás al día
+</strong>
+<p>
+No tienes novedades pendientes por revisar.
+</p>
+</div>
+</div>
+
+<div
+class="account-updates-more-note"
+id="account-updates-more-note"
+hidden
+>
+<span id="account-updates-more-text"></span>
+<button
+type="button"
+data-open-all-updates
+>
+Ver las demás
+<span>→</span>
+</button>
+</div>
+</div>
+
+<!-- =========================
+     VISTA COMPLETA
+========================== -->
+
+<div
+class="account-updates-archive"
+id="account-updates-archive"
+hidden
+>
+<section class="account-updates-archive-group">
+<div class="account-updates-archive-heading">
+<div>
+<span>
+POR REVISAR
+</span>
+<h3>
+Novedades pendientes
+</h3>
+<p>
+Cambios que todavía no has marcado como revisados.
+</p>
+</div>
+<span
+class="account-updates-archive-count"
+id="account-updates-archive-unread-count"
+></span>
+</div>
+
+<div
+class="account-updates-grid account-updates-archive-unread-grid"
+id="account-updates-archive-unread-grid"
+></div>
+
+<div
+class="account-updates-archive-empty"
+id="account-updates-archive-unread-empty"
+hidden
+>
+<span>
+✓
+</span>
+<div>
+<strong>
+No tienes novedades por revisar
+</strong>
+<p>
+Todo lo revisado seguirá disponible en tu historial.
+</p>
+</div>
+</div>
+</section>
+
+<section class="account-updates-archive-group account-updates-history-group">
+<div class="account-updates-archive-heading">
+<div>
+<span>
+HISTORIAL
+</span>
+<h3>
+Historial de novedades
+</h3>
+<p>
+Aquí puedes volver a consultar los cambios que ya revisaste.
+</p>
+</div>
+<span
+class="account-updates-archive-count account-updates-archive-count-seen"
+id="account-updates-archive-seen-count"
+></span>
+</div>
+
+<div
+class="account-updates-grid account-updates-archive-history-grid"
+id="account-updates-archive-history-grid"
+></div>
+
+<div
+class="account-updates-archive-empty"
+id="account-updates-archive-seen-empty"
+hidden
+>
+<span>
+↻
+</span>
+<div>
+<strong>
+Tu historial todavía está vacío
+</strong>
+<p>
+Cuando marques una novedad como revisada, aparecerá aquí.
+</p>
+</div>
+</div>
+</section>
+</div>
+</section>
+
+<script>
+// V128 - Sincronización persistente de novedades.
+// Se conserva la clave local utilizada desde V123.
+document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
+
+    const section = document.getElementById('account-updates-section');
+    if (!section) return;
+
+    const userId = section.dataset.userId;
+    const storageKey = 'entrenamientoycomunidad_updates_seen_v1_' + userId;
+    const stateUrl = section.dataset.stateUrl;
+    const markUrl = section.dataset.markUrl;
+    const csrfToken = '{{ csrf_token|escapejs }}';
+
+    const summary = document.getElementById('account-updates-summary');
+    const archive = document.getElementById('account-updates-archive');
+    const summaryGrid = document.getElementById('account-updates-grid');
+    const archiveUnreadGrid = document.getElementById('account-updates-archive-unread-grid');
+    const archiveSeenGrid = document.getElementById('account-updates-archive-history-grid');
+    const countLabel = document.getElementById('account-updates-unread-count');
+    const showAllButton = document.getElementById('account-updates-show-all');
+    const markAllButton = document.getElementById('account-updates-mark-all');
+    const emptyState = document.getElementById('account-updates-empty');
+    const moreNote = document.getElementById('account-updates-more-note');
+    const moreText = document.getElementById('account-updates-more-text');
+    const archiveUnreadCount = document.getElementById('account-updates-archive-unread-count');
+    const archiveSeenCount = document.getElementById('account-updates-archive-seen-count');
+    const archiveUnreadEmpty = document.getElementById('account-updates-archive-unread-empty');
+    const archiveSeenEmpty = document.getElementById('account-updates-archive-seen-empty');
+    const statusLabel = document.getElementById('v128-sync-status');
+
+    const cards = Array.from(summaryGrid.querySelectorAll('[data-update-id]'));
+    const cardIds = new Set(cards.map(card => card.dataset.updateId));
+    const originalOrder = new Map(cards.map((card, index) => [card.dataset.updateId, index]));
+
+    let archiveMode = false;
+    let storedSeen = [];
+    let seen = [];
+    let workQueue = Promise.resolve();
+
+    try {
+        const saved = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        if (Array.isArray(saved)) {
+            storedSeen = saved.filter(key => typeof key === 'string');
+        }
+    } catch (_) {
+        storedSeen = [];
+    }
+
+    seen = Array.from(new Set(storedSeen.filter(key => cardIds.has(key))));
+
+    function saveSeen() {
+        const union = new Set([...storedSeen, ...seen]);
+        storedSeen = Array.from(union);
+        try {
+            localStorage.setItem(storageKey, JSON.stringify(storedSeen));
+        } catch (_) {
+            // PostgreSQL conserva las marcas sincronizadas.
+        }
+    }
+
+    function setStatus(message) {
+        if (!statusLabel) return;
+        statusLabel.hidden = !message;
+        statusLabel.textContent = message || '';
+    }
+
+    function isSeen(card) {
+        return seen.includes(card.dataset.updateId);
+    }
+
+    function sortOriginal(items) {
+        return items.sort((a, b) =>
+            originalOrder.get(a.dataset.updateId) -
+            originalOrder.get(b.dataset.updateId)
+        );
+    }
+
+    function updateCard(card) {
+        const reviewed = isSeen(card);
+        const button = card.querySelector('[data-mark-seen]');
+
+        card.classList.toggle('is-seen', reviewed);
+        card.classList.remove('is-overflow');
+
+        if (button) {
+            button.textContent = reviewed ? '✓ Revisada' : '✓ Marcar como revisada';
+            button.disabled = reviewed;
+        }
+    }
+
+    function renderSummary() {
+        archiveMode = false;
+        archive.hidden = true;
+        summary.hidden = false;
+
+        sortOriginal(cards.slice()).forEach(card => summaryGrid.appendChild(card));
+
+        const unreadCards = cards.filter(card => {
+            updateCard(card);
+            return !isSeen(card);
+        });
+
+        unreadCards.slice(3).forEach(card => card.classList.add('is-overflow'));
+
+        summaryGrid.classList.remove(
+            'updates-visible-0',
+            'updates-visible-1',
+            'updates-visible-2',
+            'updates-visible-3'
+        );
+        summaryGrid.classList.add('updates-visible-' + Math.min(unreadCards.length, 3));
+
+        countLabel.textContent = unreadCards.length
+            ? unreadCards.length + ' sin revisar'
+            : 'Sin pendientes';
+
+        emptyState.hidden = unreadCards.length !== 0;
+
+        const remaining = Math.max(unreadCards.length - 3, 0);
+        moreNote.hidden = remaining === 0;
+
+        if (remaining) {
+            moreText.textContent = 'Tienes ' + remaining +
+                (remaining === 1
+                    ? ' novedad más por revisar.'
+                    : ' novedades más por revisar.');
+        }
+
+        markAllButton.hidden = unreadCards.length === 0;
+        showAllButton.innerHTML = 'Ver todas las novedades <span>→</span>';
+    }
+
+    function renderArchive() {
+        archiveMode = true;
+        summary.hidden = true;
+        archive.hidden = false;
+
+        const unreadCards = [];
+        const seenCards = [];
+
+        cards.forEach(card => {
+            updateCard(card);
+            (isSeen(card) ? seenCards : unreadCards).push(card);
+        });
+
+        sortOriginal(unreadCards).forEach(card => archiveUnreadGrid.appendChild(card));
+        sortOriginal(seenCards).forEach(card => archiveSeenGrid.appendChild(card));
+
+        archiveUnreadCount.textContent = unreadCards.length +
+            (unreadCards.length === 1 ? ' pendiente' : ' pendientes');
+
+        archiveSeenCount.textContent = seenCards.length +
+            (seenCards.length === 1 ? ' revisada' : ' revisadas');
+
+        [archiveUnreadGrid, archiveSeenGrid].forEach(grid => {
+            grid.classList.remove(
+                'updates-archive-count-0',
+                'updates-archive-count-1',
+                'updates-archive-count-2',
+                'updates-archive-count-3',
+                'updates-archive-count-4',
+                'updates-archive-count-5',
+                'updates-archive-count-many'
+            );
+        });
+
+        const archiveCountClass = amount =>
+            amount <= 5 ? 'updates-archive-count-' + amount : 'updates-archive-count-many';
+
+        archiveUnreadGrid.classList.add(archiveCountClass(unreadCards.length));
+        archiveSeenGrid.classList.add(archiveCountClass(seenCards.length));
+
+        archiveUnreadEmpty.hidden = unreadCards.length !== 0;
+        archiveSeenEmpty.hidden = seenCards.length !== 0;
+
+        countLabel.textContent = cards.length + ' en total';
+        markAllButton.hidden = unreadCards.length === 0;
+        showAllButton.innerHTML = 'Ocultar novedades <span>↑</span>';
+    }
+
+    function refresh() {
+        if (archiveMode) renderArchive();
+        else renderSummary();
+    }
+
+    function markLocally(keys) {
+        seen = Array.from(new Set([
+            ...seen,
+            ...keys.filter(key => cardIds.has(key))
+        ]));
+        saveSeen();
+        refresh();
+    }
+
+    async function sendMark(keys, keepalive) {
+        const response = await fetch(markUrl, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ keys }),
+            keepalive: Boolean(keepalive)
+        });
+
+        if (!response.ok) {
+            throw new Error('No se pudo guardar el estado (' + response.status + ').');
+        }
+
+        const payload = await response.json();
+        if (!payload.success) {
+            throw new Error('El servidor rechazó la operación.');
+        }
+
+        return payload;
+    }
+
+    async function synchronize() {
+        const response = await fetch(stateUrl, {
+            credentials: 'same-origin',
+            cache: 'no-store'
+        });
+
+        if (!response.ok) {
+            throw new Error('No se pudo consultar el estado.');
+        }
+
+        const data = await response.json();
+        if (!data.success || !Array.isArray(data.read_keys)) {
+            throw new Error('La respuesta de novedades no es válida.');
+        }
+
+        const remote = new Set(
+            data.read_keys.filter(key => cardIds.has(key))
+        );
+
+        // Migrar las novedades revisadas en V123.
+        const missing = seen.filter(key => !remote.has(key));
+
+        if (missing.length) {
+            const updated = await sendMark(missing, false);
+
+            if (!Array.isArray(updated.read_keys)) {
+                throw new Error('Respuesta incompleta.');
+            }
+
+            updated.read_keys
+                .filter(key => cardIds.has(key))
+                .forEach(key => remote.add(key));
+        }
+
+        seen = Array.from(new Set([...seen, ...remote]));
+        saveSeen();
+        refresh();
+        setStatus('');
+    }
+
+    function scheduleSync() {
+        workQueue = workQueue
+            .catch(() => {})
+            .then(synchronize)
+            .catch(() => {
+                setStatus(
+                    'No fue posible sincronizar las novedades. ' +
+                    'Se conservarán en este navegador y se intentará ' +
+                    'nuevamente cuando regreses.'
+                );
+            });
+    }
+
+    cards.forEach(card => {
+        const button = card.querySelector('[data-mark-seen]');
+
+        if (button) {
+            button.addEventListener('click', () => {
+                markLocally([card.dataset.updateId]);
+                scheduleSync();
+            });
+        }
+
+        const detailLink = card.querySelector('[data-update-detail-link]');
+
+        if (detailLink) {
+            detailLink.addEventListener('click', () => {
+                const key = card.dataset.updateId;
+
+                if (seen.includes(key)) return;
+
+                markLocally([key]);
+                sendMark([key], true).catch(() => {});
+            });
+        }
+    });
+
+    showAllButton.addEventListener('click', () => {
+        if (archiveMode) renderSummary();
+        else renderArchive();
+    });
+
+    section.querySelectorAll('[data-open-all-updates]').forEach(button => {
+        button.addEventListener('click', renderArchive);
+    });
+
+    markAllButton.addEventListener('click', () => {
+        markLocally(cards.map(card => card.dataset.updateId));
+        scheduleSync();
+    });
+
+    renderSummary();
+    scheduleSync();
+});
+</script>
+
+{% endif %}
+
+<!-- =========================
+     LO PRÓXIMO
+========================== -->
+
+{% if professional_upcoming_count and space_upcoming_count %}
+<section class="account-upcoming-mixed-section">
+<div class="account-upcoming-mixed-heading">
+<div>
+<span class="page-overline">
+LO PRÓXIMO
+</span>
+<h2>
+Tu agenda próxima
+</h2>
+<p>
+Tus sesiones y arriendos en un solo lugar,
+ordenados por fecha.
+</p>
+</div>
+
+<div class="account-upcoming-mixed-summary">
+<a
+href="{% url 'bookings:my_bookings' %}"
+class="account-upcoming-mixed-pill account-upcoming-mixed-pill-professional"
+>
+{{ professional_upcoming_count }}
+profesional{{ professional_upcoming_count|pluralize:"es" }}
+<span>→</span>
+</a>
+<a
+href="{% url 'spaces:my_bookings' %}"
+class="account-upcoming-mixed-pill account-upcoming-mixed-pill-space"
+>
+{{ space_upcoming_count }}
+espacio{{ space_upcoming_count|pluralize }}
+<span>→</span>
+</a>
+</div>
+</div>
+
+<div class="account-upcoming-mixed-grid account-upcoming-count-{{ mixed_upcoming_preview|length }}">
+{% for item in mixed_upcoming_preview %}
+{% with booking=item.booking %}
+{% if item.kind == 'professional' %}
+<article class="account-upcoming-professional-card account-upcoming-mixed-card">
+<div class="account-upcoming-professional-card-top">
+<div class="account-upcoming-professional-person">
+<div class="account-upcoming-professional-avatar">
+{% if booking.professional_profile.user.profile_image %}
+<img
+src="{{ booking.professional_profile.user.profile_image.url }}"
+alt="Foto de {{ booking.professional_profile.user.get_full_name|default:booking.professional_profile.user.email }}"
+>
+{% else %}
+<span>
+{{ booking.professional_profile.user.first_name|first|upper }}{{ booking.professional_profile.user.last_name|first|upper }}
+</span>
+{% endif %}
+</div>
+<div class="account-upcoming-professional-copy">
+<span>
+SERVICIO PROFESIONAL
+</span>
+<h3>
+{{ booking.service_name_snapshot }}
+</h3>
+<p>
+con
+<strong>
+{{ booking.professional_profile.user.get_full_name|default:booking.professional_profile.user.email }}
+</strong>
+</p>
+</div>
+</div>
+<span class="account-next-status account-next-status-{{ booking.status }}">
+{{ booking.get_status_display }}
+</span>
+</div>
+<div class="account-upcoming-professional-main">
+<div class="account-upcoming-professional-date">
+<span>
+FECHA
+</span>
+<strong>
+{{ booking.session_date|date:"d M"|upper }}
+</strong>
+<small>
+{{ booking.session_date|date:"Y" }}
+</small>
+</div>
+<div>
+<span>
+HORARIO
+</span>
+<strong>
+{{ booking.start_time|time:"H:i" }}
+–
+{{ booking.end_time|time:"H:i" }}
+</strong>
+<small>
+{{ booking.duration_minutes }} min
+</small>
+</div>
+</div>
+<div class="account-upcoming-professional-secondary">
+<div>
+<span>
+MODALIDAD
+</span>
+<strong>
+{{ booking.get_mode_snapshot_display }}
+</strong>
+</div>
+<div>
+<span>
+PRECIO
+</span>
+<strong class="account-upcoming-professional-price">
+{{ booking.price_clp|clp }}
+</strong>
+</div>
+</div>
+<div class="account-upcoming-professional-footer">
+<span>
+{% if booking.status == 'pending' %}
+Esperando confirmación de
+{{ booking.professional_profile.user.first_name|default:"tu profesional" }}.
+{% else %}
+Tu sesión está confirmada.
+{% endif %}
+</span>
+<a href="{% url 'bookings:detail' booking.id %}">
+Ver reserva
+<span>→</span>
+</a>
+</div>
+</article>
+{% else %}
+<article class="account-upcoming-space-card account-upcoming-mixed-card">
+<div class="account-upcoming-space-card-top">
+<div class="account-upcoming-space-place">
+<div class="account-upcoming-space-image">
+{% if item.cover %}
+<img
+src="{{ item.cover.image.url }}"
+alt="{{ booking.space_name_snapshot }}"
+>
+{% else %}
+<span>
+{{ booking.space_name_snapshot|first|upper }}
+</span>
+{% endif %}
+</div>
+<div class="account-upcoming-space-copy">
+<span>
+ESPACIO RESERVADO
+</span>
+<h3>
+{{ booking.space_name_snapshot }}
+</h3>
+<p>
+con
+<strong>
+{{ booking.provider_name_snapshot }}
+</strong>
+</p>
+</div>
+</div>
+<span class="account-next-status account-next-status-{{ booking.status }}">
+{{ booking.get_status_display }}
+</span>
+</div>
+<div class="account-upcoming-space-main">
+<div class="account-upcoming-space-date">
+<span>
+FECHA
+</span>
+<strong>
+{{ booking.session_date|date:"d M"|upper }}
+</strong>
+<small>
+{{ booking.session_date|date:"Y" }}
+</small>
+</div>
+<div>
+<span>
+HORARIO
+</span>
+<strong>
+{{ booking.start_time|time:"H:i" }}
+–
+{{ booking.end_time|time:"H:i" }}
+</strong>
+<small>
+{{ booking.duration_minutes }} min
+</small>
+</div>
+</div>
+<div class="account-upcoming-space-secondary">
+<div>
+<span>
+UBICACIÓN
+</span>
+<strong>
+{{ booking.commune_snapshot }}
+</strong>
+</div>
+<div>
+<span>
+PRECIO
+</span>
+<strong class="account-upcoming-space-price">
+{{ booking.price_clp|clp }}
+</strong>
+</div>
+</div>
+<div class="account-upcoming-space-footer">
+<span>
+{% if booking.status == 'pending' %}
+Esperando confirmación de
+{{ booking.provider_name_snapshot }}.
+{% else %}
+Tu arriendo está confirmado.
+{% endif %}
+</span>
+<a href="{% url 'spaces:booking_detail' booking.id %}">
+Ver arriendo
+<span>→</span>
+</a>
+</div>
+</article>
+{% endif %}
+{% endwith %}
+{% endfor %}
+</div>
+
+{% if mixed_remaining_count > 0 %}
+<div class="account-upcoming-mixed-more">
+<span>
+También tienes
+{{ mixed_remaining_count }}
+actividad{{ mixed_remaining_count|pluralize:"es" }}
+próxima{{ mixed_remaining_count|pluralize }}.
+</span>
+<div>
+<a
+href="{% url 'bookings:my_bookings' %}"
+class="account-upcoming-mixed-more-professional"
+>
+Reservas profesionales →
+</a>
+<a
+href="{% url 'spaces:my_bookings' %}"
+class="account-upcoming-mixed-more-space"
+>
+Arriendos de espacios →
+</a>
+</div>
+</div>
+{% endif %}
+</section>
+
+{% elif professional_upcoming_count > 1 and not space_upcoming_count %}
+
+<section class="account-upcoming-professional-section">
+<div class="account-upcoming-professional-heading">
+<div>
+<span class="page-overline">
+LO PRÓXIMO
+</span>
+<h2>
+Tus próximas reservas
+</h2>
+<p>
+Tienes {{ professional_upcoming_count }}
+sesiones profesionales próximas.
+Revísalas sin salir de Mi cuenta.
+</p>
+</div>
+
+<a
+href="{% url 'bookings:my_bookings' %}"
+class="account-upcoming-professional-all"
+>
+Todas mis reservas
+<span>→</span>
+</a>
+</div>
+
+<div class="account-upcoming-professional-grid account-upcoming-count-{{ professional_booking_preview|length }}">
+{% for booking in professional_booking_preview %}
+<article class="account-upcoming-professional-card">
+<div class="account-upcoming-professional-card-top">
+<div class="account-upcoming-professional-person">
+<div class="account-upcoming-professional-avatar">
+{% if booking.professional_profile.user.profile_image %}
+<img
+src="{{ booking.professional_profile.user.profile_image.url }}"
+alt="Foto de {{ booking.professional_profile.user.get_full_name|default:booking.professional_profile.user.email }}"
+>
+{% else %}
+<span>
+{{ booking.professional_profile.user.first_name|first|upper }}{{ booking.professional_profile.user.last_name|first|upper }}
+</span>
+{% endif %}
+</div>
+
+<div class="account-upcoming-professional-copy">
+<span>
+SERVICIO PROFESIONAL
+</span>
+<h3>
+{{ booking.service_name_snapshot }}
+</h3>
+<p>
+con
+<strong>
+{{ booking.professional_profile.user.get_full_name|default:booking.professional_profile.user.email }}
+</strong>
+</p>
+</div>
+</div>
+
+<span class="account-next-status account-next-status-{{ booking.status }}">
+{{ booking.get_status_display }}
+</span>
+</div>
+
+<div class="account-upcoming-professional-main">
+<div class="account-upcoming-professional-date">
+<span>
+FECHA
+</span>
+<strong>
+{{ booking.session_date|date:"d M"|upper }}
+</strong>
+<small>
+{{ booking.session_date|date:"Y" }}
+</small>
+</div>
+<div>
+<span>
+HORARIO
+</span>
+<strong>
+{{ booking.start_time|time:"H:i" }}
+–
+{{ booking.end_time|time:"H:i" }}
+</strong>
+<small>
+{{ booking.duration_minutes }} min
+</small>
+</div>
+</div>
+
+<div class="account-upcoming-professional-secondary">
+<div>
+<span>
+MODALIDAD
+</span>
+<strong>
+{{ booking.get_mode_snapshot_display }}
+</strong>
+</div>
+<div>
+<span>
+PRECIO
+</span>
+<strong class="account-upcoming-professional-price">
+{{ booking.price_clp|clp }}
+</strong>
+</div>
+</div>
+
+<div class="account-upcoming-professional-footer">
+<span>
+{% if booking.status == 'pending' %}
+Esperando confirmación de
+{{ booking.professional_profile.user.first_name|default:"tu profesional" }}.
+{% else %}
+Tu sesión está confirmada.
+{% endif %}
+</span>
+<a href="{% url 'bookings:detail' booking.id %}">
+Ver reserva
+<span>→</span>
+</a>
+</div>
+</article>
+{% endfor %}
+</div>
+
+{% if professional_remaining_count > 0 %}
+<div class="account-upcoming-professional-more">
+<span>
+También tienes
+{{ professional_remaining_count }}
+reserva{{ professional_remaining_count|pluralize }}
+profesional{{ professional_remaining_count|pluralize:"es" }}
+próxima{{ professional_remaining_count|pluralize }}.
+</span>
+<a href="{% url 'bookings:my_bookings' %}">
+Ver todas
+<span>→</span>
+</a>
+</div>
+{% endif %}
+</section>
+
+{% elif space_upcoming_count > 1 and not professional_upcoming_count %}
+
+<section class="account-upcoming-space-section">
+<div class="account-upcoming-space-heading">
+<div>
+<span class="page-overline">
+LO PRÓXIMO
+</span>
+<h2>
+Tus próximos arriendos
+</h2>
+<p>
+Tienes {{ space_upcoming_count }}
+espacios reservados próximos.
+Revísalos sin salir de Mi cuenta.
+</p>
+</div>
+<a
+href="{% url 'spaces:my_bookings' %}"
+class="account-upcoming-space-all"
+>
+Todos mis arriendos
+<span>→</span>
+</a>
+</div>
+
+<div class="account-upcoming-space-grid account-upcoming-count-{{ space_booking_preview|length }}">
+{% for booking in space_booking_preview %}
+<article class="account-upcoming-space-card">
+<div class="account-upcoming-space-card-top">
+<div class="account-upcoming-space-place">
+<div class="account-upcoming-space-image">
+{% with cover=booking.space.images.all.0 %}
+{% if cover %}
+<img
+src="{{ cover.image.url }}"
+alt="{{ booking.space_name_snapshot }}"
+>
+{% else %}
+<span>
+{{ booking.space_name_snapshot|first|upper }}
+</span>
+{% endif %}
+{% endwith %}
+</div>
+<div class="account-upcoming-space-copy">
+<span>
+ESPACIO RESERVADO
+</span>
+<h3>
+{{ booking.space_name_snapshot }}
+</h3>
+<p>
+con
+<strong>
+{{ booking.provider_name_snapshot }}
+</strong>
+</p>
+</div>
+</div>
+
+<span class="account-next-status account-next-status-{{ booking.status }}">
+{{ booking.get_status_display }}
+</span>
+</div>
+
+<div class="account-upcoming-space-main">
+<div class="account-upcoming-space-date">
+<span>
+FECHA
+</span>
+<strong>
+{{ booking.session_date|date:"d M"|upper }}
+</strong>
+<small>
+{{ booking.session_date|date:"Y" }}
+</small>
+</div>
+<div>
+<span>
+HORARIO
+</span>
+<strong>
+{{ booking.start_time|time:"H:i" }}
+–
+{{ booking.end_time|time:"H:i" }}
+</strong>
+<small>
+{{ booking.duration_minutes }} min
+</small>
+</div>
+</div>
+
+<div class="account-upcoming-space-secondary">
+<div>
+<span>
+UBICACIÓN
+</span>
+<strong>
+{{ booking.commune_snapshot }}
+</strong>
+</div>
+<div>
+<span>
+PRECIO
+</span>
+<strong class="account-upcoming-space-price">
+{{ booking.price_clp|clp }}
+</strong>
+</div>
+</div>
+
+<div class="account-upcoming-space-footer">
+<span>
+{% if booking.status == 'pending' %}
+Esperando confirmación de
+{{ booking.provider_name_snapshot }}.
+{% else %}
+Tu arriendo está confirmado.
+{% endif %}
+</span>
+<a href="{% url 'spaces:booking_detail' booking.id %}">
+Ver arriendo
+<span>→</span>
+</a>
+</div>
+</article>
+{% endfor %}
+</div>
+
+{% if space_remaining_count > 0 %}
+<div class="account-upcoming-space-more">
+<span>
+También tienes
+{{ space_remaining_count }}
+arriendo{{ space_remaining_count|pluralize }}
+próximo{{ space_remaining_count|pluralize }}.
+</span>
+<a href="{% url 'spaces:my_bookings' %}">
+Ver todos
+<span>→</span>
+</a>
+</div>
+{% endif %}
+</section>
+
+{% elif next_booking %}
+
+<section class="account-next-section">
+<div class="account-next-heading">
+<div>
+<span class="page-overline">
+LO PRÓXIMO
+</span>
+<h2>
+{% if next_booking_kind == 'professional' %}
+Tu próxima reserva
+{% else %}
+Tu próximo arriendo
+{% endif %}
+</h2>
+<p>
+Lo más cercano en tu agenda,
+directamente desde Mi cuenta.
+</p>
+</div>
+
+<span class="account-next-type account-next-type-{{ next_booking_kind }}">
+{% if next_booking_kind == 'professional' %}
+SERVICIO PROFESIONAL
+{% else %}
+ESPACIO RESERVADO
+{% endif %}
+</span>
+</div>
+
+{% if next_booking_kind == 'professional' %}
+<a
+href="{% url 'bookings:detail' next_booking.id %}"
+class="account-next-card account-next-card-professional"
+>
+<div class="account-next-card-header">
+<div class="account-next-identity">
+<div class="account-next-avatar account-next-avatar-professional">
+{% if next_booking.professional_profile.user.profile_image %}
+<img
+src="{{ next_booking.professional_profile.user.profile_image.url }}"
+alt="Foto de {{ next_booking.professional_profile.user.get_full_name|default:next_booking.professional_profile.user.email }}"
+>
+{% else %}
+<span>
+{{ next_booking.professional_profile.user.first_name|first|upper }}{{ next_booking.professional_profile.user.last_name|first|upper }}
+</span>
+{% endif %}
+</div>
+
+<div class="account-next-copy">
+<span class="account-next-eyebrow">
+SERVICIO PROFESIONAL
+</span>
+<h3>
+{{ next_booking.service_name_snapshot }}
+</h3>
+<p>
+con
+<strong>
+{{ next_booking.professional_profile.user.get_full_name|default:next_booking.professional_profile.user.email }}
+</strong>
+</p>
+<small>
+{{ next_booking.get_mode_snapshot_display }}
+{% if next_booking.location_name_snapshot %}
+· {{ next_booking.location_name_snapshot }}
+{% elif next_booking.location_type_snapshot == 'user_home' %}
+· Tu domicilio
+{% elif next_booking.location_type_snapshot == 'agreed_place' %}
+· Lugar acordado
+{% endif %}
+</small>
+</div>
+</div>
+
+<span class="account-next-status account-next-status-{{ next_booking.status }}">
+{{ next_booking.get_status_display }}
+</span>
+</div>
+
+<div class="account-next-details">
+<div>
+<span>
+FECHA
+</span>
+<strong class="account-next-highlight-professional">
+{{ next_booking.session_date|date:"d M"|upper }}
+</strong>
+<small>
+{{ next_booking.session_date|date:"Y" }}
+</small>
+</div>
+<div>
+<span>
+HORARIO
+</span>
+<strong>
+{{ next_booking.start_time|time:"H:i" }}
+–
+{{ next_booking.end_time|time:"H:i" }}
+</strong>
+<small>
+Tu sesión
+</small>
+</div>
+<div>
+<span>
+DURACIÓN
+</span>
+<strong>
+{{ next_booking.duration_minutes }} min
+</strong>
+<small>
+Duración reservada
+</small>
+</div>
+<div>
+<span>
+PRECIO
+</span>
+<strong class="account-next-highlight-professional account-next-price">
+{{ next_booking.price_clp|clp }}
+</strong>
+<small>
+Precio de tu reserva
+</small>
+</div>
+</div>
+
+<div class="account-next-footer">
+<span>
+{% if next_booking.status == 'pending' %}
+Esperando confirmación de
+{{ next_booking.professional_profile.user.first_name|default:"tu profesional" }}.
+{% else %}
+Tu sesión está confirmada.
+{% endif %}
+</span>
+<strong>
+Ver mi reserva
+<span>→</span>
+</strong>
+</div>
+</a>
+
+{% else %}
+
+<a
+href="{% url 'spaces:booking_detail' next_booking.id %}"
+class="account-next-card account-next-card-space"
+>
+<div class="account-next-card-header">
+<div class="account-next-identity">
+<div class="account-next-avatar account-next-avatar-space">
+{% if next_space_cover %}
+<img
+src="{{ next_space_cover.image.url }}"
+alt="{{ next_booking.space_name_snapshot }}"
+>
+{% else %}
+<span>
+{{ next_booking.space_name_snapshot|first|upper }}
+</span>
+{% endif %}
+</div>
+
+<div class="account-next-copy">
+<span class="account-next-eyebrow account-next-eyebrow-space">
+ESPACIO RESERVADO
+</span>
+<h3>
+{{ next_booking.space_name_snapshot }}
+</h3>
+<p>
+{{ next_booking.provider_name_snapshot }}
+</p>
+<small>
+{{ next_booking.space_type_snapshot }}
+·
+{{ next_booking.commune_snapshot }}
+</small>
+</div>
+</div>
+<span class="account-next-status account-next-status-{{ next_booking.status }}">
+{{ next_booking.get_status_display }}
+</span>
+</div>
+
+<div class="account-next-details account-next-details-space">
+<div>
+<span>
+FECHA
+</span>
+<strong class="account-next-highlight-space">
+{{ next_booking.session_date|date:"d M"|upper }}
+</strong>
+<small>
+{{ next_booking.session_date|date:"Y" }}
+</small>
+</div>
+<div>
+<span>
+HORARIO
+</span>
+<strong>
+{{ next_booking.start_time|time:"H:i" }}
+–
+{{ next_booking.end_time|time:"H:i" }}
+</strong>
+<small>
+Bloque reservado
+</small>
+</div>
+<div>
+<span>
+DURACIÓN
+</span>
+<strong>
+{{ next_booking.duration_minutes }} min
+</strong>
+<small>
+Duración del arriendo
+</small>
+</div>
+<div>
+<span>
+PRECIO
+</span>
+<strong class="account-next-highlight-space account-next-price">
+{{ next_booking.price_clp|clp }}
+</strong>
+<small>
+Precio del arriendo
+</small>
+</div>
+</div>
+
+<div class="account-next-footer">
+<span>
+{% if next_booking.status == 'pending' %}
+Esperando confirmación del proveedor.
+{% else %}
+Tu arriendo está confirmado.
+{% endif %}
+</span>
+<strong>
+Ver reserva del espacio
+<span>→</span>
+</strong>
+</div>
+</a>
+{% endif %}
+
+{% if upcoming_booking_total > 1 %}
+<div class="account-next-more">
+<span>
+{% if upcoming_booking_total == 2 %}
+También tienes 1 reserva próxima.
+{% else %}
+También tienes
+{{ upcoming_booking_total|add:"-1" }}
+reservas próximas.
+{% endif %}
+</span>
+<div>
+{% if professional_upcoming_count %}
+<a href="{% url 'bookings:my_bookings' %}">
+Reservas profesionales →
+</a>
+{% endif %}
+{% if space_upcoming_count %}
+<a href="{% url 'spaces:my_bookings' %}">
+Arriendos de espacios →
+</a>
+{% endif %}
+</div>
+</div>
+{% endif %}
+</section>
+{% endif %}
+
+<!-- =========================
+     MIS RESERVAS Y ACTIVIDAD
+========================== -->
+
+<section class="member-quick-section">
+<div class="member-quick-heading">
+<div>
+<span class="page-overline">
+ACCESOS RÁPIDOS
+</span>
+<h2>
+Mis reservas y actividad
+</h2>
+<p>
+Entra directamente a tus sesiones, arriendos,
+actividades e historiales sin tener que buscarlos
+dentro de tu perfil.
+</p>
+</div>
+</div>
+
+<div class="member-quick-grid">
+
+<!-- PROFESIONALES -->
+<a
+href="{% url 'bookings:my_bookings' %}"
+class="member-quick-card member-quick-card-professional"
+>
+<div class="member-quick-card-top">
+<span class="member-quick-icon member-quick-icon-professional">
+PRO
+</span>
+<span class="member-quick-count member-quick-count-professional">
+{% if professional_upcoming_count == 1 %}
+1 próxima
+{% elif professional_upcoming_count > 1 %}
+{{ professional_upcoming_count }} próximas
+{% else %}
+Sin próximas
+{% endif %}
+</span>
+</div>
+<span class="member-quick-eyebrow member-quick-eyebrow-professional">
+SERVICIOS PROFESIONALES
+</span>
+<h3>
+Mis reservas profesionales
+</h3>
+<p>
+Revisa tus próximas sesiones, estados,
+cancelaciones y el historial de reservas
+con profesionales.
+</p>
+<strong class="member-quick-link">
+Ver mis reservas
+<span>→</span>
+</strong>
+</a>
+
+<!-- ESPACIOS -->
+<a
+href="{% url 'spaces:my_bookings' %}"
+class="member-quick-card member-quick-card-space"
+>
+<div class="member-quick-card-top">
+<span class="member-quick-icon member-quick-icon-space">
+ESP
+</span>
+<span class="member-quick-count member-quick-count-space">
+{% if space_upcoming_count == 1 %}
+1 próximo
+{% elif space_upcoming_count > 1 %}
+{{ space_upcoming_count }} próximos
+{% else %}
+Sin próximos
+{% endif %}
+</span>
+</div>
+<span class="member-quick-eyebrow member-quick-eyebrow-space">
+ESPACIOS
+</span>
+<h3>
+Mis arriendos de espacios
+</h3>
+<p>
+Consulta los espacios que reservaste,
+próximos arriendos y su historial
+en un solo lugar.
+</p>
+<strong class="member-quick-link member-quick-link-space">
+Ver mis arriendos
+<span>→</span>
+</strong>
+</a>
+
+<!-- ACTIVIDADES -->
+<a
+href="{% url 'activities:my_activities' %}"
+class="member-quick-card member-quick-card-activity"
+>
+<div class="member-quick-card-top">
+<span class="member-quick-icon member-quick-icon-activity">
+ACT
+</span>
+<span class="member-quick-count member-quick-count-activity">
+{% if activity_upcoming_count == 1 %}
+1 próxima
+{% elif activity_upcoming_count > 1 %}
+{{ activity_upcoming_count }} próximas
+{% else %}
+Sin próximas
+{% endif %}
+</span>
+</div>
+<span class="member-quick-eyebrow member-quick-eyebrow-activity">
+ACTIVIDADES
+</span>
+<h3>
+Mis actividades
+</h3>
+<p>
+Revisa las actividades que organizas
+y aquellas en las que decidiste participar
+como Miembro.
+</p>
+<strong class="member-quick-link member-quick-link-activity">
+Ver mis actividades
+<span>→</span>
+</strong>
+</a>
+
+</div>
+
+<!-- MI ACTIVIDAD -->
+<a
+href="{% url 'accounts:activity_history' %}"
+class="member-history-access"
+>
+<div class="member-history-access-icon">
+HIS
+</div>
+<div class="member-history-access-copy">
+<span>
+MI ACTIVIDAD
+</span>
+<strong>
+Mi actividad
+</strong>
+<p>
+Encuentra reservas profesionales,
+arriendos y actividades en un solo lugar.
+Busca por nombre, fecha, tipo o estado.
+</p>
+</div>
+<div class="member-history-access-meta">
+<span>
+{{ account_upcoming_total }}
+próxima{{ account_upcoming_total|pluralize:"s" }}
+·
+{{ account_activity_history_count }}
+anterior{{ account_activity_history_count|pluralize:"es" }}
+</span>
+<strong>
+Buscar y filtrar
+<span>→</span>
+</strong>
+</div>
+</a>
+
+<!-- MIS PAGOS -->
+{% member_payment_summary request.user as payment_summary %}
+<a
+href="{% url 'payments:my_payments' %}"
+class="member-payments-access"
+>
+<div class="member-payments-access-icon">
+PAY
+</div>
+<div class="member-payments-access-copy">
+<span>
+PAGOS Y COMPROBANTES
+</span>
+<strong>
+Mis pagos
+</strong>
+<p>
+Consulta pagos aprobados, intentos fallidos,
+comprobantes y futuras devoluciones de tus
+actividades profesionales.
+</p>
+</div>
+<div class="member-payments-access-meta">
+<span>
+{{ payment_summary.movements }}
+movimiento{{ payment_summary.movements|pluralize:"s" }}
+·
+{{ payment_summary.approved_total|clp }}
+aprobado
+</span>
+{% if payment_summary.pending %}
+<small>
+{{ payment_summary.pending }}
+pendiente{{ payment_summary.pending|pluralize:"s" }}
+</small>
+{% endif %}
+<strong>
+Ver mis pagos
+<span>→</span>
+</strong>
+</div>
+</a>
+
+</section>
+
+<!-- =========================
+     CONTENIDO PRINCIPAL
+========================== -->
+
+<div class="account-layout">
+
+<!-- COLUMNA PRINCIPAL -->
+<div class="account-main-column">
+
+<!-- DATOS PERSONALES -->
+<section class="account-panel">
+<div class="account-panel-header">
+<div>
+<span class="account-panel-number">
+01
+</span>
+<h2>
+Identificación personal
+</h2>
+</div>
+<span class="account-panel-tag">
+CUENTA
+</span>
+</div>
+
+<div class="account-data-grid">
+<div class="account-data-item">
+<span>
+Nombre completo
+</span>
+<strong>
+{{ request.user.get_full_name|default:"Sin registrar" }}
+</strong>
+</div>
+
+<div class="account-data-item">
+<span>
+Correo electrónico
+</span>
+<strong>
+{{ request.user.email }}
+</strong>
+</div>
+
+<div class="account-data-item">
+<span>
+RUT
+</span>
+<strong>
+{{ request.user.rut|default:"Sin registrar" }}
+</strong>
+</div>
+
+<div class="account-data-item">
+<span>
+Teléfono
+</span>
+<strong>
+{{ request.user.phone|default:"Sin registrar" }}
+</strong>
+</div>
+
+<div class="account-data-item">
+<span>
+Fecha de nacimiento
+</span>
+<strong>
+{% if request.user.birth_date %}
+{{ request.user.birth_date|date:"d/m/Y" }}
+{% else %}
+Sin registrar
+{% endif %}
+</strong>
+</div>
+
+<div class="account-data-item">
+<span>
+Comuna
+</span>
+<strong>
+{% if request.user.commune %}
+{{ request.user.commune.name }}
+{% else %}
+Sin registrar
+{% endif %}
+</strong>
+</div>
+</div>
+</section>
+
+<!-- PERFIL MIEMBRO -->
+<section class="account-panel">
+<div class="account-panel-header">
+<div>
+<span class="account-panel-number">
+02
+</span>
+<h2>
+Perfil de miembro
+</h2>
+</div>
+<span class="account-panel-tag">
+MIEMBRO
+</span>
+</div>
+
+{% if member_profile %}
+<div class="account-data-grid">
+<div class="account-data-item">
+<span>
+Nivel de actividad
+</span>
+<strong>
+{{ member_profile.get_activity_level_display|default:"Sin registrar" }}
+</strong>
+</div>
+
+<div class="account-data-item">
+<span>
+Contacto de emergencia
+</span>
+<strong>
+{{ member_profile.emergency_contact_name|default:"Sin registrar" }}
+</strong>
+</div>
+
+<div class="account-data-item">
+<span>
+Relación
+</span>
+<strong>
+{{ member_profile.emergency_contact_relationship|default:"Sin registrar" }}
+</strong>
+</div>
+
+<div class="account-data-item">
+<span>
+Teléfono de emergencia
+</span>
+<strong>
+{{ member_profile.emergency_contact_phone|default:"Sin registrar" }}
+</strong>
+</div>
+</div>
+
+<div class="account-interests">
+<span class="account-subtitle">
+INTERESES
+</span>
+<div class="account-interest-list">
+{% for interest in member_profile.interests.all %}
+<span>
+{{ interest.name }}
+</span>
+{% empty %}
+<p>
+No tienes intereses seleccionados.
+</p>
+{% endfor %}
+</div>
+</div>
+
+{% else %}
+<div class="account-empty">
+<strong>
+Perfil de miembro no disponible
+</strong>
+<p>
+Esta cuenta aún no posee información
+adicional de miembro.
+</p>
+</div>
+{% endif %}
+</section>
+
+</div>
+
+<!-- =========================
+     COLUMNA LATERAL
+========================== -->
+
+<aside class="account-sidebar">
+
+<!-- PERFILES -->
+<section class="account-side-card">
+<span class="page-overline">
+PERFILES
+</span>
+<h3>
+Una cuenta,
+múltiples perfiles.
+</h3>
+<p>
+Tu Cuenta Única permite habilitar
+perfiles adicionales sin crear otra cuenta.
+</p>
+
+<!-- MIEMBRO -->
+<div class="account-role">
+<div>
+<strong>
+Miembro
+</strong>
+<span>
+Perfil base
+</span>
+</div>
+<span class="role-status role-status-active">
+Activo
+</span>
+</div>
+
+<!-- PROFESIONAL -->
+<div class="account-role account-role-professional">
+<div>
+<strong>
+Profesional
+</strong>
+<span>
+Perfil especializado
+</span>
+</div>
+
+{% if not professional_profile %}
+<span class="role-status">
+No habilitado
+</span>
+{% elif professional_profile.verification_status == 'pending' %}
+<span class="role-status role-status-pending">
+En revisión
+</span>
+{% elif professional_profile.verification_status == 'verified' %}
+<span class="role-status role-status-active">
+Activo
+</span>
+{% elif professional_profile.verification_status == 'rejected' %}
+<span class="role-status role-status-rejected">
+Rechazado
+</span>
+{% elif professional_profile.verification_status == 'suspended' %}
+<span class="role-status role-status-suspended">
+Suspendido
+</span>
+{% endif %}
+</div>
+
+<!-- ACCIÓN / ESTADO PROFESIONAL -->
+
+{% if not professional_profile %}
+{% if account_ready_for_professional %}
+<a
+href="{% url 'professionals:request_profile' %}"
+class="account-professional-action"
+>
+Solicitar Perfil Profesional
+<span>→</span>
+</a>
+{% else %}
+<div class="account-professional-message">
+<strong>
+Cuenta base incompleta
+</strong>
+<p>
+Para solicitar un Perfil Profesional
+necesitas completar primero los datos
+obligatorios de tu Cuenta Única Universal.
+</p>
+</div>
+{% endif %}
+
+{% elif professional_profile.verification_status == 'pending' %}
+<div class="account-professional-message">
+<strong>
+Solicitud enviada
+</strong>
+<p>
+Tu Perfil Profesional se encuentra
+actualmente en revisión.
+</p>
+</div>
+
+{% elif professional_profile.verification_status == 'verified' %}
+<div class="account-professional-message account-professional-message-active">
+<strong>
+Perfil Profesional habilitado
+</strong>
+<p>
+Tu solicitud fue aprobada y el perfil
+se encuentra activo. Utiliza el acceso
+superior para ingresar al Centro Profesional.
+</p>
+</div>
+
+{% elif professional_profile.verification_status == 'rejected' %}
+<div class="account-professional-message account-professional-message-error">
+<strong>
+Solicitud rechazada
+</strong>
+{% if professional_profile.rejection_reason %}
+<p>
+{{ professional_profile.rejection_reason }}
+</p>
+{% else %}
+<p>
+La solicitud no fue aprobada.
+</p>
+{% endif %}
+</div>
+
+{% elif professional_profile.verification_status == 'suspended' %}
+<div class="account-professional-message account-professional-message-error">
+<strong>
+Perfil suspendido
+</strong>
+<p>
+Tu Perfil Profesional se encuentra
+temporalmente suspendido.
+</p>
+</div>
+{% endif %}
+
+<!-- PROVEEDOR -->
+<div class="account-role">
+<div>
+<strong>
+Proveedor de espacios
+</strong>
+<span>
+Gestión de infraestructura
+</span>
+</div>
+
+{% if request.user.space_provider_profile %}
+{% if request.user.space_provider_profile.verification_status == 'pending' %}
+<span class="role-status role-status-pending">
+En revisión
+</span>
+{% elif request.user.space_provider_profile.verification_status == 'verified' %}
+<span class="role-status role-status-active">
+Activo
+</span>
+{% elif request.user.space_provider_profile.verification_status == 'rejected' %}
+<span class="role-status role-status-rejected">
+Rechazado
+</span>
+{% elif request.user.space_provider_profile.verification_status == 'suspended' %}
+<span class="role-status role-status-suspended">
+Suspendido
+</span>
+{% endif %}
+{% else %}
+<span class="role-status">
+No habilitado
+</span>
+{% endif %}
+</div>
+
+{% if not request.user.space_provider_profile %}
+<a
+href="{% url 'spaces:request_profile' %}"
+class="account-professional-action"
+>
+Solicitar Perfil Proveedor de Espacios
+<span>→</span>
+</a>
+
+{% elif request.user.space_provider_profile.verification_status == 'pending' %}
+<div class="account-professional-message">
+{% if request.user.space_provider_profile.application_complete %}
+<strong>
+Solicitud enviada
+</strong>
+<p>
+Tu Perfil de Proveedor de Espacios
+se encuentra actualmente en revisión.
+</p>
+{% else %}
+<strong>
+Completa tu solicitud
+</strong>
+<p>
+Agregamos información necesaria
+para revisar correctamente tu
+Perfil de Proveedor de Espacios.
+</p>
+{% endif %}
+</div>
+
+<a
+href="{% url 'spaces:request_profile' %}"
+class="account-professional-action"
+>
+{% if request.user.space_provider_profile.application_complete %}
+Revisar solicitud
+{% else %}
+Completar solicitud
+{% endif %}
+<span>→</span>
+</a>
+
+{% elif request.user.space_provider_profile.verification_status == 'verified' %}
+<div class="account-professional-message account-professional-message-active">
+<strong>
+Perfil Proveedor habilitado
+</strong>
+<p>
+Tu perfil fue aprobado y se encuentra activo.
+Utiliza el acceso superior para ingresar
+al Centro de Espacios.
+</p>
+</div>
+
+{% elif request.user.space_provider_profile.verification_status == 'rejected' %}
+<div class="account-professional-message account-professional-message-error">
+<strong>
+Solicitud rechazada
+</strong>
+{% if request.user.space_provider_profile.rejection_reason %}
+<p>
+{{ request.user.space_provider_profile.rejection_reason }}
+</p>
+{% else %}
+<p>
+La solicitud no fue aprobada.
+</p>
+{% endif %}
+</div>
+
+{% elif request.user.space_provider_profile.verification_status == 'suspended' %}
+<div class="account-professional-message account-professional-message-error">
+<strong>
+Perfil suspendido
+</strong>
+<p>
+Tu Perfil de Proveedor de Espacios
+se encuentra temporalmente suspendido.
+</p>
+</div>
+{% endif %}
+</section>
+
+<!-- SEGURIDAD -->
+<section class="account-side-card">
+<span class="page-overline">
+SEGURIDAD Y CONSENTIMIENTO
+</span>
+
+<div class="account-security-item">
+<span>
+Términos
+</span>
+{% if request.user.terms_accepted %}
+<strong>
+✓ Aceptados
+</strong>
+{% else %}
+<strong class="security-pending">
+Pendiente
+</strong>
+{% endif %}
+</div>
+
+<div class="account-security-item">
+<span>
+Privacidad
+</span>
+{% if request.user.privacy_accepted %}
+<strong>
+✓ Aceptada
+</strong>
+{% else %}
+<strong class="security-pending">
+Pendiente
+</strong>
+{% endif %}
+</div>
+
+{% if member_profile %}
+<div class="account-security-item">
+<span>
+Declaración física
+</span>
+{% if member_profile.fitness_declaration_accepted %}
+<strong>
+✓ Aceptada
+</strong>
+{% else %}
+<strong class="security-pending">
+Pendiente
+</strong>
+{% endif %}
+</div>
+{% endif %}
+</section>
+
+<!-- EDITAR CUENTA -->
+<a
+href="{% url 'accounts:profile_settings' %}"
+class="account-professional-action"
+>
+Configuración de perfil
+<span>→</span>
+</a>
+
+<!-- CERRAR SESIÓN -->
+<a
+href="{% url 'accounts:logout' %}"
+class="account-logout"
+>
+Cerrar sesión
+</a>
+
+</aside>
+</div>
+</div>
 </section>
 
 {% endblock %}

@@ -10,6 +10,272 @@ Inicio | EntrenamientoyComunidad
 {% block content %}
 
 <!-- =====================================================
+     V125 - Estilos exclusivos de Actividades en Inicio.
+     Mantienen la identidad morada sin alterar otros módulos.
+===================================================== -->
+<style>
+    .v125-home-activity-action {
+        color: #d3a6ff;
+        border: 1px solid rgba(180, 130, 255, .55);
+        background: rgba(166, 112, 244, .09);
+    }
+
+    .v125-home-activity-action:hover {
+        background: rgba(166, 112, 244, .17);
+    }
+
+    .v125-activity-overline {
+        color: #bb8aff;
+    }
+
+    .v125-activity-count {
+        color: #cb9fff;
+        border: 1px solid rgba(178, 130, 252, .42);
+        background: rgba(178, 130, 252, .07);
+    }
+
+    .v125-activity-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .v125-activity-grid.v125-activity-grid-single {
+        grid-template-columns: minmax(0, 470px);
+    }
+
+    .v125-activity-card {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        overflow: hidden;
+        background: #141924;
+        border: 1px solid rgba(182, 135, 246, .36);
+        border-radius: 13px;
+        transition: border-color .2s ease, transform .2s ease;
+    }
+
+    .v125-activity-card:hover {
+        border-color: rgba(187, 138, 255, .7);
+        transform: translateY(-2px);
+    }
+
+    .v125-activity-cover {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 176px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #35254a, #191d2a 70%);
+    }
+
+    .v125-activity-cover img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform .25s ease;
+    }
+
+    .v125-activity-cover:hover img {
+        transform: scale(1.035);
+    }
+
+    .v125-activity-cover-placeholder {
+        display: flex;
+        height: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: #d9b6ff;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .v125-activity-cover-placeholder span {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border: 1px solid rgba(198, 155, 255, .55);
+        border-radius: 12px;
+        background: rgba(195, 150, 255, .08);
+        font-size: 15px;
+    }
+
+    .v125-activity-cover-badge {
+        position: absolute;
+        left: 12px;
+        bottom: 12px;
+        padding: 6px 9px;
+        border: 1px solid rgba(217, 180, 255, .48);
+        border-radius: 999px;
+        color: #eedbff;
+        background: rgba(17, 16, 25, .84);
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .v125-activity-card-body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 12px;
+        padding: 17px;
+    }
+
+    .v125-activity-card-topline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    .v125-activity-category {
+        color: #bd90ff;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: .09em;
+        text-transform: uppercase;
+    }
+
+    .v125-activity-free {
+        color: #59e7b4;
+        font-size: 10px;
+        font-weight: 900;
+    }
+
+    .v125-activity-price {
+        color: #e1bdff;
+        font-size: 11px;
+        font-weight: 900;
+    }
+
+    .v125-activity-card h3 {
+        margin: 0;
+        color: #f6f3fa;
+        font-size: 19px;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+    }
+
+    .v125-activity-organizer {
+        margin: 0;
+        color: #9ba5b7;
+        font-size: 12px;
+    }
+
+    .v125-activity-organizer strong {
+        color: #e4e8ef;
+    }
+
+    .v125-activity-facts {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .v125-activity-fact {
+        min-width: 0;
+        padding: 10px 11px;
+        background: #0e131c;
+        border: 1px solid #2a3242;
+        border-radius: 8px;
+    }
+
+    .v125-activity-fact span {
+        display: block;
+        margin-bottom: 5px;
+        color: #8291a8;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .v125-activity-fact strong {
+        display: block;
+        color: #edf0f6;
+        font-size: 12px;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    .v125-activity-fact .v125-activity-no-spots {
+        color: #ff899b;
+    }
+
+    .v125-activity-fact .v125-activity-spots {
+        color: #70e9bb;
+    }
+
+    .v125-activity-open {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-top: auto;
+        padding: 12px;
+        color: #ddbbff;
+        border: 1px solid rgba(185, 135, 250, .5);
+        border-radius: 8px;
+        background: rgba(180, 130, 255, .07);
+        font-size: 12px;
+        font-weight: 900;
+        text-decoration: none;
+    }
+
+    .v125-activity-open:hover {
+        background: rgba(180, 130, 255, .15);
+    }
+
+    .v125-activity-all-link {
+        color: #cc9dff;
+        border-color: rgba(182, 128, 255, .5);
+        background: rgba(182, 128, 255, .04);
+    }
+
+    .v125-activity-all-link:hover {
+        background: rgba(182, 128, 255, .12);
+    }
+
+    .v125-activity-empty {
+        border-color: rgba(182, 128, 255, .3);
+    }
+
+    @media (max-width: 950px) {
+        .v125-activity-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 640px) {
+        .v125-activity-grid,
+        .v125-activity-grid.v125-activity-grid-single {
+            grid-template-columns: 1fr;
+        }
+
+        .v125-activity-cover {
+            height: 196px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .v125-activity-card,
+        .v125-activity-cover img {
+            transition: none;
+        }
+
+        .v125-activity-card:hover {
+            transform: none;
+        }
+    }
+</style>
+
+
+<!-- =====================================================
      HERO
 ===================================================== -->
 
@@ -20,7 +286,7 @@ Inicio | EntrenamientoyComunidad
         <div class="market-home-hero-copy">
 
             <span class="page-overline">
-                ENTRENAMIENTO · BIENESTAR · ESPACIOS
+                ENTRENAMIENTO · BIENESTAR · COMUNIDAD · ESPACIOS
             </span>
 
             <h1>
@@ -31,9 +297,9 @@ Inicio | EntrenamientoyComunidad
             </h1>
 
             <p>
-                Descubre servicios profesionales y espacios deportivos
-                publicados por perfiles verificados. Compara precio,
-                modalidad, ubicación y disponibilidad desde un mismo lugar.
+                Encuentra servicios profesionales, reserva espacios deportivos
+                y participa en actividades comunitarias o profesionales.
+                Compara opciones y organiza tu experiencia desde un mismo lugar.
             </p>
 
 
@@ -53,6 +319,14 @@ Inicio | EntrenamientoyComunidad
                     class="market-action market-action-space"
                 >
                     Explorar espacios
+                    <span>→</span>
+                </a>
+
+                <a
+                    href="{% url 'activities:home' %}"
+                    class="market-action v125-home-activity-action"
+                >
+                    Explorar actividades
                     <span>→</span>
                 </a>
 
@@ -821,6 +1095,197 @@ Inicio | EntrenamientoyComunidad
 
 </section>
 
+
+
+<!-- =====================================================
+     V125 - ACTIVIDADES PRÓXIMAS PUBLICADAS
+     Datos reales, no se exponen enlaces privados de sesiones online.
+===================================================== -->
+
+<section class="market-home-section market-home-activities">
+
+    <div class="home-container">
+
+        <div class="market-section-heading">
+
+            <div>
+
+                <span class="page-overline v125-activity-overline">
+                    ACTIVIDADES · COMUNIDAD
+                </span>
+
+                <h2>
+                    Participa, comparte y mantente en movimiento.
+                </h2>
+
+                <p>
+                    Encuentra actividades próximas organizadas por Miembros
+                    y Profesionales de la plataforma.
+                </p>
+
+            </div>
+
+            <div class="market-section-counter v125-activity-count">
+                {{ published_activity_count }}
+                {% if published_activity_count == 1 %}
+                    actividad próxima
+                {% else %}
+                    actividades próximas
+                {% endif %}
+            </div>
+
+        </div>
+
+        {% if featured_activities %}
+
+            <div class="v125-activity-grid{% if featured_activities|length == 1 %} v125-activity-grid-single{% endif %}">
+
+                {% for activity in featured_activities %}
+
+                    <article class="v125-activity-card">
+
+                        <a
+                            href="{% url 'activities:detail' activity.id %}"
+                            class="v125-activity-cover"
+                            aria-label="Ver actividad {{ activity.title }}"
+                        >
+
+                            {% if activity.image %}
+
+                                <img
+                                    src="{{ activity.image.url }}"
+                                    alt="Imagen de la actividad {{ activity.title }}"
+                                    loading="lazy"
+                                >
+
+                            {% else %}
+
+                                <div class="v125-activity-cover-placeholder">
+                                    <span aria-hidden="true">AC</span>
+                                    Actividad deportiva o de bienestar
+                                </div>
+
+                            {% endif %}
+
+                            <span class="v125-activity-cover-badge">
+                                {{ activity.get_activity_type_display }}
+                            </span>
+
+                        </a>
+
+                        <div class="v125-activity-card-body">
+
+                            <div class="v125-activity-card-topline">
+
+                                <span class="v125-activity-category">
+                                    {{ activity.category.name }}
+                                </span>
+
+                                {% if activity.price == 0 %}
+                                    <span class="v125-activity-free">Gratuita</span>
+                                {% else %}
+                                    <span class="v125-activity-price">{{ activity.price|clp }}</span>
+                                {% endif %}
+
+                            </div>
+
+                            <h3>{{ activity.title }}</h3>
+
+                            <p class="v125-activity-organizer">
+                                Organiza:
+                                <strong>
+                                    {{ activity.organizer.get_full_name|default:activity.organizer.email }}
+                                </strong>
+                            </p>
+
+                            <div class="v125-activity-facts">
+
+                                <div class="v125-activity-fact">
+                                    <span>Fecha</span>
+                                    <strong>{{ activity.date|date:"d/m/Y" }}</strong>
+                                </div>
+
+                                <div class="v125-activity-fact">
+                                    <span>Horario</span>
+                                    <strong>
+                                        {{ activity.start_time|time:"H:i" }}
+                                        –
+                                        {{ activity.end_time|time:"H:i" }}
+                                    </strong>
+                                </div>
+
+                                <div class="v125-activity-fact">
+                                    <span>Modalidad y lugar</span>
+                                    <strong>
+                                        {{ activity.get_modality_display }}
+                                        {% if activity.commune %}
+                                            · {{ activity.commune.name }}
+                                        {% endif %}
+                                    </strong>
+                                </div>
+
+                                <div class="v125-activity-fact">
+                                    <span>Cupos</span>
+                                    {% if activity.home_available_spots > 0 %}
+                                        <strong class="v125-activity-spots">
+                                            {{ activity.home_available_spots }} de {{ activity.capacity }} disponibles
+                                        </strong>
+                                    {% else %}
+                                        <strong class="v125-activity-no-spots">Sin cupos disponibles</strong>
+                                    {% endif %}
+                                </div>
+
+                            </div>
+
+                            <a
+                                href="{% url 'activities:detail' activity.id %}"
+                                class="v125-activity-open"
+                            >
+                                Ver actividad y detalles
+                                <span aria-hidden="true">→</span>
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="home-empty-state v125-activity-empty">
+
+                <span class="home-empty-code">00</span>
+
+                <div>
+                    <strong>Aún no hay actividades próximas publicadas.</strong>
+                    <p>
+                        Cuando los organizadores publiquen nuevas actividades
+                        con fechas futuras, aparecerán aquí automáticamente.
+                    </p>
+                </div>
+
+            </div>
+
+        {% endif %}
+
+        <div class="market-home-wide-action">
+
+            <a
+                href="{% url 'activities:home' %}"
+                class="market-wide-link v125-activity-all-link"
+            >
+                Explorar todas las actividades
+                <span>→</span>
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
 
 
 <!-- =====================================================

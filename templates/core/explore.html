@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load clp_filters %}
 
 {% block title %}
 Explorar | EntrenamientoyComunidad
@@ -6,125 +7,487 @@ Explorar | EntrenamientoyComunidad
 
 {% block content %}
 
-<section class="account-page">
+<!-- =====================================================
+     V127 - EXPLORAR (actualización visual sobre V126)
+     Búsqueda real en tres módulos, carrusel de contenido
+     publicado y accesos por color. No incluye publicidad.
+===================================================== -->
+<div class="v126-explore">
 
-    <div class="account-container">
+    <!-- PRESENTACIÓN Y CARRUSEL -->
+    <section class="v126-intro">
+        <div class="v126-container v126-intro-grid">
 
-        <header class="account-hero">
-
-            <div>
-
-                <span class="page-overline">
-                    EXPLORAR
-                </span>
-
-                <h1>
-                    Encuentra lo que
-                    <span>
-                        necesitas.
-                    </span>
-                </h1>
-
+            <div class="v126-intro-copy">
+                <span class="page-overline">EXPLORAR · ENTRENAMIENTO · COMUNIDAD</span>
+                <h1>Encuentra lo que <span>te mueve.</span></h1>
                 <p>
-                    Elige qué quieres buscar dentro de
-                    EntrenamientoyComunidad.
+                    Descubre profesionales verificados, espacios deportivos
+                    y actividades próximas. Busca entre publicaciones reales
+                    y elige la alternativa adecuada para ti.
                 </p>
-
+                <div class="v126-intro-tags" aria-label="Tipos de contenido">
+                    <span class="v126-tag v126-tag-professional">Profesionales</span>
+                    <span class="v126-tag v126-tag-space">Espacios</span>
+                    <span class="v126-tag v126-tag-activity">Actividades</span>
+                </div>
+                <a class="v126-primary-link" href="#v126-search">
+                    Comenzar a explorar <span aria-hidden="true">↓</span>
+                </a>
             </div>
 
-        </header>
+            <section class="v126-showcase" aria-label="Historias deportivas destacadas" data-v126-slider>
+                <div class="v126-showcase-slides">
 
+                    <article class="v126-slide v126-slide-activity is-active" data-v126-slide>
+                        {% if banner_activity and banner_activity.image %}
+                            <img class="v126-slide-image" src="{{ banner_activity.image.url }}"
+                                 alt="Actividad {{ banner_activity.title }}" loading="eager">
+                        {% endif %}
+                        <div class="v126-slide-content">
+                            <span class="v126-slide-kicker">01 · ACTIVIDADES</span>
+                            <h2>Comparte tu energía.</h2>
+                            <p>
+                                {% if banner_activity %}
+                                    {{ banner_activity.title }} · {{ banner_activity.date|date:"d/m/Y" }}
+                                {% else %}
+                                    Descubre actividades y encuentra una comunidad activa.
+                                {% endif %}
+                            </p>
+                            <a href="{% url 'activities:home' %}">Ver actividades <span>→</span></a>
+                        </div>
+                    </article>
 
-        <section class="home-section">
+                    <article class="v126-slide v126-slide-space" data-v126-slide hidden>
+                        {% if banner_space and banner_space.home_cover_image %}
+                            <img class="v126-slide-image"
+                                 src="{{ banner_space.home_cover_image.image.url }}"
+                                 alt="Espacio deportivo {{ banner_space.name }}" loading="lazy">
+                        {% endif %}
+                        <div class="v126-slide-content">
+                            <span class="v126-slide-kicker">02 · ESPACIOS</span>
+                            <h2>Encuentra tu lugar.</h2>
+                            <p>
+                                {% if banner_space %}
+                                    {{ banner_space.name }} · {{ banner_space.commune.name }}
+                                {% else %}
+                                    Explora espacios deportivos y conoce sus características.
+                                {% endif %}
+                            </p>
+                            <a href="{% url 'spaces:public_catalog' %}">Ver espacios <span>→</span></a>
+                        </div>
+                    </article>
 
-            <div class="home-category-grid">
+                    <!-- V127: identidad propia del Profesional, sin imágenes de Espacios. -->
+                    <article class="v126-slide v126-slide-professional v127-slide-professional" data-v126-slide hidden>
+                        <div class="v127-professional-visual" aria-hidden="true">
+                            <span class="v127-professional-halo"></span>
+                            <div class="v127-professional-photo">
+                                {% if banner_professional and banner_professional.professional_profile.user.profile_image %}
+                                    <img
+                                        src="{{ banner_professional.professional_profile.user.profile_image.url }}"
+                                        alt=""
+                                        loading="lazy"
+                                    >
+                                {% else %}
+                                    <span>PF</span>
+                                {% endif %}
+                            </div>
+                            <span class="v127-professional-tag">
+                                ✓ PERFIL VERIFICADO
+                            </span>
+                        </div>
+                        <div class="v126-slide-content">
+                            <span class="v126-slide-kicker">03 · PROFESIONALES</span>
+                            <h2>Entrena con respaldo.</h2>
+                            {% if banner_professional %}
+                                <p>
+                                    {{ banner_professional.professional_profile.user.get_full_name|default:banner_professional.professional_profile.user.email }}
+                                    · {{ banner_professional.name }}
+                                </p>
+                                <a href="{% url 'professionals:public_service_detail' banner_professional.id %}">
+                                    Ver servicio y horarios <span>→</span>
+                                </a>
+                            {% else %}
+                                <p>Conoce perfiles verificados y compara sus servicios.</p>
+                                <a href="{% url 'professionals:public_service_catalog' %}">
+                                    Ver servicios <span>→</span>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </article>
 
-                <article class="home-category-card home-category-card-active">
+                </div>
 
-                    <span class="home-category-number">
-                        01
-                    </span>
+                <div class="v126-slider-controls">
+                    <div class="v126-slider-dots" aria-label="Seleccionar diapositiva">
+                        <button type="button" class="is-active" data-v126-dot="0"
+                                aria-label="Mostrar actividades" aria-current="true"></button>
+                        <button type="button" data-v126-dot="1"
+                                aria-label="Mostrar espacios" aria-current="false"></button>
+                        <button type="button" data-v126-dot="2"
+                                aria-label="Mostrar profesionales" aria-current="false"></button>
+                    </div>
+                    <div class="v126-slider-buttons">
+                        <button type="button" data-v126-pause aria-label="Pausar carrusel"
+                                title="Pausar carrusel">Ⅱ</button>
+                        <button type="button" data-v126-prev aria-label="Anterior diapositiva">←</button>
+                        <button type="button" data-v126-next aria-label="Siguiente diapositiva">→</button>
+                    </div>
+                </div>
+            </section>
 
-                    <h3>
-                        Profesionales
-                    </h3>
+        </div>
+    </section>
 
-                    <p>
-                        Encuentra servicios publicados por profesionales
-                        verificados, compara modalidad, especialidad,
-                        ubicación, duración y precio.
-                    </p>
-
-                    <a
-                        href="{% url 'professionals:public_service_catalog' %}"
-                        class="home-category-link"
-                    >
-                        Explorar profesionales
-                        <span>→</span>
-                    </a>
-
-                </article>
-
-
-                <article class="home-category-card home-category-card-active">
-
-                    <span class="home-category-number">
-                        02
-                    </span>
-
-                    <h3>
-                        Espacios
-                    </h3>
-
-                    <p>
-                        Explora gimnasios, salas, estudios, canchas
-                        y otros recintos publicados por Proveedores
-                        de Espacios verificados.
-                    </p>
-
-                    <a
-                        href="{% url 'spaces:public_catalog' %}"
-                        class="home-category-link"
-                    >
-                        Explorar espacios
-                        <span>→</span>
-                    </a>
-
-                </article>
-
-
-                <article class="home-category-card home-category-card-active home-category-card-activities">
-
-                    <span class="home-category-number">
-                        03
-                    </span>
-
-                    <h3>
-                        Actividades
-                    </h3>
-
-                    <p>
-                        Descubre actividades comunitarias con cupos,
-                        fecha y punto de encuentro. También aquí vivirán
-                        las actividades creadas por Profesionales.
-                    </p>
-
-                    <a
-                        href="{% url 'activities:home' %}"
-                        class="home-category-link home-category-link-activities"
-                    >
-                        Explorar actividades
-                        <span>→</span>
-                    </a>
-
-                </article>
-
+    <!-- BÚSQUEDA GLOBAL REAL -->
+    <section class="v126-search-section" id="v126-search" aria-labelledby="v126-search-title">
+        <div class="v126-container">
+            <div class="v126-section-heading">
+                <div>
+                    <span class="page-overline">BUSCADOR</span>
+                    <h2 id="v126-search-title">Encuentra tu próxima experiencia.</h2>
+                    <p>Busca por nombre, especialidad, actividad o comuna en las publicaciones disponibles.</p>
+                </div>
             </div>
 
+            <form class="v126-search-form" method="get" action="{% url 'core:explore' %}" role="search">
+                <div class="v126-search-input-wrap">
+                    <span aria-hidden="true">⌕</span>
+                    <label for="v126-q" class="v126-visually-hidden">¿Qué estás buscando?</label>
+                    <input id="v126-q" type="search" name="q" value="{{ query }}"
+                           maxlength="80" placeholder="Ej.: entrenamiento, yoga, Buin, gimnasio…">
+                </div>
+                <div class="v126-search-select-wrap">
+                    <label for="v126-module">Categoría</label>
+                    <select id="v126-module" name="module">
+                        <option value="all" {% if selected_module == 'all' %}selected{% endif %}>Todas</option>
+                        <option value="professional" {% if selected_module == 'professional' %}selected{% endif %}>Profesionales</option>
+                        <option value="space" {% if selected_module == 'space' %}selected{% endif %}>Espacios</option>
+                        <option value="activity" {% if selected_module == 'activity' %}selected{% endif %}>Actividades</option>
+                    </select>
+                </div>
+                <button class="v126-search-button" type="submit">Buscar <span>→</span></button>
+                {% if has_search %}
+                    <a class="v126-clear-search" href="{% url 'core:explore' %}">Limpiar</a>
+                {% endif %}
+            </form>
+
+            {% if has_search %}
+                <div class="v126-search-feedback" role="status">
+                    <strong>{{ result_count }} resultado{{ result_count|pluralize }}</strong>
+                    {% if query %} para «{{ query }}»{% endif %}
+                    {% if selected_module != 'all' %} en la categoría seleccionada{% endif %}.
+                    {% if result_count > 6 %}
+                        <span>Se muestran hasta 6 publicaciones por categoría.</span>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p class="v126-search-hint">Mostramos las primeras publicaciones de cada módulo. Usa el buscador para encontrar más.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- TRES PUERTAS DE ENTRADA -->
+    <section class="v126-section v126-categories" aria-labelledby="v126-categories-title">
+        <div class="v126-container">
+            <div class="v126-section-heading">
+                <div>
+                    <span class="page-overline">ELIGE TU CAMINO</span>
+                    <h2 id="v126-categories-title">¿Qué necesitas hoy?</h2>
+                </div>
+                <p>Tres formas de conectar con el entrenamiento y el bienestar.</p>
+            </div>
+
+            <div class="v126-category-grid">
+                <article class="v126-category v126-category-professional">
+                    <span class="v126-category-number">01 · SERVICIOS</span>
+                    <span class="v126-category-symbol" aria-hidden="true">PF</span>
+                    <h3>Profesionales</h3>
+                    <p>Compara especialidad, precio, modalidad y disponibilidad de servicios verificados.</p>
+                    <a href="{% url 'professionals:public_service_catalog' %}">
+                        Explorar profesionales <span>→</span>
+                    </a>
+                </article>
+                <article class="v126-category v126-category-space">
+                    <span class="v126-category-number">02 · RECINTOS</span>
+                    <span class="v126-category-symbol" aria-hidden="true">ES</span>
+                    <h3>Espacios</h3>
+                    <p>Conoce gimnasios, salas y canchas con fotografías, capacidad y precio por hora.</p>
+                    <a href="{% url 'spaces:public_catalog' %}">
+                        Explorar espacios <span>→</span>
+                    </a>
+                </article>
+                <article class="v126-category v126-category-activity">
+                    <span class="v126-category-number">03 · EXPERIENCIAS</span>
+                    <span class="v126-category-symbol" aria-hidden="true">AC</span>
+                    <h3>Actividades</h3>
+                    <p>Descubre actividades comunitarias y profesionales, fechas, modalidad y cupos disponibles.</p>
+                    <a href="{% url 'activities:home' %}">
+                        Explorar actividades <span>→</span>
+                    </a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    {% if has_search and result_count == 0 %}
+        <div class="v126-container">
+            <div class="v126-no-results">
+                <strong>Sin coincidencias para esta búsqueda.</strong>
+                <p>Prueba con otro término, cambia la categoría o revisa los catálogos completos.</p>
+                <a href="{% url 'core:explore' %}">Ver todas las opciones →</a>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- SERVICIOS PROFESIONALES -->
+    {% if selected_module == 'all' or selected_module == 'professional' %}
+        <section class="v126-section v126-list-section v126-list-professional" aria-labelledby="v126-services-title">
+            <div class="v126-container">
+                <div class="v126-section-heading">
+                    <div>
+                        <span class="v126-eyebrow v126-cyan">PROFESIONALES · CIAN</span>
+                        <h2 id="v126-services-title">Servicios para alcanzar tus objetivos.</h2>
+                        <p>{{ service_count }} servicio{{ service_count|pluralize }} en esta selección.</p>
+                    </div>
+                    <a class="v126-section-more v126-cyan" href="{% url 'professionals:public_service_catalog' %}">Catálogo completo →</a>
+                </div>
+                {% if featured_services %}
+                    <div class="v126-results-grid">
+                        {% for service in featured_services %}
+                            <article class="v126-result-card v126-result-professional">
+                                <div class="v126-result-top">
+                                    <span class="v126-result-label">{{ service.professional_profile.specialty.name|default:'Servicio profesional' }}</span>
+                                    <span class="v126-result-pill">{{ service.get_mode_display }}</span>
+                                </div>
+                                <div class="v126-service-person">
+                                    <div class="v126-service-avatar">
+                                        {% if service.professional_profile.user.profile_image %}
+                                            <img src="{{ service.professional_profile.user.profile_image.url }}"
+                                                 alt="" loading="lazy">
+                                        {% else %}
+                                            {{ service.professional_profile.user.first_name|first|upper }}{{ service.professional_profile.user.last_name|first|upper }}
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h3>{{ service.name }}</h3>
+                                        <p>Por {{ service.professional_profile.user.get_full_name|default:service.professional_profile.user.email }}</p>
+                                    </div>
+                                </div>
+                                <div class="v126-result-facts">
+                                    <span>{{ service.duration_minutes }} min</span>
+                                    <span>{{ service.price|clp }}</span>
+                                    <span>{% if service.location_commune %}{{ service.location_commune.name }}{% elif service.mode == 'online' %}Online{% else %}Según modalidad{% endif %}</span>
+                                </div>
+                                <a class="v126-result-link" href="{% url 'professionals:public_service_detail' service.id %}">
+                                    Ver servicio y horarios <span>→</span>
+                                </a>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% elif not has_search %}
+                    <p class="v126-module-empty">Todavía no hay servicios profesionales publicados en este módulo.</p>
+                {% endif %}
+            </div>
         </section>
+    {% endif %}
 
-    </div>
+    <!-- ESPACIOS -->
+    {% if selected_module == 'all' or selected_module == 'space' %}
+        <section class="v126-section v126-list-section v126-list-space" aria-labelledby="v126-spaces-title">
+            <div class="v126-container">
+                <div class="v126-section-heading">
+                    <div>
+                        <span class="v126-eyebrow v126-coral">ESPACIOS · CORAL</span>
+                        <h2 id="v126-spaces-title">Un lugar para cada forma de entrenar.</h2>
+                        <p>{{ space_count }} espacio{{ space_count|pluralize }} en esta selección.</p>
+                    </div>
+                    <a class="v126-section-more v126-coral" href="{% url 'spaces:public_catalog' %}">Catálogo completo →</a>
+                </div>
+                {% if featured_spaces %}
+                    <div class="v126-results-grid">
+                        {% for space in featured_spaces %}
+                            <article class="v126-result-card v126-result-space">
+                                <a class="v126-result-image" href="{% url 'spaces:public_detail' space.id %}">
+                                    {% if space.home_cover_image %}
+                                        <img src="{{ space.home_cover_image.image.url }}" alt="{{ space.name }}" loading="lazy">
+                                    {% else %}
+                                        <span>Sin fotografía</span>
+                                    {% endif %}
+                                </a>
+                                <div class="v126-result-card-body">
+                                    <span class="v126-result-label">{{ space.space_type.name }}</span>
+                                    <h3>{{ space.name }}</h3>
+                                    <p>{{ space.commune.name }} · {{ space.commune.region.name }}</p>
+                                    <div class="v126-result-facts">
+                                        <span>{{ space.capacity }} personas</span>
+                                        <span>{{ space.hourly_price_clp|clp }} / hora</span>
+                                    </div>
+                                    <a class="v126-result-link" href="{% url 'spaces:public_detail' space.id %}">
+                                        Ver espacio y disponibilidad <span>→</span>
+                                    </a>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% elif not has_search %}
+                    <p class="v126-module-empty">Todavía no hay espacios publicados en este módulo.</p>
+                {% endif %}
+            </div>
+        </section>
+    {% endif %}
 
-</section>
+    <!-- ACTIVIDADES -->
+    {% if selected_module == 'all' or selected_module == 'activity' %}
+        <section class="v126-section v126-list-section v126-list-activity" aria-labelledby="v126-activities-title">
+            <div class="v126-container">
+                <div class="v126-section-heading">
+                    <div>
+                        <span class="v126-eyebrow v126-violet">ACTIVIDADES · MORADO</span>
+                        <h2 id="v126-activities-title">Encuentra gente con tus mismas ganas.</h2>
+                        <p>{{ activity_count }} actividad{{ activity_count|pluralize:"es" }} próxima{{ activity_count|pluralize:"s" }} en esta selección.</p>
+                    </div>
+                    <a class="v126-section-more v126-violet" href="{% url 'activities:home' %}">Ver todas las actividades →</a>
+                </div>
+                {% if featured_activities %}
+                    <div class="v126-results-grid">
+                        {% for activity in featured_activities %}
+                            <article class="v126-result-card v126-result-activity">
+                                <a class="v126-result-image" href="{% url 'activities:detail' activity.id %}">
+                                    {% if activity.image %}
+                                        <img src="{{ activity.image.url }}" alt="{{ activity.title }}" loading="lazy">
+                                    {% else %}
+                                        <div class="v127-activity-placeholder" data-activity-type="{{ activity.activity_type }}">
+                                            <span class="v127-placeholder-emblem" aria-hidden="true">AC</span>
+                                            <strong>{{ activity.category.name|default:"Actividad" }}</strong>
+                                            <small>{{ activity.get_activity_type_display }} · Sin fotografía</small>
+                                        </div>
+                                    {% endif %}
+                                </a>
+                                <div class="v126-result-card-body">
+                                    <div class="v126-result-top">
+                                        <span class="v126-result-label">{{ activity.category.name }}</span>
+                                        <span class="v126-result-pill">{{ activity.get_activity_type_display }}</span>
+                                    </div>
+                                    <h3>{{ activity.title }}</h3>
+                                    <p>{{ activity.date|date:"d/m/Y" }} · {{ activity.start_time|time:"H:i" }} · {{ activity.get_modality_display }}</p>
+                                    <div class="v126-result-facts">
+                                        <span>{% if activity.price == 0 %}Gratuita{% else %}{{ activity.price|clp }}{% endif %}</span>
+                                        <span>{{ activity.home_available_spots }} cupo{{ activity.home_available_spots|pluralize }} libre{{ activity.home_available_spots|pluralize }}</span>
+                                        {% if activity.commune %}<span>{{ activity.commune.name }}</span>{% endif %}
+                                    </div>
+                                    <a class="v126-result-link" href="{% url 'activities:detail' activity.id %}">
+                                        Ver actividad <span>→</span>
+                                    </a>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% elif not has_search %}
+                    <p class="v126-module-empty">Todavía no hay actividades próximas publicadas.</p>
+                {% endif %}
+            </div>
+        </section>
+    {% endif %}
+
+    <section class="v126-last-cta">
+        <div class="v126-container v126-last-cta-inner">
+            <div>
+                <span class="page-overline">TU CUENTA, TUS OPCIONES</span>
+                <h2>Organiza tu próxima experiencia.</h2>
+                <p>Gestiona reservas, inscripciones y perfiles adicionales desde una sola cuenta.</p>
+            </div>
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'accounts:dashboard' %}">Ir a Mi cuenta <span>→</span></a>
+            {% else %}
+                <a href="{% url 'accounts:register' %}">Crear mi cuenta <span>→</span></a>
+            {% endif %}
+        </div>
+    </section>
+
+</div>
+
+<script>
+(function () {
+    'use strict';
+    const slider = document.querySelector('[data-v126-slider]');
+    if (!slider) return;
+
+    const slides = Array.from(slider.querySelectorAll('[data-v126-slide]'));
+    const dots = Array.from(slider.querySelectorAll('[data-v126-dot]'));
+    const previous = slider.querySelector('[data-v126-prev]');
+    const next = slider.querySelector('[data-v126-next]');
+    const pause = slider.querySelector('[data-v126-pause]');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let current = 0;
+    let isPaused = prefersReducedMotion.matches;
+    let timer = null;
+
+    function showSlide(index) {
+        current = (index + slides.length) % slides.length;
+        slides.forEach(function (slide, i) {
+            slide.hidden = i !== current;
+            slide.classList.toggle('is-active', i === current);
+        });
+        dots.forEach(function (dot, i) {
+            dot.classList.toggle('is-active', i === current);
+            dot.setAttribute('aria-current', i === current ? 'true' : 'false');
+        });
+    }
+
+    function stopTimer() {
+        if (timer !== null) {
+            window.clearInterval(timer);
+            timer = null;
+        }
+    }
+
+    function startTimer() {
+        stopTimer();
+        if (!isPaused && !document.hidden && slides.length > 1) {
+            timer = window.setInterval(function () {
+                showSlide(current + 1);
+            }, 7000);
+        }
+    }
+
+    previous.addEventListener('click', function () {
+        showSlide(current - 1);
+        startTimer();
+    });
+    next.addEventListener('click', function () {
+        showSlide(current + 1);
+        startTimer();
+    });
+    dots.forEach(function (dot, i) {
+        dot.addEventListener('click', function () {
+            showSlide(i);
+            startTimer();
+        });
+    });
+    pause.addEventListener('click', function () {
+        isPaused = !isPaused;
+        pause.textContent = isPaused ? '▶' : 'Ⅱ';
+        pause.setAttribute('aria-label', isPaused ? 'Reanudar carrusel' : 'Pausar carrusel');
+        pause.title = isPaused ? 'Reanudar carrusel' : 'Pausar carrusel';
+        startTimer();
+    });
+    slider.addEventListener('mouseenter', stopTimer);
+    slider.addEventListener('mouseleave', startTimer);
+    slider.addEventListener('focusin', stopTimer);
+    slider.addEventListener('focusout', function (event) {
+        if (!slider.contains(event.relatedTarget)) startTimer();
+    });
+    document.addEventListener('visibilitychange', startTimer);
+    showSlide(0);
+    if (isPaused) {
+        pause.textContent = '▶';
+        pause.setAttribute('aria-label', 'Reanudar carrusel');
+        pause.title = 'Reanudar carrusel';
+    }
+    startTimer();
+}());
+</script>
 
 {% endblock %}

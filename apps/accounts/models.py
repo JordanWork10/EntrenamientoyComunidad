@@ -1,9 +1,11 @@
 import re
 from datetime import date
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 from apps.locations.models import Commune
 
@@ -381,3 +383,89 @@ class MemberProfile(models.Model):
 
     def __str__(self):
         return f'Miembro - {self.user}'
+
+
+# =====================================================
+# V128 - ESTADO DE LECTURA DE NOVEDADES
+# =====================================================
+
+class NotificationReadState(models.Model):
+    """
+    Registra las novedades que un usuario ha revisado.
+
+    Las novedades originales siguen obteniéndose desde
+    reservas, actividades, espacios e incidencias.
+
+    Este modelo solamente almacena:
+    - quién revisó la novedad;
+    - en qué panel la revisó;
+    - la clave única de la novedad;
+    - cuándo quedó revisada.
+
+    Esto permite conservar el estado entre dispositivos,
+    sin modificar los historiales originales.
+    """
+
+    class Scope(models.TextChoices):
+
+        MEMBER = (
+            'member',
+            'Miembro'
+        )
+
+        PROFESSIONAL = (
+            'professional',
+            'Profesional'
+        )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='notification_read_states',
+        verbose_name='Usuario'
+    )
+
+    scope = models.CharField(
+        max_length=20,
+        choices=Scope.choices,
+        verbose_name='Panel'
+    )
+
+    notification_key = models.CharField(
+        max_length=255,
+        verbose_name='Clave de la novedad'
+    )
+
+    read_at = models.DateTimeField(
+        default=timezone.now,
+        verbose_name='Fecha de revisión'
+    )
+
+    class Meta:
+
+        verbose_name = 'Novedad revisada'
+        verbose_name_plural = 'Novedades revisadas'
+
+        ordering = [
+            '-read_at',
+            '-id',
+        ]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    'user',
+                    'scope',
+                    'notification_key',
+                ],
+                name='unique_notification_read_state'
+            )
+        ]
+
+    def __str__(self):
+
+        return (
+            f'{self.user} | '
+            f'{self.get_scope_display()} | '
+            f'{self.notification_key}'
+        )

@@ -2,6 +2,7 @@ from django.urls import path
 
 from . import public_views
 from . import views
+from . import notification_views
 
 
 app_name = 'professionals'
@@ -56,6 +57,22 @@ urlpatterns = [
         'panel/',
         views.professional_dashboard,
         name='dashboard',
+    ),
+
+    # =====================================================
+    # V128 - NOVEDADES PERSISTENTES
+    # =====================================================
+
+    path(
+        'novedades/estado/',
+        notification_views.professional_notification_state,
+        name='professional_notification_state',
+    ),
+
+    path(
+        'novedades/revisar/',
+        notification_views.professional_notification_mark_read,
+        name='professional_notification_mark_read',
     ),
 
     path(

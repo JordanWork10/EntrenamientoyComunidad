@@ -1076,6 +1076,8 @@ NOVEDADES PROFESIONALES
 class="professional-updates-section"
 data-professional-updates
 data-user-id="{{ request.user.id }}"
+data-state-url="{% url 'professionals:professional_notification_state' %}"
+data-mark-url="{% url 'professionals:professional_notification_mark_read' %}"
 >
 <div class="professional-updates-heading">
 <div>
@@ -1106,6 +1108,8 @@ data-professional-updates-mark-all
 </button>
 </div>
 </div>
+<p data-professional-updates-sync-status role="status" aria-live="polite" hidden
+style="margin:0 0 12px;font-size:11px;color:#d7b4ff;"></p>
 <div
 class="professional-updates-grid"
 data-professional-updates-grid
@@ -2141,141 +2145,162 @@ Solicitud
 </section>
 
 <script>
+// V128 - Persistencia de novedades profesionales en PostgreSQL.
+// Recupera también las revisiones locales de V115/V123 sin eliminarlas.
 document.addEventListener('DOMContentLoaded', function () {
-const updatesSection = document.querySelector(
-'[data-professional-updates]'
-);
-if (!updatesSection) {
-return;
-}
-const userId = updatesSection.dataset.userId || 'anonymous';
-const storageKey =
-'professional-updates-reviewed-v115:' + userId;
-const cards = Array.from(
-updatesSection.querySelectorAll(
-'[data-professional-update-card]'
-)
-);
-const countElement = updatesSection.querySelector(
-'[data-professional-updates-count]'
-);
-const gridElement = updatesSection.querySelector(
-'[data-professional-updates-grid]'
-);
-const emptyElement = updatesSection.querySelector(
-'[data-professional-updates-empty]'
-);
-const markAllButton = updatesSection.querySelector(
-'[data-professional-updates-mark-all]'
-);
-let reviewedIds = new Set();
-try {
-const stored = JSON.parse(
-window.localStorage.getItem(storageKey) || '[]'
-);
-if (Array.isArray(stored)) {
-reviewedIds = new Set(
-stored.map(String)
-);
-}
-} catch (error) {
-reviewedIds = new Set();
-}
-function saveReviewedIds() {
-try {
-window.localStorage.setItem(
-storageKey,
-JSON.stringify(
-Array.from(reviewedIds)
-)
-);
-} catch (error) {
-/*
-* Si localStorage no está disponible,
-* la revisión visual sigue funcionando
-* durante la carga actual.
-*/
-}
-}
-function refreshProfessionalUpdates() {
-let unreadCount = 0;
-cards.forEach(function (card) {
-const updateId = String(
-card.dataset.professionalUpdateId || ''
-);
-const isReviewed =
-reviewedIds.has(updateId);
-card.hidden = isReviewed;
-if (!isReviewed) {
-unreadCount += 1;
-}
-});
-if (countElement) {
-countElement.textContent =
-unreadCount + ' sin revisar';
-}
-if (gridElement) {
-gridElement.hidden =
-unreadCount === 0;
-}
-if (emptyElement) {
-emptyElement.hidden =
-unreadCount !== 0;
-}
-if (markAllButton) {
-markAllButton.disabled =
-unreadCount === 0;
-}
-}
-cards.forEach(function (card) {
-const updateId = String(
-card.dataset.professionalUpdateId || ''
-);
-const reviewButton = card.querySelector(
-'[data-professional-update-review]'
-);
-const openLink = card.querySelector(
-'[data-professional-update-open]'
-);
-if (reviewButton) {
-reviewButton.addEventListener(
-'click',
-function () {
-reviewedIds.add(updateId);
-saveReviewedIds();
-refreshProfessionalUpdates();
-}
-);
-}
-if (openLink) {
-openLink.addEventListener(
-'click',
-function () {
-reviewedIds.add(updateId);
-saveReviewedIds();
-}
-);
-}
-});
-if (markAllButton) {
-markAllButton.addEventListener(
-'click',
-function () {
-cards.forEach(
-function (card) {
-reviewedIds.add(
-String(
-card.dataset.professionalUpdateId || ''
-)
-);
-}
-);
-saveReviewedIds();
-refreshProfessionalUpdates();
-}
-);
-}
-refreshProfessionalUpdates();
+    'use strict';
+
+    const section = document.querySelector('[data-professional-updates]');
+    if (!section) return;
+
+    const storageKey = 'professional-updates-reviewed-v115:' + section.dataset.userId;
+    const stateUrl = section.dataset.stateUrl;
+    const markUrl = section.dataset.markUrl;
+    const csrfToken = '{{ csrf_token|escapejs }}';
+    const cards = Array.from(section.querySelectorAll('[data-professional-update-card]'));
+    const authorizedKeys = new Set(cards.map(card => card.dataset.professionalUpdateId));
+    const countElement = section.querySelector('[data-professional-updates-count]');
+    const gridElement = section.querySelector('[data-professional-updates-grid]');
+    const emptyElement = section.querySelector('[data-professional-updates-empty]');
+    const markAllButton = section.querySelector('[data-professional-updates-mark-all]');
+    const statusElement = section.querySelector('[data-professional-updates-sync-status]');
+
+    let localKeys = new Set();
+    let reviewedIds = new Set();
+    let queue = Promise.resolve();
+
+    try {
+        const values = JSON.parse(window.localStorage.getItem(storageKey) || '[]');
+        if (Array.isArray(values)) {
+            localKeys = new Set(values.filter(key => typeof key === 'string'));
+        }
+    } catch (error) {
+        localKeys = new Set();
+    }
+
+    // Solo se muestran las novedades vigentes, pero conservamos las antiguas
+    // en el almacenamiento local para no perder un posible estado pendiente.
+    reviewedIds = new Set([...localKeys].filter(key => authorizedKeys.has(key)));
+
+    function status(message) {
+        if (!statusElement) return;
+        statusElement.hidden = !message;
+        statusElement.textContent = message || '';
+    }
+
+    function saveLocal() {
+        reviewedIds.forEach(key => localKeys.add(key));
+        try {
+            window.localStorage.setItem(storageKey, JSON.stringify([...localKeys]));
+        } catch (error) {
+            // Si no existe localStorage, PostgreSQL conserva los guardados.
+        }
+    }
+
+    function refresh() {
+        let unread = 0;
+        cards.forEach(card => {
+            const key = card.dataset.professionalUpdateId;
+            const reviewed = reviewedIds.has(key);
+            card.hidden = reviewed;
+            if (!reviewed) unread += 1;
+        });
+        if (countElement) {
+            countElement.textContent = unread ? unread + ' sin revisar' : 'Sin pendientes';
+        }
+        if (gridElement) gridElement.hidden = unread === 0;
+        if (emptyElement) emptyElement.hidden = unread !== 0;
+        if (markAllButton) markAllButton.disabled = unread === 0;
+    }
+
+    function markLocal(keys) {
+        keys.filter(key => authorizedKeys.has(key)).forEach(key => reviewedIds.add(key));
+        saveLocal();
+        refresh();
+    }
+
+    async function postKeys(keys, keepalive) {
+        const response = await fetch(markUrl, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ keys: keys }),
+            keepalive: Boolean(keepalive)
+        });
+        if (!response.ok) throw new Error('Error al guardar (' + response.status + ').');
+        const data = await response.json();
+        if (!data.success || !Array.isArray(data.read_keys)) {
+            throw new Error('La respuesta del servidor no es válida.');
+        }
+        return data;
+    }
+
+    async function synchronize() {
+        const response = await fetch(stateUrl, {
+            credentials: 'same-origin',
+            cache: 'no-store'
+        });
+        if (!response.ok) throw new Error('No se pudo consultar el estado.');
+        const data = await response.json();
+        if (!data.success || !Array.isArray(data.read_keys)) {
+            throw new Error('La respuesta del servidor no es válida.');
+        }
+
+        const remote = new Set(data.read_keys.filter(key => authorizedKeys.has(key)));
+        const missing = [...reviewedIds].filter(key => !remote.has(key));
+        if (missing.length) {
+            const updated = await postKeys(missing, false);
+            updated.read_keys.filter(key => authorizedKeys.has(key)).forEach(key => remote.add(key));
+        }
+
+        reviewedIds = new Set([...reviewedIds, ...remote]);
+        saveLocal();
+        refresh();
+        status('');
+    }
+
+    function scheduleSync() {
+        queue = queue.catch(() => {}).then(synchronize).catch(() => {
+            status('No fue posible sincronizar las novedades. '
+                + 'Se conservarán en este navegador y volveremos a intentarlo al abrir el panel.');
+        });
+    }
+
+    cards.forEach(card => {
+        const key = card.dataset.professionalUpdateId;
+        const button = card.querySelector('[data-professional-update-review]');
+        const link = card.querySelector('[data-professional-update-open]');
+
+        if (button) {
+            button.addEventListener('click', function () {
+                markLocal([key]);
+                scheduleSync();
+            });
+        }
+
+        if (link) {
+            link.addEventListener('click', function () {
+                if (reviewedIds.has(key)) return;
+                markLocal([key]);
+                // keepalive permite completar la solicitud al abrir el detalle;
+                // una sincronización futura recupera el estado si falla.
+                postKeys([key], true).catch(() => {});
+            });
+        }
+    });
+
+    if (markAllButton) {
+        markAllButton.addEventListener('click', function () {
+            markLocal([...authorizedKeys]);
+            scheduleSync();
+        });
+    }
+
+    refresh();
+    scheduleSync();
 });
 </script>
 

@@ -46,6 +46,29 @@ EXACT_DATE_AVAILABILITY_REASON = (
 )
 
 
+# V130.5 - Regla única para solicitudes de arriendo vencidas.
+# Se toma como límite el INICIO del horario, no el fin.
+# No modifica el estado ni el historial de una reserva.
+def _space_booking_has_started(booking, now=None):
+    current_now = timezone.localtime(now) if now is not None else timezone.localtime()
+    session_start = timezone.make_aware(
+        datetime.combine(booking.session_date, booking.start_time),
+        timezone.get_current_timezone(),
+    )
+    return current_now >= session_start
+
+
+def _space_booking_future_start_q(now=None):
+    """Filtro ORM para reservas cuya hora de inicio todavía no llega."""
+    current_now = timezone.localtime(now) if now is not None else timezone.localtime()
+    current_date = current_now.date()
+    current_time = current_now.time()  # TimeField espera una hora sin zona.
+    return (
+        Q(session_date__gt=current_date)
+        | Q(session_date=current_date, start_time__gt=current_time)
+    )
+
+
 def _space_catalog_recommendation_context():
     """
     Prepara las asociaciones que permiten destacar equipamientos
@@ -409,10 +432,13 @@ def space_provider_dashboard(request):
         )
     )
 
+    reference_now = timezone.localtime()
+
     pending_received_bookings = (
         provider_profile.space_bookings
         .filter(
-            status=SpaceBooking.Status.PENDING
+            _space_booking_future_start_q(reference_now),
+            status=SpaceBooking.Status.PENDING,
         )
         .select_related(
             'booked_by',
@@ -476,8 +502,10 @@ def space_provider_dashboard(request):
                 1
                 for item
                 in space.bookings.all()
-                if item.status
-                == SpaceBooking.Status.PENDING
+                if (
+                    item.status == SpaceBooking.Status.PENDING
+                    and not _space_booking_has_started(item, reference_now)
+                )
             )
         )
 
@@ -560,7 +588,8 @@ def provider_rental_calendar(request):
             'accounts:dashboard'
         )
 
-    today = timezone.localdate()
+    reference_now = timezone.localtime()
+    today = reference_now.date()
 
     # -------------------------------------------------
     # ESPACIOS DEL PROVEEDOR
@@ -837,12 +866,15 @@ def provider_rental_calendar(request):
             status_key = 'cancelled'
 
         elif (
+            booking.status == SpaceBooking.Status.PENDING
+            and _space_booking_has_started(booking, reference_now)
+        ):
+            status_label = 'Vencida'
+            status_key = 'completed'
+
+        elif (
             booking.session_date < today
-            and booking.status
-            in {
-                SpaceBooking.Status.PENDING,
-                SpaceBooking.Status.CONFIRMED,
-            }
+            and booking.status == SpaceBooking.Status.CONFIRMED
         ):
             status_label = 'Pasada'
             status_key = 'completed'
@@ -855,9 +887,8 @@ def provider_rental_calendar(request):
             status_key = booking.status
 
         if (
-            booking.status
-            == SpaceBooking.Status.PENDING
-            and booking.session_date >= today
+            booking.status == SpaceBooking.Status.PENDING
+            and not _space_booking_has_started(booking, reference_now)
         ):
             action_label = (
                 'Revisar solicitud →'
@@ -944,9 +975,8 @@ def provider_rental_calendar(request):
                 1
                 for booking in day_bookings
                 if (
-                    booking.status
-                    == SpaceBooking.Status.PENDING
-                    and booking.session_date >= today
+                    booking.status == SpaceBooking.Status.PENDING
+                    and not _space_booking_has_started(booking, reference_now)
                 )
             )
 
@@ -1009,9 +1039,8 @@ def provider_rental_calendar(request):
         1
         for booking in month_bookings
         if (
-            booking.status
-            == SpaceBooking.Status.PENDING
-            and booking.session_date >= today
+            booking.status == SpaceBooking.Status.PENDING
+            and not _space_booking_has_started(booking, reference_now)
         )
     )
 
@@ -1102,12 +1131,14 @@ def provider_rental_calendar(request):
         )
 
         is_active = (
-            booking.session_date >= today
-            and booking.status
-            in {
-                SpaceBooking.Status.PENDING,
-                SpaceBooking.Status.CONFIRMED,
-            }
+            (
+                booking.status == SpaceBooking.Status.PENDING
+                and not _space_booking_has_started(booking, reference_now)
+            )
+            or (
+                booking.status == SpaceBooking.Status.CONFIRMED
+                and booking.session_date >= today
+            )
         )
 
         if is_active:
@@ -1448,11 +1479,8 @@ def space_detail(request, space_id):
             'pending_space_booking_count': (
                 space.bookings
                 .filter(
-                    status=(
-                        SpaceBooking
-                        .Status
-                        .PENDING
-                    )
+                    _space_booking_future_start_q(),
+                    status=SpaceBooking.Status.PENDING,
                 )
                 .count()
             ),
@@ -3954,7 +3982,9 @@ def provider_received_space_bookings(request):
             'accounts:dashboard'
         )
 
-    today = timezone.localdate()
+    reference_now = timezone.localtime()
+    today = reference_now.date()
+    future_start_q = _space_booking_future_start_q(reference_now)
 
     bookings = (
         SpaceBooking.objects
@@ -3984,8 +4014,8 @@ def provider_received_space_bookings(request):
                 .Status
                 .PENDING
             ),
-            session_date__gte=today,
         )
+        .filter(future_start_q)
         .order_by(
             'session_date',
             'start_time',
@@ -4013,15 +4043,11 @@ def provider_received_space_bookings(request):
     upcoming_bookings = (
         bookings
         .filter(
-            status__in=[
-                SpaceBooking
-                .Status
-                .PENDING,
-                SpaceBooking
-                .Status
-                .CONFIRMED,
-            ],
-            session_date__gte=today,
+            Q(status=SpaceBooking.Status.PENDING) & future_start_q
+            | Q(
+                status=SpaceBooking.Status.CONFIRMED,
+                session_date__gte=today,
+            )
         )
         .order_by(
             'session_date',
@@ -4054,15 +4080,10 @@ def provider_received_space_bookings(request):
                 ]
             )
             |
+            (Q(status=SpaceBooking.Status.PENDING) & ~future_start_q)
+            |
             Q(
-                status__in=[
-                    SpaceBooking
-                    .Status
-                    .PENDING,
-                    SpaceBooking
-                    .Status
-                    .CONFIRMED,
-                ],
+                status=SpaceBooking.Status.CONFIRMED,
                 session_date__lt=today,
             )
         )
@@ -4115,20 +4136,18 @@ def provider_received_space_bookings(request):
             )
 
         elif (
-            history_booking.session_date
-            < today
-            and history_booking.status
-            in {
-                SpaceBooking.Status.PENDING,
-                SpaceBooking.Status.CONFIRMED,
-            }
+            history_booking.status == SpaceBooking.Status.PENDING
+            and _space_booking_has_started(history_booking, reference_now)
         ):
-            history_booking.ui_status_label = (
-                'Pasada'
-            )
-            history_booking.ui_status_key = (
-                'completed'
-            )
+            history_booking.ui_status_label = 'Vencida'
+            history_booking.ui_status_key = 'completed'
+
+        elif (
+            history_booking.status == SpaceBooking.Status.CONFIRMED
+            and history_booking.session_date < today
+        ):
+            history_booking.ui_status_label = 'Pasada'
+            history_booking.ui_status_key = 'completed'
 
         else:
             history_booking.ui_status_label = (
@@ -4273,15 +4292,21 @@ def provider_space_booking_detail(
         timezone.get_current_timezone()
     )
 
+    session_start = timezone.make_aware(
+        datetime.combine(booking.session_date, booking.start_time),
+        current_timezone,
+    )
+
     session_end = timezone.make_aware(
-        datetime.combine(
-            booking.session_date,
-            booking.end_time,
-        ),
+        datetime.combine(booking.session_date, booking.end_time),
         current_timezone,
     )
 
     now = timezone.localtime()
+    pending_expired = (
+        booking.status == SpaceBooking.Status.PENDING
+        and now >= session_start
+    )
 
     can_complete = (
         booking.status
@@ -4309,11 +4334,11 @@ def provider_space_booking_detail(
                 provider_rejected
             ),
             'can_confirm': (
-                booking.status
-                == SpaceBooking
-                .Status
-                .PENDING
+                booking.status == SpaceBooking.Status.PENDING
+                and now < session_start
             ),
+            'pending_expired': pending_expired,
+            'confirm_error': request.GET.get('confirm_error'),
             'can_cancel': (
                 booking.status
                 in [
@@ -4391,6 +4416,15 @@ def provider_confirm_space_booking(
                 'spaces:provider_booking_detail',
                 booking_id=booking.id,
             )
+
+        # Seguridad: comprobar nuevamente la hora con la fila bloqueada.
+        # No basta con ocultar el botón en la interfaz.
+        if _space_booking_has_started(booking):
+            detail_url = reverse(
+                'spaces:provider_booking_detail',
+                kwargs={'booking_id': booking.id},
+            )
+            return redirect(f'{detail_url}?confirm_error=expired')
 
         previous_data = (
             booking.audit_snapshot()

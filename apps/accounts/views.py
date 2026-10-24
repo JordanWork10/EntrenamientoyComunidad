@@ -1,13 +1,17 @@
 import calendar as calendar_module
+import re
+from hashlib import sha256
 
 from datetime import date, datetime, timedelta
 
 from django.contrib.auth import (
     authenticate,
+    get_user_model,
     login,
     logout,
 )
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q
@@ -28,7 +32,7 @@ from .forms import (
     ProfileSettingsForm,
     RegisterForm,
 )
-from .models import MemberProfile
+from .models import MemberProfile, normalize_rut, validate_rut
 
 
 def register(request):
@@ -146,59 +150,100 @@ def register(request):
 
 def login_view(request):
     """
-    Inicio de sesión utilizando correo electrónico
-    y contraseña.
+    V129 - Inicio de sesión con correo o RUT, integrado con django-axes.
+
+    - La cuenta se identifica por User.email o User.rut.
+    - La contraseña se valida siempre mediante authenticate(request=...).
+    - Los formatos alternativos de RUT/correo de una misma cuenta
+      comparten el contador de intentos del username técnico.
+    - Los identificadores inexistentes también generan intentos fallidos
+      en Axes, sin poder iniciar una sesión por coincidencias accidentales.
+    - Se conserva un mensaje de error genérico.
     """
 
     if request.user.is_authenticated:
-
-        return redirect(
-            'accounts:dashboard'
-        )
+        return redirect('accounts:dashboard')
 
     error = None
-    email = ''
+    identifier = ''
 
     if request.method == 'POST':
+        identifier = (
+            request.POST.get('identifier')
+            or request.POST.get('email')
+            or ''
+        ).strip()
+        password = request.POST.get('password', '')
 
-        email = (
-            request.POST
-            .get(
-                'email',
-                ''
+        if identifier and password:
+            user_model = get_user_model()
+            account = None
+            normalized_identifier = identifier.lower()
+
+            if '@' in identifier:
+                try:
+                    account = user_model.objects.get(
+                        email__iexact=identifier
+                    )
+                except (
+                    user_model.DoesNotExist,
+                    user_model.MultipleObjectsReturned,
+                ):
+                    account = None
+
+            elif re.fullmatch(r'[0-9kK.\-\s]+', identifier):
+                rut = normalize_rut(identifier)
+                normalized_identifier = rut.upper()
+                try:
+                    validate_rut(rut)
+                except ValidationError:
+                    pass
+                else:
+                    try:
+                        account = user_model.objects.get(
+                            rut__iexact=rut
+                        )
+                    except (
+                        user_model.DoesNotExist,
+                        user_model.MultipleObjectsReturned,
+                    ):
+                        account = None
+
+            if account is not None:
+                # Correo y RUT de la misma cuenta deben acumularse bajo
+                # el MISMO username técnico para evitar evadir el límite.
+                auth_username = account.get_username()
+            else:
+                # Clave interna estable para entradas inexistentes.
+                # No coincide con el username de una cuenta normal y
+                # evita mezclar todos los intentos inexistentes de una IP.
+                digest = sha256(
+                    normalized_identifier.encode('utf-8')
+                ).hexdigest()
+                auth_username = f'__invalid_login__{digest}'
+
+            # Crucial: autenticar TAMBIÉN cuando la cuenta no existe.
+            # Django emite user_login_failed y Axes registra el intento.
+            user = authenticate(
+                request=request,
+                username=auth_username,
+                password=password,
             )
-            .strip()
-            .lower()
-        )
 
-        password = (
-            request.POST.get(
-                'password',
-                ''
-            )
-        )
-
-        user = authenticate(
-            request,
-            username=email,
-            password=password,
-        )
-
-        if user is not None:
-
-            if user.is_active:
-
-                login(
-                    request,
-                    user
-                )
-
-                return redirect(
-                    'accounts:dashboard'
-                )
+            # Incluso en caso de colisión improbable de usernames,
+            # jamás se inicia sesión si no identificamos primero
+            # la cuenta por su correo o RUT.
+            if (
+                account is not None
+                and user is not None
+                and user.pk == account.pk
+                and user.is_active
+            ):
+                login(request, user)
+                return redirect('accounts:dashboard')
 
         error = (
-            'El correo electrónico o la contraseña '
+            'El correo o RUT, o la contraseña, '
             'son incorrectos.'
         )
 
@@ -207,8 +252,9 @@ def login_view(request):
         'accounts/login.html',
         {
             'error': error,
-            'email': email,
-        }
+            'email': identifier,
+            'identifier': identifier,
+        },
     )
 
 

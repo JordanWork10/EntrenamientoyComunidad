@@ -238,11 +238,24 @@ class Payment(models.Model):
         verbose_name='Miembro que paga',
     )
 
+    # V131: ambos orígenes económicos son opcionales de forma individual.
+    # La restricción de base de datos exige exactamente uno por pago.
     activity = models.ForeignKey(
         Activity,
         on_delete=models.PROTECT,
         related_name='payments',
+        null=True,
+        blank=True,
         verbose_name='Actividad',
+    )
+
+    space_booking = models.ForeignKey(
+        'spaces.SpaceBooking',
+        on_delete=models.PROTECT,
+        related_name='payments',
+        null=True,
+        blank=True,
+        verbose_name='Reserva de espacio',
     )
 
     registration = models.OneToOneField(
@@ -429,6 +442,25 @@ class Payment(models.Model):
                 ),
                 name='unique_active_paid_payment_per_member_activity',
             ),
+            # V131: nunca asociar una misma operación a dos orígenes
+            # ni guardar pagos sin actividad o reserva de espacio.
+            models.CheckConstraint(
+                condition=(
+                    Q(activity__isnull=False, space_booking__isnull=True)
+                    | Q(activity__isnull=True, space_booking__isnull=False)
+                ),
+                name='payment_exactly_one_origin',
+            ),
+            # Permite intentos fallidos en el historial pero nunca dos
+            # pagos económicos activos por un mismo arriendo.
+            models.UniqueConstraint(
+                fields=['space_booking'],
+                condition=Q(
+                    space_booking__isnull=False,
+                    status__in=['approved', 'partially_refunded'],
+                ),
+                name='unique_active_paid_space_booking',
+            ),
         ]
 
     @staticmethod
@@ -458,7 +490,43 @@ class Payment(models.Model):
     def clean(self):
         errors = {}
 
+        # V131: una operación económica debe tener exactamente un origen.
+        if self.activity_id and self.space_booking_id:
+            errors['space_booking'] = (
+                'Un pago no puede corresponder a una actividad y a un arriendo a la vez.'
+            )
+        elif not self.activity_id and not self.space_booking_id:
+            errors['activity'] = (
+                'Asocia el pago con una actividad profesional o con un arriendo.'
+            )
+
+        if self.space_booking_id:
+            if self.economic_scope != self.EconomicScope.SPACE_BOOKING:
+                errors['economic_scope'] = (
+                    'Los arriendos requieren el origen económico Reserva de espacio.'
+                )
+
+            if self.payer_id and self.space_booking.booked_by_id != self.payer_id:
+                errors['payer'] = (
+                    'El pagador debe ser el miembro que realizó la reserva del espacio.'
+                )
+
+            if self.amount_clp is not None and self.amount_clp != self.space_booking.price_clp:
+                errors['amount_clp'] = (
+                    'El monto del pago debe coincidir con el precio histórico de la reserva.'
+                )
+
+            if self.registration_id:
+                errors['registration'] = (
+                    'Un arriendo de espacio no utiliza una inscripción a actividad.'
+                )
+
         if self.activity_id:
+            if self.economic_scope == self.EconomicScope.SPACE_BOOKING:
+                errors['economic_scope'] = (
+                    'Un pago de actividad no puede tener origen Reserva de espacio.'
+                )
+
             if self.activity.activity_type != Activity.ActivityType.PROFESSIONAL:
                 errors['activity'] = (
                     'Los pagos se aplican únicamente a actividades profesionales.'
@@ -502,8 +570,15 @@ class Payment(models.Model):
             raise ValidationError(errors)
 
     def __str__(self):
+        if self.space_booking_id:
+            origin = f'Arriendo #{self.space_booking_id}'
+        elif self.activity_id:
+            origin = str(self.activity)
+        else:
+            origin = 'Sin origen económico'
+
         return (
-            f'{self.payer} · {self.activity} · '
+            f'{self.payer} · {origin} · '
             f'{self.amount_clp} {self.currency} · {self.get_status_display()}'
         )
 

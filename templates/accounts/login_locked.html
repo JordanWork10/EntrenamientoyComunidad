@@ -1,0 +1,321 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Acceso temporalmente restringido | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .lockout-eyebrow {
+        display: inline-block;
+        color: #c6ff33;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+    }
+
+    .lockout-symbol {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 58px;
+        height: 58px;
+        margin-bottom: 24px;
+        border: 1px solid rgba(255, 107, 120, 0.45);
+        border-radius: 15px;
+        background: rgba(255, 107, 120, 0.08);
+        color: #ff7d8c;
+        font-size: 30px;
+        font-weight: 700;
+    }
+
+    .lockout-title {
+        margin: 10px 0 18px;
+        color: #f6f8fc;
+        font-size: clamp(30px, 4vw, 52px);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -1.5px;
+    }
+
+    .lockout-title span {
+        display: block;
+        color: #c6ff33;
+    }
+
+    .lockout-intro {
+        max-width: 580px;
+        color: #b7c5d9;
+        font-size: 14px;
+        line-height: 1.8;
+    }
+
+    .lockout-notice {
+        margin-top: 28px;
+        padding: 20px;
+        border: 1px solid rgba(255, 107, 120, 0.36);
+        border-radius: 9px;
+        background: rgba(255, 107, 120, 0.07);
+    }
+
+    .lockout-notice strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #ff8c98;
+        font-size: 14px;
+    }
+
+    .lockout-notice p {
+        margin: 0;
+        color: #c9d3e0;
+        font-size: 12px;
+        line-height: 1.8;
+    }
+
+    .lockout-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 15px;
+        margin-top: 27px;
+    }
+
+    .lockout-primary {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        min-height: 46px;
+        padding: 12px 22px;
+        border-radius: 7px;
+        background: #c6ff33;
+        color: #101608;
+        font-size: 12px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .lockout-primary:hover {
+        background: #d8ff70;
+    }
+
+    .lockout-secondary {
+        color: #c6ff33;
+        font-size: 12px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .lockout-secondary:hover {
+        text-decoration: underline;
+    }
+
+    .lockout-primary:focus-visible,
+    .lockout-secondary:focus-visible {
+        outline: 2px solid #c6ff33;
+        outline-offset: 4px;
+    }
+
+    .lockout-side-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 18px;
+        margin-top: 13px;
+        padding: 17px;
+        border: 1px solid rgba(139, 152, 174, 0.23);
+        border-radius: 9px;
+    }
+
+    .lockout-side-number {
+        color: #c6ff33;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .lockout-side-item strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #f6f8fc;
+        font-size: 12px;
+    }
+
+    .lockout-side-item p {
+        margin: 0;
+        color: #8e9db1;
+        font-size: 11px;
+        line-height: 1.65;
+    }
+
+    @media (max-width: 480px) {
+        .lockout-title {
+            letter-spacing: -0.8px;
+        }
+
+        .lockout-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .lockout-primary {
+            width: 100%;
+        }
+
+        .lockout-secondary {
+            padding: 12px 0;
+            text-align: center;
+        }
+    }
+</style>
+
+<section class="login-page">
+
+    <div class="login-container">
+
+        <!-- MENSAJE PRINCIPAL -->
+
+        <div class="login-main">
+
+            <div class="lockout-symbol" aria-hidden="true">
+                !
+            </div>
+
+            <span class="lockout-eyebrow">
+                PROTECCIÓN DE TU CUENTA
+            </span>
+
+            <h1 class="lockout-title">
+                Acceso temporalmente restringido.
+                <span>Tu seguridad es primero.</span>
+            </h1>
+
+            <p class="lockout-intro">
+                Detectamos varios intentos incorrectos de inicio de sesión.
+                Para proteger el acceso, la plataforma aplicó una
+                restricción temporal.
+            </p>
+
+            <div class="lockout-notice" role="alert">
+
+                <strong>
+                    Espera antes de volver a intentarlo
+                </strong>
+
+                <p>
+                    La restricción está configurada para un período
+                    de 15 minutos. Evita repetir intentos mientras
+                    esté activa.
+
+                    Si olvidaste tu contraseña, puedes solicitar
+                    su recuperación mediante el correo asociado
+                    a tu cuenta.
+                </p>
+
+            </div>
+
+            <div class="lockout-actions">
+
+                <a
+                    href="{% url 'accounts:login' %}"
+                    class="lockout-primary"
+                >
+                    Volver a iniciar sesión
+                    <span aria-hidden="true">→</span>
+                </a>
+
+                <a
+                    href="{% url 'accounts:password_reset' %}"
+                    class="lockout-secondary"
+                >
+                    ¿Olvidaste tu contraseña?
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- PANEL LATERAL -->
+
+        <aside class="login-side">
+
+            <span class="page-overline">
+                ACCESO SEGURO
+            </span>
+
+            <h2>
+                Tu cuenta.
+                Siempre protegida.
+            </h2>
+
+            <div class="lockout-side-item">
+
+                <span class="lockout-side-number">
+                    01
+                </span>
+
+                <div>
+                    <strong>Protección automática</strong>
+
+                    <p>
+                        El sistema limita los intentos incorrectos
+                        para reducir accesos no autorizados.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="lockout-side-item">
+
+                <span class="lockout-side-number">
+                    02
+                </span>
+
+                <div>
+                    <strong>Restricción temporal</strong>
+
+                    <p>
+                        El acceso se habilita nuevamente cuando
+                        finaliza el período de protección.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="lockout-side-item">
+
+                <span class="lockout-side-number">
+                    03
+                </span>
+
+                <div>
+                    <strong>Recuperación por correo</strong>
+
+                    <p>
+                        Puedes solicitar un enlace para cambiar
+                        la contraseña si no la recuerdas.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="login-security">
+
+                <span>
+                    IMPORTANTE
+                </span>
+
+                <p>
+                    Recuperar la contraseña no elimina
+                    automáticamente una restricción temporal
+                    que todavía esté activa.
+                </p>
+
+            </div>
+
+        </aside>
+
+    </div>
+
+</section>
+
+{% endblock %}

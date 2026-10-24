@@ -1,3 +1,4 @@
+
 {% extends 'base.html' %}
 {% load clp_filters %}
 
@@ -71,6 +72,11 @@ Solicitud de arriendo | Centro de Espacios
                         <span class="space-request-status space-request-status-cancelled">
                             No aceptada
                         </span>
+                    {% elif pending_expired %}
+                        <span class="space-request-status space-request-status-expired"
+                              title="El horario solicitado ya comenzó o terminó">
+                            Vencida
+                        </span>
                     {% else %}
                         <span class="space-request-status space-request-status-{{ booking.status }}">
                             {{ booking.get_status_display }}
@@ -125,7 +131,9 @@ Solicitud de arriendo | Centro de Espacios
                 <div>
                     <span class="account-panel-number">02</span>
                     <h2>
-                        {% if booking.status == 'pending' %}
+                        {% if pending_expired %}
+                            Solicitud vencida
+                        {% elif booking.status == 'pending' %}
                             ¿Puedes aceptar este arriendo?
                         {% else %}
                             Estado del arriendo
@@ -138,6 +146,25 @@ Solicitud de arriendo | Centro de Espacios
 
             <div class="space-provider-decision">
                 {% if booking.status == 'pending' %}
+                    {% if pending_expired %}
+                        <div class="space-provider-expired-notice" role="status">
+                            <div class="space-provider-expired-icon" aria-hidden="true">!</div>
+                            <div class="space-provider-expired-copy">
+                                <span>SOLICITUD VENCIDA</span>
+                                <strong>El horario solicitado ya comenzó o terminó.</strong>
+                                <p>
+                                    No puedes aceptar esta solicitud porque su hora de inicio
+                                    ya pasó ({{ booking.session_date|date:"d/m/Y" }} a las
+                                    {{ booking.start_time|time:"H:i" }}).
+                                    La reserva se conserva para consultar sus detalles e historial.
+                                </p>
+                                <small>
+                                    Estado registrado: Pendiente · Visualización: Vencida.
+                                    No se ha realizado ningún cambio automático en la reserva.
+                                </small>
+                            </div>
+                        </div>
+                    {% else %}
                     <div class="space-provider-waiting-message">
                         <strong>
                             {{ booking.booked_by.get_full_name|default:booking.booked_by.email }} está esperando tu respuesta
@@ -240,6 +267,7 @@ Solicitud de arriendo | Centro de Espacios
                             </div>
                         </form>
                     </div>
+                    {% endif %}
 
                 {% elif booking.status == 'confirmed' %}
                     <div class="space-provider-status-card space-provider-status-confirmed">

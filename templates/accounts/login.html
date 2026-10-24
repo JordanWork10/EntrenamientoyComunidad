@@ -7,6 +7,11 @@ Iniciar sesión | EntrenamientoyComunidad
 {% block content %}
 
 <style>
+    /* =========================================
+       V129 - INICIO DE SESIÓN
+       CORREO O RUT
+    ========================================= */
+
     .login-recovery-link {
         color: #c6ff33;
         font-size: 11px;
@@ -55,14 +60,63 @@ Iniciar sesión | EntrenamientoyComunidad
         outline-offset: 3px;
     }
 
+    /* =========================================
+       IDENTIFICADOR DE ACCESO
+    ========================================= */
+
+    .login-identifier-help {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-top: 9px;
+        color: #8b98ae;
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+    .login-identifier-help-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 15px;
+        height: 15px;
+        margin-top: 1px;
+        border: 1px solid rgba(198, 255, 51, 0.35);
+        border-radius: 50%;
+        color: #c6ff33;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .login-identifier-help strong {
+        color: #b7c2d2;
+        font-weight: 700;
+    }
+
+    /* =========================================
+       RESPONSIVE
+    ========================================= */
+
     @media (max-width: 480px) {
+
         .login-actions-row {
             align-items: flex-start;
             flex-wrap: wrap;
             gap: 10px;
         }
+
+        .login-identifier-help {
+            font-size: 10px;
+        }
+
+        .login-recovery-link {
+            white-space: normal;
+        }
+
     }
 </style>
+
 
 <section class="login-page">
 
@@ -89,13 +143,27 @@ Iniciar sesión | EntrenamientoyComunidad
                 y espacios deportivos desde un solo lugar.
             </p>
 
+
+            <!-- =====================================
+                 MENSAJES DE ERROR
+            ====================================== -->
+
             {% if error %}
 
-                <div class="login-error" role="alert">
+                <div
+                    class="login-error"
+                    role="alert"
+                    aria-live="polite"
+                >
                     {{ error }}
                 </div>
 
             {% endif %}
+
+
+            <!-- =====================================
+                 FORMULARIO
+            ====================================== -->
 
             <form
                 method="post"
@@ -105,28 +173,56 @@ Iniciar sesión | EntrenamientoyComunidad
 
                 {% csrf_token %}
 
-                <!-- CORREO ELECTRÓNICO -->
+
+                <!-- =====================================
+                     CORREO O RUT
+                ====================================== -->
 
                 <div class="form-field">
 
-                    <label for="id_email">
-                        Correo electrónico
+                    <label for="id_identifier">
+                        Correo o RUT
                     </label>
 
                     <input
-                        type="email"
-                        id="id_email"
-                        name="email"
-                        value="{{ email|default:'' }}"
-                        placeholder="correo@ejemplo.cl"
-                        autocomplete="email"
+                        type="text"
+                        id="id_identifier"
+                        name="identifier"
+                        value="{{ identifier|default:'' }}"
+                        placeholder="Ingresa tu correo o RUT"
+                        autocomplete="username"
+                        autocapitalize="off"
+                        spellcheck="false"
                         maxlength="254"
+                        aria-describedby="login-identifier-help"
                         required
                     >
 
+                    <div
+                        class="login-identifier-help"
+                        id="login-identifier-help"
+                    >
+
+                        <span
+                            class="login-identifier-help-icon"
+                            aria-hidden="true"
+                        >
+                            i
+                        </span>
+
+                        <span>
+                            Puedes ingresar tu RUT
+                            <strong>con o sin guion</strong>.
+                        </span>
+
+                    </div>
+
                 </div>
 
-                <!-- CONTRASEÑA -->
+
+                <!-- =====================================
+                     CONTRASEÑA
+                ====================================== -->
 
                 <div class="form-field">
 
@@ -160,7 +256,10 @@ Iniciar sesión | EntrenamientoyComunidad
 
                 </div>
 
-                <!-- RECUPERACIÓN DE CONTRASEÑA -->
+
+                <!-- =====================================
+                     RECUPERACIÓN DE CONTRASEÑA
+                ====================================== -->
 
                 <div class="login-actions-row">
 
@@ -177,7 +276,10 @@ Iniciar sesión | EntrenamientoyComunidad
 
                 </div>
 
-                <!-- INICIAR SESIÓN -->
+
+                <!-- =====================================
+                     INICIAR SESIÓN
+                ====================================== -->
 
                 <button
                     type="submit"
@@ -189,7 +291,10 @@ Iniciar sesión | EntrenamientoyComunidad
 
             </form>
 
-            <!-- REGISTRO -->
+
+            <!-- =====================================
+                 REGISTRO
+            ====================================== -->
 
             <div class="login-register">
 
@@ -204,6 +309,7 @@ Iniciar sesión | EntrenamientoyComunidad
             </div>
 
         </div>
+
 
         <!-- =====================================
              PANEL INFORMATIVO
@@ -220,13 +326,17 @@ Iniciar sesión | EntrenamientoyComunidad
                 Distintas posibilidades.
             </h2>
 
+
             <div class="login-benefits">
+
+                <!-- BENEFICIO 01 -->
 
                 <div class="login-benefit">
 
                     <span>01</span>
 
                     <div>
+
                         <strong>
                             Encuentra profesionales
                         </strong>
@@ -235,15 +345,20 @@ Iniciar sesión | EntrenamientoyComunidad
                             Descubre servicios de profesionales
                             verificados y consulta sus horarios.
                         </p>
+
                     </div>
 
                 </div>
+
+
+                <!-- BENEFICIO 02 -->
 
                 <div class="login-benefit">
 
                     <span>02</span>
 
                     <div>
+
                         <strong>
                             Reserva espacios
                         </strong>
@@ -252,15 +367,20 @@ Iniciar sesión | EntrenamientoyComunidad
                             Explora gimnasios, salas y recintos
                             deportivos según su disponibilidad.
                         </p>
+
                     </div>
 
                 </div>
+
+
+                <!-- BENEFICIO 03 -->
 
                 <div class="login-benefit">
 
                     <span>03</span>
 
                     <div>
+
                         <strong>
                             Gestiona tus actividades
                         </strong>
@@ -269,11 +389,17 @@ Iniciar sesión | EntrenamientoyComunidad
                             Participa en actividades, organiza
                             encuentros y administra tus reservas.
                         </p>
+
                     </div>
 
                 </div>
 
             </div>
+
+
+            <!-- =====================================
+                 SEGURIDAD
+            ====================================== -->
 
             <div class="login-security">
 
@@ -284,6 +410,8 @@ Iniciar sesión | EntrenamientoyComunidad
                 <p>
                     Tu cuenta está protegida mediante
                     autenticación y controles de acceso.
+                    Puedes iniciar sesión con tu correo
+                    o RUT y tu contraseña.
                 </p>
 
             </div>
@@ -294,21 +422,34 @@ Iniciar sesión | EntrenamientoyComunidad
 
 </section>
 
+
+<!-- =====================================
+     MOSTRAR / OCULTAR CONTRASEÑA
+====================================== -->
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
-    const passwordInput = document.getElementById('id_password');
-    const toggleButton = document.getElementById('login-password-toggle');
+    const passwordInput = document.getElementById(
+        'id_password'
+    );
+
+    const toggleButton = document.getElementById(
+        'login-password-toggle'
+    );
 
     if (!passwordInput || !toggleButton) {
         return;
     }
 
     toggleButton.addEventListener('click', function () {
+
         const isVisible = passwordInput.type === 'text';
 
-        passwordInput.type = isVisible ? 'password' : 'text';
+        passwordInput.type = isVisible
+            ? 'password'
+            : 'text';
 
         toggleButton.textContent = isVisible
             ? 'Mostrar'
@@ -325,7 +466,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 ? 'Mostrar contraseña'
                 : 'Ocultar contraseña'
         );
+
     });
+
 });
 </script>
 

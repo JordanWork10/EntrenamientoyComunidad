@@ -1,4 +1,5 @@
 from datetime import date
+from uuid import uuid4
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
@@ -388,9 +389,9 @@ class RegisterForm(UserCreationForm):
             self.cleaned_data['email']
         )
 
-        user.username = (
-            self.cleaned_data['email']
-        )
+        # Identificador tecnico unico: no es correo ni RUT.
+        # Permanece estable aunque la persona cambie su email.
+        user.username = f'usuario_{uuid4().hex}'
 
         user.first_name = (
             self.cleaned_data['first_name']
@@ -691,8 +692,8 @@ class ProfileSettingsForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
 
+        # El correo puede cambiar, pero el username tecnico no.
         user.email = self.cleaned_data['email']
-        user.username = self.cleaned_data['email']
         user.commune = self.cleaned_data['commune']
 
         if commit:

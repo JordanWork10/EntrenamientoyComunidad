@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}Administrar liquidaciones de espacios | EntrenamientoyComunidad{% endblock %}
+
+{% block content %}
+<section class="account-page v131-provider-income v131-admin-space-settlement">
+    <div class="account-container">
+
+        <header class="v131-provider-income-hero">
+            <div>
+                <span class="v131-provider-income-kicker">ADMINISTRACIÓN · ECONOMÍA DE ESPACIOS</span>
+                <h1>Liquidaciones de <span>arriendos.</span></h1>
+                <p>
+                    Control administrativo por recinto y jornada. Preparar una jornada
+                    no significa liquidarla. Solo un administrador autorizado puede
+                    confirmar su cierre después de cumplir las validaciones del servidor.
+                </p>
+            </div>
+            <span class="v131-provider-income-sandbox">SANDBOX · SIN TRANSFERENCIAS REALES</span>
+        </header>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="v131-provider-income-notice" role="note">
+            <strong>Zona exclusiva para personal autorizado</strong>
+            <p>
+                Esta interfaz utiliza fechas reales; no adelanta el reloj.
+                Un cierre exige reservas completadas, al menos 24 horas desde
+                la finalización, saldos consistentes y ninguna retención o
+                devolución pendiente. Nunca realiza transferencias bancarias.
+            </p>
+        </div>
+
+        <section class="v131-provider-income-section" aria-label="Jornadas económicas">
+            <div class="v131-provider-income-heading">
+                <div>
+                    <span class="v131-provider-income-kicker">JORNADAS POR RECINTO</span>
+                    <h2>Revisión de liquidaciones</h2>
+                    <p>Consultar esta página no crea ni modifica registros económicos.</p>
+                </div>
+                <span class="v131-provider-income-count">{{ rows|length }} jornada{{ rows|length|pluralize }}</span>
+            </div>
+
+            {% for row in rows %}
+                <article class="v131-provider-income-space">
+                    <div class="v131-provider-income-space-head">
+                        <div>
+                            <span>RECINTO #{{ row.space.pk }} · {{ row.date|date:"d/m/Y" }}</span>
+                            <h3>{{ row.space.name }}</h3>
+                            <p>
+                                {{ row.payment_count }} pago{{ row.payment_count|pluralize }} económico{{ row.payment_count|pluralize }}
+                                · {{ row.booking_count }} reserva{{ row.booking_count|pluralize }}
+                            </p>
+                        </div>
+                        {% if row.settlement %}
+                            <span class="v131-admin-space-state v131-admin-space-state-{{ row.settlement.status }}">
+                                {{ row.settlement.get_status_display }}
+                            </span>
+                        {% else %}
+                            <span class="v131-admin-space-state">Sin liquidación preparada</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="v131-provider-income-space-totals">
+                        <div><span>BRUTO REGISTRADO</span><strong>{{ row.gross_total|clp }}</strong></div>
+                        <div><span>COMISIÓN</span><strong>{{ row.commission_total|clp }}</strong></div>
+                        <div><span>NETO CALCULADO</span><strong>{{ row.net_total|clp }}</strong></div>
+                        <div>
+                            <span>VALIDACIÓN OPERATIVA</span>
+                            <strong>{% if row.incomplete %}Falta completar{% else %}Sin reserva pendiente{% endif %}</strong>
+                        </div>
+                    </div>
+
+                    <div class="v131-admin-space-actions">
+                        {% if row.settlement %}
+                            <div class="v131-admin-space-detail">
+                                <strong>Liquidación #{{ row.settlement.pk }}</strong>
+                                <span>Estado: {{ row.settlement.get_status_display }}</span>
+                                <span>
+                                    {% if row.settlement.eligible_at %}
+                                        Elegible desde: {{ row.settlement.eligible_at|date:"d/m/Y H:i" }}
+                                    {% else %}
+                                        Sin fecha de elegibilidad registrada
+                                    {% endif %}
+                                </span>
+                                {% if row.settlement.hold_reason %}
+                                    <span class="v131-admin-space-warning">Motivo de revisión: {{ row.settlement.hold_reason }}</span>
+                                {% endif %}
+                                {% if row.settlement.settled_at %}
+                                    <span>Liquidada: {{ row.settlement.settled_at|date:"d/m/Y H:i" }}</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {% if row.can_prepare %}
+                            <form method="post" action="{% url 'payments:space_settlement_prepare' row.space.pk row.date.year row.date.month row.date.day %}">
+                                {% csrf_token %}
+                                <button type="submit" class="v131-admin-space-btn">
+                                    {% if row.settlement %}Actualizar revisión de jornada{% else %}Preparar jornada pendiente{% endif %}
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        {% if row.can_settle %}
+                            <form method="post" action="{% url 'payments:space_settlement_close' row.settlement.pk %}" class="v131-admin-space-confirm">
+                                {% csrf_token %}
+                                <label>
+                                    <input type="checkbox" name="confirm" value="yes" required>
+                                    Confirmo que revisé la jornada y deseo marcarla como liquidada SOLO EN SANDBOX.
+                                </label>
+                                <button type="submit" class="v131-admin-space-btn v131-admin-space-btn-danger">
+                                    Cerrar liquidación en sandbox
+                                </button>
+                            </form>
+                        {% else %}
+                            <p class="v131-admin-space-muted">
+                                {% if row.settlement and row.settlement.status == 'settled' %}
+                                    Jornada ya liquidada: no se permiten nuevos cierres.
+                                {% else %}
+                                    El cierre no está habilitado. Debe existir una jornada elegible
+                                    y satisfacer todas las validaciones económicas.
+                                {% endif %}
+                            </p>
+                        {% endif %}
+                    </div>
+                </article>
+            {% empty %}
+                <div class="v131-provider-income-empty">
+                    <strong>No hay jornadas económicas registradas</strong>
+                    <p>Cuando existan pagos aprobados de arriendos, sus jornadas aparecerán aquí.</p>
+                </div>
+            {% endfor %}
+        </section>
+
+        <div class="v131-provider-income-bottom">
+            <a href="{% url 'admin:index' %}">← Volver a la administración de Django</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

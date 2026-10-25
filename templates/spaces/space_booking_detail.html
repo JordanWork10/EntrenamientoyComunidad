@@ -1,3 +1,4 @@
+
 {% extends 'base.html' %}
 {% load clp_filters %}
 
@@ -26,6 +27,16 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
                 </p>
             </div>
         </header>
+
+        {% if messages %}
+            <div class="v131-space-member-messages" aria-live="polite">
+                {% for message in messages %}
+                    <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
         {% if booking_just_created %}
             <section class="space-booking-created-notice" aria-live="polite">
@@ -65,6 +76,8 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
                 </div>
             </section>
         {% endif %}
+
+        <!-- 01: ESPACIO RESERVADO -->
 
         <section class="account-panel">
             <div class="account-panel-header">
@@ -164,6 +177,8 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
             </div>
         </section>
 
+        <!-- 02: ESTADO DE LA RESERVA -->
+
         <section class="account-panel">
             <div class="account-panel-header">
                 <div>
@@ -228,7 +243,8 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
                                 Este arriendo ya no se realizará
                             </strong>
                             <p>
-                                La cancelación quedó registrada y esta reserva seguirá disponible en tu historial.
+                                La cancelación quedó registrada y esta reserva
+                                seguirá disponible en tu historial.
                             </p>
                         </div>
                     </div>
@@ -251,13 +267,15 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
                                 Este arriendo ya fue realizado
                             </strong>
                             <p>
-                                La reserva quedó completada y se conserva dentro de tu historial.
+                                La reserva quedó completada y se conserva
+                                dentro de tu historial.
                             </p>
                         </div>
                     </div>
 
                 {% endif %}
 
+                <!-- CANCELACIÓN: SOLO SI LA VISTA LA PERMITE -->
 
                 {% if can_cancel %}
 
@@ -358,10 +376,247 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
             </div>
         </section>
 
-        <section class="account-panel">
+        <!-- 03: PAGO DE ARRIENDO - V131 -->
+
+        <section class="account-panel v131-space-member-payment-panel"
+                 id="pago-de-arriendo">
+
             <div class="account-panel-header">
                 <div>
                     <span class="account-panel-number">03</span>
+                    <h2>Pago de tu arriendo</h2>
+                </div>
+
+                <span class="account-panel-tag">PAGO</span>
+            </div>
+
+            <div class="v131-space-member-payment-body">
+
+                <!-- EXISTE PAGO APROBADO O REEMBOLSADO -->
+
+                {% if paid_space_payment %}
+
+                    <div class="v131-space-member-payment-status v131-space-member-payment-status-approved">
+                        <span class="v131-space-member-payment-icon" aria-hidden="true">✓</span>
+
+                        <div>
+                            <span class="v131-space-member-payment-eyebrow">
+                                PAGO REGISTRADO
+                            </span>
+
+                            {% if paid_space_payment.status == 'refunded' %}
+                                <strong>
+                                    Tu pago tiene un reembolso registrado
+                                </strong>
+                                <p>
+                                    Consulta el comprobante para revisar
+                                    el estado y el importe reembolsado.
+                                </p>
+
+                            {% elif paid_space_payment.status == 'partially_refunded' %}
+                                <strong>
+                                    Tu pago tiene un reembolso parcial
+                                </strong>
+                                <p>
+                                    El comprobante conserva el movimiento
+                                    y su importe histórico.
+                                </p>
+
+                            {% else %}
+                                <strong>
+                                    Tu pago fue aprobado en sandbox
+                                </strong>
+                                <p>
+                                    La reserva tiene un pago aprobado.
+                                    No se realizó ningún cobro real.
+                                </p>
+                            {% endif %}
+
+                            <small>
+                                {{ paid_space_payment.amount_clp|clp }}
+                                · {{ paid_space_payment.get_status_display }}
+                            </small>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'payments:space_receipt' paid_space_payment.public_id %}"
+                       class="v131-space-member-payment-cta">
+                        Ver comprobante de pago
+                        <span aria-hidden="true">→</span>
+                    </a>
+
+                    {% if booking.status == 'confirmed' and space_booking_future %}
+                        <p class="v131-space-member-payment-footnote">
+                            Si necesitas cancelar este arriendo pagado,
+                            la operación requiere revisión económica.
+                            El reembolso automático de espacios aún no está habilitado.
+                        </p>
+                    {% endif %}
+
+                <!-- RESERVA CONFIRMADA, SIN PAGO APROBADO -->
+
+                {% elif booking.status == 'confirmed' %}
+
+                    {% if can_pay_space_booking %}
+
+                        <div class="v131-space-member-payment-status v131-space-member-payment-status-pending">
+                            <span class="v131-space-member-payment-icon" aria-hidden="true">$</span>
+
+                            <div>
+                                <span class="v131-space-member-payment-eyebrow">
+                                    PAGO PENDIENTE
+                                </span>
+
+                                {% if pending_space_payment %}
+                                    <strong>
+                                        Tienes un intento pendiente
+                                    </strong>
+                                    <p>
+                                        Continúa el pago simulado
+                                        de tu reserva confirmada.
+                                    </p>
+
+                                {% elif latest_space_payment.status == 'failed' %}
+                                    <strong>
+                                        Puedes reintentar el pago
+                                    </strong>
+                                    <p>
+                                        El intento anterior fue rechazado.
+                                        La reserva sigue confirmada.
+                                    </p>
+
+                                {% elif latest_space_payment.status == 'cancelled' %}
+                                    <strong>
+                                        Puedes iniciar otro intento
+                                    </strong>
+                                    <p>
+                                        Cancelaste el intento anterior,
+                                        pero la reserva continúa confirmada.
+                                    </p>
+
+                                {% else %}
+                                    <strong>
+                                        Tu reserva ya puede pagarse
+                                    </strong>
+                                    <p>
+                                        {{ booking.provider_name_snapshot }} aceptó tu solicitud.
+                                        Completa el pago para registrar el movimiento.
+                                    </p>
+                                {% endif %}
+
+                                <small>
+                                    Importe de la reserva:
+                                    {{ booking.price_clp|clp }}
+                                </small>
+                            </div>
+                        </div>
+
+                        <a href="{% url 'payments:space_checkout' booking.id %}"
+                           class="v131-space-member-payment-cta">
+
+                            {% if pending_space_payment %}
+                                Continuar pago
+                            {% elif latest_space_payment.status == 'failed' %}
+                                Reintentar pago
+                            {% else %}
+                                Pagar arriendo
+                            {% endif %}
+
+                            <span aria-hidden="true">→</span>
+                        </a>
+
+                        <p class="v131-space-member-payment-footnote">
+                            SANDBOX · SIN COBRO REAL.
+                            La confirmación de la reserva no significa
+                            que se haya aprobado su pago.
+                        </p>
+
+                    {% else %}
+
+                        <div class="v131-space-member-payment-status v131-space-member-payment-status-disabled">
+                            <span class="v131-space-member-payment-icon" aria-hidden="true">!</span>
+
+                            <div>
+                                <span class="v131-space-member-payment-eyebrow">
+                                    PAGO NO DISPONIBLE
+                                </span>
+
+                                <strong>
+                                    No puedes iniciar el pago en este momento
+                                </strong>
+
+                                <p>
+                                    {% if not space_booking_future %}
+                                        El horario del arriendo ya comenzó o terminó.
+                                    {% elif not space_payment_sandbox_enabled %}
+                                        La simulación de pagos está deshabilitada.
+                                    {% else %}
+                                        La reserva no cumple las condiciones
+                                        necesarias para iniciar el pago.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                <!-- SOLICITUD PENDIENTE -->
+
+                {% elif booking.status == 'pending' %}
+
+                    <div class="v131-space-member-payment-status v131-space-member-payment-status-disabled">
+                        <span class="v131-space-member-payment-icon" aria-hidden="true">…</span>
+
+                        <div>
+                            <span class="v131-space-member-payment-eyebrow">
+                                ESPERANDO CONFIRMACIÓN
+                            </span>
+
+                            <strong>
+                                Todavía no debes pagar
+                            </strong>
+
+                            <p>
+                                El proveedor debe aceptar primero
+                                tu solicitud de arriendo.
+                            </p>
+                        </div>
+                    </div>
+
+                <!-- RESERVA CANCELADA O FINALIZADA SIN PAGO -->
+
+                {% else %}
+
+                    <div class="v131-space-member-payment-status v131-space-member-payment-status-disabled">
+                        <span class="v131-space-member-payment-icon" aria-hidden="true">—</span>
+
+                        <div>
+                            <span class="v131-space-member-payment-eyebrow">
+                                SIN PAGO DISPONIBLE
+                            </span>
+
+                            <strong>
+                                Esta reserva no admite nuevos pagos
+                            </strong>
+
+                            <p>
+                                Su estado actual es
+                                {{ booking.get_status_display|lower }}.
+                            </p>
+                        </div>
+                    </div>
+
+                {% endif %}
+
+            </div>
+        </section>
+
+        <!-- 04: INFORMACIÓN ADICIONAL -->
+
+        <section class="account-panel">
+            <div class="account-panel-header">
+                <div>
+                    <span class="account-panel-number">04</span>
                     <h2>Información adicional</h2>
                 </div>
 
@@ -395,10 +650,12 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
             </div>
         </section>
 
+        <!-- 05: HISTORIAL DE ARRIENDO -->
+
         <section class="account-panel">
             <div class="account-panel-header">
                 <div>
-                    <span class="account-panel-number">04</span>
+                    <span class="account-panel-number">05</span>
                     <h2>Historial de este arriendo</h2>
                 </div>
 
@@ -477,7 +734,10 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
             </details>
         </section>
 
+        <!-- NAVEGACIÓN -->
+
         <div class="registration-actions space-member-detail-navigation">
+
             <a
                 href="{% url 'spaces:my_bookings' %}"
                 class="account-professional-action"
@@ -492,6 +752,7 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
                 Ver espacio
                 <span>→</span>
             </a>
+
         </div>
 
     </div>
@@ -510,6 +771,7 @@ document.addEventListener('DOMContentLoaded', function () {
     openButton.addEventListener('click', function () {
         panel.hidden = false;
         openButton.setAttribute('aria-expanded', 'true');
+
         panel.scrollIntoView({
             behavior: 'smooth',
             block: 'nearest'

@@ -35976,3 +35976,399 @@ border: 1px solid rgba(65, 230, 170, .36);
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+/* ==========================================================
+   V131 - CHECKOUT SANDBOX DE ARRIENDOS
+   Clases limitadas a .v131-space-checkout para no afectar
+   los pagos de actividades profesionales.
+   ========================================================== */
+.v131-space-checkout {
+    --v131-space-coral: #ff765e;
+    --v131-space-coral-border: rgba(255, 118, 94, .42);
+}
+.v131-space-checkout .v131-space-checkout-hero {
+    border-color: var(--v131-space-coral-border);
+    background: linear-gradient(135deg, rgba(255,118,94,.09), rgba(255,118,94,.015)), #111720;
+}
+.v131-space-checkout .payments-overline,
+.v131-space-checkout .payments-hero h1 span,
+.v131-space-checkout .payments-panel-title span,
+.v131-space-checkout .payments-sandbox-panel h2,
+.v131-space-checkout .payments-amount strong {
+    color: var(--v131-space-coral);
+}
+.v131-space-checkout .payments-sandbox-badge {
+    color: #ffae9e;
+    border-color: var(--v131-space-coral-border);
+    background: rgba(255,118,94,.07);
+}
+.v131-space-checkout .payments-panel,
+.v131-space-checkout .payments-sandbox-panel {
+    min-width: 0;
+}
+.v131-space-checkout .v131-space-checkout-venue,
+.v131-space-checkout .payments-amount {
+    border-color: rgba(255,118,94,.30);
+    background: rgba(255,118,94,.045);
+}
+.v131-space-checkout .v131-space-checkout-venue > span {
+    color: var(--v131-space-coral);
+}
+.v131-space-checkout .v131-space-checkout-owner {
+    margin-top: 9px;
+    color: #c8d0dd;
+    font-size: 12px;
+}
+.v131-space-checkout .payments-fact span {
+    font-size: 10px;
+}
+.v131-space-checkout .payments-fact strong {
+    font-size: 13px;
+}
+.v131-space-checkout .payments-panel-title h2 {
+    line-height: 1.25;
+}
+.v131-space-checkout .v131-space-checkout-address {
+    display: grid;
+    gap: 5px;
+    margin-top: 13px;
+    padding: 13px;
+    background: #0d131b;
+    border: 1px solid #293241;
+    border-radius: 10px;
+}
+.v131-space-checkout .v131-space-checkout-address span {
+    font-size: 10px;
+    letter-spacing: .08em;
+    color: #9aa8bc;
+    font-weight: 800;
+}
+.v131-space-checkout .v131-space-checkout-address strong {
+    font-size: 12px;
+    color: #e9edf4;
+}
+.v131-space-checkout .payments-amount small {
+    display: block;
+    margin-top: 5px;
+    color: #a8b3c5;
+    font-size: 11px;
+}
+.v131-space-checkout .v131-space-checkout-warning {
+    border-color: rgba(255,191,91,.25);
+}
+.v131-space-checkout .v131-space-checkout-warning p {
+    margin: 6px 0 0;
+    font-size: 12px;
+}
+.v131-space-checkout .v131-space-checkout-policy {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 15px;
+    border: 1px solid rgba(255,191,91,.3);
+    border-radius: 11px;
+    background: rgba(255,191,91,.04);
+}
+.v131-space-checkout .v131-space-checkout-policy > strong {
+    color: #f0d394;
+    font-size: 13px;
+}
+.v131-space-checkout .v131-space-checkout-policy p {
+    margin: 0;
+    color: #bbc3d1;
+    font-size: 12px;
+    line-height: 1.6;
+}
+.v131-space-checkout .v131-space-checkout-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #354052;
+    border-radius: 10px;
+    background: #0d131b;
+    color: #bcc5d3;
+    font-size: 12px;
+    line-height: 1.5;
+    cursor: pointer;
+}
+.v131-space-checkout .v131-space-checkout-consent input {
+    accent-color: var(--v131-space-coral);
+    margin-top: 3px;
+}
+.v131-space-checkout .v131-space-checkout-consent strong {
+    color: #eef1f7;
+}
+.v131-space-checkout .payments-button-approve {
+    background: var(--v131-space-coral);
+    border-color: var(--v131-space-coral-border);
+    color: #151013;
+}
+.v131-space-checkout .payments-button-link {
+    color: #ffac9b;
+    background: rgba(255,118,94,.055);
+    border-color: var(--v131-space-coral-border);
+}
+.v131-space-checkout .v131-space-checkout-navigation {
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid #293241;
+}
+.v131-space-checkout .v131-space-checkout-result-note,
+.v131-space-checkout .v131-space-checkout-blocked p {
+    color: #aab4c6;
+    font-size: 12px;
+    line-height: 1.6;
+}
+.v131-space-checkout .v131-space-checkout-blocked {
+    margin-top: 16px;
+    padding: 14px;
+    border: 1px solid rgba(255,191,91,.3);
+    border-radius: 11px;
+    background: rgba(255,191,91,.04);
+}
+.v131-space-checkout .v131-space-checkout-blocked strong {
+    color: #f0d394;
+}
+.v131-space-checkout .v131-space-checkout-unavailable {
+    align-self: flex-start;
+    padding: 10px 13px;
+    color: #f0d394;
+    border: 1px solid rgba(255,191,91,.3);
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+}
+.v131-space-checkout .payments-warning strong { color: #f0d394; }
+@media (max-width: 750px) {
+    .v131-space-checkout .payments-hero { padding: 20px; }
+    .v131-space-checkout .payments-checkout-grid { grid-template-columns: minmax(0,1fr); }
+    .v131-space-checkout .payments-facts { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .v131-space-checkout .payments-panel { padding: 17px; }
+}
+@media (max-width: 420px) {
+    .v131-space-checkout .payments-facts { grid-template-columns: 1fr; }
+}
+
+/* =====================================================================
+   V131.21 - Miembro · pago de arriendo (solo space_booking_detail.html)
+   ===================================================================== */
+.space-member-detail-page .v131-space-member-messages {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.space-member-detail-page .v131-space-member-payment-body {
+    padding: 18px;
+    display: grid;
+    gap: 14px;
+}
+.space-member-detail-page .v131-space-member-payment-status {
+    display: flex;
+    gap: 13px;
+    align-items: flex-start;
+    padding: 17px 18px;
+    border: 1px solid rgba(255,113,88,.35);
+    border-radius: 12px;
+    background: rgba(255,113,88,.055);
+    color: #eaf0f5;
+}
+.space-member-detail-page .v131-space-member-payment-status-approved {
+    border-color: rgba(45,205,149,.36);
+    background: rgba(45,205,149,.07);
+}
+.space-member-detail-page .v131-space-member-payment-status-disabled {
+    border-color: rgba(163,176,194,.20);
+    background: rgba(130,145,166,.045);
+}
+.space-member-detail-page .v131-space-member-payment-icon {
+    flex: 0 0 34px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid currentColor;
+    border-radius: 9px;
+    color: #ff775e;
+    font-weight: 800;
+    font-size: 17px;
+}
+.space-member-detail-page .v131-space-member-payment-status-approved .v131-space-member-payment-icon {
+    color: #36d5a1;
+}
+.space-member-detail-page .v131-space-member-payment-status-disabled .v131-space-member-payment-icon {
+    color: #9ca8bb;
+}
+.space-member-detail-page .v131-space-member-payment-status > div {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+}
+.space-member-detail-page .v131-space-member-payment-eyebrow {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .09em;
+    color: #ff775e;
+}
+.space-member-detail-page .v131-space-member-payment-status-approved .v131-space-member-payment-eyebrow {
+    color: #36d5a1;
+}
+.space-member-detail-page .v131-space-member-payment-status-disabled .v131-space-member-payment-eyebrow {
+    color: #a7b4c9;
+}
+.space-member-detail-page .v131-space-member-payment-status strong {
+    font-size: clamp(14px,1.5vw,17px);
+    font-weight: 750;
+    line-height: 1.4;
+    color: #f1f4f8;
+}
+.space-member-detail-page .v131-space-member-payment-status p,
+.space-member-detail-page .v131-space-member-payment-status small {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.65;
+    color: #a8b5c9;
+}
+.space-member-detail-page .v131-space-member-payment-cta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    min-height: 49px;
+    padding: 13px 18px;
+    color: #101014;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 800;
+    border: 1px solid #ff775e;
+    border-radius: 10px;
+    background: #ff775e;
+    transition: background .16s ease, transform .16s ease;
+}
+.space-member-detail-page .v131-space-member-payment-cta:hover,
+.space-member-detail-page .v131-space-member-payment-cta:focus-visible {
+    color: #101014;
+    background: #ff937c;
+    transform: translateY(-1px);
+}
+.space-member-detail-page .v131-space-member-payment-cta:focus-visible {
+    outline: 3px solid rgba(255, 171, 153, .8);
+    outline-offset: 2px;
+}
+.space-member-detail-page .v131-space-member-payment-cta span {
+    font-size: 19px;
+}
+.space-member-detail-page .v131-space-member-payment-footnote {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #a9b4c4;
+}
+@media (max-width: 600px) {
+    .space-member-detail-page .v131-space-member-payment-body { padding: 13px; }
+    .space-member-detail-page .v131-space-member-payment-status { padding: 13px; }
+}
+
+
+/* ============================================================
+   V131.24 — Ingresos por arriendo, exclusivos del proveedor
+   Mantiene intactos los estilos anteriores de V130 y V131.21
+   ============================================================ */
+.v130-provider-dashboard .v131-provider-payments-link {
+    color: #f0f4fa;
+    border-color: rgba(255, 113, 91, .44);
+    background: rgba(255, 113, 91, .07);
+}
+.v130-provider-dashboard .v131-provider-payments-link:hover,
+.v130-provider-dashboard .v131-provider-payments-link:focus-visible {
+    background: rgba(255, 113, 91, .16);
+    border-color: #ff765f;
+}
+.v131-provider-income { --provider-accent: #ff765f; }
+.v131-provider-income .account-container { max-width: 1240px; }
+.v131-provider-income-hero { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; padding:30px 0 22px; }
+.v131-provider-income-kicker { display:block; color:var(--provider-accent); font-size:11px; font-weight:800; letter-spacing:.13em; }
+.v131-provider-income-hero h1 { font-size:clamp(30px, 4.5vw, 48px); line-height:1.13; margin:8px 0 10px; }
+.v131-provider-income-hero h1 span { color:var(--provider-accent); }
+.v131-provider-income-hero p { max-width:710px; font-size:13px; line-height:1.65; color:#adb8c9; margin:0; }
+.v131-provider-income-sandbox { flex-shrink:0; font-size:10px; font-weight:800; letter-spacing:.06em; color:#ff8773; border:1px solid rgba(255,118,95,.5); background:rgba(255,118,95,.08); border-radius:10px; padding:11px 15px; }
+.v131-provider-income-notice { padding:14px 17px; border:1px solid rgba(255,199,83,.38); border-radius:12px; background:rgba(255,199,83,.06); }
+.v131-provider-income-notice strong { display:block; color:#ffd57e; font-size:13px; margin-bottom:5px; }
+.v131-provider-income-notice p { color:#bac3d0; font-size:12px; line-height:1.6; margin:0; }
+.v131-provider-income-totals { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:18px 0 12px; }
+.v131-provider-income-stat { min-width:0; background:#121822; border:1px solid #2d3746; border-radius:12px; padding:18px 15px; display:flex; flex-direction:column; gap:7px; }
+.v131-provider-income-stat>span, .v131-provider-income-settlements span { color:#8da4c0; font-size:10px; font-weight:800; letter-spacing:.08em; }
+.v131-provider-income-stat>strong { font-size:clamp(18px,2vw,25px); line-height:1.2; overflow-wrap:anywhere; }
+.v131-provider-income-stat>small, .v131-provider-income-settlements small { color:#9aa9bd; font-size:11px; line-height:1.4; }
+.v131-provider-income-stat-accent { border-color:rgba(255,118,95,.52); background:rgba(255,118,95,.065); }
+.v131-provider-income-stat-accent>strong { color:var(--provider-accent); }
+.v131-provider-income-settlements { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:30px; }
+.v131-provider-income-settlements>div { min-width:0; display:flex; flex-direction:column; gap:7px; padding:15px; background:#0f151d; border:1px solid #283240; border-radius:11px; }
+.v131-provider-income-settlements strong { font-size:20px; }
+.v131-provider-income-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin:24px 0 17px; }
+.v131-provider-income-heading h2 { font-size:23px; margin:6px 0; }
+.v131-provider-income-heading p { font-size:12px; line-height:1.5; color:#a9b4c3; max-width:730px; }
+.v131-provider-income-count { color:#a9b4c3; font-size:12px; white-space:nowrap; }
+.v131-provider-income-space { background:#121822; border:1px solid #344052; border-radius:14px; overflow:hidden; margin-bottom:16px; }
+.v131-provider-income-space-head { display:flex; align-items:center; justify-content:space-between; gap:15px; padding:18px; }
+.v131-provider-income-space-head span { color:var(--provider-accent); font-size:10px; letter-spacing:.12em; font-weight:800; }
+.v131-provider-income-space-head h3 { font-size:19px; margin:5px 0; }
+.v131-provider-income-space-head p { color:#a9b6c7; font-size:11px; margin:0; }
+.v131-provider-income-space-head a { color:#ff9986; font-size:12px; text-decoration:none; font-weight:700; }
+.v131-provider-income-space-totals { border-top:1px solid #2d3746; border-bottom:1px solid #2d3746; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:#2d3746; }
+.v131-provider-income-space-totals>div { display:flex; flex-direction:column; gap:7px; min-width:0; padding:15px 16px; background:#111820; }
+.v131-provider-income-space-totals span { font-size:10px; font-weight:800; color:#98a9bf; letter-spacing:.05em; }
+.v131-provider-income-space-totals strong { font-size:17px; }
+.v131-provider-income-movements summary { list-style:none; display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding:15px 18px; gap:12px; color:#edf3fa; }
+.v131-provider-income-movements summary::-webkit-details-marker { display:none; }
+.v131-provider-income-movements summary strong { font-size:12px; }
+.v131-provider-income-movements summary span { color:#ff9986; font-size:11px; }
+.v131-provider-income-list { display:grid; gap:8px; padding:0 15px 15px; }
+.v131-provider-income-row { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr); gap:16px; border:1px solid #2d3746; background:#0c1219; padding:15px; border-radius:10px; }
+.v131-provider-income-row-main, .v131-provider-income-row-money, .v131-provider-income-row-status { min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:5px; }
+.v131-provider-income-row-main>span, .v131-provider-income-row-money>span { font-size:10px; font-weight:800; letter-spacing:.06em; color:#9baec5; }
+.v131-provider-income-row-main strong, .v131-provider-income-row-money strong { font-size:13px; color:#f6f9fc; }
+.v131-provider-income-row small { color:#a8b5c5; font-size:11px; line-height:1.4; }
+.v131-provider-income-row-status .payment-status { font-size:10px; }
+.v131-provider-income-row-status a { color:#ff9986; font-size:12px; font-weight:700; text-decoration:none; }
+.v131-provider-income-no-payments { padding:14px 18px; color:#a7b5c6; font-size:12px; }
+.v131-provider-income-empty { padding:24px; border:1px solid #344052; border-radius:12px; }
+.v131-provider-income-empty p { color:#aeb8c8; font-size:12px; }
+.v131-provider-income-empty a { color:var(--provider-accent); }
+.v131-provider-income-bottom { margin:24px 0 36px; }
+.v131-provider-income-bottom a { display:block; border:1px solid rgba(255,118,95,.43); color:#ff9986; background:rgba(255,118,95,.05); padding:14px 16px; border-radius:10px; font-weight:800; text-decoration:none; font-size:12px; }
+@media(max-width:900px) {
+    .v131-provider-income-totals { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .v131-provider-income-settlements { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .v131-provider-income-space-totals { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:580px) {
+    .v131-provider-income-hero { flex-direction:column; }
+    .v131-provider-income-totals, .v131-provider-income-settlements { grid-template-columns:1fr; }
+    .v131-provider-income-row { grid-template-columns:1fr; }
+    .v131-provider-income-space-head { flex-direction:column; align-items:flex-start; }
+    .v131-provider-income-heading { align-items:flex-start; flex-direction:column; }
+}
+
+
+/* V131.58 — Liquidaciones administrativas de espacios */
+.v131-admin-space-settlement .v131-provider-income-space-head { flex-wrap:wrap; }
+.v131-admin-space-state { color:#d0d9e6; font-size:11px; border:1px solid #364150; border-radius:30px; padding:7px 12px; }
+.v131-admin-space-state-eligible { color:#56e4ac; border-color:#287b61; }
+.v131-admin-space-state-pending { color:#f7c565; border-color:#856727; }
+.v131-admin-space-state-on_hold { color:#ffa37e; border-color:#9e5538; }
+.v131-admin-space-state-settled { color:#56e4ac; border-color:#287b61; }
+.v131-admin-space-actions { padding:16px 18px 18px; display:flex; flex-wrap:wrap; align-items:center; gap:16px; }
+.v131-admin-space-detail { display:flex; flex-direction:column; gap:6px; color:#b5c1d0; font-size:12px; min-width:260px; flex:1; }
+.v131-admin-space-detail strong { color:#fff; font-size:13px; }
+.v131-admin-space-warning { color:#ffb26f; }
+.v131-admin-space-btn { cursor:pointer; padding:12px 17px; border:1px solid rgba(255,118,95,.55); border-radius:10px; background:rgba(255,118,95,.12); color:#ff9986; font-weight:800; font-size:12px; }
+.v131-admin-space-btn:hover { background:rgba(255,118,95,.2); }
+.v131-admin-space-btn:focus-visible { outline:2px solid #ff9d8b; outline-offset:2px; }
+.v131-admin-space-btn-danger { background:#ff765f; color:#0d1016; }
+.v131-admin-space-confirm { display:flex; flex-direction:column; align-items:flex-start; gap:12px; border:1px solid rgba(255,118,95,.34); border-radius:10px; padding:14px; }
+.v131-admin-space-confirm label { display:flex; align-items:flex-start; gap:10px; max-width:350px; color:#d1d9e5; font-size:12px; line-height:1.5; }
+.v131-admin-space-confirm input { margin-top:2px; accent-color:#ff765f; }
+.v131-admin-space-muted { margin:0; color:#99aabd; font-size:12px; line-height:1.5; max-width:310px; }
+@media(max-width:680px) { .v131-admin-space-actions { flex-direction:column; align-items:stretch; } .v131-admin-space-detail { min-width:0; } .v131-admin-space-confirm label { max-width:none; } }

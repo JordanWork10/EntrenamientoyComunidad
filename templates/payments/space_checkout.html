@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}
+Pagar arriendo de espacio | EntrenamientoyComunidad
+{% endblock %}
+
+{% block content %}
+<section class="account-page payments-page v131-space-checkout">
+    <div class="account-container">
+
+        {% if messages %}
+            <div class="v131-space-checkout-messages" role="status" aria-live="polite">
+                {% for message in messages %}
+                    <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- ENCABEZADO -->
+        <header class="payments-hero v131-space-checkout-hero">
+            <div>
+                <span class="payments-overline">ARRIENDOS DE ESPACIOS · PAGO</span>
+                <h1>
+                    Confirma tu arriendo.
+                    <span>Revisa el pago de tu reserva.</span>
+                </h1>
+                <p>
+                    El proveedor ya aceptó el arriendo. El pago es una operación
+                    independiente: la reserva confirmada no equivale a un pago recibido.
+                </p>
+            </div>
+
+            {% if sandbox_enabled %}
+                <span class="payments-sandbox-badge">
+                    SANDBOX · SIN COBRO REAL
+                </span>
+            {% else %}
+                <span class="v131-space-checkout-unavailable">
+                    PAGOS NO HABILITADOS
+                </span>
+            {% endif %}
+        </header>
+
+        <div class="payments-checkout-grid">
+
+            <!-- RESUMEN DEL ARRIENDO -->
+            <section class="payments-panel v131-space-checkout-summary"
+                     aria-labelledby="v131-space-checkout-summary-title">
+
+                <div class="payments-panel-title">
+                    <span>01</span>
+                    <h2 id="v131-space-checkout-summary-title">Resumen del arriendo</h2>
+                </div>
+
+                <article class="payments-activity-card v131-space-checkout-venue">
+                    <span>ESPACIO RESERVADO</span>
+                    <h3>{{ booking.space_name_snapshot }}</h3>
+                    <p>
+                        {{ booking.space_type_snapshot }} ·
+                        {{ booking.commune_snapshot }}
+                    </p>
+                    <p class="v131-space-checkout-owner">
+                        Proveedor: {{ booking.provider_name_snapshot }}
+                    </p>
+                </article>
+
+                <div class="payments-facts">
+                    <div class="payments-fact">
+                        <span>FECHA RESERVADA</span>
+                        <strong>{{ booking.session_date|date:"d/m/Y" }}</strong>
+                    </div>
+                    <div class="payments-fact">
+                        <span>HORARIO</span>
+                        <strong>
+                            {{ booking.start_time|time:"H:i" }} –
+                            {{ booking.end_time|time:"H:i" }}
+                        </strong>
+                    </div>
+                    <div class="payments-fact">
+                        <span>DURACIÓN</span>
+                        <strong>{{ booking.duration_minutes }} minutos</strong>
+                    </div>
+                    <div class="payments-fact">
+                        <span>ESTADO DE LA RESERVA</span>
+                        <strong>{{ booking.get_status_display }}</strong>
+                    </div>
+                </div>
+
+                <div class="v131-space-checkout-address">
+                    <span>DIRECCIÓN REGISTRADA</span>
+                    <strong>
+                        {{ booking.address_snapshot }} ·
+                        {{ booking.commune_snapshot }}
+                    </strong>
+                </div>
+
+                <div class="payments-amount">
+                    <span>TOTAL A PAGAR</span>
+                    <strong>{{ payment.amount_clp|clp }}</strong>
+                    <small>Precio conservado al crear la reserva.</small>
+                </div>
+
+                <p class="payments-secure-note">
+                    El valor mostrado corresponde a la reserva #{{ booking.id }}.
+                    Los cambios posteriores en el precio del recinto no modifican
+                    este monto. Las comisiones del proveedor se calculan de forma
+                    interna y no se añaden al precio mostrado al miembro.
+                </p>
+            </section>
+
+            <!-- PAGO SIMULADO -->
+            <aside class="payments-panel payments-sandbox-panel v131-space-checkout-payment"
+                   aria-labelledby="v131-space-checkout-payment-title">
+
+                <div class="payments-panel-title">
+                    <span>02</span>
+                    <h2 id="v131-space-checkout-payment-title">Estado del pago</h2>
+                </div>
+
+                <span class="payment-status payment-status-{{ payment.status }}">
+                    {{ payment.get_status_display }}
+                </span>
+
+                {% if sandbox_enabled and payment.status == 'pending' and booking.status == 'confirmed' %}
+                    <div class="payments-warning v131-space-checkout-warning">
+                        <strong>Simulación de desarrollo</strong>
+                        <p>
+                            Los botones representan respuestas de una futura pasarela
+                            de pago. No se cargará dinero ni se contactará a un banco.
+                        </p>
+                    </div>
+
+                    <div class="v131-space-checkout-policy">
+                        <strong>Condiciones de esta simulación</strong>
+                        <p>
+                            Las reglas automáticas de cancelación y reembolso de
+                            arriendos todavía deben implementarse y validarse.
+                            No se aplican automáticamente las condiciones del
+                            checkout de actividades profesionales.
+                        </p>
+                        <p>
+                            Si una reserva pagada se cancela durante esta etapa,
+                            su tratamiento económico requerirá revisión antes de
+                            registrar un reembolso o una liquidación.
+                        </p>
+                    </div>
+
+                    <div class="payments-action-stack">
+                        <form method="post"
+                              action="{% url 'payments:space_sandbox_approve' payment.public_id %}">
+                            {% csrf_token %}
+                            <label class="v131-space-checkout-consent">
+                                <input type="checkbox"
+                                       name="accept_sandbox"
+                                       value="1"
+                                       required>
+                                <span>
+                                    <strong>Entiendo que es una simulación</strong>
+                                    y que esta operación no produce un cobro real.
+                                </span>
+                            </label>
+                            <button type="submit"
+                                    class="payments-button payments-button-approve">
+                                ✓ Simular pago aprobado
+                            </button>
+                        </form>
+
+                        <form method="post"
+                              action="{% url 'payments:space_sandbox_reject' payment.public_id %}">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="payments-button payments-button-reject">
+                                Simular pago rechazado
+                            </button>
+                        </form>
+
+                        <form method="post"
+                              action="{% url 'payments:space_cancel' payment.public_id %}">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="payments-button payments-button-cancel">
+                                Cancelar intento de pago
+                            </button>
+                        </form>
+                    </div>
+
+                {% elif payment.status != 'pending' %}
+                    <p class="v131-space-checkout-result-note">
+                        Este intento ya tiene un resultado. Puedes consultar
+                        su comprobante o volver a la información de la reserva.
+                    </p>
+                    <div class="payments-action-stack">
+                        <a href="{% url 'payments:space_receipt' payment.public_id %}"
+                           class="payments-button payments-button-link">
+                            Ver resultado del pago →
+                        </a>
+                    </div>
+
+                {% elif booking.status != 'confirmed' %}
+                    <div class="v131-space-checkout-blocked" role="status">
+                        <strong>La reserva no está disponible para pago.</strong>
+                        <p>
+                            Antes de continuar, comprueba su estado desde
+                            el detalle de la reserva.
+                        </p>
+                    </div>
+
+                {% else %}
+                    <div class="payments-warning">
+                        <strong>Pago temporalmente no disponible</strong>
+                        <p>
+                            La simulación está deshabilitada. No se puede
+                            registrar un cobro desde esta pantalla.
+                        </p>
+                    </div>
+                {% endif %}
+
+                <div class="v131-space-checkout-navigation">
+                    <a href="{% url 'spaces:booking_detail' booking.id %}"
+                       class="payments-button payments-button-link">
+                        ← Volver a mi reserva
+                    </a>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -2,6 +2,7 @@ import calendar as pycalendar
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -3892,10 +3893,9 @@ def confirm_space_booking(request, space_id):
 )
 def space_booking_detail(request, booking_id):
     """
-    Detalle de una reserva de espacio perteneciente
-    al miembro autenticado.
+    V131.21: detalle de la reserva del miembro con resumen económico.
+    Consulta pagos existentes sin crear ni modificar movimientos.
     """
-
     booking = get_object_or_404(
         SpaceBooking.objects
         .select_related(
@@ -3913,14 +3913,8 @@ def space_booking_detail(request, booking_id):
 
     history = (
         booking.history
-        .select_related(
-            'changed_by'
-        )
+        .select_related('changed_by')
         .all()
-    )
-
-    current_timezone = (
-        timezone.get_current_timezone()
     )
 
     session_start = timezone.make_aware(
@@ -3928,17 +3922,62 @@ def space_booking_detail(request, booking_id):
             booking.session_date,
             booking.start_time,
         ),
-        current_timezone,
+        timezone.get_current_timezone(),
+    )
+    has_not_started = timezone.now() < session_start
+
+    # Cada pago de espacios corresponde exclusivamente a esta reserva.
+    # No se crea ningun Payment al consultar la pagina del miembro.
+    from apps.payments.models import Payment
+    from django.conf import settings
+
+    space_payments = list(
+        Payment.objects.filter(
+            space_booking=booking,
+            activity__isnull=True,
+            payer=request.user,
+            economic_scope=Payment.EconomicScope.SPACE_BOOKING,
+        ).order_by('-created_at', '-id')
+    )
+    active_paid_statuses = {
+        Payment.Status.APPROVED,
+        Payment.Status.PARTIALLY_REFUNDED,
+        Payment.Status.REFUNDED,
+    }
+
+    paid_space_payment = next(
+        (p for p in space_payments if p.status in active_paid_statuses),
+        None,
+    )
+    pending_space_payment = next(
+        (p for p in space_payments if p.status == Payment.Status.PENDING),
+        None,
+    )
+    latest_space_payment = space_payments[0] if space_payments else None
+
+    # Mantiene el mismo criterio principal del checkout sandbox.
+    # La vista de pagos vuelve a validar bajo una transaccion atomica.
+    sandbox_enabled = bool(getattr(settings, 'PAYMENTS_SANDBOX', False))
+    can_pay_space_booking = (
+        booking.status == SpaceBooking.Status.CONFIRMED
+        and has_not_started
+        and booking.price_clp > 0
+        and booking.provider_profile.verification_status
+        == SpaceProviderProfile.VerificationStatus.VERIFIED
+        and booking.provider_profile.user_id != booking.booked_by_id
+        and paid_space_payment is None
+        and sandbox_enabled
     )
 
+    # Las operaciones economicas con pago aprobado/reembolsado no se
+    # cancelan por el flujo normal hasta definir su reembolso.
     can_cancel = (
-        booking.status
-        in [
+        booking.status in [
             SpaceBooking.Status.PENDING,
             SpaceBooking.Status.CONFIRMED,
         ]
-        and timezone.localtime()
-        < session_start
+        and has_not_started
+        and paid_space_payment is None
     )
 
     return render(
@@ -3948,12 +3987,15 @@ def space_booking_detail(request, booking_id):
             'booking': booking,
             'history': history,
             'can_cancel': can_cancel,
-            'cancel_error': request.GET.get(
-                'cancel_error'
-            ),
+            'cancel_error': request.GET.get('cancel_error'),
+            'paid_space_payment': paid_space_payment,
+            'pending_space_payment': pending_space_payment,
+            'latest_space_payment': latest_space_payment,
+            'can_pay_space_booking': can_pay_space_booking,
+            'space_payment_sandbox_enabled': sandbox_enabled,
+            'space_booking_future': has_not_started,
         }
     )
-
 
 @login_required(
     login_url='accounts:login'
@@ -4533,6 +4575,27 @@ def provider_cancel_space_booking(
             provider_profile=provider_profile,
         )
 
+        # V131: no cancelar arriendos con pagos económicos ya aprobados.
+        # Requieren flujo de reembolso/revisión aún pendiente de implementar.
+        from apps.payments.models import Payment
+
+        if Payment.objects.filter(
+            space_booking=booking,
+            status__in=[
+                Payment.Status.APPROVED,
+                Payment.Status.PARTIALLY_REFUNDED,
+                Payment.Status.REFUNDED,
+            ],
+        ).exists():
+            messages.error(
+                request,
+                'Este arriendo registra un pago. La cancelación requiere '
+                'revisión económica antes de poder continuar.',
+            )
+            return redirect(
+                'spaces:provider_booking_detail', booking_id=booking.pk,
+            )
+
         if (
             booking.status
             not in [
@@ -4719,6 +4782,27 @@ def cancel_my_space_booking(
             pk=booking_id,
             booked_by=request.user,
         )
+
+        # V131: no cancelar arriendos con pagos económicos ya aprobados.
+        # Requieren flujo de reembolso/revisión aún pendiente de implementar.
+        from apps.payments.models import Payment
+
+        if Payment.objects.filter(
+            space_booking=booking,
+            status__in=[
+                Payment.Status.APPROVED,
+                Payment.Status.PARTIALLY_REFUNDED,
+                Payment.Status.REFUNDED,
+            ],
+        ).exists():
+            messages.error(
+                request,
+                'Este arriendo registra un pago. La cancelación requiere '
+                'revisión económica antes de poder continuar.',
+            )
+            return redirect(
+                'spaces:booking_detail', booking_id=booking.pk,
+            )
 
         if (
             booking.status

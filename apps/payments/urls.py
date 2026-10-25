@@ -7,6 +7,23 @@ app_name = 'payments'
 
 
 urlpatterns = [
+    # V131.58: panel administrativo de liquidaciones de recintos, solo sandbox.
+    path(
+        'administracion/espacios/liquidaciones/',
+        views.space_settlement_admin,
+        name='space_settlement_admin',
+    ),
+    path(
+        'administracion/espacios/liquidaciones/<int:space_id>/<int:year>/<int:month>/<int:day>/preparar/',
+        views.space_settlement_prepare,
+        name='space_settlement_prepare',
+    ),
+    path(
+        'administracion/espacios/liquidaciones/<int:settlement_id>/sandbox/liquidar/',
+        views.space_settlement_close,
+        name='space_settlement_close',
+    ),
+
     path(
         'mis-pagos/',
         views.my_payments,
@@ -47,6 +64,40 @@ urlpatterns = [
         'actividad/<int:activity_id>/sandbox/liquidar/',
         views.sandbox_settle_activity,
         name='sandbox_settle_activity',
+    ),
+
+    # V131.24: ingresos de proveedores por recinto, solo lectura.
+    path(
+        'espacios/ingresos/',
+        views.space_income,
+        name='space_income',
+    ),
+
+    # V131: checkout y comprobantes específicos de arriendos.
+    path(
+        'espacio/reserva/<int:booking_id>/checkout/',
+        views.space_checkout,
+        name='space_checkout',
+    ),
+    path(
+        'espacio/pago/<uuid:payment_id>/',
+        views.space_receipt,
+        name='space_receipt',
+    ),
+    path(
+        'espacio/pago/<uuid:payment_id>/sandbox/aprobar/',
+        views.space_sandbox_approve,
+        name='space_sandbox_approve',
+    ),
+    path(
+        'espacio/pago/<uuid:payment_id>/sandbox/rechazar/',
+        views.space_sandbox_reject,
+        name='space_sandbox_reject',
+    ),
+    path(
+        'espacio/pago/<uuid:payment_id>/cancelar/',
+        views.space_cancel,
+        name='space_cancel',
     ),
 
     path(

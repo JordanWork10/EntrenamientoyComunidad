@@ -7,18 +7,22 @@ Centro de Espacios | EntrenamientoyComunidad
 {% endblock %}
 
 {% block content %}
-
 <section class="account-page v130-provider-dashboard v130-provider-dashboard-v4">
     <div class="account-container">
 
-        <!-- CABECERA DEL PROVEEDOR -->
+        <!-- CABECERA -->
+
         <header class="account-hero">
             <div>
-                <span class="page-overline">CENTRO DE ESPACIOS</span>
+                <span class="page-overline">
+                    CENTRO DE ESPACIOS
+                </span>
+
                 <h1>
                     Hola,
                     <span>{{ request.user.first_name }}</span>
                 </h1>
+
                 <p>
                     Administra progresivamente tu perfil proveedor,
                     tus espacios y la operación asociada a cada recinto.
@@ -31,22 +35,31 @@ Centro de Espacios | EntrenamientoyComunidad
             </div>
         </header>
 
-        <!-- RESUMEN DEL PERFIL -->
+        <!-- RESUMEN DE PERFIL -->
+
         <section class="account-summary-grid">
+
             <article class="account-summary-card">
                 <span class="account-summary-label">PERFIL</span>
-                <strong>{{ provider_profile.get_provider_type_display }}</strong>
+                <strong>
+                    {{ provider_profile.get_provider_type_display }}
+                </strong>
                 <p>Tipo de proveedor</p>
             </article>
 
             <article class="account-summary-card">
-                <span class="account-summary-label">NOMBRE PÚBLICO</span>
+                <span class="account-summary-label">
+                    NOMBRE PÚBLICO
+                </span>
                 <strong>{{ provider_profile.display_name }}</strong>
                 <p>Identidad visible</p>
             </article>
 
             <article class="account-summary-card">
-                <span class="account-summary-label">UBICACIÓN BASE</span>
+                <span class="account-summary-label">
+                    UBICACIÓN BASE
+                </span>
+
                 <strong>
                     {% if provider_profile.base_commune %}
                         {{ provider_profile.base_commune.name }}
@@ -54,6 +67,7 @@ Centro de Espacios | EntrenamientoyComunidad
                         No registrada
                     {% endif %}
                 </strong>
+
                 <p>
                     {% if provider_profile.base_commune %}
                         {{ provider_profile.base_commune.region.name }}
@@ -68,9 +82,11 @@ Centro de Espacios | EntrenamientoyComunidad
                 <strong>Verificado</strong>
                 <p>Perfil Proveedor activo</p>
             </article>
+
         </section>
 
         <!-- CONTEXTO DE PERFIL -->
+
         <section class="role-context-strip">
             <div class="role-context-main">
                 <span class="role-context-dot"></span>
@@ -86,24 +102,25 @@ Centro de Espacios | EntrenamientoyComunidad
                 </a>
 
                 {% if request.user.professional_profile and request.user.professional_profile.verification_status == 'verified' %}
+
                     <a href="{% url 'professionals:dashboard' %}"
                        class="role-context-switch">
                         Centro Profesional
                         <span>→</span>
                     </a>
+
                 {% endif %}
             </div>
         </section>
 
-        <!-- V130.4 - ALERTA DE SOLICITUDES PENDIENTES -->
+        <!-- AVISO DE SOLICITUDES -->
+
         {% if provider_pending_booking_count %}
             <a href="#solicitudes-de-arriendo"
                class="v130-provider-attention">
 
                 <span class="v130-provider-attention-icon"
-                      aria-hidden="true">
-                    !
-                </span>
+                      aria-hidden="true">!</span>
 
                 <span class="v130-provider-attention-copy">
                     <strong>
@@ -127,7 +144,8 @@ Centro de Espacios | EntrenamientoyComunidad
             </a>
         {% endif %}
 
-        <!-- V130.4 - ACCESOS RÁPIDOS -->
+        <!-- ACCESOS RÁPIDOS -->
+
         <nav class="provider-management-hub v130-provider-management-hub v130-provider-quick-hub"
              aria-label="Accesos de gestión de espacios">
 
@@ -161,18 +179,20 @@ Centro de Espacios | EntrenamientoyComunidad
                     <b aria-hidden="true">→</b>
                 </a>
 
-                <!-- PAGOS: PENDIENTE DE IMPLEMENTACIÓN -->
-                <div class="provider-management-card v130-provider-payment-pending"
-                     aria-label="Pagos de arriendos: funcionalidad pendiente">
+                <!-- V131.24: PAGOS DEL PROVEEDOR -->
+
+                <a href="{% url 'payments:space_income' %}"
+                   class="provider-management-card v131-provider-payments-link">
                     <span>PAGOS DE ARRIENDOS</span>
-                    <strong>Próximamente</strong>
-                    <small>Sin cobros reales</small>
-                </div>
+                    <strong>Ver ingresos</strong>
+                    <b aria-hidden="true">→</b>
+                </a>
 
             </div>
         </nav>
 
-        <!-- V130.4 - MIS ESPACIOS -->
+        <!-- MIS ESPACIOS -->
+
         <section class="account-panel spaces-showcase-panel v130-provider-spaces-section"
                  id="mis-espacios">
 
@@ -193,8 +213,8 @@ Centro de Espacios | EntrenamientoyComunidad
                     <div>
                         <strong>Administra tus recintos.</strong>
                         <p>
-                            Consulta rápidamente sus fotografías, precios,
-                            disponibilidad y reservas.
+                            Consulta rápidamente sus fotografías,
+                            precios, disponibilidad y reservas.
                         </p>
                     </div>
 
@@ -207,7 +227,8 @@ Centro de Espacios | EntrenamientoyComunidad
 
                 {% if spaces %}
 
-                    <!-- FILTROS DE ESPACIOS -->
+                    <!-- FILTROS -->
+
                     <div class="v130-provider-filterbar"
                          aria-label="Explorar los espacios registrados">
 
@@ -266,9 +287,9 @@ Centro de Espacios | EntrenamientoyComunidad
                         Mostrando {{ space_count }} espacios.
                     </p>
 
-                    <!-- TARJETAS DE ESPACIOS -->
-                    <div class="owner-space-grid"
-                         data-v130-space-grid>
+                    <!-- TARJETAS DE RECINTOS -->
+
+                    <div class="owner-space-grid" data-v130-space-grid>
 
                         {% for space in spaces %}
 
@@ -311,6 +332,7 @@ Centro de Espacios | EntrenamientoyComunidad
                                     </p>
 
                                     <div class="owner-space-facts">
+
                                         <div>
                                             <span>Capacidad</span>
                                             <strong>
@@ -324,6 +346,7 @@ Centro de Espacios | EntrenamientoyComunidad
                                                 {{ space.hourly_price_clp|clp }}/h
                                             </strong>
                                         </div>
+
                                     </div>
 
                                     <div class="owner-space-live-info">
@@ -342,7 +365,6 @@ Centro de Espacios | EntrenamientoyComunidad
                                             {{ space.dashboard_confirmed_bookings }}
                                             confirmadas
                                         </span>
-
                                     </div>
 
                                     <div class="owner-space-card-actions">
@@ -357,22 +379,22 @@ Centro de Espacios | EntrenamientoyComunidad
                                            class="owner-space-secondary-action">
                                             Gestionar disponibilidad
                                         </a>
-
                                     </div>
+
                                 </div>
                             </article>
 
                         {% endfor %}
-
                     </div>
 
-                    <!-- BÚSQUEDA SIN RESULTADOS -->
                     <div class="v130-provider-empty-search"
                          data-v130-space-empty
                          hidden>
+
                         <strong>
                             No encontramos espacios con esos filtros.
                         </strong>
+
                         <p>
                             Selecciona otro estado o cambia la búsqueda.
                         </p>
@@ -393,6 +415,7 @@ Centro de Espacios | EntrenamientoyComunidad
         </section>
 
         <!-- SOLICITUDES DE ARRIENDO -->
+
         {% if provider_pending_booking_count %}
 
             <section class="account-next-section provider-request-preview-section v130-provider-requests"
@@ -435,22 +458,27 @@ Centro de Espacios | EntrenamientoyComunidad
                         <article class="provider-request-preview-card">
 
                             <div class="provider-request-preview-head">
+
                                 <div class="provider-request-preview-person">
 
                                     <div class="provider-request-preview-avatar">
 
                                         {% if booking.booked_by.profile_image %}
+
                                             <img src="{{ booking.booked_by.profile_image.url }}"
                                                  alt="Foto de {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}">
+
                                         {% else %}
+
                                             <span>
                                                 {{ booking.booked_by.first_name|first|upper }}{{ booking.booked_by.last_name|first|upper }}
                                             </span>
-                                        {% endif %}
 
+                                        {% endif %}
                                     </div>
 
                                     <div class="provider-request-preview-copy">
+
                                         <span>NUEVA SOLICITUD</span>
 
                                         <h3>
@@ -470,8 +498,8 @@ Centro de Espacios | EntrenamientoyComunidad
                                                 · {{ booking.commune_snapshot }}
                                             {% endif %}
                                         </small>
-                                    </div>
 
+                                    </div>
                                 </div>
 
                                 <span class="provider-request-preview-status">
@@ -510,7 +538,6 @@ Centro de Espacios | EntrenamientoyComunidad
                                         {{ booking.duration_minutes }} min
                                     </small>
                                 </div>
-
                             </div>
 
                             <div class="provider-request-preview-footer">
@@ -528,12 +555,12 @@ Centro de Espacios | EntrenamientoyComunidad
                         </article>
 
                     {% endfor %}
-
                 </div>
 
                 {% if provider_pending_remaining_count > 0 %}
 
                     <div class="provider-request-preview-more">
+
                         <div>
                             <strong>
                                 También tienes
@@ -556,7 +583,6 @@ Centro de Espacios | EntrenamientoyComunidad
                 {% elif provider_pending_booking_count > 1 %}
 
                     <div class="provider-request-preview-more provider-request-preview-more-simple">
-
                         <span>
                             Estás viendo todas tus solicitudes pendientes.
                         </span>
@@ -572,7 +598,8 @@ Centro de Espacios | EntrenamientoyComunidad
 
         {% endif %}
 
-        <!-- SERVICIOS Y EQUIPAMIENTO DEL RECINTO -->
+        <!-- SERVICIOS Y EQUIPAMIENTO -->
+
         <section class="v130-provider-resource-section"
                  id="servicios-del-recinto">
 
@@ -584,9 +611,9 @@ Centro de Espacios | EntrenamientoyComunidad
                 <h2>Lo que ofrece cada recinto.</h2>
 
                 <p>
-                    Los recursos, comodidades y usos permitidos se configuran
-                    por espacio. Los servicios adicionales cobrados por
-                    separado se incorporarán en otra etapa.
+                    Los recursos, comodidades y usos permitidos
+                    se configuran por espacio. Los servicios adicionales
+                    cobrados por separado se incorporarán en otra etapa.
                 </p>
             </div>
 
@@ -599,6 +626,7 @@ Centro de Espacios | EntrenamientoyComunidad
                         <div class="v130-provider-resource-row">
                             <div>
                                 <strong>{{ space.name }}</strong>
+
                                 <small>
                                     {{ space.space_type.name }}
                                     · {{ space.commune.name }}
@@ -616,17 +644,19 @@ Centro de Espacios | EntrenamientoyComunidad
             {% else %}
 
                 <p class="v130-provider-no-resources">
-                    Primero registra un espacio para configurar su equipamiento.
+                    Primero registra un espacio para configurar
+                    su equipamiento.
                 </p>
 
             {% endif %}
         </section>
 
-        <!-- INFORMACIÓN DEL PROVEEDOR -->
+        <!-- PERFIL DEL PROVEEDOR -->
+
         <div class="account-layout v130-provider-profile-layout">
+
             <div class="account-main-column">
 
-                <!-- PERFIL DEL PROVEEDOR -->
                 <section class="account-panel">
 
                     <div class="account-panel-header">
@@ -639,6 +669,7 @@ Centro de Espacios | EntrenamientoyComunidad
                     </div>
 
                     <div class="account-data-grid">
+
                         <div class="account-data-item">
                             <span>Nombre visible</span>
                             <strong>
@@ -673,7 +704,10 @@ Centro de Espacios | EntrenamientoyComunidad
                     </div>
 
                     <div class="account-professional-message account-professional-message-active">
-                        <strong>Perfil Proveedor habilitado</strong>
+                        <strong>
+                            Perfil Proveedor habilitado
+                        </strong>
+
                         <p>
                             Tu identidad como Proveedor de Espacios
                             fue verificada y ya puede utilizarse para
@@ -682,7 +716,8 @@ Centro de Espacios | EntrenamientoyComunidad
                     </div>
                 </section>
 
-                <!-- INFRAESTRUCTURA ADMINISTRADA -->
+                <!-- INFRAESTRUCTURA -->
+
                 <section class="account-panel">
 
                     <div class="account-panel-header">
@@ -709,11 +744,13 @@ Centro de Espacios | EntrenamientoyComunidad
 
             </div>
 
-            <!-- COLUMNA LATERAL -->
             <aside class="account-side-column">
 
                 <section class="account-side-card">
-                    <span class="page-overline">PROVEEDOR</span>
+
+                    <span class="page-overline">
+                        PROVEEDOR
+                    </span>
 
                     <h3>Tu operación.</h3>
 
@@ -725,14 +762,13 @@ Centro de Espacios | EntrenamientoyComunidad
                     {% if provider_profile.provider_image %}
 
                         <div class="profile-photo-preview">
+
                             <img src="{{ provider_profile.provider_image.url }}"
                                  alt="Imagen de {{ provider_profile.display_name }}"
                                  class="profile-photo-image">
 
                             <div>
-                                <strong>
-                                    {{ provider_profile.display_name }}
-                                </strong>
+                                <strong>{{ provider_profile.display_name }}</strong>
                                 <p>Imagen del proveedor</p>
                             </div>
                         </div>
@@ -740,6 +776,7 @@ Centro de Espacios | EntrenamientoyComunidad
                     {% endif %}
 
                     <div class="account-role">
+
                         <div>
                             <strong>Estado</strong>
                             <span>Perfil Proveedor</span>
@@ -749,15 +786,16 @@ Centro de Espacios | EntrenamientoyComunidad
                             Activo
                         </span>
                     </div>
-
                 </section>
+
             </aside>
         </div>
 
     </div>
 </section>
 
-<!-- V130.4 - FILTROS Y BÚSQUEDA DE RECINTOS -->
+<!-- FILTROS Y BÚSQUEDA DE RECINTOS -->
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';

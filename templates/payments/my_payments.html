@@ -28,13 +28,12 @@ Mis pagos | EntrenamientoyComunidad
 
                 <p>
                     Consulta los intentos de pago realizados
-                    para actividades profesionales.
+                    para actividades profesionales y arriendos de espacios.
                 </p>
 
             </div>
 
         </header>
-
 
         <section class="payments-summary-grid">
 
@@ -50,7 +49,6 @@ Mis pagos | EntrenamientoyComunidad
 
             </article>
 
-
             <article class="payments-summary-card">
 
                 <span>
@@ -62,7 +60,6 @@ Mis pagos | EntrenamientoyComunidad
                 </strong>
 
             </article>
-
 
             <article class="payments-summary-card">
 
@@ -78,7 +75,6 @@ Mis pagos | EntrenamientoyComunidad
 
         </section>
 
-
         <section class="payments-panel">
 
             <div class="payments-panel-title">
@@ -93,7 +89,6 @@ Mis pagos | EntrenamientoyComunidad
 
             </div>
 
-
             {% if payments %}
 
                 <div class="payments-list">
@@ -104,24 +99,45 @@ Mis pagos | EntrenamientoyComunidad
 
                             <div class="payment-row-main">
 
-                                <span>
-                                    ACTIVIDAD PROFESIONAL
-                                </span>
+                                {% if payment.space_booking_id %}
 
-                                <strong>
-                                    {{ payment.activity.title }}
-                                </strong>
+                                    <span>
+                                        ARRIENDO DE ESPACIO
+                                    </span>
 
-                                <p>
-                                    {{ payment.activity.date|date:"d/m/Y" }}
-                                    ·
-                                    {{ payment.activity.start_time|time:"H:i" }}
-                                    –
-                                    {{ payment.activity.end_time|time:"H:i" }}
-                                </p>
+                                    <strong>
+                                        {{ payment.space_booking.space_name_snapshot }}
+                                    </strong>
+
+                                    <p>
+                                        {{ payment.space_booking.session_date|date:"d/m/Y" }}
+                                        ·
+                                        {{ payment.space_booking.start_time|time:"H:i" }}
+                                        –
+                                        {{ payment.space_booking.end_time|time:"H:i" }}
+                                    </p>
+
+                                {% else %}
+
+                                    <span>
+                                        ACTIVIDAD PROFESIONAL
+                                    </span>
+
+                                    <strong>
+                                        {{ payment.activity.title }}
+                                    </strong>
+
+                                    <p>
+                                        {{ payment.activity.date|date:"d/m/Y" }}
+                                        ·
+                                        {{ payment.activity.start_time|time:"H:i" }}
+                                        –
+                                        {{ payment.activity.end_time|time:"H:i" }}
+                                    </p>
+
+                                {% endif %}
 
                             </div>
-
 
                             <div class="payment-row-data payment-row-amount">
 
@@ -135,7 +151,6 @@ Mis pagos | EntrenamientoyComunidad
 
                             </div>
 
-
                             <div class="payment-row-data">
 
                                 <span>
@@ -148,16 +163,25 @@ Mis pagos | EntrenamientoyComunidad
 
                             </div>
 
-
                             <div class="payment-row-actions">
 
                                 <span>
                                     {{ payment.created_at|date:"d/m/Y H:i" }}
                                 </span>
 
-                                <a href="{% url 'payments:receipt' payment.public_id %}">
-                                    Ver comprobante →
-                                </a>
+                                {% if payment.space_booking_id %}
+
+                                    <a href="{% url 'payments:space_receipt' payment.public_id %}">
+                                        Ver comprobante →
+                                    </a>
+
+                                {% else %}
+
+                                    <a href="{% url 'payments:receipt' payment.public_id %}">
+                                        Ver comprobante →
+                                    </a>
+
+                                {% endif %}
 
                             </div>
 
@@ -166,7 +190,6 @@ Mis pagos | EntrenamientoyComunidad
                     {% endfor %}
 
                 </div>
-
 
             {% else %}
 
@@ -177,8 +200,8 @@ Mis pagos | EntrenamientoyComunidad
                     </h3>
 
                     <p>
-                        Cuando intentes reservar una actividad profesional
-                        pagada, el movimiento aparecerá aquí.
+                        Cuando realices un intento de pago por una actividad
+                        profesional o un arriendo, el movimiento aparecerá aquí.
                     </p>
 
                 </div>
@@ -186,7 +209,6 @@ Mis pagos | EntrenamientoyComunidad
             {% endif %}
 
         </section>
-
 
         <div class="activities-bottom-actions">
 

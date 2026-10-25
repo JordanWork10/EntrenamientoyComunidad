@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}Comprobante de arriendo | EntrenamientoyComunidad{% endblock %}
+
+{% block content %}
+<section class="account-page payments-page v131-space-checkout">
+    <div class="account-container payments-receipt">
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <header class="payments-hero v131-space-checkout-hero">
+            <div>
+                <span class="payments-overline">COMPROBANTE DE ARRIENDO</span>
+                <h1>Resultado de tu <span>pago.</span></h1>
+                <p>
+                    Consulta el estado del pago simulado correspondiente
+                    a tu reserva de espacio.
+                </p>
+            </div>
+
+            {% if sandbox_enabled %}
+                <span class="payments-sandbox-badge">
+                    SANDBOX · SIN COBRO REAL
+                </span>
+            {% endif %}
+        </header>
+
+        <section class="payments-receipt-status">
+            <div>
+                <span class="payment-status payment-status-{{ payment.status }}">
+                    {{ payment.get_status_display }}
+                </span>
+
+                {% if payment.status == 'approved' %}
+                    <strong>✓ Pago simulado aprobado</strong>
+                    <p>
+                        El pago de
+                        <strong>{{ booking.space_name_snapshot }}</strong>
+                        quedó registrado. No hubo transferencia de dinero real.
+                    </p>
+
+                {% elif payment.status == 'failed' %}
+                    <strong>El pago simulado fue rechazado</strong>
+                    <p>
+                        Puedes volver a intentar el pago si la reserva
+                        sigue confirmada y su horario no ha comenzado.
+                    </p>
+
+                {% elif payment.status == 'cancelled' %}
+                    <strong>Intento de pago cancelado</strong>
+                    <p>
+                        Cancelaste el intento de pago. Esto no cancela
+                        automáticamente tu reserva del espacio.
+                    </p>
+
+                {% elif payment.status == 'partially_refunded' or payment.status == 'refunded' %}
+                    <strong>Pago con reembolso registrado</strong>
+                    <p>
+                        Consulta el detalle económico e historial del movimiento.
+                    </p>
+
+                {% else %}
+                    <strong>Pago pendiente</strong>
+                    <p>
+                        La reserva no se considera pagada mientras
+                        el intento siga pendiente.
+                    </p>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="payments-panel">
+            <div class="payments-panel-title">
+                <span>01</span>
+                <h2>Detalle del movimiento</h2>
+            </div>
+
+            <div class="payments-facts">
+
+                <div class="payments-fact">
+                    <span>ESPACIO</span>
+                    <strong>{{ booking.space_name_snapshot }}</strong>
+                </div>
+
+                <div class="payments-fact">
+                    <span>PROVEEDOR</span>
+                    <strong>{{ booking.provider_name_snapshot }}</strong>
+                </div>
+
+                <div class="payments-fact">
+                    <span>FECHA Y HORARIO</span>
+                    <strong>
+                        {{ booking.session_date|date:"d/m/Y" }} ·
+                        {{ booking.start_time|time:"H:i" }} –
+                        {{ booking.end_time|time:"H:i" }}
+                    </strong>
+                </div>
+
+                <div class="payments-fact">
+                    <span>MONTO ORIGINAL</span>
+                    <strong>{{ payment.amount_clp|clp }}</strong>
+                </div>
+
+                {% if payment.refunded_amount_clp %}
+                    <div class="payments-fact">
+                        <span>MONTO REEMBOLSADO</span>
+                        <strong>{{ payment.refunded_amount_clp|clp }}</strong>
+                    </div>
+
+                    <div class="payments-fact">
+                        <span>MONTO RETENIDO</span>
+                        <strong>{{ retained_amount_clp|clp }}</strong>
+                    </div>
+                {% endif %}
+
+                <div class="payments-fact">
+                    <span>ESTADO DE LA RESERVA</span>
+                    <strong>{{ booking.get_status_display }}</strong>
+                </div>
+
+                <div class="payments-fact">
+                    <span>FECHA DEL INTENTO</span>
+                    <strong>
+                        {{ payment.created_at|date:"d/m/Y H:i" }}
+                    </strong>
+                </div>
+
+                <div class="payments-fact">
+                    <span>REFERENCIA</span>
+                    <strong class="payments-reference">
+                        {% if payment.provider_reference %}
+                            {{ payment.provider_reference }}
+                        {% else %}
+                            {{ payment.public_id }}
+                        {% endif %}
+                    </strong>
+                </div>
+
+                {% if payment.approved_at %}
+                    <div class="payments-fact">
+                        <span>FECHA DE APROBACIÓN</span>
+                        <strong>
+                            {{ payment.approved_at|date:"d/m/Y H:i" }}
+                        </strong>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="payments-warning">
+                <strong>Registro de simulación</strong>
+                Este comprobante acredita únicamente un movimiento de prueba.
+                No representa un cobro bancario ni una liquidación real
+                al proveedor.
+            </div>
+
+            <div class="payments-action-stack">
+                {% if payment.status == 'pending' or payment.status == 'failed' or payment.status == 'cancelled' %}
+                    <a href="{% url 'payments:space_checkout' booking.id %}"
+                       class="payments-button payments-button-link">
+                        Volver al checkout →
+                    </a>
+                {% endif %}
+
+                <a href="{% url 'spaces:booking_detail' booking.id %}"
+                   class="payments-button payments-button-link">
+                    ← Ver mi reserva
+                </a>
+
+                <a href="{% url 'payments:my_payments' %}"
+                   class="payments-button payments-button-link">
+                    Mis pagos →
+                </a>
+            </div>
+
+        </section>
+    </div>
+</section>
+{% endblock %}

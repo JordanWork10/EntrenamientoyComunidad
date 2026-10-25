@@ -1,0 +1,333 @@
+
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}Pagos de arriendos | Centro de Espacios{% endblock %}
+
+{% block content %}
+<section class="account-page v131-provider-income">
+    <div class="account-container">
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <header class="v131-provider-income-hero">
+            <div>
+                <span class="v131-provider-income-kicker">
+                    CENTRO DE ESPACIOS · ECONOMÍA
+                </span>
+
+                <h1>
+                    Pagos de <span>arriendos.</span>
+                </h1>
+
+                <p>
+                    Consulta pagos registrados, comisiones y montos netos
+                    de tus recintos. Solo se contabilizan como ingresos
+                    las operaciones aprobadas, no las reservas
+                    simplemente confirmadas.
+                </p>
+            </div>
+
+            <span class="v131-provider-income-sandbox">
+                {% if sandbox_enabled %}
+                    SANDBOX · SIN COBRO REAL
+                {% else %}
+                    CONSULTA DE REGISTROS
+                {% endif %}
+            </span>
+        </header>
+
+        <div class="v131-provider-income-notice" role="note">
+            <strong>Información económica de prueba</strong>
+            <p>
+                Los importes se calculan a partir de los pagos guardados.
+                No representan dinero transferido al proveedor.
+                Las liquidaciones de arriendos y los reembolsos automáticos
+                todavía no están habilitados.
+            </p>
+        </div>
+
+        <!-- RESUMEN ECONÓMICO -->
+
+        <section class="v131-provider-income-totals"
+                 aria-label="Resumen de ingresos">
+
+            <article class="v131-provider-income-stat">
+                <span>BRUTO APROBADO HISTÓRICO</span>
+                <strong>{{ totals.gross_total|clp }}</strong>
+                <small>
+                    {{ totals.approved_count }} operaciones con pago
+                    aprobado o reembolsado
+                </small>
+            </article>
+
+            <article class="v131-provider-income-stat">
+                <span>REEMBOLSOS REGISTRADOS</span>
+                <strong>{{ totals.refunded_total|clp }}</strong>
+                <small>
+                    Descontados de los montos económicos vigentes
+                </small>
+            </article>
+
+            <article class="v131-provider-income-stat">
+                <span>COMISIONES DE PLATAFORMA</span>
+                <strong>{{ totals.commission_total|clp }}</strong>
+                <small>Porcentaje histórico de cada pago</small>
+            </article>
+
+            <article class="v131-provider-income-stat v131-provider-income-stat-accent">
+                <span>NETO CORRESPONDIENTE AL PROVEEDOR</span>
+                <strong>{{ totals.net_total|clp }}</strong>
+                <small>
+                    Importe contable, no transferencia realizada
+                </small>
+            </article>
+        </section>
+
+        <!-- SITUACIÓN DE LIQUIDACIONES -->
+
+        <section class="v131-provider-income-settlements"
+                 aria-label="Situación de liquidaciones">
+
+            <div>
+                <span>NETO SIN LIQUIDAR</span>
+                <strong>{{ totals.to_settle_total|clp }}</strong>
+                <small>
+                    Según los estados registrados, incluido lo
+                    retenido o en revisión
+                </small>
+            </div>
+
+            <div>
+                <span>MARCADO COMO LIQUIDADO</span>
+                <strong>{{ totals.settled_total|clp }}</strong>
+                <small>
+                    Estado contable de sandbox, no acredita
+                    transferencia bancaria
+                </small>
+            </div>
+
+            <div>
+                <span>INTENTOS PENDIENTES</span>
+                <strong>{{ totals.pending_count }}</strong>
+                <small>
+                    Estos intentos todavía no cuentan como ingresos
+                </small>
+            </div>
+        </section>
+
+        <!-- INGRESOS POR RECINTO -->
+
+        <section class="v131-provider-income-section"
+                 id="recintos-con-ingresos">
+
+            <div class="v131-provider-income-heading">
+                <div>
+                    <span class="v131-provider-income-kicker">
+                        OPERACIONES POR RECINTO
+                    </span>
+
+                    <h2>Ingresos separados por espacio</h2>
+
+                    <p>
+                        Revisa la actividad económica de cada recinto
+                        sin mezclarla con otros proveedores ni profesionales.
+                    </p>
+                </div>
+
+                <span class="v131-provider-income-count">
+                    {{ groups|length }} recintos
+                </span>
+            </div>
+
+            {% for group in groups %}
+
+                <article class="v131-provider-income-space"
+                         id="espacio-{{ group.space.id }}">
+
+                    <div class="v131-provider-income-space-head">
+                        <div>
+                            <span>
+                                {{ group.space.space_type.name|upper }}
+                            </span>
+
+                            <h3>{{ group.space.name }}</h3>
+
+                            <p>
+                                {{ group.space.commune.name }}
+                                · {{ group.attempt_count }} intentos de pago
+                            </p>
+                        </div>
+
+                        <a href="{% url 'spaces:space_detail' group.space.id %}">
+                            Gestionar recinto →
+                        </a>
+                    </div>
+
+                    <div class="v131-provider-income-space-totals">
+
+                        <div>
+                            <span>BRUTO APROBADO</span>
+                            <strong>
+                                {{ group.gross_total|clp }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>COMISIONES</span>
+                            <strong>
+                                {{ group.commission_total|clp }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>NETO</span>
+                            <strong>
+                                {{ group.net_total|clp }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>INTENTOS PENDIENTES</span>
+                            <strong>
+                                {{ group.pending_count }}
+                            </strong>
+                        </div>
+                    </div>
+
+                    {% if group.payments %}
+
+                        <details class="v131-provider-income-movements"
+                                 {% if group.attempt_count == 1 %}open{% endif %}>
+
+                            <summary>
+                                <strong>
+                                    Ver movimientos ({{ group.attempt_count }})
+                                </strong>
+
+                                <span>Mostrar / ocultar</span>
+                            </summary>
+
+                            <div class="v131-provider-income-list">
+
+                                {% for payment in group.payments %}
+
+                                    <article class="v131-provider-income-row">
+
+                                        <div class="v131-provider-income-row-main">
+                                            <span>
+                                                ARRIENDO #{{ payment.space_booking.id }}
+                                            </span>
+
+                                            <strong>
+                                                {{ payment.space_booking.session_date|date:"d/m/Y" }}
+                                                ·
+                                                {{ payment.space_booking.start_time|time:"H:i" }}–{{ payment.space_booking.end_time|time:"H:i" }}
+                                            </strong>
+
+                                            <small>
+                                                Miembro:
+                                                {{ payment.payer.get_full_name|default:payment.payer.email }}
+                                                ·
+                                                {{ payment.created_at|date:"d/m/Y H:i" }}
+                                            </small>
+                                        </div>
+
+                                        <div class="v131-provider-income-row-money">
+                                            <span>IMPORTE</span>
+
+                                            <strong>
+                                                {{ payment.amount_clp|clp }}
+                                            </strong>
+
+                                            {% if payment.status == 'approved' or payment.status == 'partially_refunded' or payment.status == 'refunded' %}
+
+                                                <small>
+                                                    Comisión
+                                                    {{ payment.commission_rate_percent }}%:
+                                                    {{ payment.commission_amount_clp|clp }}
+                                                </small>
+
+                                                <small>
+                                                    Neto:
+                                                    {{ payment.net_amount_clp|clp }}
+                                                </small>
+
+                                            {% else %}
+
+                                                <small>
+                                                    Sin ingreso aprobado
+                                                </small>
+
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="v131-provider-income-row-status">
+
+                                            <span class="payment-status payment-status-{{ payment.status }}">
+                                                {{ payment.get_status_display }}
+                                            </span>
+
+                                            {% if payment.status == 'approved' or payment.status == 'partially_refunded' or payment.status == 'refunded' %}
+
+                                                <small>
+                                                    {{ payment.get_settlement_status_display }}
+                                                </small>
+
+                                            {% endif %}
+
+                                            <a href="{% url 'spaces:provider_booking_detail' payment.space_booking.id %}">
+                                                Ver reserva →
+                                            </a>
+                                        </div>
+
+                                    </article>
+
+                                {% endfor %}
+
+                            </div>
+                        </details>
+
+                    {% else %}
+
+                        <p class="v131-provider-income-no-payments">
+                            Este recinto todavía no tiene movimientos de pago.
+                        </p>
+
+                    {% endif %}
+                </article>
+
+            {% empty %}
+
+                <div class="v131-provider-income-empty">
+                    <strong>Aún no administras recintos</strong>
+
+                    <p>
+                        Cuando registres un espacio, aparecerá aquí
+                        con sus movimientos.
+                    </p>
+
+                    <a href="{% url 'spaces:create_space' %}">
+                        Crear un espacio →
+                    </a>
+                </div>
+
+            {% endfor %}
+
+        </section>
+
+        <div class="v131-provider-income-bottom">
+            <a href="{% url 'spaces:dashboard' %}">
+                ← Volver al Centro de Espacios
+            </a>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

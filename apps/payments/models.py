@@ -59,6 +59,17 @@ class Settlement(models.Model):
         verbose_name='Fecha de referencia',
     )
 
+    # V131.31: solo las liquidaciones por jornada de recinto usan este vínculo.
+    # Nulo para conservar intactas las liquidaciones profesionales previas.
+    space = models.ForeignKey(
+        'spaces.Space',
+        on_delete=models.PROTECT,
+        related_name='payment_settlements',
+        null=True,
+        blank=True,
+        verbose_name='Recinto asociado',
+    )
+
     gross_amount_clp = models.PositiveIntegerField(
         default=0,
         verbose_name='Monto bruto',
@@ -135,6 +146,29 @@ class Settlement(models.Model):
                 condition=Q(activity__isnull=False),
                 name='unique_settlement_per_activity_scope',
             ),
+            # No pueden existir dos liquidaciones para el mismo recinto y día.
+            models.UniqueConstraint(
+                fields=['space', 'reference_date'],
+                condition=Q(scope_type='space_day'),
+                name='unique_settlement_per_space_day',
+            ),
+            # Las jornadas de espacios requieren recinto y fecha; no actividad.
+            models.CheckConstraint(
+                condition=(
+                    ~Q(scope_type='space_day')
+                    | (
+                        Q(space__isnull=False)
+                        & Q(reference_date__isnull=False)
+                        & Q(activity__isnull=True)
+                    )
+                ),
+                name='settlement_space_day_required',
+            ),
+            # Una liquidación profesional nunca debe enlazarse a un recinto.
+            models.CheckConstraint(
+                condition=Q(space__isnull=True) | Q(scope_type='space_day'),
+                name='settlement_space_only_for_space_day',
+            ),
             models.CheckConstraint(
                 condition=Q(refunded_amount_clp__lte=F('gross_amount_clp')),
                 name='settlement_refund_lte_gross',
@@ -155,6 +189,30 @@ class Settlement(models.Model):
         if self.scope_type == self.ScopeType.ACTIVITY and not self.activity_id:
             errors['activity'] = (
                 'Una liquidación de actividad debe estar asociada a una actividad.'
+            )
+
+        if self.scope_type == self.ScopeType.SPACE_DAY:
+            if not self.space_id:
+                errors['space'] = (
+                    'Una liquidación de jornada de espacio necesita un recinto.'
+                )
+            if not self.reference_date:
+                errors['reference_date'] = (
+                    'Una liquidación de jornada de espacio necesita una fecha.'
+                )
+            if self.activity_id:
+                errors['activity'] = (
+                    'Una jornada de espacio no puede tener una actividad asociada.'
+                )
+            if self.space_id and self.beneficiary_id:
+                if self.space.provider_profile.user_id != self.beneficiary_id:
+                    errors['beneficiary'] = (
+                        'El beneficiario debe ser el dueño del perfil proveedor '
+                        'que administra el recinto.'
+                    )
+        elif self.space_id:
+            errors['space'] = (
+                'Solo una liquidación de jornada de espacio puede asociarse a un recinto.'
             )
 
         if (

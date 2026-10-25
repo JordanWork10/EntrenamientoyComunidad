@@ -65,26 +65,32 @@ def calculate_economic_amounts(
 
 def get_payment_commission_snapshot(payment, at=None):
     """
-    Resuelve el plan y la comisión que deben congelarse para una NUEVA operación.
+    Resuelve el plan y la comisión para una NUEVA operación.
 
-    Para actividades profesionales utiliza al organizador como beneficiario.
-    V102 deja preparado el mismo punto de entrada para reservas de espacios.
+    Actividades profesionales: usa al organizador.
+    Arriendos de espacios: usa al propietario/proveedor de la reserva.
+    El resultado se guarda como snapshot al aprobar el pago.
     """
     if payment.economic_scope in {
         Payment.EconomicScope.PROFESSIONAL_ACTIVITY,
         Payment.EconomicScope.PROFESSIONAL_SERVICE,
     }:
+        if not payment.activity_id or payment.space_booking_id:
+            raise ValueError(
+                'El pago profesional debe estar asociado solamente a una actividad.'
+            )
+
         beneficiary = payment.activity.organizer
         return get_professional_commission_snapshot(beneficiary, at=at)
 
     if payment.economic_scope == Payment.EconomicScope.SPACE_BOOKING:
-        # Payment V101 todavía está conectado directamente a Activity.
-        # Cuando Space Booking se incorpore al modelo de pagos, este bloque
-        # utilizará al propietario/proveedor real de la reserva.
-        raise NotImplementedError(
-            'La comisión de reservas de espacios se activará cuando Payment '
-            'quede enlazado al modelo de reservas de espacios.'
-        )
+        if not payment.space_booking_id or payment.activity_id:
+            raise ValueError(
+                'El pago de arriendo debe estar asociado solamente a una reserva de espacio.'
+            )
+
+        beneficiary = payment.space_booking.provider_profile.user
+        return get_space_commission_snapshot(beneficiary, at=at)
 
     raise ValueError('Origen económico de pago no reconocido.')
 

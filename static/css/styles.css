@@ -36372,3 +36372,311 @@ border: 1px solid rgba(65, 230, 170, .36);
 .v131-admin-space-confirm input { margin-top:2px; accent-color:#ff765f; }
 .v131-admin-space-muted { margin:0; color:#99aabd; font-size:12px; line-height:1.5; max-width:310px; }
 @media(max-width:680px) { .v131-admin-space-actions { flex-direction:column; align-items:stretch; } .v131-admin-space-detail { min-width:0; } .v131-admin-space-confirm label { max-width:none; } }
+
+
+/* ============================================================
+   V131.62 - Centro de Espacios / detalle privado del recinto
+   Identidad coral consistente y textos legibles.
+   Alcance intencionalmente limitado a space-owner-detail-page.
+   El verde se conserva en estados positivos como "Publicado".
+   ============================================================ */
+
+.space-owner-detail-page {
+    --space-detail-coral: var(--space-coral, #ff765f);
+    --space-detail-coral-light: #ffa18c;
+    --space-detail-muted: #aab7c9;
+}
+
+.space-owner-detail-page .owner-space-hero {
+    border-color: rgba(255, 118, 95, .36);
+    background:
+        linear-gradient(120deg, rgba(255, 118, 95, .055), transparent 55%),
+        #141922;
+}
+
+.space-owner-detail-page .owner-space-hero-media {
+    background: #111720;
+}
+
+.space-owner-detail-page .owner-space-hero-content {
+    gap: 19px;
+}
+
+.space-owner-detail-page .page-overline,
+.space-owner-detail-page .account-panel-number {
+    color: var(--space-detail-coral);
+}
+
+.space-owner-detail-page .page-overline {
+    font-size: 11px;
+    letter-spacing: .11em;
+}
+
+.space-owner-detail-page .owner-space-hero-content h1 {
+    font-size: clamp(30px, 3.8vw, 47px);
+    line-height: 1.09;
+    overflow-wrap: anywhere;
+}
+
+.space-owner-detail-page .owner-space-hero-content > div > p {
+    color: #b4c0cf;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.space-owner-detail-page .owner-space-hero-facts > div {
+    padding: 14px;
+    border-color: #334052;
+    background: #0e141d;
+}
+
+.space-owner-detail-page .owner-space-hero-facts span {
+    color: #9cadc2;
+    font-size: 10px;
+    line-height: 1.35;
+}
+
+.space-owner-detail-page .owner-space-hero-facts strong {
+    color: var(--space-detail-coral-light);
+    font-size: 14px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.space-owner-detail-page .space-management-actions {
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.space-owner-detail-page .space-management-card {
+    min-height: 195px;
+    padding: 19px;
+    border-color: #354153;
+    background:
+        linear-gradient(145deg, rgba(255, 118, 95, .07), transparent 65%),
+        #151b25;
+    transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+
+.space-owner-detail-page .space-management-card:hover,
+.space-owner-detail-page .space-management-card:focus-visible {
+    border-color: rgba(255, 118, 95, .78);
+    background:
+        linear-gradient(145deg, rgba(255, 118, 95, .12), transparent 72%),
+        #171e29;
+}
+
+.space-owner-detail-page .space-management-card:focus-visible,
+.space-owner-detail-page .account-professional-action:focus-visible {
+    outline: 2px solid var(--space-detail-coral-light);
+    outline-offset: 3px;
+}
+
+.space-owner-detail-page .space-management-code {
+    color: var(--space-detail-coral-light);
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+.space-owner-detail-page .space-management-card > strong {
+    margin-top: 11px;
+    font-size: 17px;
+    line-height: 1.35;
+}
+
+.space-owner-detail-page .space-management-card > p {
+    color: var(--space-detail-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.space-owner-detail-page .space-management-stat {
+    color: var(--space-detail-coral-light);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.space-owner-detail-page .space-management-mini-stats {
+    flex-wrap: wrap;
+    gap: 9px 17px;
+}
+
+.space-owner-detail-page .space-management-mini-stats span {
+    color: #a9b6c8;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.space-owner-detail-page .space-management-mini-stats b {
+    color: #f5f7fa;
+    font-size: 13px;
+}
+
+.space-owner-detail-page .space-management-link {
+    color: var(--space-detail-coral-light);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.space-owner-detail-page .account-panel,
+.space-owner-detail-page .account-side-card {
+    border-color: #303c4c;
+    background: #141a24;
+}
+
+.space-owner-detail-page .space-publish-card {
+    border-color: rgba(255, 118, 95, .43);
+    background:
+        linear-gradient(145deg, rgba(255, 118, 95, .07), transparent 62%),
+        #141a24;
+}
+
+.space-owner-detail-page .account-panel-header {
+    padding: 19px 21px;
+}
+
+.space-owner-detail-page .account-panel-number {
+    font-size: 12px;
+}
+
+.space-owner-detail-page .account-panel-header h2 {
+    font-size: 17px;
+}
+
+.space-owner-detail-page .account-panel-body {
+    padding: 19px 21px 22px;
+}
+
+.space-owner-detail-page .account-panel-body .account-summary-label {
+    margin: 0 0 10px;
+}
+
+.space-owner-detail-page .account-panel-body .account-interest-list {
+    margin-bottom: 17px;
+}
+
+.space-owner-detail-page .account-panel-body .account-interest-list:last-child {
+    margin-bottom: 0;
+}
+
+.space-owner-detail-page .account-panel-tag,
+.space-owner-detail-page .account-summary-label {
+    color: #9dafc5;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+.space-owner-detail-page .account-data-item {
+    min-height: 86px;
+    padding: 16px;
+    border-color: #293544;
+    background: #0d131b;
+}
+
+.space-owner-detail-page .account-data-item span {
+    color: #9bacc1;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.space-owner-detail-page .account-data-item strong {
+    color: #f0f4fa;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.space-owner-detail-page .account-main-column .account-professional-message {
+    padding: 15px 16px;
+    border-color: rgba(255, 118, 95, .25);
+    background: rgba(255, 118, 95, .045);
+}
+
+.space-owner-detail-page .account-main-column .account-professional-message strong {
+    color: var(--space-detail-coral-light);
+    font-size: 12px;
+}
+
+.space-owner-detail-page .account-main-column .account-professional-message p {
+    color: #b1bfd0;
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.space-owner-detail-page .account-interest-list span {
+    padding: 7px 11px;
+    color: var(--space-detail-coral-light);
+    border-color: rgba(255, 118, 95, .38);
+    background: rgba(255, 118, 95, .07);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.space-owner-detail-page .account-side-card h3 {
+    font-size: 20px;
+    line-height: 1.25;
+}
+
+.space-owner-detail-page .account-side-card > p {
+    color: var(--space-detail-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.space-owner-detail-page .account-side-card .account-professional-message strong {
+    font-size: 12px;
+}
+
+.space-owner-detail-page .account-side-card .account-professional-message p {
+    color: #adbccd;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.space-owner-detail-page .account-professional-action {
+    min-height: 44px;
+    color: var(--space-detail-coral-light);
+    border-color: rgba(255, 118, 95, .44);
+    background: rgba(255, 118, 95, .07);
+    font-size: 12px;
+    line-height: 1.4;
+    text-decoration: none;
+}
+
+.space-owner-detail-page .account-professional-action:hover {
+    border-color: var(--space-detail-coral);
+    background: rgba(255, 118, 95, .15);
+}
+
+.space-owner-detail-page .space-history-shortcut {
+    border-style: dashed;
+}
+
+@media (max-width: 900px) {
+    .space-owner-detail-page .space-management-card {
+        min-height: 160px;
+    }
+}
+
+@media (max-width: 680px) {
+    .space-owner-detail-page .owner-space-hero-content {
+        padding: 22px;
+    }
+
+    .space-owner-detail-page .owner-space-hero-facts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .space-owner-detail-page .account-data-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .space-owner-detail-page .account-data-item {
+        min-height: 0;
+    }
+}
+
+@media (max-width: 420px) {
+    .space-owner-detail-page .owner-space-hero-facts {
+        grid-template-columns: 1fr;
+    }
+}

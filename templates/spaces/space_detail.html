@@ -80,7 +80,10 @@
 
                     <div>
                         <span>Disponibilidad</span>
-                        <strong>{{ active_availability_count }} ventanas</strong>
+                        <strong>
+                            {{ active_availability_count }}
+                            ventana{{ active_availability_count|pluralize:"s" }}
+                        </strong>
                     </div>
 
                 </div>
@@ -136,7 +139,9 @@
                 </p>
 
                 <div class="space-management-stat">
-                    {{ active_availability_count }} ventanas activas
+                    {{ active_availability_count }}
+                    ventana{{ active_availability_count|pluralize:"s" }}
+                    activa{{ active_availability_count|pluralize:"s" }}
                 </div>
 
                 <span class="space-management-link">
@@ -160,8 +165,8 @@
                 </strong>
 
                 <p>
-                    Revisa solicitudes pendientes y próximos
-                    arriendos confirmados.
+                    Revisa las solicitudes pendientes y las
+                    reservas confirmadas de este espacio.
                 </p>
 
                 <div class="space-management-mini-stats">
@@ -179,7 +184,7 @@
                 </div>
 
                 <span class="space-management-link">
-                    Ver reservas →
+                    Ver todas las reservas →
                 </span>
 
             </a>

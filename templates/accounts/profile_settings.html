@@ -686,9 +686,25 @@ Configuración de Perfil | EntrenamientoyComunidad
 
                         </div>
 
-                        <span class="role-status">
-                            No habilitado
-                        </span>
+                        {% with professional_profile=request.user.professional_profile %}
+
+                            {% if professional_profile %}
+
+                                {% if professional_profile.verification_status == 'verified' %}
+                                    <span class="role-status role-status-active">
+                                        Verificado{% if professional_profile.is_public %} · Público{% else %} · No público{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="role-status role-status-{{ professional_profile.verification_status }}">
+                                        {{ professional_profile.get_verification_status_display }}
+                                    </span>
+                                {% endif %}
+
+                            {% else %}
+                                <span class="role-status">No habilitado</span>
+                            {% endif %}
+
+                        {% endwith %}
 
                     </div>
 
@@ -707,9 +723,25 @@ Configuración de Perfil | EntrenamientoyComunidad
 
                         </div>
 
-                        <span class="role-status">
-                            No habilitado
-                        </span>
+                        {% with provider_profile=request.user.space_provider_profile %}
+
+                            {% if provider_profile %}
+
+                                {% if provider_profile.verification_status == 'verified' %}
+                                    <span class="role-status role-status-active">
+                                        Verificado{% if provider_profile.is_public %} · Público{% else %} · No público{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="role-status role-status-{{ provider_profile.verification_status }}">
+                                        {{ provider_profile.get_verification_status_display }}
+                                    </span>
+                                {% endif %}
+
+                            {% else %}
+                                <span class="role-status">No habilitado</span>
+                            {% endif %}
+
+                        {% endwith %}
 
                     </div>
 

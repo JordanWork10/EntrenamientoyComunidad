@@ -114,6 +114,17 @@ class Settlement(models.Model):
         verbose_name='Fecha de liquidación',
     )
 
+    # V131.60: conservar quién autorizó un cierre económico de espacios.
+    # Nulo para los registros anteriores, cuyo responsable es desconocido.
+    settled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name='authorized_settlements',
+        null=True,
+        blank=True,
+        verbose_name='Administrador que autorizó el cierre',
+    )
+
     hold_reason = models.CharField(
         max_length=255,
         blank=True,
@@ -181,6 +192,13 @@ class Settlement(models.Model):
                 condition=Q(net_amount_clp__lte=F('commission_base_clp')),
                 name='settlement_net_lte_base',
             ),
+            models.CheckConstraint(
+                condition=(
+                    ~Q(scope_type='space_day', status='settled')
+                    | Q(settled_by__isnull=False)
+                ),
+                name='settlement_space_close_requires_actor',
+            ),
         ]
 
     def clean(self):
@@ -192,6 +210,11 @@ class Settlement(models.Model):
             )
 
         if self.scope_type == self.ScopeType.SPACE_DAY:
+            if self.status == self.Status.SETTLED and not self.settled_by_id:
+                errors['settled_by'] = (
+                    'Una liquidación de espacio cerrada debe identificar '
+                    'al administrador que autorizó el cierre.'
+                )
             if not self.space_id:
                 errors['space'] = (
                     'Una liquidación de jornada de espacio necesita un recinto.'

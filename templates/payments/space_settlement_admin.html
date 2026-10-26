@@ -96,6 +96,16 @@
                                 {% if row.settlement.settled_at %}
                                     <span>Liquidada: {{ row.settlement.settled_at|date:"d/m/Y H:i" }}</span>
                                 {% endif %}
+                                {% if row.settlement.status == 'settled' %}
+                                    <span>
+                                        Autorizada por:
+                                        {% if row.settlement.settled_by %}
+                                            {{ row.settlement.settled_by.get_full_name|default:row.settlement.settled_by.get_username }}
+                                        {% else %}
+                                            No registrado (operación histórica)
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
                             </div>
                         {% endif %}
 

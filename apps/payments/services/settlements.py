@@ -593,6 +593,7 @@ def settle_space_day_settlement(
 
     current.status = Settlement.Status.SETTLED
     current.settled_at = now
+    current.settled_by = reviewed_by
     current.hold_reason = ''
     current.provider_reference = (
         provider_reference
@@ -601,7 +602,8 @@ def settle_space_day_settlement(
     current.full_clean()
     current.save(
         update_fields=[
-            'status', 'settled_at', 'hold_reason', 'provider_reference', 'updated_at',
+            'status', 'settled_at', 'settled_by', 'hold_reason',
+            'provider_reference', 'updated_at',
         ]
     )
     Payment.objects.filter(pk__in=[p.pk for p in payments]).update(

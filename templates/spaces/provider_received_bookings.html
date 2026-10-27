@@ -36,6 +36,8 @@ Reservas Recibidas | Centro de Espacios
 
         </header>
 
+        <!-- RESUMEN GENERAL -->
+
         <section class="account-summary-grid space-bookings-summary">
 
             <article class="account-summary-card">
@@ -64,14 +66,168 @@ Reservas Recibidas | Centro de Espacios
 
         </section>
 
+        <!-- FILTROS DE RESERVAS -->
+
+        <section
+            class="space-bookings-filter-panel"
+            aria-label="Filtros de reservas recibidas"
+        >
+
+            <div class="space-bookings-filter-heading">
+
+                <div>
+                    <span class="space-bookings-filter-eyebrow">
+                        ORGANIZACIÓN
+                    </span>
+
+                    <h2>
+                        Encuentra una reserva
+                    </h2>
+
+                    <p>
+                        Filtra por recinto, estado o nombre del miembro.
+                        Los totales de arriba muestran todas tus reservas.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    id="space-bookings-filter-reset"
+                    class="space-bookings-filter-reset"
+                >
+                    Limpiar filtros
+                </button>
+
+            </div>
+
+            <div class="space-bookings-filter-grid">
+
+                <!-- FILTRO POR ESPACIO -->
+
+                <label
+                    class="space-bookings-filter-field"
+                    for="space-bookings-filter-space"
+                >
+                    <span>ESPACIO</span>
+
+                    <select id="space-bookings-filter-space">
+
+                        <option value="all">
+                            Todos mis espacios
+                        </option>
+
+                        {% for space in provider_profile.spaces.all %}
+
+                            <option value="{{ space.id }}">
+                                {{ space.name }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </label>
+
+                <!-- FILTRO POR ESTADO -->
+
+                <label
+                    class="space-bookings-filter-field"
+                    for="space-bookings-filter-state"
+                >
+                    <span>ESTADO</span>
+
+                    <select id="space-bookings-filter-state">
+
+                        <option value="all">
+                            Todos los estados
+                        </option>
+
+                        <option value="pending">
+                            Pendientes
+                        </option>
+
+                        <option value="confirmed">
+                            Confirmadas próximas
+                        </option>
+
+                        <option value="history">
+                            Todas las anteriores
+                        </option>
+
+                        <option value="rejected">
+                            No aceptadas
+                        </option>
+
+                        <option value="cancelled">
+                            Canceladas
+                        </option>
+
+                        <option value="completed">
+                            Completadas
+                        </option>
+
+                        <option value="past">
+                            Vencidas o pasadas
+                        </option>
+
+                    </select>
+
+                </label>
+
+                <!-- BUSCADOR -->
+
+                <label
+                    class="space-bookings-filter-field space-bookings-filter-search"
+                    for="space-bookings-filter-search"
+                >
+                    <span>BUSCAR</span>
+
+                    <input
+                        id="space-bookings-filter-search"
+                        type="search"
+                        placeholder="Nombre del miembro o espacio..."
+                        autocomplete="off"
+                    >
+
+                </label>
+
+            </div>
+
+            <!-- RESULTADOS DE LA BÚSQUEDA -->
+
+            <div class="space-bookings-filter-feedback">
+
+                <span
+                    id="space-bookings-filter-count"
+                    aria-live="polite"
+                >
+                    Mostrando {{ total_count }} de {{ total_count }} reservas
+                </span>
+
+                <span>
+                    Los filtros solo cambian la vista;
+                    no modifican las reservas.
+                </span>
+
+            </div>
+
+        </section>
+
+        <!-- SOLICITUDES Y PRÓXIMOS ARRIENDOS -->
+
         <section class="account-panel space-received-panel">
 
             <div class="account-panel-header">
+
                 <div>
                     <span class="account-panel-number">01</span>
                     <h2>Solicitudes y próximos arriendos</h2>
                 </div>
-                <span class="account-panel-tag">GESTIÓN</span>
+
+                <span class="account-panel-tag">
+                    GESTIÓN
+                </span>
+
             </div>
 
             {% if upcoming_bookings %}
@@ -83,6 +239,10 @@ Reservas Recibidas | Centro de Espacios
                         <a
                             href="{% url 'spaces:provider_booking_detail' booking.id %}"
                             class="space-request-card"
+                            data-booking-kind="upcoming"
+                            data-booking-space="{{ booking.space_id }}"
+                            data-booking-status="{{ booking.status }}"
+                            data-booking-search="{{ booking.booked_by.get_full_name|default:booking.booked_by.email }} {{ booking.booked_by.email }} {{ booking.space_name_snapshot }}"
                         >
 
                             <div class="space-request-card-header">
@@ -90,90 +250,158 @@ Reservas Recibidas | Centro de Espacios
                                 <div class="space-request-person">
 
                                     <div class="space-request-avatar">
+
                                         {% if booking.booked_by.profile_image %}
+
                                             <img
                                                 src="{{ booking.booked_by.profile_image.url }}"
                                                 alt="Foto de {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}"
                                             >
+
                                         {% else %}
+
                                             <span>
                                                 {{ booking.booked_by.first_name|first|upper }}{{ booking.booked_by.last_name|first|upper }}
                                             </span>
+
                                         {% endif %}
+
                                     </div>
 
                                     <div class="space-request-person-copy">
+
                                         <span>MIEMBRO</span>
+
                                         <h3>
                                             {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}
                                         </h3>
+
                                         <p>Quiere reservar</p>
-                                        <strong>{{ booking.space_name_snapshot }}</strong>
+
+                                        <strong>
+                                            {{ booking.space_name_snapshot }}
+                                        </strong>
+
                                         <small>
                                             {{ booking.space_type_snapshot }}
+
                                             {% if booking.commune_snapshot %}
                                                 · {{ booking.commune_snapshot }}
                                             {% endif %}
                                         </small>
+
                                     </div>
 
                                 </div>
 
                                 {% if booking.provider_rejected %}
+
                                     <span class="space-request-status space-request-status-cancelled">
                                         No aceptada
                                     </span>
+
                                 {% else %}
+
                                     <span class="space-request-status space-request-status-{{ booking.status }}">
                                         {{ booking.get_status_display }}
                                     </span>
+
                                 {% endif %}
 
                             </div>
 
+                            <!-- DETALLES DE LA RESERVA -->
+
                             <div class="space-request-details">
 
                                 <div class="space-request-detail space-request-detail-date">
+
                                     <span>FECHA</span>
-                                    <strong>{{ booking.session_date|date:"d M"|upper }}</strong>
-                                    <small>{{ booking.session_date|date:"Y" }}</small>
-                                </div>
 
-                                <div class="space-request-detail">
-                                    <span>HORARIO</span>
                                     <strong>
-                                        {{ booking.start_time|time:"H:i" }} – {{ booking.end_time|time:"H:i" }}
+                                        {{ booking.session_date|date:"d M"|upper }}
                                     </strong>
-                                    <small>Horario solicitado</small>
+
+                                    <small>
+                                        {{ booking.session_date|date:"Y" }}
+                                    </small>
+
                                 </div>
 
                                 <div class="space-request-detail">
+
+                                    <span>HORARIO</span>
+
+                                    <strong>
+                                        {{ booking.start_time|time:"H:i" }}
+                                        –
+                                        {{ booking.end_time|time:"H:i" }}
+                                    </strong>
+
+                                    <small>Horario solicitado</small>
+
+                                </div>
+
+                                <div class="space-request-detail">
+
                                     <span>DURACIÓN</span>
-                                    <strong>{{ booking.duration_minutes }} min</strong>
+
+                                    <strong>
+                                        {{ booking.duration_minutes }} min
+                                    </strong>
+
                                     <small>Duración del arriendo</small>
+
                                 </div>
 
                                 <div class="space-request-detail space-request-detail-price">
+
                                     <span>PRECIO</span>
-                                    <strong>{{ booking.price_clp|clp }}</strong>
+
+                                    <strong>
+                                        {{ booking.price_clp|clp }}
+                                    </strong>
+
                                     <small>Precio registrado</small>
+
                                 </div>
 
                             </div>
 
+                            <!-- ACCIÓN SEGÚN ESTADO -->
+
                             <div class="space-request-card-footer">
+
                                 <span>
+
                                     {% if booking.status == 'pending' %}
+
                                         Esta solicitud está esperando tu respuesta.
+
                                     {% else %}
+
                                         Este arriendo está confirmado.
+
                                     {% endif %}
+
                                 </span>
 
                                 <strong>
-                                    Ver y gestionar solicitud
+
+                                    {% if booking.status == 'pending' %}
+
+                                        Revisar solicitud
+
+                                    {% else %}
+
+                                        Ver reserva
+
+                                    {% endif %}
+
                                     <span>→</span>
+
                                 </strong>
+
                             </div>
 
                         </a>
@@ -182,25 +410,56 @@ Reservas Recibidas | Centro de Espacios
 
                 </div>
 
+                <!-- SIN RESULTADOS EN PRÓXIMAS -->
+
+                <div
+                    class="account-empty space-bookings-filter-empty"
+                    id="space-bookings-upcoming-empty"
+                    hidden
+                >
+                    <strong>
+                        Sin reservas próximas con estos filtros
+                    </strong>
+
+                    <p>
+                        Prueba con otro espacio, estado o nombre.
+                    </p>
+                </div>
+
             {% else %}
 
                 <div class="account-empty">
-                    <strong>No tienes arriendos próximos</strong>
-                    <p>Cuando alguien solicite uno de tus espacios, aparecerá aquí.</p>
+
+                    <strong>
+                        No tienes arriendos próximos
+                    </strong>
+
+                    <p>
+                        Cuando alguien solicite uno de tus espacios,
+                        aparecerá aquí.
+                    </p>
+
                 </div>
 
             {% endif %}
 
         </section>
 
+        <!-- HISTORIAL -->
+
         <section class="account-panel received-history-panel space-history-panel">
 
             <div class="account-panel-header">
+
                 <div>
                     <span class="account-panel-number">02</span>
                     <h2>Historial de solicitudes y arriendos</h2>
                 </div>
-                <span class="account-panel-tag">ANTERIORES</span>
+
+                <span class="account-panel-tag">
+                    ANTERIORES
+                </span>
+
             </div>
 
             {% if history_bookings %}
@@ -209,21 +468,52 @@ Reservas Recibidas | Centro de Espacios
 
                     <summary class="received-history-summary">
 
-                        <div class="received-history-summary-icon" aria-hidden="true">↺</div>
+                        <div
+                            class="received-history-summary-icon"
+                            aria-hidden="true"
+                        >
+                            ↺
+                        </div>
 
                         <div class="received-history-summary-copy">
+
                             <strong>
-                                {{ history_count }} registro{{ history_count|pluralize:"s" }} anterior{{ history_count|pluralize:"es" }}
+                                {{ history_count }}
+                                registro{{ history_count|pluralize:"s" }}
+                                anterior{{ history_count|pluralize:"es" }}
                             </strong>
+
                             <span>
-                                Consulta solicitudes no aceptadas, reservas canceladas, completadas o cuya fecha ya pasó.
+                                Consulta solicitudes no aceptadas,
+                                reservas canceladas, completadas
+                                o cuya fecha ya pasó.
                             </span>
+
+                            <span
+                                id="space-bookings-history-visible"
+                                class="space-bookings-history-visible"
+                                hidden
+                            ></span>
+
                         </div>
 
                         <div class="received-history-summary-button">
-                            <span class="received-history-text-closed">Ver registros anteriores</span>
-                            <span class="received-history-text-open">Ocultar registros anteriores</span>
-                            <span class="received-history-chevron" aria-hidden="true">⌄</span>
+
+                            <span class="received-history-text-closed">
+                                Ver registros anteriores
+                            </span>
+
+                            <span class="received-history-text-open">
+                                Ocultar registros anteriores
+                            </span>
+
+                            <span
+                                class="received-history-chevron"
+                                aria-hidden="true"
+                            >
+                                ⌄
+                            </span>
+
                         </div>
 
                     </summary>
@@ -235,53 +525,99 @@ Reservas Recibidas | Centro de Espacios
                             <a
                                 href="{% url 'spaces:provider_booking_detail' booking.id %}"
                                 class="received-history-card space-history-card"
+                                data-booking-kind="history"
+                                data-booking-space="{{ booking.space_id }}"
+                                data-booking-status="{% if booking.provider_rejected %}rejected{% elif booking.status == 'pending' %}expired{% elif booking.status == 'confirmed' %}past{% else %}{{ booking.status }}{% endif %}"
+                                data-booking-search="{{ booking.booked_by.get_full_name|default:booking.booked_by.email }} {{ booking.booked_by.email }} {{ booking.space_name_snapshot }}"
                             >
 
                                 <div class="received-history-member">
 
                                     <div class="received-history-avatar space-history-avatar">
+
                                         {% if booking.booked_by.profile_image %}
+
                                             <img
                                                 src="{{ booking.booked_by.profile_image.url }}"
                                                 alt="Foto de {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}"
                                             >
+
                                         {% else %}
+
                                             <span>
                                                 {{ booking.booked_by.first_name|first|upper }}{{ booking.booked_by.last_name|first|upper }}
                                             </span>
+
                                         {% endif %}
+
                                     </div>
 
                                     <div class="received-history-member-copy space-history-copy">
+
                                         <span>MIEMBRO</span>
+
                                         <strong>
                                             {{ booking.booked_by.get_full_name|default:booking.booked_by.email }}
                                         </strong>
-                                        <small>{{ booking.space_name_snapshot }}</small>
+
+                                        <small>
+                                            {{ booking.space_name_snapshot }}
+                                        </small>
+
                                     </div>
 
                                 </div>
 
                                 <div class="received-history-when">
+
                                     <span>FECHA Y HORARIO</span>
-                                    <strong>{{ booking.session_date|date:"d M Y"|upper }}</strong>
+
+                                    <strong>
+                                        {{ booking.session_date|date:"d M Y"|upper }}
+                                    </strong>
+
                                     <small>
-                                        {{ booking.start_time|time:"H:i" }} – {{ booking.end_time|time:"H:i" }}
+                                        {{ booking.start_time|time:"H:i" }}
+                                        –
+                                        {{ booking.end_time|time:"H:i" }}
                                     </small>
+
                                 </div>
 
                                 <div class="received-history-card-end">
+
                                     <span class="space-request-status space-request-status-{{ booking.ui_status_key }}">
                                         {{ booking.ui_status_label }}
                                     </span>
+
                                     <span class="received-history-link space-history-link">
                                         Ver detalles <span>→</span>
                                     </span>
+
                                 </div>
 
                             </a>
 
                         {% endfor %}
+
+                        <!-- SIN RESULTADOS EN HISTORIAL -->
+
+                        <div
+                            class="account-empty space-bookings-filter-empty"
+                            id="space-bookings-history-empty"
+                            hidden
+                        >
+
+                            <strong>
+                                Sin registros anteriores con estos filtros
+                            </strong>
+
+                            <p>
+                                Puedes cambiar los filtros para consultar
+                                otros registros.
+                            </p>
+
+                        </div>
 
                     </div>
 
@@ -290,22 +626,290 @@ Reservas Recibidas | Centro de Espacios
             {% else %}
 
                 <div class="account-empty">
-                    <strong>Aún no tienes registros anteriores</strong>
-                    <p>Cuando una solicitud no sea aceptada, un arriendo se cancele, finalice o pase de fecha, aparecerá aquí.</p>
+
+                    <strong>
+                        Aún no tienes registros anteriores
+                    </strong>
+
+                    <p>
+                        Cuando una solicitud no sea aceptada,
+                        un arriendo se cancele, finalice o pase de fecha,
+                        aparecerá aquí.
+                    </p>
+
                 </div>
 
             {% endif %}
 
         </section>
 
-        <div style="margin-top: 24px;">
-            <a href="{% url 'spaces:dashboard' %}" class="account-professional-action space-flow-back-link">
+        <!-- VOLVER -->
+
+        <div class="space-bookings-return">
+
+            <a
+                href="{% url 'spaces:dashboard' %}"
+                class="account-professional-action space-flow-back-link"
+            >
                 ← Volver al Centro de Espacios
             </a>
+
         </div>
 
     </div>
 
 </section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+{{ block.super }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const scope = document.querySelector('.space-provider-bookings-page');
+
+    if (!scope) {
+        return;
+    }
+
+    const spaceSelect = scope.querySelector(
+        '#space-bookings-filter-space'
+    );
+
+    const stateSelect = scope.querySelector(
+        '#space-bookings-filter-state'
+    );
+
+    const searchInput = scope.querySelector(
+        '#space-bookings-filter-search'
+    );
+
+    const resetButton = scope.querySelector(
+        '#space-bookings-filter-reset'
+    );
+
+    const countLabel = scope.querySelector(
+        '#space-bookings-filter-count'
+    );
+
+    const upcomingList = scope.querySelector(
+        '.space-request-list'
+    );
+
+    const upcomingEmpty = scope.querySelector(
+        '#space-bookings-upcoming-empty'
+    );
+
+    const historyEmpty = scope.querySelector(
+        '#space-bookings-history-empty'
+    );
+
+    const historyVisible = scope.querySelector(
+        '#space-bookings-history-visible'
+    );
+
+    const historyDetails = scope.querySelector(
+        '.space-received-history-details'
+    );
+
+    const cards = Array.from(
+        scope.querySelectorAll('[data-booking-kind]')
+    );
+
+    const total = cards.length;
+
+    const totalHistory = cards.filter(
+        card => card.dataset.bookingKind === 'history'
+    ).length;
+
+    if (
+        !spaceSelect ||
+        !stateSelect ||
+        !searchInput ||
+        !countLabel
+    ) {
+        return;
+    }
+
+    function normalize(value) {
+        return (value || '')
+            .toLocaleLowerCase('es-CL')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim();
+    }
+
+    function applyFilters() {
+
+        const chosenSpace = spaceSelect.value;
+        const chosenState = stateSelect.value;
+        const search = normalize(searchInput.value);
+
+        const filtersActive = (
+            chosenSpace !== 'all' ||
+            chosenState !== 'all' ||
+            search !== ''
+        );
+
+        let visibleTotal = 0;
+        let visibleUpcoming = 0;
+        let visibleHistory = 0;
+
+        cards.forEach(function (card) {
+
+            const state = card.dataset.bookingStatus;
+            const kind = card.dataset.bookingKind;
+
+            const matchesSpace = (
+                chosenSpace === 'all' ||
+                card.dataset.bookingSpace === chosenSpace
+            );
+
+            const matchesState = (
+                chosenState === 'all' ||
+                (
+                    chosenState === 'history' &&
+                    kind === 'history'
+                ) ||
+                (
+                    chosenState === 'past' &&
+                    (
+                        state === 'past' ||
+                        state === 'expired'
+                    )
+                ) ||
+                state === chosenState
+            );
+
+            const matchesSearch = (
+                !search ||
+                normalize(card.dataset.bookingSearch).includes(search)
+            );
+
+            const visible = (
+                matchesSpace &&
+                matchesState &&
+                matchesSearch
+            );
+
+            card.hidden = !visible;
+
+            if (visible) {
+
+                visibleTotal++;
+
+                if (kind === 'history') {
+                    visibleHistory++;
+                } else {
+                    visibleUpcoming++;
+                }
+
+            }
+
+        });
+
+        countLabel.textContent = (
+            'Mostrando ' +
+            visibleTotal +
+            ' de ' +
+            total +
+            ' reservas'
+        );
+
+        if (upcomingList) {
+            upcomingList.hidden = (
+                filtersActive &&
+                visibleUpcoming === 0
+            );
+        }
+
+        if (upcomingEmpty) {
+            upcomingEmpty.hidden = (
+                visibleUpcoming !== 0 ||
+                !filtersActive
+            );
+        }
+
+        if (historyEmpty) {
+            historyEmpty.hidden = (
+                visibleHistory !== 0 ||
+                !filtersActive
+            );
+        }
+
+        if (historyVisible) {
+
+            historyVisible.hidden = !filtersActive;
+
+            historyVisible.textContent = (
+                visibleHistory +
+                ' de ' +
+                totalHistory +
+                ' registros anteriores coinciden'
+            );
+
+        }
+
+        if (
+            historyDetails &&
+            filtersActive &&
+            (
+                visibleHistory > 0 ||
+                [
+                    'history',
+                    'rejected',
+                    'cancelled',
+                    'completed',
+                    'past'
+                ].includes(chosenState)
+            )
+        ) {
+            historyDetails.open = true;
+        }
+
+    }
+
+    [spaceSelect, stateSelect].forEach(function (control) {
+
+        control.addEventListener(
+            'change',
+            applyFilters
+        );
+
+    });
+
+    searchInput.addEventListener(
+        'input',
+        applyFilters
+    );
+
+    if (resetButton) {
+
+        resetButton.addEventListener('click', function () {
+
+            spaceSelect.value = 'all';
+            stateSelect.value = 'all';
+            searchInput.value = '';
+
+            applyFilters();
+
+            if (historyDetails) {
+                historyDetails.open = false;
+            }
+
+            searchInput.focus();
+
+        });
+
+    }
+
+    applyFilters();
+
+});
+</script>
 
 {% endblock %}

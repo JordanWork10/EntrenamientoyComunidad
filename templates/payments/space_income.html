@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 {% load clp_filters %}
 
@@ -27,10 +26,9 @@
                 </h1>
 
                 <p>
-                    Consulta pagos registrados, comisiones y montos netos
-                    de tus recintos. Solo se contabilizan como ingresos
-                    las operaciones aprobadas, no las reservas
-                    simplemente confirmadas.
+                    Consulta los pagos registrados, las comisiones y el saldo
+                    contable de cada recinto. Una reserva confirmada no equivale
+                    a un pago aprobado ni a dinero recibido.
                 </p>
             </div>
 
@@ -44,12 +42,13 @@
         </header>
 
         <div class="v131-provider-income-notice" role="note">
-            <strong>Información económica de prueba</strong>
+            <strong>Registro económico de prueba · sin transferencias bancarias</strong>
             <p>
-                Los importes se calculan a partir de los pagos guardados.
-                No representan dinero transferido al proveedor.
-                Las liquidaciones de arriendos y los reembolsos automáticos
-                todavía no están habilitados.
+                Los importes se calculan a partir de los pagos guardados en el sistema.
+                Las liquidaciones pueden tener un estado contable en sandbox,
+                pero ese estado no acredita un depósito real.
+                Los reembolsos automáticos y las transferencias bancarias
+                no están habilitados aquí.
             </p>
         </div>
 
@@ -82,10 +81,10 @@
             </article>
 
             <article class="v131-provider-income-stat v131-provider-income-stat-accent">
-                <span>NETO CORRESPONDIENTE AL PROVEEDOR</span>
+                <span>NETO REGISTRADO PARA EL PROVEEDOR</span>
                 <strong>{{ totals.net_total|clp }}</strong>
                 <small>
-                    Importe contable, no transferencia realizada
+                    Saldo contable vigente, no dinero transferido
                 </small>
             </article>
         </section>
@@ -96,11 +95,11 @@
                  aria-label="Situación de liquidaciones">
 
             <div>
-                <span>NETO SIN LIQUIDAR</span>
+                <span>NETO AÚN SIN LIQUIDAR</span>
                 <strong>{{ totals.to_settle_total|clp }}</strong>
                 <small>
-                    Según los estados registrados, incluido lo
-                    retenido o en revisión
+                    Incluye pagos a la espera del servicio, de revisión
+                    o de liquidación
                 </small>
             </div>
 
@@ -121,6 +120,24 @@
                 </small>
             </div>
         </section>
+
+        <!-- EXPLICACIÓN DE LIQUIDACIONES -->
+
+        <div class="v131-provider-income-guide" role="note">
+            <div>
+                <span class="v131-provider-income-guide-icon" aria-hidden="true">i</span>
+                <div>
+                    <strong>¿Cuándo puede liquidarse un arriendo?</strong>
+                    <p>
+                        La fecha indicada en cada movimiento es la primera fecha
+                        posible de evaluación: 24 horas después del término del
+                        horario. También se requiere que el arriendo figure como
+                        completado y que no existan incidencias o reembolsos
+                        pendientes. No se liquida automáticamente.
+                    </p>
+                </div>
+            </div>
+        </div>
 
         <!-- INGRESOS POR RECINTO -->
 
@@ -166,7 +183,7 @@
                         </div>
 
                         <a href="{% url 'spaces:space_detail' group.space.id %}">
-                            Gestionar recinto →
+                            Ver recinto →
                         </a>
                     </div>
 
@@ -199,6 +216,17 @@
                                 {{ group.pending_count }}
                             </strong>
                         </div>
+                    </div>
+
+                    <!-- RESUMEN CONTABLE DEL RECINTO -->
+
+                    <div class="v131-provider-income-space-ledger">
+                        <span>
+                            <b>Sin liquidar:</b> {{ group.to_settle_total|clp }}
+                        </span>
+                        <span>
+                            <b>Liquidado en registros:</b> {{ group.settled_total|clp }}
+                        </span>
                     </div>
 
                     {% if group.payments %}
@@ -279,6 +307,39 @@
                                                 <small>
                                                     {{ payment.get_settlement_status_display }}
                                                 </small>
+
+                                                {% if payment.settlement_status == 'pending' %}
+
+                                                    {% if payment.settlement_eligible_at %}
+                                                        <small class="v131-provider-income-eligibility">
+                                                            Evaluación posible desde el
+                                                            {{ payment.settlement_eligible_at|date:"d/m/Y H:i" }}
+                                                        </small>
+                                                    {% endif %}
+
+                                                    <small>
+                                                        Si hay saldo, requiere reserva completada y sin incidencias.
+                                                    </small>
+
+                                                {% elif payment.settlement_status == 'eligible' %}
+
+                                                    <small class="v131-provider-income-eligibility">
+                                                        Elegible en el sistema; no es una transferencia.
+                                                    </small>
+
+                                                {% elif payment.settlement_status == 'on_hold' %}
+
+                                                    <small class="v131-provider-income-eligibility">
+                                                        Revisión necesaria antes de liquidar.
+                                                    </small>
+
+                                                {% elif payment.settlement_status == 'settled' %}
+
+                                                    <small class="v131-provider-income-eligibility">
+                                                        Liquidación contable registrada en sandbox.
+                                                    </small>
+
+                                                {% endif %}
 
                                             {% endif %}
 

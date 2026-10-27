@@ -1,10 +1,7 @@
-
 {% extends 'base.html' %}
 {% load clp_filters %}
 
-{% block title %}
-Solicitud de arriendo | Centro de Espacios
-{% endblock %}
+{% block title %}{% if booking.status == 'pending' %}Solicitud de arriendo{% elif booking.status == 'confirmed' %}Arriendo confirmado{% elif booking.status == 'completed' %}Arriendo completado{% elif provider_rejected %}Solicitud no aceptada{% else %}Arriendo cancelado{% endif %} | Centro de Espacios{% endblock %}
 
 {% block content %}
 <section class="account-page space-provider-detail-page">
@@ -17,13 +14,33 @@ Solicitud de arriendo | Centro de Espacios
                 </span>
 
                 <h1>
-                    Solicitud de
-                    <span class="space-detail-title-accent">arriendo</span>
+                    {% if booking.status == 'pending' %}
+                        Solicitud de <span class="space-detail-title-accent">arriendo</span>
+                    {% elif booking.status == 'confirmed' %}
+                        Arriendo <span class="space-detail-title-accent">confirmado</span>
+                    {% elif booking.status == 'completed' %}
+                        Arriendo <span class="space-detail-title-accent">completado</span>
+                    {% elif provider_rejected %}
+                        Solicitud <span class="space-detail-title-accent">no aceptada</span>
+                    {% else %}
+                        Arriendo <span class="space-detail-title-accent">cancelado</span>
+                    {% endif %}
                 </h1>
 
                 <p>
-                    Revisa quién quiere usar tu espacio, cuándo lo necesita
-                    y decide si puedes recibir este arriendo.
+                    {% if booking.status == 'pending' %}
+                        Revisa quién quiere utilizar tu espacio, el horario solicitado
+                        y responde antes de que comience la reserva.
+                    {% elif booking.status == 'confirmed' %}
+                        La reserva ya fue aceptada. Consulta el horario, los detalles
+                        del miembro y las acciones disponibles.
+                    {% elif booking.status == 'completed' %}
+                        Este arriendo está finalizado. Puedes consultar sus datos
+                        y el historial de cambios.
+                    {% else %}
+                        Esta reserva ya no está activa. Sus datos y cambios
+                        siguen disponibles para consulta.
+                    {% endif %}
                 </p>
             </div>
         </header>
@@ -33,10 +50,18 @@ Solicitud de arriendo | Centro de Espacios
             <div class="account-panel-header">
                 <div>
                     <span class="account-panel-number">01</span>
-                    <h2>Quién quiere arrendar tu espacio</h2>
+                    <h2>
+                        {% if booking.status == 'pending' %}
+                            Quién quiere arrendar tu espacio
+                        {% else %}
+                            Datos de la reserva
+                        {% endif %}
+                    </h2>
                 </div>
 
-                <span class="account-panel-tag">SOLICITUD</span>
+                <span class="account-panel-tag">
+                    {% if booking.status == 'pending' %}SOLICITUD{% else %}RESERVA{% endif %}
+                </span>
             </div>
 
             <article class="space-provider-detail-card">
@@ -58,7 +83,13 @@ Solicitud de arriendo | Centro de Espacios
                         <div class="space-request-person-copy">
                             <span>MIEMBRO</span>
                             <h3>{{ booking.booked_by.get_full_name|default:booking.booked_by.email }}</h3>
-                            <p>Quiere arrendar tu espacio</p>
+                            <p>
+                                {% if booking.status == 'confirmed' or booking.status == 'completed' %}
+                                    Reservó tu espacio
+                                {% else %}
+                                    Solicitó arrendar tu espacio
+                                {% endif %}
+                            </p>
                             <strong>{{ booking.space_name_snapshot }}</strong>
                             <small>
                                 {{ booking.space_type_snapshot }}
@@ -98,7 +129,15 @@ Solicitud de arriendo | Centro de Espacios
                             –
                             {{ booking.end_time|time:"H:i" }}
                         </strong>
-                        <small>Horario solicitado</small>
+                        <small>
+                            {% if booking.status == 'confirmed' %}
+                                Horario reservado
+                            {% elif booking.status == 'completed' %}
+                                Horario realizado
+                            {% else %}
+                                Horario solicitado
+                            {% endif %}
+                        </small>
                     </div>
 
                     <div class="space-request-detail">
@@ -479,6 +518,20 @@ Solicitud de arriendo | Centro de Espacios
                     <span>COMUNA</span>
                     <strong>{{ booking.commune_snapshot }}</strong>
                 </div>
+            </div>
+
+            <div class="v131-space-booking-finance-link" role="note">
+                <div>
+                    <span>REGISTRO ECONÓMICO</span>
+                    <strong>Reserva, pago y liquidación son estados diferentes.</strong>
+                    <p>
+                        Que un arriendo esté confirmado o completado no acredita,
+                        por sí solo, un pago ni una transferencia al proveedor.
+                    </p>
+                </div>
+                <a href="{% url 'payments:space_income' %}#espacio-{{ booking.space_id }}">
+                    Consultar pagos del recinto →
+                </a>
             </div>
         </section>
 

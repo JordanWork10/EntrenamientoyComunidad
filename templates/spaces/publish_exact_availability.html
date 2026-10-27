@@ -95,7 +95,7 @@ Publicar disponibilidad | {{ space.name }}
                 </strong>
 
                 <p>
-                    Por bloque de 60 minutos
+                    Precio por 60 minutos
                 </p>
 
             </article>
@@ -227,8 +227,8 @@ Publicar disponibilidad | {{ space.name }}
                         </h2>
 
                         <p>
-                            El sistema convertirá el rango en bloques
-                            reservables de 60 minutos.
+                            Cada hora completa dentro del rango elegido
+                            quedará disponible para reservar.
                         </p>
 
                     </div>
@@ -343,7 +343,7 @@ Publicar disponibilidad | {{ space.name }}
                     <article>
 
                         <span>
-                            BLOQUES
+                            HORARIOS
                         </span>
 
                         <strong id="exact-summary-blocks">
@@ -613,20 +613,23 @@ document.addEventListener(
                         blocks
                         + (
                             blocks === 1
-                            ? ' bloque de 60 min'
-                            : ' bloques de 60 min'
+                            ? ' horario de 60 min'
+                            : ' horarios de 60 min'
                         )
                     );
                 } else {
                     summaryBlocks.textContent = (
-                        'Usa bloques completos de 60 min'
+                        'Usa horarios completos de 60 min'
                     );
                 }
 
             } else {
 
                 summaryMain.textContent = (
-                    'Selecciona una fecha y un horario'
+                    year && monthNames[month] && day
+                    ? day + ' de ' + monthNames[month] + ' de ' + year
+                        + ' · Selecciona un horario'
+                    : 'Selecciona una fecha y un horario'
                 );
 
                 summaryDuration.textContent = '—';

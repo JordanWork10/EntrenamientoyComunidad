@@ -36680,3 +36680,279 @@ border: 1px solid rgba(65, 230, 170, .36);
         grid-template-columns: 1fr;
     }
 }
+
+
+/* =========================================================
+   V131.63 · CALENDARIO DE ARRIENDOS + DISPONIBILIDAD EXACTA
+   Legibilidad, términos claros y menor altura de calendario.
+   Solo presentación: no modifica reservas ni horarios.
+========================================================= */
+
+.rental-calendar-page .rental-calendar-hero {
+    margin-bottom: 20px;
+}
+
+.rental-calendar-page .rental-calendar-hero h1 {
+    font-size: clamp(38px, 4.4vw, 60px);
+}
+
+.rental-calendar-page .rental-calendar-overline,
+.rental-calendar-page .rental-calendar-hero p,
+.rental-calendar-page .rental-calendar-space-context-copy > p {
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.rental-calendar-page .rental-calendar-hero p {
+    font-size: 14px;
+}
+
+.rental-calendar-page .rental-calendar-primary-action,
+.rental-calendar-page .rental-calendar-secondary-action,
+.rental-calendar-page .rental-calendar-manage-availability-link,
+.rental-calendar-page .rental-calendar-add-day,
+.rental-calendar-page .rental-calendar-back {
+    font-size: 12px;
+}
+
+.rental-calendar-page .rental-calendar-filter > div span,
+.rental-calendar-page .rental-calendar-space-context-copy > span,
+.rental-calendar-page .rental-calendar-filter-form label {
+    font-size: 11px;
+}
+
+.rental-calendar-page .rental-calendar-filter > div strong,
+.rental-calendar-page .rental-calendar-space-context-copy > strong {
+    font-size: 14px;
+}
+
+.rental-calendar-page .rental-calendar-filter select {
+    font-size: 13px;
+}
+
+.rental-calendar-page .rental-calendar-space-context-hint,
+.rental-calendar-page .rental-calendar-space-hint {
+    font-size: 12px;
+}
+
+.rental-calendar-page .rental-calendar-summary-grid {
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.rental-calendar-page .rental-calendar-summary-card {
+    min-height: 106px;
+    padding: 16px 18px;
+}
+
+.rental-calendar-page .rental-calendar-summary-card > span {
+    margin-bottom: 8px;
+    font-size: 11px;
+}
+
+.rental-calendar-page .rental-calendar-summary-card > strong {
+    margin-bottom: 8px;
+    font-size: 29px;
+}
+
+.rental-calendar-page .rental-calendar-summary-card p {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.rental-calendar-page .rental-calendar-month-header {
+    min-height: 68px;
+    padding: 13px 18px;
+}
+
+.rental-calendar-page .rental-calendar-month-main span {
+    font-size: 10px;
+}
+
+.rental-calendar-page .rental-calendar-month-main h2 {
+    font-size: 21px;
+}
+
+.rental-calendar-page .rental-calendar-month-arrow {
+    width: 40px;
+    height: 40px;
+}
+
+.rental-calendar-page .rental-calendar-today,
+.rental-calendar-page .rental-calendar-year-link,
+.rental-calendar-page .rental-calendar-month-arrow {
+    font-size: 12px;
+}
+
+.rental-calendar-page .rental-calendar-year-navigation {
+    gap: 12px;
+    padding: 8px 14px;
+}
+
+.rental-calendar-page .rental-calendar-month-link {
+    min-height: 36px;
+    font-size: 11px;
+}
+
+.rental-calendar-page .rental-calendar-legend {
+    min-height: 42px;
+    padding: 8px 16px;
+    gap: 12px;
+    font-size: 11px;
+}
+
+.rental-calendar-page .rental-calendar-legend i {
+    width: 9px;
+    height: 9px;
+}
+
+.rental-calendar-page .rental-calendar-grid {
+    gap: 6px;
+    padding: 14px;
+}
+
+.rental-calendar-page .rental-calendar-weekday {
+    padding-bottom: 5px;
+    font-size: 10px;
+}
+
+.rental-calendar-page .rental-calendar-day {
+    min-height: 103px;
+    padding: 9px;
+}
+
+.rental-calendar-page .rental-calendar-day-head {
+    margin-bottom: 7px;
+}
+
+.rental-calendar-page .rental-calendar-day-head strong {
+    font-size: 14px;
+}
+
+.rental-calendar-page .rental-calendar-day-head small {
+    font-size: 10px;
+}
+
+.rental-calendar-page .rental-calendar-day-events {
+    gap: 4px;
+}
+
+.rental-calendar-page .rental-calendar-event {
+    min-height: 22px;
+    padding: 4px 6px;
+    font-size: 10px;
+    line-height: 1.25;
+}
+
+.rental-calendar-page .rental-calendar-day-panel > header {
+    min-height: 78px;
+    padding: 16px 20px;
+}
+
+.rental-calendar-page .rental-calendar-day-kicker,
+.rental-calendar-page .rental-calendar-column-title,
+.rental-calendar-page .rental-calendar-history-title,
+.rental-calendar-page .rental-calendar-slot-state,
+.rental-calendar-page .rental-calendar-booking-head > div > span {
+    font-size: 11px;
+}
+
+.rental-calendar-page .rental-calendar-day-columns {
+    gap: 16px;
+    padding: 18px;
+}
+
+.rental-calendar-page .rental-calendar-slot-card,
+.rental-calendar-page .rental-calendar-booking,
+.rental-calendar-page .rental-calendar-empty {
+    padding: 16px;
+}
+
+.rental-calendar-page .rental-calendar-slot-card p,
+.rental-calendar-page .rental-calendar-booking-head p,
+.rental-calendar-page .rental-calendar-booking-data span,
+.rental-calendar-page .rental-calendar-empty p {
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.rental-calendar-page .rental-calendar-slot-action,
+.rental-calendar-page .rental-calendar-booking-action,
+.rental-calendar-page .rental-calendar-booking-status {
+    font-size: 12px;
+}
+
+.rental-calendar-page .rental-calendar-empty strong {
+    font-size: 14px;
+}
+
+.rental-calendar-page a:focus-visible,
+.rental-calendar-page select:focus-visible,
+.space-exact-availability-page a:focus-visible,
+.space-exact-availability-page button:focus-visible,
+.space-exact-availability-page select:focus-visible {
+    outline: 2px solid #ff8b76;
+    outline-offset: 3px;
+}
+
+/* Formulario de publicación: hacer legibles las instrucciones. */
+
+.space-exact-availability-page .space-exact-availability-space-card span,
+.space-exact-availability-page .space-exact-summary-grid article > span,
+.space-exact-availability-page .space-exact-review-card > span,
+.space-exact-availability-page .space-exact-review-grid article > span,
+.space-exact-availability-page .space-exact-field label {
+    font-size: 11px;
+}
+
+.space-exact-availability-page .space-exact-availability-space-card p,
+.space-exact-availability-page .space-exact-summary-grid article p,
+.space-exact-availability-page .space-exact-step-heading p,
+.space-exact-availability-page .space-exact-review-card p,
+.space-exact-availability-page .space-exact-actions > div:first-child p {
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.space-exact-availability-page .space-exact-date-fields select,
+.space-exact-availability-page .space-exact-field select,
+.space-exact-availability-page .space-exact-review-grid article strong,
+.space-exact-availability-page .space-exact-summary-grid article strong {
+    font-size: 13px;
+}
+
+.space-exact-availability-page .space-exact-back-button,
+.space-exact-availability-page .space-exact-publish-button,
+.space-exact-availability-page .space-exact-advanced-link {
+    font-size: 12px;
+}
+
+.space-exact-availability-page .space-exact-form-error,
+.space-exact-availability-page .space-exact-field-error {
+    font-size: 12px;
+}
+
+@media (max-width: 760px) {
+    .rental-calendar-page .rental-calendar-grid {
+        padding: 10px;
+    }
+
+    .rental-calendar-page .rental-calendar-day {
+        min-height: 103px;
+    }
+
+    .rental-calendar-page .rental-calendar-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .rental-calendar-page .rental-calendar-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rental-calendar-page .rental-calendar-day-panel > header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}

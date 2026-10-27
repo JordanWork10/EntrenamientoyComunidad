@@ -1,27 +1,18 @@
 {% extends 'base.html' %}
 {% load clp_filters %}
 
-
 {% block title %}
 Calendario de arriendos | EntrenamientoyComunidad
 {% endblock %}
 
-
 {% block content %}
 
 <section class="rental-calendar-page">
-
     <div class="rental-calendar-container">
 
-
-        <!-- =========================
-             CABECERA
-        ========================== -->
-
+        <!-- CABECERA -->
         <header class="rental-calendar-hero">
-
             <div>
-
                 <span class="rental-calendar-overline">
                     CENTRO DE ESPACIOS
                 </span>
@@ -34,30 +25,23 @@ Calendario de arriendos | EntrenamientoyComunidad
                     Organiza la disponibilidad, solicitudes y reservas
                     de tus espacios desde un solo calendario.
                 </p>
-
             </div>
 
-
             <div class="rental-calendar-hero-actions">
-
                 {% if general_space_availability_url %}
-
                     <a
                         href="{{ general_space_availability_url }}"
                         class="rental-calendar-primary-action"
                     >
                         + Agregar disponibilidad
                     </a>
-
                 {% elif spaces %}
-
                     <a
                         href="#filtro-espacio"
                         class="rental-calendar-primary-action rental-calendar-primary-action-guide"
                     >
                         Selecciona un espacio para publicar
                     </a>
-
                 {% endif %}
 
                 <a
@@ -66,23 +50,15 @@ Calendario de arriendos | EntrenamientoyComunidad
                 >
                     Reservas recibidas →
                 </a>
-
             </div>
-
         </header>
 
-
-        <!-- =========================
-             FILTRO DE ESPACIO
-        ========================== -->
-
+        <!-- FILTRO DE ESPACIOS -->
         <section
             class="rental-calendar-filter rental-calendar-space-context"
             id="filtro-espacio"
         >
-
             <div class="rental-calendar-space-context-copy">
-
                 <span>
                     {% if spaces|length > 1 %}
                         VISTA DEL CALENDARIO
@@ -100,34 +76,25 @@ Calendario de arriendos | EntrenamientoyComunidad
                 </strong>
 
                 {% if selected_space %}
-
                     <p>
                         {{ selected_space.space_type.name }}
                         ·
                         {{ selected_space.commune.name }}
                     </p>
-
                 {% else %}
-
                     <p>
                         Visualizando en conjunto la actividad de
                         {{ spaces|length }} espacios registrados.
                     </p>
-
                 {% endif %}
-
             </div>
 
-
             <div class="rental-calendar-space-context-actions">
-
                 {% if spaces|length > 1 %}
-
                     <form
                         method="get"
                         class="rental-calendar-filter-form"
                     >
-
                         <input
                             type="hidden"
                             name="month"
@@ -149,7 +116,6 @@ Calendario de arriendos | EntrenamientoyComunidad
                             name="space"
                             onchange="this.form.submit()"
                         >
-
                             <option
                                 value="all"
                                 {% if not selected_space %}selected{% endif %}
@@ -158,49 +124,36 @@ Calendario de arriendos | EntrenamientoyComunidad
                             </option>
 
                             {% for space in spaces %}
-
                                 <option
                                     value="{{ space.id }}"
                                     {% if selected_space and selected_space.id == space.id %}selected{% endif %}
                                 >
                                     {{ space.name }}
                                 </option>
-
                             {% endfor %}
-
                         </select>
-
                     </form>
-
                 {% endif %}
 
-
                 {% if selected_space %}
-
                     <a
                         href="{% url 'spaces:availability' selected_space.id %}"
                         class="rental-calendar-manage-availability-link"
                     >
                         Gestionar disponibilidad →
                     </a>
-
                 {% elif spaces|length > 1 %}
-
                     <span class="rental-calendar-space-context-hint">
                         Selecciona un espacio para administrar su disponibilidad.
                     </span>
-
                 {% endif %}
-
             </div>
-
         </section>
-
 
         {% if not spaces %}
 
+            <!-- ESTADO SIN ESPACIOS -->
             <section class="rental-calendar-empty-provider">
-
                 <strong>
                     Aún no tienes espacios registrados
                 </strong>
@@ -213,710 +166,564 @@ Calendario de arriendos | EntrenamientoyComunidad
                 <a href="{% url 'spaces:create_space' %}">
                     + Crear nuevo espacio →
                 </a>
-
             </section>
 
         {% else %}
 
-
-        <!-- =========================
-             RESUMEN
-        ========================== -->
-
-        <section class="rental-calendar-summary-grid">
-
-            <article class="rental-calendar-summary-card rental-calendar-summary-available">
-
-                <span>
-                    DISPONIBLES
-                </span>
-
-                <strong>
-                    {{ month_available_count }}
-                </strong>
-
-                <p>
-                    Bloques libres visibles este mes
-                </p>
-
-            </article>
-
-
-            <article class="rental-calendar-summary-card rental-calendar-summary-pending">
-
-                <span>
-                    PENDIENTES
-                </span>
-
-                <strong>
-                    {{ pending_month_count }}
-                </strong>
-
-                <p>
-                    Solicitudes por responder
-                </p>
-
-            </article>
-
-
-            <article class="rental-calendar-summary-card rental-calendar-summary-confirmed">
-
-                <span>
-                    CONFIRMADOS
-                </span>
-
-                <strong>
-                    {{ confirmed_month_count }}
-                </strong>
-
-                <p>
-                    Arriendos confirmados
-                </p>
-
-            </article>
-
-
-            <article class="rental-calendar-summary-card rental-calendar-summary-history">
-
-                <span>
-                    HISTORIAL
-                </span>
-
-                <strong>
-                    {{ history_month_count }}
-                </strong>
-
-                <p>
-                    Finalizados o cancelados
-                </p>
-
-            </article>
-
-        </section>
-
-
-        <!-- =========================
-             CALENDARIO
-        ========================== -->
-
-        <section class="rental-calendar-panel">
-
-            <header class="rental-calendar-month-header">
-
-                <div class="rental-calendar-month-main">
-
-                    <a
-                        href="?month={{ previous_month|date:'Y-m' }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
-                        class="rental-calendar-month-arrow"
-                    >
-                        ←
-                    </a>
-
-                    <div>
-
-                        <span>
-                            MES
-                        </span>
-
-                        <h2>
-                            {{ display_month_label }}
-                        </h2>
-
-                    </div>
-
-                    <a
-                        href="?month={{ next_month|date:'Y-m' }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
-                        class="rental-calendar-month-arrow"
-                    >
-                        →
-                    </a>
-
-                </div>
-
-
-                <a
-                    href="?month={{ today|date:'Y-m' }}&date={{ today|date:'Y-m-d' }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
-                    class="rental-calendar-today"
-                >
-                    Ir a hoy
-                </a>
-
-            </header>
-
-
-            <div class="rental-calendar-year-navigation">
-
-                <a
-                    href="?month={{ previous_year }}-{{ display_month.month|stringformat:'02d' }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
-                    class="rental-calendar-year-link"
-                >
-                    ← {{ previous_year }}
-                </a>
-
-
-                <div class="rental-calendar-month-strip">
-
-                    {% for month in month_navigation %}
-
-                        <a
-                            href="?month={{ month.query_value }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
-                            class="rental-calendar-month-link{% if month.is_active %} is-active{% endif %}"
-                        >
-                            {{ month.short_name }}
-                        </a>
-
-                    {% endfor %}
-
-                </div>
-
-
-                <a
-                    href="?month={{ next_year }}-{{ display_month.month|stringformat:'02d' }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
-                    class="rental-calendar-year-link"
-                >
-                    {{ next_year }} →
-                </a>
-
-            </div>
-
-
-            <div class="rental-calendar-legend">
-
-                <span class="rental-calendar-legend-available">
-                    <i></i>
-                    Disponible
-                </span>
-
-                <span class="rental-calendar-legend-pending">
-                    <i></i>
-                    Pendiente
-                </span>
-
-                <span class="rental-calendar-legend-confirmed">
-                    <i></i>
-                    Confirmado
-                </span>
-
-                <span class="rental-calendar-legend-history">
-                    <i></i>
-                    Historial
-                </span>
-
-            </div>
-
-
-            <div class="rental-calendar-grid">
-
-                <div class="rental-calendar-weekday">LUN</div>
-                <div class="rental-calendar-weekday">MAR</div>
-                <div class="rental-calendar-weekday">MIÉ</div>
-                <div class="rental-calendar-weekday">JUE</div>
-                <div class="rental-calendar-weekday">VIE</div>
-                <div class="rental-calendar-weekday">SÁB</div>
-                <div class="rental-calendar-weekday">DOM</div>
-
-
-                {% for week in calendar_weeks %}
-
-                    {% for cell in week %}
-
-                        {% if cell.in_display_month %}
-
-                            <a
-                                href="?month={{ display_month|date:'Y-m' }}&date={{ cell.date|date:'Y-m-d' }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
-                                class="rental-calendar-day{% if cell.is_today %} is-today{% endif %}{% if cell.is_selected %} is-selected{% endif %}"
-                            >
-
-                                <div class="rental-calendar-day-head">
-
-                                    <strong>
-                                        {{ cell.date.day }}
-                                    </strong>
-
-                                    {% if cell.is_today %}
-
-                                        <small>
-                                            HOY
-                                        </small>
-
-                                    {% endif %}
-
-                                </div>
-
-
-                                <div class="rental-calendar-day-events">
-
-                                    {% if cell.available_count %}
-
-                                        <span class="rental-calendar-event rental-calendar-event-available">
-                                            {{ cell.available_count }}
-                                            disponible{{ cell.available_count|pluralize:"s" }}
-                                        </span>
-
-                                    {% endif %}
-
-
-                                    {% if cell.pending_count %}
-
-                                        <span class="rental-calendar-event rental-calendar-event-pending">
-                                            {{ cell.pending_count }}
-                                            pendiente{{ cell.pending_count|pluralize:"s" }}
-                                        </span>
-
-                                    {% endif %}
-
-
-                                    {% if cell.confirmed_count %}
-
-                                        <span class="rental-calendar-event rental-calendar-event-confirmed">
-                                            {{ cell.confirmed_count }}
-                                            confirmado{{ cell.confirmed_count|pluralize:"s" }}
-                                        </span>
-
-                                    {% endif %}
-
-
-                                    {% if cell.history_count %}
-
-                                        <span class="rental-calendar-event rental-calendar-event-history">
-                                            Historial
-                                        </span>
-
-                                    {% endif %}
-
-                                </div>
-
-                            </a>
-
-                        {% else %}
-
-                            <div class="rental-calendar-day is-outside">
-
-                                <div class="rental-calendar-day-head">
-
-                                    <strong>
-                                        {{ cell.date.day }}
-                                    </strong>
-
-                                </div>
-
-                            </div>
-
-                        {% endif %}
-
-                    {% endfor %}
-
-                {% endfor %}
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             CONFIRMACIÓN
-        ========================== -->
-
-        {% if availability_added %}
-
-            <section
-                class="rental-calendar-success-message rental-calendar-success-message-prominent"
-                id="disponibilidad-publicada"
-                aria-live="polite"
-            >
-
-                <div class="rental-calendar-success-icon">
-                    ✓
-                </div>
-
-
-                <div class="rental-calendar-success-copy">
-
-                    <span class="rental-calendar-success-overline">
-                        DISPONIBILIDAD PUBLICADA
-                    </span>
+            <!-- RESUMEN MENSUAL -->
+            <section class="rental-calendar-summary-grid">
+
+                <article class="rental-calendar-summary-card rental-calendar-summary-available">
+                    <span>DISPONIBLES</span>
 
                     <strong>
-                        Disponibilidad publicada correctamente
+                        {{ month_available_count }}
                     </strong>
 
                     <p>
-                        <b>{{ selected_space.name }}</b>
-                        estará disponible el
-                        <b>{{ selected_date|date:"d/m/Y" }}</b>
-                        de
-                        <b>{{ availability_added_start }}</b>
-                        a
-                        <b>{{ availability_added_end }}</b>.
+                        Horarios libres visibles este mes
                     </p>
+                </article>
 
-                </div>
+                <article class="rental-calendar-summary-card rental-calendar-summary-pending">
+                    <span>PENDIENTES</span>
 
+                    <strong>
+                        {{ pending_month_count }}
+                    </strong>
 
-                {% if availability_added_blocks %}
+                    <p>
+                        Solicitudes por responder
+                    </p>
+                </article>
 
-                    <div class="rental-calendar-success-blocks">
+                <article class="rental-calendar-summary-card rental-calendar-summary-confirmed">
+                    <span>CONFIRMADOS</span>
 
-                        <span>
-                            BLOQUES CREADOS
-                        </span>
+                    <strong>
+                        {{ confirmed_month_count }}
+                    </strong>
 
-                        <strong>
-                            {{ availability_added_blocks }}
-                        </strong>
+                    <p>
+                        Arriendos confirmados
+                    </p>
+                </article>
 
-                        <small>
-                            de 60 min
-                        </small>
+                <article class="rental-calendar-summary-card rental-calendar-summary-history">
+                    <span>HISTORIAL</span>
 
-                    </div>
+                    <strong>
+                        {{ history_month_count }}
+                    </strong>
 
-                {% endif %}
+                    <p>
+                        Finalizados o cancelados
+                    </p>
+                </article>
 
             </section>
 
-        {% endif %}
+            <!-- CALENDARIO MENSUAL -->
+            <section class="rental-calendar-panel">
 
+                <header class="rental-calendar-month-header">
+                    <div class="rental-calendar-month-main">
 
-        <!-- =========================
-             DÍA SELECCIONADO
-        ========================== -->
+                        <a
+                            href="?month={{ previous_month|date:'Y-m' }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
+                            class="rental-calendar-month-arrow"
+                        >
+                            ←
+                        </a>
 
-        <section
-            class="rental-calendar-day-panel"
-            id="dia-seleccionado"
-        >
+                        <div>
+                            <span>MES</span>
 
-            <header>
+                            <h2>
+                                {{ display_month_label }}
+                            </h2>
+                        </div>
 
-                <div>
-
-                    <span class="rental-calendar-day-kicker">
-                        DÍA SELECCIONADO
-                    </span>
-
-                    <h2>
-                        {{ selected_date|date:"l j \d\e F \d\e Y"|capfirst }}
-                    </h2>
-
-                </div>
-
-
-                {% if selected_space_availability_url %}
+                        <a
+                            href="?month={{ next_month|date:'Y-m' }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
+                            class="rental-calendar-month-arrow"
+                        >
+                            →
+                        </a>
+                    </div>
 
                     <a
-                        href="{{ selected_space_availability_url }}"
-                        class="rental-calendar-add-day"
+                        href="?month={{ today|date:'Y-m' }}&date={{ today|date:'Y-m-d' }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
+                        class="rental-calendar-today"
                     >
-                        + Agregar disponibilidad
+                        Ir a hoy
+                    </a>
+                </header>
+
+                <!-- NAVEGACIÓN ANUAL -->
+                <div class="rental-calendar-year-navigation">
+
+                    <a
+                        href="?month={{ previous_year }}-{{ display_month.month|stringformat:'02d' }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
+                        class="rental-calendar-year-link"
+                    >
+                        ← {{ previous_year }}
                     </a>
 
-                {% else %}
+                    <div class="rental-calendar-month-strip">
+                        {% for month in month_navigation %}
+                            <a
+                                href="?month={{ month.query_value }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
+                                class="rental-calendar-month-link{% if month.is_active %} is-active{% endif %}"
+                            >
+                                {{ month.short_name }}
+                            </a>
+                        {% endfor %}
+                    </div>
 
-                    <span class="rental-calendar-space-hint">
-                        Selecciona un espacio para gestionar disponibilidad.
+                    <a
+                        href="?month={{ next_year }}-{{ display_month.month|stringformat:'02d' }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
+                        class="rental-calendar-year-link"
+                    >
+                        {{ next_year }} →
+                    </a>
+                </div>
+
+                <!-- LEYENDA -->
+                <div class="rental-calendar-legend">
+
+                    <span class="rental-calendar-legend-available">
+                        <i></i>
+                        Disponible
                     </span>
 
-                {% endif %}
+                    <span class="rental-calendar-legend-pending">
+                        <i></i>
+                        Pendiente
+                    </span>
 
-            </header>
+                    <span class="rental-calendar-legend-confirmed">
+                        <i></i>
+                        Confirmado
+                    </span>
 
+                    <span class="rental-calendar-legend-history">
+                        <i></i>
+                        Historial
+                    </span>
 
-            <div class="rental-calendar-day-columns">
+                </div>
 
+                <!-- CUADRÍCULA -->
+                <div class="rental-calendar-grid">
 
-                <!-- =========================
-                     DISPONIBILIDAD
-                ========================== -->
+                    <div class="rental-calendar-weekday">LUN</div>
+                    <div class="rental-calendar-weekday">MAR</div>
+                    <div class="rental-calendar-weekday">MIÉ</div>
+                    <div class="rental-calendar-weekday">JUE</div>
+                    <div class="rental-calendar-weekday">VIE</div>
+                    <div class="rental-calendar-weekday">SÁB</div>
+                    <div class="rental-calendar-weekday">DOM</div>
 
-                <div class="rental-calendar-day-column">
+                    {% for week in calendar_weeks %}
+                        {% for cell in week %}
 
-                    <div class="rental-calendar-column-title">
+                            {% if cell.in_display_month %}
 
-                        <span>
-                            DISPONIBILIDAD
+                                <a
+                                    href="?month={{ display_month|date:'Y-m' }}&date={{ cell.date|date:'Y-m-d' }}{% if selected_space %}&space={{ selected_space.id }}{% endif %}"
+                                    class="rental-calendar-day{% if cell.is_today %} is-today{% endif %}{% if cell.is_selected %} is-selected{% endif %}"
+                                >
+
+                                    <div class="rental-calendar-day-head">
+                                        <strong>
+                                            {{ cell.date.day }}
+                                        </strong>
+
+                                        {% if cell.is_today %}
+                                            <small>HOY</small>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="rental-calendar-day-events">
+
+                                        {% if cell.available_count %}
+                                            <span class="rental-calendar-event rental-calendar-event-available">
+                                                {{ cell.available_count }}
+                                                horario{{ cell.available_count|pluralize:"s" }}
+                                                libre{{ cell.available_count|pluralize:"s" }}
+                                            </span>
+                                        {% endif %}
+
+                                        {% if cell.pending_count %}
+                                            <span class="rental-calendar-event rental-calendar-event-pending">
+                                                {{ cell.pending_count }}
+                                                pendiente{{ cell.pending_count|pluralize:"s" }}
+                                            </span>
+                                        {% endif %}
+
+                                        {% if cell.confirmed_count %}
+                                            <span class="rental-calendar-event rental-calendar-event-confirmed">
+                                                {{ cell.confirmed_count }}
+                                                confirmado{{ cell.confirmed_count|pluralize:"s" }}
+                                            </span>
+                                        {% endif %}
+
+                                        {% if cell.history_count %}
+                                            <span class="rental-calendar-event rental-calendar-event-history">
+                                                Historial
+                                            </span>
+                                        {% endif %}
+
+                                    </div>
+                                </a>
+
+                            {% else %}
+
+                                <div class="rental-calendar-day is-outside">
+                                    <div class="rental-calendar-day-head">
+                                        <strong>
+                                            {{ cell.date.day }}
+                                        </strong>
+                                    </div>
+                                </div>
+
+                            {% endif %}
+
+                        {% endfor %}
+                    {% endfor %}
+
+                </div>
+            </section>
+
+            <!-- CONFIRMACIÓN DE DISPONIBILIDAD -->
+            {% if availability_added %}
+
+                <section
+                    class="rental-calendar-success-message rental-calendar-success-message-prominent"
+                    id="disponibilidad-publicada"
+                    aria-live="polite"
+                >
+
+                    <div class="rental-calendar-success-icon">
+                        ✓
+                    </div>
+
+                    <div class="rental-calendar-success-copy">
+
+                        <span class="rental-calendar-success-overline">
+                            DISPONIBILIDAD PUBLICADA
                         </span>
 
                         <strong>
-                            {{ selected_available_slots|length }}
+                            Disponibilidad publicada correctamente
                         </strong>
 
+                        <p>
+                            <b>{{ selected_space.name }}</b>
+                            estará disponible el
+                            <b>{{ selected_date|date:"d/m/Y" }}</b>
+                            de
+                            <b>{{ availability_added_start }}</b>
+                            a
+                            <b>{{ availability_added_end }}</b>.
+                        </p>
                     </div>
 
+                    {% if availability_added_blocks %}
+                        <div class="rental-calendar-success-blocks">
 
-                    {% for slot in selected_available_slots %}
+                            <span>
+                                HORARIOS CREADOS
+                            </span>
 
-                        <article class="rental-calendar-slot-card">
+                            <strong>
+                                {{ availability_added_blocks }}
+                            </strong>
 
-                            <div>
+                            <small>
+                                de 60 min
+                            </small>
 
-                                <span class="rental-calendar-slot-state">
-                                    DISPONIBLE
-                                </span>
+                        </div>
+                    {% endif %}
 
-                                <h3>
-                                    {{ slot.space.name }}
-                                </h3>
+                </section>
+
+            {% endif %}
+
+            <!-- DÍA SELECCIONADO -->
+            <section
+                class="rental-calendar-day-panel"
+                id="dia-seleccionado"
+            >
+
+                <header>
+                    <div>
+                        <span class="rental-calendar-day-kicker">
+                            DÍA SELECCIONADO
+                        </span>
+
+                        <h2>
+                            {{ selected_date|date:"l j \d\e F \d\e Y"|capfirst }}
+                        </h2>
+                    </div>
+
+                    {% if selected_space_availability_url %}
+                        <a
+                            href="{{ selected_space_availability_url }}"
+                            class="rental-calendar-add-day"
+                        >
+                            + Agregar disponibilidad
+                        </a>
+                    {% else %}
+                        <span class="rental-calendar-space-hint">
+                            Selecciona un espacio para gestionar disponibilidad.
+                        </span>
+                    {% endif %}
+                </header>
+
+                <div class="rental-calendar-day-columns">
+
+                    <!-- DISPONIBILIDAD -->
+                    <div class="rental-calendar-day-column">
+
+                        <div class="rental-calendar-column-title">
+                            <span>DISPONIBILIDAD</span>
+
+                            <strong>
+                                {{ selected_available_slots|length }}
+                            </strong>
+                        </div>
+
+                        {% for slot in selected_available_slots %}
+
+                            <article class="rental-calendar-slot-card">
+
+                                <div>
+                                    <span class="rental-calendar-slot-state">
+                                        DISPONIBLE
+                                    </span>
+
+                                    <h3>
+                                        {{ slot.space.name }}
+                                    </h3>
+
+                                    <p>
+                                        {{ slot.space.space_type.name }}
+                                        ·
+                                        {{ slot.space.commune.name }}
+                                    </p>
+                                </div>
+
+                                <strong class="rental-calendar-slot-time">
+                                    {{ slot.start_time|time:"H:i" }}
+                                    →
+                                    {{ slot.end_time|time:"H:i" }}
+                                </strong>
+
+                                <a
+                                    href="{{ slot.availability_url }}"
+                                    class="rental-calendar-slot-action"
+                                >
+                                    Gestionar disponibilidad →
+                                </a>
+
+                            </article>
+
+                        {% empty %}
+
+                            <div class="rental-calendar-empty">
+                                <strong>
+                                    Sin horarios disponibles
+                                </strong>
 
                                 <p>
-                                    {{ slot.space.space_type.name }}
-                                    ·
-                                    {{ slot.space.commune.name }}
+                                    No hay disponibilidad libre para esta fecha
+                                    con el filtro actual.
                                 </p>
-
                             </div>
 
-
-                            <strong class="rental-calendar-slot-time">
-                                {{ slot.start_time|time:"H:i" }}
-                                →
-                                {{ slot.end_time|time:"H:i" }}
-                            </strong>
-
-
-                            <a
-                                href="{{ slot.availability_url }}"
-                                class="rental-calendar-slot-action"
-                            >
-                                Gestionar disponibilidad →
-                            </a>
-
-                        </article>
-
-                    {% empty %}
-
-                        <div class="rental-calendar-empty">
-
-                            <strong>
-                                Sin bloques disponibles
-                            </strong>
-
-                            <p>
-                                No hay disponibilidad libre para esta fecha
-                                con el filtro actual.
-                            </p>
-
-                        </div>
-
-                    {% endfor %}
-
-                </div>
-
-
-                <!-- =========================
-                     SOLICITUDES Y ARRIENDOS
-                ========================== -->
-
-                <div class="rental-calendar-day-column">
-
-                    <div class="rental-calendar-column-title">
-
-                        <span>
-                            SOLICITUDES Y ARRIENDOS
-                        </span>
-
-                        <strong>
-                            {{ selected_active_bookings|length }}
-                        </strong>
-
+                        {% endfor %}
                     </div>
 
+                    <!-- SOLICITUDES Y ARRIENDOS -->
+                    <div class="rental-calendar-day-column">
 
-                    {% for item in selected_active_bookings %}
-
-                        <article
-                            class="rental-calendar-booking rental-calendar-booking-{{ item.status_key }}"
-                        >
-
-                            <div class="rental-calendar-booking-head">
-
-                                <div>
-
-                                    <span>
-                                        {{ item.status_label|upper }}
-                                    </span>
-
-                                    <h3>
-                                        {{ item.booking.booked_by.get_full_name|default:item.booking.booked_by.email }}
-                                    </h3>
-
-                                    <p>
-                                        {{ item.booking.space_name_snapshot }}
-                                    </p>
-
-                                </div>
-
-
-                                <span
-                                    class="rental-calendar-booking-status rental-calendar-booking-status-{{ item.status_key }}"
-                                >
-                                    {{ item.status_label }}
-                                </span>
-
-                            </div>
-
-
-                            <div class="rental-calendar-booking-data">
-
-                                <strong>
-                                    {{ item.booking.start_time|time:"H:i" }}
-                                    →
-                                    {{ item.booking.end_time|time:"H:i" }}
-                                </strong>
-
-                                <span>
-                                    {{ item.booking.duration_minutes }} min
-                                </span>
-
-                                <span>
-                                    {{ item.booking.price_clp|clp }}
-                                </span>
-
-                            </div>
-
-
-                            <a
-                                href="{{ item.detail_url }}"
-                                class="rental-calendar-booking-action"
-                            >
-                                {{ item.action_label }}
-                            </a>
-
-                        </article>
-
-                    {% empty %}
-
-                        <div class="rental-calendar-empty">
+                        <div class="rental-calendar-column-title">
+                            <span>SOLICITUDES Y ARRIENDOS</span>
 
                             <strong>
-                                Sin solicitudes o arriendos activos
+                                {{ selected_active_bookings|length }}
                             </strong>
-
-                            <p>
-                                Las solicitudes pendientes y los arriendos
-                                confirmados aparecerán aquí.
-                            </p>
-
                         </div>
 
-                    {% endfor %}
+                        {% for item in selected_active_bookings %}
 
+                            <article
+                                class="rental-calendar-booking rental-calendar-booking-{{ item.status_key }}"
+                            >
 
-                    <!-- =========================
-                         HISTORIAL DEL DÍA
-                    ========================== -->
+                                <div class="rental-calendar-booking-head">
 
-                    <div class="rental-calendar-history-title">
+                                    <div>
+                                        <span>
+                                            {{ item.status_label|upper }}
+                                        </span>
 
-                        <span>
-                            HISTORIAL DEL DÍA
-                        </span>
+                                        <h3>
+                                            {{ item.booking.booked_by.get_full_name|default:item.booking.booked_by.email }}
+                                        </h3>
 
-                        <strong>
-                            {{ selected_history_bookings|length }}
-                        </strong>
+                                        <p>
+                                            {{ item.booking.space_name_snapshot }}
+                                        </p>
+                                    </div>
 
+                                    <span
+                                        class="rental-calendar-booking-status rental-calendar-booking-status-{{ item.status_key }}"
+                                    >
+                                        {{ item.status_label }}
+                                    </span>
+                                </div>
+
+                                <div class="rental-calendar-booking-data">
+
+                                    <strong>
+                                        {{ item.booking.start_time|time:"H:i" }}
+                                        →
+                                        {{ item.booking.end_time|time:"H:i" }}
+                                    </strong>
+
+                                    <span>
+                                        {{ item.booking.duration_minutes }} min
+                                    </span>
+
+                                    <span>
+                                        {{ item.booking.price_clp|clp }}
+                                    </span>
+                                </div>
+
+                                <a
+                                    href="{{ item.detail_url }}"
+                                    class="rental-calendar-booking-action"
+                                >
+                                    {{ item.action_label }}
+                                </a>
+
+                            </article>
+
+                        {% empty %}
+
+                            <div class="rental-calendar-empty">
+                                <strong>
+                                    Sin solicitudes o arriendos activos
+                                </strong>
+
+                                <p>
+                                    Las solicitudes pendientes y los arriendos
+                                    confirmados aparecerán aquí.
+                                </p>
+                            </div>
+
+                        {% endfor %}
+
+                        <!-- HISTORIAL DEL DÍA -->
+                        <div class="rental-calendar-history-title">
+                            <span>
+                                HISTORIAL DEL DÍA
+                            </span>
+
+                            <strong>
+                                {{ selected_history_bookings|length }}
+                            </strong>
+                        </div>
+
+                        {% for item in selected_history_bookings %}
+
+                            <article
+                                class="rental-calendar-booking rental-calendar-booking-history rental-calendar-booking-{{ item.status_key }}"
+                            >
+
+                                <div class="rental-calendar-booking-head">
+
+                                    <div>
+                                        <span>
+                                            {{ item.status_label|upper }}
+                                        </span>
+
+                                        <h3>
+                                            {{ item.booking.booked_by.get_full_name|default:item.booking.booked_by.email }}
+                                        </h3>
+
+                                        <p>
+                                            {{ item.booking.space_name_snapshot }}
+                                        </p>
+                                    </div>
+
+                                    <span
+                                        class="rental-calendar-booking-status rental-calendar-booking-status-{{ item.status_key }}"
+                                    >
+                                        {{ item.status_label }}
+                                    </span>
+                                </div>
+
+                                <div class="rental-calendar-booking-data">
+
+                                    <strong>
+                                        {{ item.booking.start_time|time:"H:i" }}
+                                        →
+                                        {{ item.booking.end_time|time:"H:i" }}
+                                    </strong>
+
+                                    <span>
+                                        {{ item.booking.duration_minutes }} min
+                                    </span>
+
+                                    <span>
+                                        {{ item.booking.price_clp|clp }}
+                                    </span>
+                                </div>
+
+                                <a
+                                    href="{{ item.detail_url }}"
+                                    class="rental-calendar-booking-action"
+                                >
+                                    Ver detalle →
+                                </a>
+
+                            </article>
+
+                        {% empty %}
+
+                            <div class="rental-calendar-empty rental-calendar-empty-history">
+                                <strong>
+                                    Sin historial para este día
+                                </strong>
+
+                                <p>
+                                    Las reservas finalizadas, canceladas o
+                                    no aceptadas aparecerán aquí.
+                                </p>
+                            </div>
+
+                        {% endfor %}
                     </div>
 
-
-                    {% for item in selected_history_bookings %}
-
-                        <article
-                            class="rental-calendar-booking rental-calendar-booking-history rental-calendar-booking-{{ item.status_key }}"
-                        >
-
-                            <div class="rental-calendar-booking-head">
-
-                                <div>
-
-                                    <span>
-                                        {{ item.status_label|upper }}
-                                    </span>
-
-                                    <h3>
-                                        {{ item.booking.booked_by.get_full_name|default:item.booking.booked_by.email }}
-                                    </h3>
-
-                                    <p>
-                                        {{ item.booking.space_name_snapshot }}
-                                    </p>
-
-                                </div>
-
-
-                                <span
-                                    class="rental-calendar-booking-status rental-calendar-booking-status-{{ item.status_key }}"
-                                >
-                                    {{ item.status_label }}
-                                </span>
-
-                            </div>
-
-
-                            <div class="rental-calendar-booking-data">
-
-                                <strong>
-                                    {{ item.booking.start_time|time:"H:i" }}
-                                    →
-                                    {{ item.booking.end_time|time:"H:i" }}
-                                </strong>
-
-                                <span>
-                                    {{ item.booking.duration_minutes }} min
-                                </span>
-
-                                <span>
-                                    {{ item.booking.price_clp|clp }}
-                                </span>
-
-                            </div>
-
-
-                            <a
-                                href="{{ item.detail_url }}"
-                                class="rental-calendar-booking-action"
-                            >
-                                Ver detalle →
-                            </a>
-
-                        </article>
-
-                    {% empty %}
-
-                        <div class="rental-calendar-empty rental-calendar-empty-history">
-
-                            <strong>
-                                Sin historial para este día
-                            </strong>
-
-                            <p>
-                                Las reservas finalizadas, canceladas o
-                                no aceptadas aparecerán aquí.
-                            </p>
-
-                        </div>
-
-                    {% endfor %}
-
                 </div>
+            </section>
 
-            </div>
-
-        </section>
-
-
-        <a
-            href="{% url 'spaces:dashboard' %}"
-            class="rental-calendar-back"
-        >
-            ← Volver al Centro de Espacios
-        </a>
-
+            <!-- VOLVER -->
+            <a
+                href="{% url 'spaces:dashboard' %}"
+                class="rental-calendar-back"
+            >
+                ← Volver al Centro de Espacios
+            </a>
 
         {% endif %}
 
     </div>
-
 </section>
 
 {% endblock %}

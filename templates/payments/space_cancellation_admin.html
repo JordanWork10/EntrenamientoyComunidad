@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}Revisión de cancelaciones pagadas | EntrenamientoyComunidad{% endblock %}
+
+{% block content %}
+<section class="account-page v131-provider-income v131-admin-space-settlement">
+    <div class="account-container">
+        <header class="v131-provider-income-hero">
+            <div>
+                <span class="v131-provider-income-kicker">ADMINISTRACIÓN · ECONOMÍA DE ESPACIOS</span>
+                <h1>Cancelaciones en <span>revisión.</span></h1>
+                <p>Revisa las cancelaciones excepcionales y antiguas. Los casos normales con política V1 aceptada se resuelven automáticamente; todos conservan trazabilidad antes de liquidar.</p>
+            </div>
+            <span class="v131-provider-income-sandbox">SANDBOX · SIN DINERO REAL</span>
+        </header>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="v131-provider-income-notice" role="note">
+            <strong>Resolución económica controlada</strong>
+            <p>Una solicitud pendiente no cancela la reserva por sí sola. Aprobarla cancela el arriendo y registra, si corresponde, un reembolso CONTABLE de prueba. Rechazarla mantiene la reserva. Las cancelaciones automáticas aprobadas aparecen en el historial. No se transfiere dinero real.</p>
+        </div>
+
+        <div class="v131-provider-income-heading">
+            <div>
+                <span class="v131-provider-income-kicker">SOLICITUDES PENDIENTES</span>
+                <h2>Revisiones por resolver</h2>
+                <p>La liquidación permanece retenida mientras una solicitud siga pendiente.</p>
+            </div>
+            <span class="v131-provider-income-count">{{ pending_count }} pendiente{{ pending_count|pluralize }}</span>
+        </div>
+
+        {% for item in pending_requests %}
+            <article class="v131-provider-income-space v13167-cancel-card">
+                <div class="v131-provider-income-space-head">
+                    <div>
+                        <span>SOLICITUD #{{ item.pk }} · ARRIENDO #{{ item.booking.pk }}</span>
+                        <h3>{{ item.booking.space.name }}</h3>
+                        <p>{{ item.booking.session_date|date:"d/m/Y" }} · {{ item.booking.start_time|time:"H:i" }}–{{ item.booking.end_time|time:"H:i" }} · {{ item.booking.space.commune }}</p>
+                    </div>
+                    <span class="v131-admin-space-state v131-admin-space-state-on_hold">Pendiente de revisión</span>
+                </div>
+                <div class="v131-provider-income-space-totals">
+                    <div><span>SOLICITADO POR</span><strong>{{ item.requested_by.get_full_name|default:item.requested_by.get_username }}</strong><small>{{ item.get_requested_role_display }}</small></div>
+                    <div><span>PAGO REGISTRADO</span><strong>{{ item.payment.amount_clp|clp }}</strong></div>
+                    <div><span>YA REEMBOLSADO</span><strong>{{ item.payment.refunded_amount_clp|clp }}</strong></div>
+                    <div><span>SALDO REEMBOLSABLE</span><strong>{{ item.payment.refundable_amount_clp|clp }}</strong></div>
+                </div>
+                <div class="v13167-cancel-body">
+                    <p><strong>Motivo registrado:</strong> {{ item.reason }}</p>
+                    <p class="v131-admin-space-muted">Solicitada: {{ item.requested_at|date:"d/m/Y H:i" }} · Miembro: {{ item.booking.booked_by.get_full_name|default:item.booking.booked_by.get_username }}</p>
+                    <p class="v13167-cancel-hint">
+                        {% if item.requested_role == 'provider' %}
+                            Si el proveedor cancela, debe registrarse el reembolso total del saldo disponible.
+                        {% else %}
+                            Define el importe de acuerdo con la revisión del caso. La política de reembolsos de espacios no se aplica automáticamente a los pagos anteriores.
+                        {% endif %}
+                    </p>
+
+                    <div class="v13167-cancel-actions">
+                        <form method="post" action="{% url 'payments:space_cancellation_resolve' item.pk %}" class="v13167-cancel-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="approve">
+                            <label for="refund-{{ item.pk }}">Monto de reembolso en CLP (solo contable)</label>
+                            <input id="refund-{{ item.pk }}" type="number" name="refund_amount_clp" min="0" max="{{ item.payment.refundable_amount_clp }}" step="1" value="{% if item.requested_role == 'provider' %}{{ item.payment.refundable_amount_clp }}{% endif %}" required>
+                            <label for="approve-notes-{{ item.pk }}">Fundamento de la aprobación</label>
+                            <textarea id="approve-notes-{{ item.pk }}" name="review_notes" minlength="5" maxlength="1500" rows="3" required placeholder="Explica el importe y el motivo de aprobación."></textarea>
+                            <label class="v13167-cancel-confirm"><input type="checkbox" name="confirm" value="yes" required> Confirmo que revisé el caso y que esta operación es solo de prueba.</label>
+                            <button type="submit" class="v131-admin-space-btn">Aprobar cancelación en sandbox</button>
+                        </form>
+                        <form method="post" action="{% url 'payments:space_cancellation_resolve' item.pk %}" class="v13167-cancel-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="reject">
+                            <label for="reject-notes-{{ item.pk }}">Fundamento del rechazo</label>
+                            <textarea id="reject-notes-{{ item.pk }}" name="review_notes" minlength="5" maxlength="1500" rows="3" required placeholder="Explica por qué la reserva continuará vigente."></textarea>
+                            <button type="submit" class="v131-admin-space-btn v131-admin-space-btn-danger">Rechazar solicitud</button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <div class="v131-provider-income-empty">
+                <strong>No hay cancelaciones pagadas esperando revisión</strong>
+                <p>Las nuevas solicitudes de miembros y proveedores aparecerán aquí.</p>
+            </div>
+        {% endfor %}
+
+        <div class="v131-provider-income-heading v13167-history-heading">
+            <div>
+                <span class="v131-provider-income-kicker">TRAZABILIDAD</span>
+                <h2>Resoluciones recientes</h2>
+                <p>Historial de decisiones registradas en esta versión.</p>
+            </div>
+        </div>
+        {% for item in resolved_requests %}
+            <article class="v131-provider-income-space v13167-cancel-history">
+                <strong>Solicitud #{{ item.pk }} · {{ item.booking.space.name }} · {{ item.get_status_display }}</strong>
+                <p>Arriendo #{{ item.booking.pk }} · Reembolso registrado: {{ item.refund_amount_clp|clp }} · Resuelta: {{ item.reviewed_at|date:"d/m/Y H:i" }}</p>
+                <p>Responsable: {% if item.reviewed_by %}{{ item.reviewed_by.get_full_name|default:item.reviewed_by.get_username }}{% else %}Sistema automático · Política de espacios V1{% endif %} · Motivo: {{ item.review_notes }}</p>
+            </article>
+        {% empty %}
+            <p class="v131-admin-space-muted">Todavía no hay resoluciones registradas.</p>
+        {% endfor %}
+
+        <div class="v131-provider-income-bottom">
+            <a href="{% url 'payments:space_settlement_admin' %}">← Volver a las liquidaciones de arriendos</a>
+        </div>
+    </div>
+</section>
+<style>
+.v13167-cancel-body{padding:16px 18px;color:#e6eaf4}
+.v13167-cancel-body p{margin:0 0 12px;line-height:1.55}
+.v13167-cancel-hint{padding:12px;border:1px solid #354860;border-radius:9px;background:#101c2a;color:#bcd4f5}
+.v13167-cancel-actions{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-top:16px}
+.v13167-cancel-form{display:flex;flex-direction:column;gap:9px;padding:16px;border:1px solid #334356;border-radius:10px;background:#0d141f}
+.v13167-cancel-form label{font-size:13px;font-weight:700;color:#d8e5fc}
+.v13167-cancel-form input[type=number],.v13167-cancel-form textarea{width:100%;box-sizing:border-box;min-height:42px;padding:11px 12px;background:#090f17;border:1px solid #40516b;border-radius:8px;color:#fff;font:inherit}
+.v13167-cancel-form input:focus,.v13167-cancel-form textarea:focus{outline:2px solid #80aef4;outline-offset:2px}
+.v13167-cancel-form textarea{resize:vertical}
+.v13167-cancel-form .v13167-cancel-confirm{display:flex;align-items:flex-start;gap:8px;font-weight:400;line-height:1.5}
+.v13167-cancel-form .v13167-cancel-confirm input{margin-top:4px}
+.v13167-cancel-form button{align-self:start;margin-top:5px}
+.v13167-cancel-history{padding:18px;margin-bottom:12px}
+.v13167-cancel-history p{margin:7px 0 0;color:#b9cbe4;font-size:13px}
+.v13167-history-heading{margin-top:32px}
+.v131-provider-income-space-totals small{display:block;margin-top:6px;color:#9db9df}
+@media(max-width:720px){.v13167-cancel-actions{grid-template-columns:1fr}}
+</style>
+{% endblock %}

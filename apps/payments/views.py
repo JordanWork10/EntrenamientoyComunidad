@@ -15,8 +15,9 @@ from django.utils import timezone
 from apps.activities.models import Activity, ActivityRegistration
 from apps.spaces.models import Space, SpaceBooking, SpaceProviderProfile
 
-from .models import Payment, Settlement
+from .models import Payment, Settlement, SpaceCancellationRequest
 from .services.cancellation_policy import PAYMENTS_POLICY_VERSION
+from .services.space_policy import SPACE_POLICY_VERSION
 from .services.commissions import apply_payment_commission_snapshot
 from .services.settlements import (
     SettlementProcessingError,
@@ -31,6 +32,10 @@ from .services.refunds import (
     RefundProcessingError,
     preview_member_activity_cancellation,
     process_member_activity_cancellation,
+)
+from .services.space_cancellations import (
+    SpaceCancellationError,
+    resolve_paid_space_cancellation,
 )
 
 
@@ -1563,6 +1568,13 @@ def space_sandbox_approve(request, payment_id):
                     'payments:space_checkout', booking_id=booking.pk,
                 )
 
+            if request.POST.get('accept_space_policy') != '1':
+                messages.error(
+                    request,
+                    'Debes revisar y aceptar la política de cancelación de espacios.',
+                )
+                return redirect('payments:space_checkout', booking_id=booking.pk)
+
             if not _space_booking_payment_allowed(booking):
                 messages.error(
                     request,
@@ -1594,6 +1606,10 @@ def space_sandbox_approve(request, payment_id):
                 f'SBX-SPC-{str(payment.public_id).split("-")[0].upper()}'
             )
             payment.failure_reason = ''
+            # Congelamos la versión contractual al aprobar. Los pagos previos
+            # conservan LEGACY_PRE_POLICY y siguen en revisión administrativa.
+            payment.policy_version = SPACE_POLICY_VERSION
+            payment.policy_accepted_at = now
 
             # Congela plan y comisión del proveedor SOLO al aprobar.
             apply_payment_commission_snapshot(payment, at=now, save=False)
@@ -1603,14 +1619,15 @@ def space_sandbox_approve(request, payment_id):
                 now=now,
                 save=False,
             )
-            # Sin política automática de reembolso de arriendos todavía.
-            # No se genera Settlement ni se marca SETTLED en esta versión.
+            # La devolución futura podrá automatizarse por la versión aceptada.
+            # No se genera Settlement ni se marca SETTLED en este checkout.
             payment.full_clean()
             payment.save(update_fields=[
                 'status', 'approved_at', 'provider_reference', 'failure_reason',
                 'plan_code_snapshot', 'commission_rate_percent',
                 'commission_base_clp', 'commission_amount_clp',
                 'net_amount_clp', 'settlement_status', 'settlement_eligible_at',
+                'policy_version', 'policy_accepted_at',
                 'updated_at',
             ])
     except IntegrityError:
@@ -1844,3 +1861,77 @@ def space_settlement_close(request, settlement_id):
             'No se efectuó transferencia bancaria.',
         )
     return redirect('payments:space_settlement_admin')
+
+
+# ============================================================================
+# V131.67: REVISIONES ADMINISTRATIVAS DE CANCELACIONES PAGADAS DE ESPACIOS
+# ============================================================================
+
+
+@login_required(login_url='accounts:login')
+@require_GET
+def space_cancellation_admin(request):
+    """Consulta administrativa de peticiones y decisiones económicas."""
+    _require_space_settlement_operator(request)
+
+    requests = SpaceCancellationRequest.objects.select_related(
+            'booking',
+            'booking__space',
+            'booking__booked_by',
+            'booking__provider_profile__user',
+            'payment',
+            'requested_by',
+            'reviewed_by',
+        )
+    pending = list(
+        requests.filter(status=SpaceCancellationRequest.Status.PENDING)
+        .order_by('-requested_at', '-pk')[:200]
+    )
+    historical = list(
+        requests.exclude(status=SpaceCancellationRequest.Status.PENDING)
+        .order_by('-reviewed_at', '-pk')[:50]
+    )
+    return render(request, 'payments/space_cancellation_admin.html', {
+        'pending_requests': pending,
+        'resolved_requests': historical,
+        'pending_count': len(pending),
+        'sandbox_enabled': True,
+    })
+
+
+@login_required(login_url='accounts:login')
+@require_POST
+@csrf_protect
+def space_cancellation_resolve(request, cancellation_id):
+    """Cierre económico explícito. Nunca ejecuta transferencias reales."""
+    _require_space_settlement_operator(request)
+    action = (request.POST.get('action') or '').strip()
+    if action not in ('approve', 'reject'):
+        messages.error(request, 'Debes escoger aprobar o rechazar la solicitud.')
+        return redirect('payments:space_cancellation_admin')
+    if action == 'approve' and request.POST.get('confirm') != 'yes':
+        messages.error(request, 'Debes confirmar explícitamente la operación sandbox.')
+        return redirect('payments:space_cancellation_admin')
+
+    try:
+        refund_amount = int((request.POST.get('refund_amount_clp') or '0').strip())
+        resolved, changed = resolve_paid_space_cancellation(
+            cancellation_id=cancellation_id,
+            reviewer=request.user,
+            approve=(action == 'approve'),
+            refund_amount_clp=refund_amount if action == 'approve' else 0,
+            review_notes=request.POST.get('review_notes', ''),
+        )
+    except (ValueError, SpaceCancellationError, ValidationError) as exc:
+        messages.error(request, f'No fue posible resolver la solicitud: {exc}')
+    else:
+        if not changed:
+            messages.info(request, 'La solicitud ya tenía una resolución registrada.')
+        else:
+            messages.success(
+                request,
+                f'Solicitud #{resolved.pk}: {resolved.get_status_display()}. '
+                f'Reembolso contable sandbox: {resolved.refund_amount_clp:,} CLP. '
+                'No se transfirió dinero.',
+            )
+    return redirect('payments:space_cancellation_admin')

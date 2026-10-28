@@ -7,6 +7,17 @@ app_name = 'payments'
 
 
 urlpatterns = [
+    # V131.67: revisión de cancelaciones pagadas de espacios (sandbox).
+    path(
+        'administracion/espacios/cancelaciones/',
+        views.space_cancellation_admin,
+        name='space_cancellation_admin',
+    ),
+    path(
+        'administracion/espacios/cancelaciones/<int:cancellation_id>/resolver/',
+        views.space_cancellation_resolve,
+        name='space_cancellation_resolve',
+    ),
     # V131.58: panel administrativo de liquidaciones de recintos, solo sandbox.
     path(
         'administracion/espacios/liquidaciones/',

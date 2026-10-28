@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Payment, Refund, Settlement
+from .models import Payment, Refund, Settlement, SpaceCancellationRequest
 
 
 @admin.register(Payment)
@@ -155,6 +155,30 @@ class SettlementAdmin(admin.ModelAdmin):
 
     # V131.59: ni siquiera el superusuario modifica liquidaciones por el
     # formulario genérico. El panel económico autoriza y valida cada operación.
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(SpaceCancellationRequest)
+class SpaceCancellationRequestAdmin(admin.ModelAdmin):
+    """Auditoría de cancelaciones: la resolución usa el panel protegido."""
+
+    list_display = (
+        'id', 'booking', 'payment', 'requested_by', 'requested_role',
+        'status', 'refund_amount_clp', 'reviewed_by', 'requested_at',
+    )
+    list_filter = ('status', 'requested_role', 'requested_at')
+    search_fields = (
+        'booking__id', 'payment__public_id', 'requested_by__email',
+        'reviewed_by__email',
+    )
+
     def has_add_permission(self, request):
         return False
 

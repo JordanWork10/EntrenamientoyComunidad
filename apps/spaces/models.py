@@ -4261,6 +4261,33 @@ class SpaceBooking(models.Model):
 
 
 
+    @classmethod
+    def member_cancelled_overlapping_slot(
+        cls, *, member_id, space_id, session_date, start_time, end_time,
+    ):
+        """Bloquea solo al miembro que canceló voluntariamente ese horario.
+
+        El recinto sigue disponible para otros miembros. Se reconocen tanto
+        cancelaciones gratuitas como pagadas y aprobadas por administración.
+        """
+        return cls.objects.filter(
+            booked_by_id=member_id,
+            space_id=space_id,
+            session_date=session_date,
+            status=cls.Status.CANCELLED,
+            start_time__lt=end_time,
+            end_time__gt=start_time,
+        ).filter(
+            models.Q(
+                history__action='cancelled',
+                history__changed_by_id=member_id,
+            ) | models.Q(
+                paid_cancellation_requests__status='approved',
+                paid_cancellation_requests__requested_role='member',
+                paid_cancellation_requests__requested_by_id=member_id,
+            )
+        ).exists()
+
     def clean(self):
 
 
@@ -4531,6 +4558,18 @@ class SpaceBooking(models.Model):
 
                     'El horario ya se encuentra ocupado por otra reserva.'
 
+                )
+
+            if self.booked_by_id and self.member_cancelled_overlapping_slot(
+                member_id=self.booked_by_id,
+                space_id=self.space_id,
+                session_date=self.session_date,
+                start_time=self.start_time,
+                end_time=self.end_time,
+            ):
+                raise ValidationError(
+                    'Ya cancelaste voluntariamente este espacio y horario. '
+                    'Puedes escoger otro bloque, pero no volver a reservar este.'
                 )
 
 

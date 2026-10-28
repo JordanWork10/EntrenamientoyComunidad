@@ -47,8 +47,9 @@
                 Los importes se calculan a partir de los pagos guardados en el sistema.
                 Las liquidaciones pueden tener un estado contable en sandbox,
                 pero ese estado no acredita un depósito real.
-                Los reembolsos automáticos y las transferencias bancarias
-                no están habilitados aquí.
+                Los reembolsos automáticos de reservas con política aceptada
+                son únicamente registros contables de prueba. Las transferencias
+                bancarias no están habilitadas aquí.
             </p>
         </div>
 
@@ -132,8 +133,9 @@
                         La fecha indicada en cada movimiento es la primera fecha
                         posible de evaluación: 24 horas después del término del
                         horario. También se requiere que el arriendo figure como
-                        completado y que no existan incidencias o reembolsos
-                        pendientes. No se liquida automáticamente.
+                        completado o tenga una cancelación económica autorizada,
+                        sin incidencias ni reembolsos pendientes.
+                        No se liquida automáticamente.
                     </p>
                 </div>
             </div>
@@ -304,40 +306,50 @@
 
                                             {% if payment.status == 'approved' or payment.status == 'partially_refunded' or payment.status == 'refunded' %}
 
-                                                <small>
-                                                    {{ payment.get_settlement_status_display }}
-                                                </small>
+                                                {% if payment.status == 'refunded' and payment.net_amount_clp == 0 %}
 
-                                                {% if payment.settlement_status == 'pending' %}
+                                                    <small class="v131-provider-income-eligibility">
+                                                        Sin saldo por liquidar
+                                                    </small>
 
-                                                    {% if payment.settlement_eligible_at %}
-                                                        <small class="v131-provider-income-eligibility">
-                                                            Evaluación posible desde el
-                                                            {{ payment.settlement_eligible_at|date:"d/m/Y H:i" }}
-                                                        </small>
-                                                    {% endif %}
+                                                {% else %}
 
                                                     <small>
-                                                        Si hay saldo, requiere reserva completada y sin incidencias.
+                                                        {{ payment.get_settlement_status_display }}
                                                     </small>
 
-                                                {% elif payment.settlement_status == 'eligible' %}
+                                                    {% if payment.settlement_status == 'pending' %}
 
-                                                    <small class="v131-provider-income-eligibility">
-                                                        Elegible en el sistema; no es una transferencia.
-                                                    </small>
+                                                        {% if payment.settlement_eligible_at %}
+                                                            <small class="v131-provider-income-eligibility">
+                                                                Evaluación posible desde el
+                                                                {{ payment.settlement_eligible_at|date:"d/m/Y H:i" }}
+                                                            </small>
+                                                        {% endif %}
 
-                                                {% elif payment.settlement_status == 'on_hold' %}
+                                                        <small>
+                                                            Si hay saldo, requiere reserva completada o cancelación aprobada, sin incidencias.
+                                                        </small>
 
-                                                    <small class="v131-provider-income-eligibility">
-                                                        Revisión necesaria antes de liquidar.
-                                                    </small>
+                                                    {% elif payment.settlement_status == 'eligible' %}
 
-                                                {% elif payment.settlement_status == 'settled' %}
+                                                        <small class="v131-provider-income-eligibility">
+                                                            Elegible en el sistema; no es una transferencia.
+                                                        </small>
 
-                                                    <small class="v131-provider-income-eligibility">
-                                                        Liquidación contable registrada en sandbox.
-                                                    </small>
+                                                    {% elif payment.settlement_status == 'on_hold' %}
+
+                                                        <small class="v131-provider-income-eligibility">
+                                                            Revisión necesaria antes de liquidar.
+                                                        </small>
+
+                                                    {% elif payment.settlement_status == 'settled' %}
+
+                                                        <small class="v131-provider-income-eligibility">
+                                                            Liquidación contable registrada en sandbox.
+                                                        </small>
+
+                                                    {% endif %}
 
                                                 {% endif %}
 

@@ -859,3 +859,98 @@ class Refund(models.Model):
             f'{self.payment.public_id} · {self.amount_clp} CLP · '
             f'{self.get_status_display()}'
         )
+
+
+class SpaceCancellationRequest(models.Model):
+    """Solicitud auditada: nunca cancela ni reembolsa por sí sola."""
+
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Pendiente de revisión'
+        APPROVED = 'approved', 'Cancelación aprobada'
+        REJECTED = 'rejected', 'Solicitud rechazada'
+
+    class RequestedRole(models.TextChoices):
+        MEMBER = 'member', 'Miembro'
+        PROVIDER = 'provider', 'Proveedor'
+
+    booking = models.ForeignKey(
+        'spaces.SpaceBooking',
+        on_delete=models.PROTECT,
+        related_name='paid_cancellation_requests',
+    )
+    payment = models.ForeignKey(
+        Payment,
+        on_delete=models.PROTECT,
+        related_name='space_cancellation_requests',
+    )
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name='requested_space_cancellations',
+    )
+    requested_role = models.CharField(
+        max_length=20,
+        choices=RequestedRole.choices,
+    )
+    reason = models.TextField()
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+    requested_at = models.DateTimeField(auto_now_add=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='reviewed_space_cancellations',
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    review_notes = models.TextField(blank=True)
+    refund_amount_clp = models.PositiveIntegerField(default=0)
+    refund = models.OneToOneField(
+        Refund,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='space_cancellation_request',
+    )
+
+    class Meta:
+        verbose_name = 'Solicitud de cancelación de arriendo pagado'
+        verbose_name_plural = 'Solicitudes de cancelación de arriendos pagados'
+        ordering = ['-requested_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['booking'],
+                condition=Q(status='pending'),
+                name='unique_pending_space_cancel',
+            ),
+        ]
+
+    def clean(self):
+        errors = {}
+        if self.booking_id and self.payment_id:
+            if self.payment.space_booking_id != self.booking_id:
+                errors['payment'] = 'El pago no corresponde a esta reserva.'
+        if self.booking_id and self.requested_by_id:
+            if self.requested_role == self.RequestedRole.MEMBER:
+                if self.booking.booked_by_id != self.requested_by_id:
+                    errors['requested_by'] = 'La solicitud no pertenece al miembro.'
+            elif self.requested_role == self.RequestedRole.PROVIDER:
+                if self.booking.provider_profile.user_id != self.requested_by_id:
+                    errors['requested_by'] = 'La solicitud no pertenece al proveedor.'
+        if (
+            self.status == self.Status.PENDING
+            and (self.reviewed_at or self.reviewed_by_id or self.refund_id)
+        ):
+            errors['status'] = 'Una solicitud pendiente no puede estar resuelta.'
+        if errors:
+            raise ValidationError(errors)
+
+    def __str__(self):
+        return (
+            f'Solicitud #{self.pk or "nueva"} · '
+            f'Arriendo #{self.booking_id} · {self.get_status_display()}'
+        )

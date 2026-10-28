@@ -134,17 +134,25 @@ Pagar arriendo de espacio | EntrenamientoyComunidad
                     </div>
 
                     <div class="v131-space-checkout-policy">
-                        <strong>Condiciones de esta simulación</strong>
+                        <strong>Política de cancelación de espacios · V1</strong>
                         <p>
-                            Las reglas automáticas de cancelación y reembolso de
-                            arriendos todavía deben implementarse y validarse.
-                            No se aplican automáticamente las condiciones del
-                            checkout de actividades profesionales.
+                            Si cancelas voluntariamente con 48 horas o más antes del
+                            inicio: 100 % de reembolso. Entre 24 y menos de 48 horas:
+                            50 %. Con menos de 24 horas: 0 %.
                         </p>
                         <p>
-                            Si una reserva pagada se cancela durante esta etapa,
-                            su tratamiento económico requerirá revisión antes de
-                            registrar un reembolso o una liquidación.
+                            Excepción de buena fe: 100 % dentro de las primeras
+                            2 horas desde la aprobación del pago, siempre que falten
+                            al menos 24 horas para comenzar. Si cancela el proveedor,
+                            corresponde devolución completa; los casos excepcionales
+                            requieren revisión administrativa.
+                        </p>
+                        <p>
+                            La política aceptada se guarda con el pago. Tras una
+                            cancelación voluntaria no podrás volver a reservar el
+                            mismo recinto y horario, aunque seguirá disponible para
+                            otras personas. Los reembolsos de esta versión son
+                            exclusivamente contables de sandbox.
                         </p>
                     </div>
 
@@ -160,6 +168,18 @@ Pagar arriendo de espacio | EntrenamientoyComunidad
                                 <span>
                                     <strong>Entiendo que es una simulación</strong>
                                     y que esta operación no produce un cobro real.
+                                </span>
+                            </label>
+                            <label class="v131-space-checkout-consent">
+                                <input type="checkbox"
+                                       name="accept_space_policy"
+                                       value="1"
+                                       required>
+                                <span>
+                                    <strong>Acepto la política de cancelación de espacios V1.</strong>
+                                    Entiendo sus tramos de reembolso, la excepción
+                                    de 2 horas y la restricción para volver a reservar
+                                    un horario que yo cancele voluntariamente.
                                 </span>
                             </label>
                             <button type="submit"

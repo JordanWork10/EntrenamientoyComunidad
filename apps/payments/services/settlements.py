@@ -13,7 +13,7 @@ from django.utils import timezone
 
 from apps.spaces.models import Space
 
-from ..models import Payment, Refund, Settlement
+from ..models import Payment, Refund, Settlement, SpaceCancellationRequest
 
 
 INCIDENT_WINDOW_HOURS = 24
@@ -372,6 +372,23 @@ def _space_day_review(payments, *, space):
         ).values("payment_id").annotate(total=Sum("amount_clp")))
     }
 
+    cancellation_requests = list(
+        SpaceCancellationRequest.objects.filter(
+            payment_id__in=payment_ids,
+        ).order_by('-requested_at', '-pk')
+    )
+    pending_cancellation_payments = {
+        row.payment_id for row in cancellation_requests
+        if row.status == SpaceCancellationRequest.Status.PENDING
+    }
+    approved_cancellations = {}
+    for row in cancellation_requests:
+        if (
+            row.status == SpaceCancellationRequest.Status.APPROVED
+            and row.payment_id not in approved_cancellations
+        ):
+            approved_cancellations[row.payment_id] = row
+
     for payment in payments:
         booking = payment.space_booking
         if booking.space_id != space.pk:
@@ -389,6 +406,8 @@ def _space_day_review(payments, *, space):
             blockers.append('El total de reembolsos procesados no coincide con el pago.')
         if payment.pk in unresolved:
             blockers.append('Existe una solicitud de reembolso sin resolución definitiva.')
+        if payment.pk in pending_cancellation_payments:
+            blockers.append('Existe una cancelación pagada pendiente de revisión administrativa.')
         if payment.settlement_status == Payment.SettlementStatus.ON_HOLD:
             blockers.append('Existe un pago retenido para revisión.')
         if payment.settlement_status == Payment.SettlementStatus.SETTLED:
@@ -404,6 +423,16 @@ def _space_day_review(payments, *, space):
         if payment.net_amount_clp > 0:
             if booking.status == 'confirmed':
                 awaiting_completion = True
+            elif booking.status == 'cancelled':
+                approved = approved_cancellations.get(payment.pk)
+                if not approved or approved.booking_id != booking.pk:
+                    blockers.append(
+                        'Una reserva cancelada conserva saldo sin resolución económica autorizada.'
+                    )
+                elif approved.refund_amount_clp > payment.refunded_amount_clp:
+                    blockers.append(
+                        'El reembolso de una cancelación aprobada no coincide con el pago.'
+                    )
             elif booking.status != 'completed':
                 blockers.append(
                     'Existe un pago con saldo pendiente para una reserva no realizada.'

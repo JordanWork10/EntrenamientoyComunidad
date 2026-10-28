@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 {% load clp_filters %}
 
@@ -275,16 +274,44 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
 
                 {% endif %}
 
-                <!-- CANCELACIÓN: SOLO SI LA VISTA LA PERMITE -->
+                <!-- CANCELACIÓN Y REVISIÓN ECONÓMICA SEGÚN EL ESTADO REAL -->
 
-                {% if can_cancel %}
+                {% if pending_paid_cancellation %}
 
                     <div class="space-member-detail-secondary-action">
                         <div>
-                            <strong>¿Cambió tu disponibilidad?</strong>
+                            <strong>Cancelación pagada en revisión</strong>
                             <p>
+                                Tu solicitud #{{ pending_paid_cancellation.pk }} fue registrada.
+                                La reserva y el horario siguen confirmados hasta que
+                                administración resuelva el caso. El pago está retenido
+                                y no puede liquidarse mientras la revisión esté abierta.
+                            </p>
+                        </div>
+                    </div>
+
+                {% elif can_cancel or can_request_paid_cancel %}
+
+                    <div class="space-member-detail-secondary-action">
+                        <div>
+                            <strong>{% if can_request_paid_cancel %}¿Necesitas cancelar un arriendo pagado?{% else %}¿Cambió tu disponibilidad?{% endif %}</strong>
+                            <p>
+                                {% if can_request_paid_cancel %}
+                                    {% if space_cancellation_preview %}
+                                    Esta reserva tiene una política aceptada y su
+                                    cancelación se resuelve automáticamente en sandbox.
+                                    Reembolso estimado:
+                                    <strong>{{ space_cancellation_preview.refund_amount_clp|clp }}</strong>.
+                                    {% else %}
+                                    Este pago anterior requiere revisión administrativa.
+                                    El horario sigue reservado mientras se resuelve
+                                    y el reembolso no se realiza automáticamente.
+                                    {% endif %}
+                                {% else %}
                                 Si ya no puedes utilizar el espacio,
                                 puedes cancelar antes del inicio del bloque.
+                                No podrás volver a reservar ese mismo espacio y horario.
+                                {% endif %}
                             </p>
                         </div>
 
@@ -295,7 +322,7 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
                             aria-expanded="{% if cancel_error == 'reason' %}true{% else %}false{% endif %}"
                             aria-controls="space-cancel-panel"
                         >
-                            Necesito cancelar mi arriendo
+                            {% if can_request_paid_cancel %}Solicitar cancelación{% else %}Necesito cancelar mi arriendo{% endif %}
                         </button>
                     </div>
 
@@ -305,15 +332,29 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
                         {% if cancel_error != 'reason' %}hidden{% endif %}
                     >
                         <div class="space-member-detail-cancel-copy">
-                            <span>CANCELAR ARRIENDO</span>
+                            <span>{% if space_cancellation_preview %}CANCELACIÓN AUTOMÁTICA · SANDBOX{% elif can_request_paid_cancel %}SOLICITAR REVISIÓN DE CANCELACIÓN{% else %}CANCELAR ARRIENDO{% endif %}</span>
 
                             <strong>
                                 Cuéntanos brevemente por qué ya no utilizarás este espacio
                             </strong>
 
                             <p>
+                                {% if can_request_paid_cancel %}
+                                    {% if space_cancellation_preview %}
+                                    La cancelación quedará registrada, el horario se
+                                    liberará para otros miembros y se registrará
+                                    automáticamente el reembolso contable indicado.
+                                    No podrás volver a reservar este mismo bloque.
+                                    {% else %}
+                                    Se registrará tu solicitud y se retendrá la
+                                    liquidación hasta la revisión administrativa.
+                                    La reserva seguirá confirmada mientras tanto.
+                                    {% endif %}
+                                {% else %}
                                 La cancelación quedará registrada
-                                y el horario volverá a estar disponible.
+                                y el horario volverá a estar disponible para otras
+                                personas, pero no podrás reservarlo nuevamente.
+                                {% endif %}
                             </p>
                         </div>
 
@@ -339,9 +380,35 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
                                     name="reason"
                                     rows="4"
                                     required
+                                    minlength="5"
+                                    maxlength="1000"
                                     placeholder="Ej: Ya no podré utilizar el espacio en ese horario."
                                 ></textarea>
                             </div>
+
+                            {% if space_cancellation_preview %}
+                                <div class="space-member-detail-secondary-action" role="status">
+                                    <div>
+                                        <strong>Reembolso estimado: {{ space_cancellation_preview.refund_amount_clp|clp }}</strong>
+                                        <p>
+                                            Porcentaje según la política aceptada:
+                                            {{ space_cancellation_preview.refund_percent }} %.
+                                            Importe que permanece retenido:
+                                            {{ space_cancellation_preview.retained_amount_clp|clp }}.
+                                            No se transferirá dinero real en sandbox.
+                                            El cálculo definitivo se verificará al confirmar.
+                                        </p>
+                                    </div>
+                                </div>
+                                <label class="v131-space-checkout-consent">
+                                    <input type="checkbox"
+                                           name="accept_cancel_policy"
+                                           value="1"
+                                           required>
+                                    <span>Entiendo el importe estimado del reembolso
+                                    y confirmo la cancelación de este arriendo.</span>
+                                </label>
+                            {% endif %}
 
                             <div class="space-member-detail-cancel-actions">
                                 <button
@@ -356,7 +423,7 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
                                     type="submit"
                                     class="space-member-detail-cancel-confirm"
                                 >
-                                    Confirmar cancelación
+                                    {% if space_cancellation_preview %}Confirmar cancelación automática{% elif can_request_paid_cancel %}Enviar solicitud de revisión{% else %}Confirmar cancelación{% endif %}
                                 </button>
                             </div>
                         </form>
@@ -448,8 +515,15 @@ Mi arriendo | {{ booking.space_name_snapshot }} | EntrenamientoyComunidad
                     {% if booking.status == 'confirmed' and space_booking_future %}
                         <p class="v131-space-member-payment-footnote">
                             Si necesitas cancelar este arriendo pagado,
-                            la operación requiere revisión económica.
-                            El reembolso automático de espacios aún no está habilitado.
+                            {% if space_cancellation_preview %}
+                            se aplicará automáticamente la política de espacios V1
+                            desde «Estado del arriendo». Los reembolsos son únicamente
+                            contables de prueba, sin transferencias reales.
+                            {% else %}
+                            puedes solicitar revisión económica desde
+                            «Estado del arriendo»; este pago antiguo no tiene
+                            reembolso automático.
+                            {% endif %}
                         </p>
                     {% endif %}
 

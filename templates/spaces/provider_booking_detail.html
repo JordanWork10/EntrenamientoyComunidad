@@ -322,6 +322,19 @@
                         </div>
                     </div>
 
+                    {% if pending_paid_cancellation %}
+                        <div class="space-provider-completion-note">
+                            <strong>Solicitud de cancelación pagada en revisión</strong>
+                            <p>
+                                Solicitud #{{ pending_paid_cancellation.pk }},
+                                presentada por {{ pending_paid_cancellation.requested_by.get_full_name|default:pending_paid_cancellation.requested_by.get_username }}.
+                                El horario continúa reservado, el pago está retenido
+                                y no es posible completar ni cancelar directamente
+                                el arriendo hasta que administración resuelva.
+                            </p>
+                        </div>
+                    {% endif %}
+
                     {% if completion_waiting %}
                         <div class="space-provider-completion-note">
                             <strong>Este arriendo todavía está por realizarse</strong>
@@ -363,7 +376,7 @@
                             aria-expanded="false"
                             aria-controls="space-rejection-form-panel"
                         >
-                            Necesito cancelar este arriendo
+                            {% if can_request_paid_cancel %}Solicitar cancelación con revisión{% else %}Necesito cancelar este arriendo{% endif %}
                         </button>
 
                         <div
@@ -372,12 +385,20 @@
                             {% if cancel_error != 'reason' %}hidden{% endif %}
                         >
                             <div class="space-provider-rejection-copy">
-                                <span>CANCELAR ARRIENDO</span>
+                                <span>{% if can_request_paid_cancel %}SOLICITUD DE REVISIÓN ECONÓMICA{% else %}CANCELAR ARRIENDO{% endif %}</span>
                                 <strong>
                                     Cuéntale a {{ booking.booked_by.first_name|default:booking.booked_by.get_full_name }} por qué debes cancelarlo
                                 </strong>
                                 <p>
+                                    {% if can_request_paid_cancel %}
+                                    Como este arriendo tiene un pago registrado,
+                                    administración deberá revisar la solicitud.
+                                    Si se aprueba por cancelación del proveedor,
+                                    se registrará la devolución íntegra del saldo.
+                                    Mientras tanto, el horario seguirá reservado.
+                                    {% else %}
                                     La cancelación quedará registrada y el bloque volverá a estar disponible.
+                                    {% endif %}
                                 </p>
                             </div>
 
@@ -403,6 +424,8 @@
                                     rows="4"
                                     placeholder="Ej: El espacio no podrá utilizarse en ese horario."
                                     required
+                                    minlength="5"
+                                    maxlength="1000"
                                 ></textarea>
 
                                 <div class="space-provider-rejection-actions">
@@ -418,7 +441,7 @@
                                         type="submit"
                                         class="space-provider-rejection-confirm"
                                     >
-                                        Confirmar cancelación
+                                        {% if can_request_paid_cancel %}Enviar solicitud de revisión{% else %}Confirmar cancelación{% endif %}
                                     </button>
                                 </div>
                             </form>

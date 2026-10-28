@@ -596,7 +596,11 @@ Disponibilidad | {{ space.name }}
                                     <div class="booking-list-main">
 
                                         <span class="booking-list-label">
-                                            HORARIO DISPONIBLE
+                                            {% if slot.restricted_for_member %}
+                                                RESERVA NO HABILITADA
+                                            {% else %}
+                                                HORARIO DISPONIBLE
+                                            {% endif %}
                                         </span>
 
                                         <strong>
@@ -615,15 +619,38 @@ Disponibilidad | {{ space.name }}
 
                                     <div class="booking-list-status">
 
-                                        <span class="role-status role-status-active">
-                                            Disponible
-                                        </span>
+                                        {% if slot.restricted_for_member %}
+                                            <span class="role-status space-slot-restricted-status">
+                                                Reserva no habilitada
+                                            </span>
+                                        {% else %}
+                                            <span class="role-status role-status-active">
+                                                Disponible
+                                            </span>
+                                        {% endif %}
 
                                         {% if is_owner %}
 
                                             <span class="account-summary-label">
                                                 Tu espacio
                                             </span>
+
+                                        {% elif slot.restricted_for_member %}
+
+                                            <button
+                                                type="button"
+                                                class="space-slot-booking-action space-slot-booking-disabled"
+                                                disabled
+                                                aria-disabled="true"
+                                                title="Este horario no admite nuevas reservas desde esta cuenta."
+                                            >
+                                                Reservar este horario
+                                                <span aria-hidden="true">🔒</span>
+                                            </button>
+
+                                            <small class="space-slot-restricted-explanation">
+                                                Este horario no admite nuevas reservas desde esta cuenta.
+                                            </small>
 
                                         {% else %}
 
@@ -699,5 +726,37 @@ Disponibilidad | {{ space.name }}
     </div>
 
 </section>
+
+<style>
+.space-slot-restricted-status {
+    color: #c7d4e9;
+    background: #1c2736;
+    border: 1px solid #586a80;
+}
+.space-slot-booking-disabled,
+.space-slot-booking-disabled:hover {
+    cursor: not-allowed;
+    opacity: .6;
+    color: #b8c3d4;
+    background: #283445;
+    border: 1px solid #586a80;
+    box-shadow: none;
+    transform: none;
+}
+.space-slot-booking-disabled span {
+    background: transparent;
+}
+.space-slot-restricted-explanation {
+    display: block;
+    max-width: 230px;
+    color: #a9bbd4;
+    text-align: right;
+    line-height: 1.5;
+    font-size: 12px;
+}
+@media (max-width: 640px) {
+    .space-slot-restricted-explanation { text-align: left; max-width: none; }
+}
+</style>
 
 {% endblock %}

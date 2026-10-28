@@ -3555,6 +3555,35 @@ def public_space_slots(request, space_id):
             )
         )
 
+        # V131.68.1: la disponibilidad del recinto sigue siendo pública;
+        # únicamente deshabilitamos la acción para la cuenta que canceló
+        # voluntariamente un intervalo superpuesto. Una consulta por día,
+        # sin consultas adicionales por cada bloque mostrado.
+        if request.user.is_authenticated and selected_slots:
+            cancelled_intervals = list(
+                SpaceBooking.objects.filter(
+                    booked_by=request.user,
+                    space=space,
+                    session_date=selected_date,
+                    status=SpaceBooking.Status.CANCELLED,
+                ).filter(
+                    Q(
+                        history__action=SpaceBookingHistory.Action.CANCELLED,
+                        history__changed_by=request.user,
+                    ) | Q(
+                        paid_cancellation_requests__status='approved',
+                        paid_cancellation_requests__requested_role='member',
+                        paid_cancellation_requests__requested_by=request.user,
+                    )
+                ).values_list('start_time', 'end_time').distinct()
+            )
+            for slot in selected_slots:
+                slot['restricted_for_member'] = any(
+                    previous_start < slot['end_time']
+                    and previous_end > slot['start_time']
+                    for previous_start, previous_end in cancelled_intervals
+                )
+
     selected_exception = (
         active_exception_map.get(
             selected_date
@@ -3728,6 +3757,18 @@ def confirm_space_booking(request, space_id):
                                 )
                             )
 
+                        if SpaceBooking.member_cancelled_overlapping_slot(
+                            member_id=request.user.pk,
+                            space_id=locked_space.pk,
+                            session_date=session_date,
+                            start_time=start_time,
+                            end_time=end_time,
+                        ):
+                            raise ValidationError(
+                                'Ya cancelaste este espacio y horario. '
+                                'Selecciona otro bloque para reservar.'
+                            )
+
                         booking = SpaceBooking(
                             booked_by=request.user,
                             space=locked_space,
@@ -3867,6 +3908,18 @@ def confirm_space_booking(request, space_id):
                     'no se encuentra disponible.'
                 )
 
+            elif SpaceBooking.member_cancelled_overlapping_slot(
+                member_id=request.user.pk,
+                space_id=space.pk,
+                session_date=session_date,
+                start_time=start_time,
+                end_time=end_time,
+            ):
+                booking_error = (
+                    'Ya cancelaste voluntariamente este espacio y horario. '
+                    'Puedes elegir otro bloque.'
+                )
+
         else:
             booking_error = (
                 'No puedes reservar un espacio '
@@ -3928,7 +3981,7 @@ def space_booking_detail(request, booking_id):
 
     # Cada pago de espacios corresponde exclusivamente a esta reserva.
     # No se crea ningun Payment al consultar la pagina del miembro.
-    from apps.payments.models import Payment
+    from apps.payments.models import Payment, SpaceCancellationRequest
     from django.conf import settings
 
     space_payments = list(
@@ -3954,6 +4007,12 @@ def space_booking_detail(request, booking_id):
         None,
     )
     latest_space_payment = space_payments[0] if space_payments else None
+    pending_paid_cancellation = (
+        SpaceCancellationRequest.objects.filter(
+            booking=booking,
+            status=SpaceCancellationRequest.Status.PENDING,
+        ).select_related('requested_by').first()
+    )
 
     # Mantiene el mismo criterio principal del checkout sandbox.
     # La vista de pagos vuelve a validar bajo una transaccion atomica.
@@ -3965,7 +4024,10 @@ def space_booking_detail(request, booking_id):
         and booking.provider_profile.verification_status
         == SpaceProviderProfile.VerificationStatus.VERIFIED
         and booking.provider_profile.user_id != booking.booked_by_id
-        and paid_space_payment is None
+        and (
+            paid_space_payment is None
+            or paid_space_payment.status == Payment.Status.REFUNDED
+        )
         and sandbox_enabled
     )
 
@@ -3979,6 +4041,49 @@ def space_booking_detail(request, booking_id):
         and has_not_started
         and paid_space_payment is None
     )
+    can_request_paid_cancel = bool(
+        booking.status == SpaceBooking.Status.CONFIRMED
+        and has_not_started
+        and paid_space_payment is not None
+        and paid_space_payment.status in {
+            Payment.Status.APPROVED,
+            Payment.Status.PARTIALLY_REFUNDED,
+        }
+        and paid_space_payment.settlement_status != Payment.SettlementStatus.SETTLED
+        and pending_paid_cancellation is None
+        and sandbox_enabled
+    )
+
+    # Vista previa antes de confirmar un reembolso automático; las reservas
+    # antiguas continúan mostrando la solicitud de revisión administrativa.
+    space_cancellation_preview = None
+    if can_request_paid_cancel and paid_space_payment:
+        from apps.payments.services.space_policy import (
+            SPACE_POLICY_VERSION,
+            calculate_space_member_cancellation,
+        )
+        if (
+            paid_space_payment.policy_version == SPACE_POLICY_VERSION
+            and paid_space_payment.policy_accepted_at is not None
+            and paid_space_payment.approved_at is not None
+        ):
+            decision = calculate_space_member_cancellation(
+                paid_space_payment.amount_clp,
+                session_start,
+                paid_at=paid_space_payment.approved_at,
+            )
+            additional_refund = min(
+                paid_space_payment.refundable_amount_clp,
+                max(decision.refund_amount_clp - paid_space_payment.refunded_amount_clp, 0),
+            )
+            space_cancellation_preview = {
+                'refund_percent': decision.refund_percent,
+                'refund_amount_clp': additional_refund,
+                'retained_amount_clp': (
+                    paid_space_payment.refundable_amount_clp - additional_refund
+                ),
+                'bucket': decision.bucket,
+            }
 
     return render(
         request,
@@ -3987,6 +4092,9 @@ def space_booking_detail(request, booking_id):
             'booking': booking,
             'history': history,
             'can_cancel': can_cancel,
+            'can_request_paid_cancel': can_request_paid_cancel,
+            'space_cancellation_preview': space_cancellation_preview,
+            'pending_paid_cancellation': pending_paid_cancellation,
             'cancel_error': request.GET.get('cancel_error'),
             'paid_space_payment': paid_space_payment,
             'pending_space_payment': pending_space_payment,
@@ -4268,6 +4376,25 @@ def provider_space_booking_detail(
         .all()
     )
 
+    from apps.payments.models import Payment, SpaceCancellationRequest
+    paid_payment = (
+        Payment.objects.filter(
+            space_booking=booking,
+            activity__isnull=True,
+            economic_scope=Payment.EconomicScope.SPACE_BOOKING,
+            status__in=(
+                Payment.Status.APPROVED,
+                Payment.Status.PARTIALLY_REFUNDED,
+                Payment.Status.REFUNDED,
+            ),
+        ).order_by('-approved_at', '-pk').first()
+    )
+    pending_paid_cancellation = (
+        SpaceCancellationRequest.objects.filter(
+            booking=booking, status=SpaceCancellationRequest.Status.PENDING,
+        ).select_related('requested_by').first()
+    )
+
     # Diferencia entre:
     # - solicitud pendiente rechazada por el proveedor;
     # - reserva ya aceptada que después fue cancelada.
@@ -4356,6 +4483,7 @@ def provider_space_booking_detail(
         .Status
         .CONFIRMED
         and now >= session_end
+        and pending_paid_cancellation is None
     )
 
     completion_waiting = (
@@ -4391,7 +4519,34 @@ def provider_space_booking_detail(
                     .Status
                     .CONFIRMED,
                 ]
+                and pending_paid_cancellation is None
+                and (
+                    paid_payment is None
+                    or paid_payment.status == Payment.Status.REFUNDED
+                    or (
+                        paid_payment.status in (
+                            Payment.Status.APPROVED,
+                            Payment.Status.PARTIALLY_REFUNDED,
+                        )
+                        and paid_payment.settlement_status
+                        != Payment.SettlementStatus.SETTLED
+                        and now < session_start
+                    )
+                )
             ),
+            'can_request_paid_cancel': bool(
+                paid_payment
+                and paid_payment.status in (
+                    Payment.Status.APPROVED,
+                    Payment.Status.PARTIALLY_REFUNDED,
+                )
+                and now < session_start
+                and pending_paid_cancellation is None
+                and paid_payment.settlement_status
+                != Payment.SettlementStatus.SETTLED
+            ),
+            'paid_space_payment': paid_payment,
+            'pending_paid_cancellation': pending_paid_cancellation,
             'can_complete': can_complete,
             'completion_waiting': completion_waiting,
             'completion_available_at': session_end,
@@ -4575,23 +4730,33 @@ def provider_cancel_space_booking(
             provider_profile=provider_profile,
         )
 
-        # V131: no cancelar arriendos con pagos económicos ya aprobados.
-        # Requieren flujo de reembolso/revisión aún pendiente de implementar.
+        # V131.67: una reserva con dinero aún vigente entra en revisión.
+        # No liberamos el horario ni alteramos el importe en esta acción.
         from apps.payments.models import Payment
+        from apps.payments.services.space_cancellations import (
+            SpaceCancellationError,
+            request_paid_space_cancellation,
+        )
 
         if Payment.objects.filter(
             space_booking=booking,
             status__in=[
                 Payment.Status.APPROVED,
                 Payment.Status.PARTIALLY_REFUNDED,
-                Payment.Status.REFUNDED,
             ],
         ).exists():
-            messages.error(
-                request,
-                'Este arriendo registra un pago. La cancelación requiere '
-                'revisión económica antes de poder continuar.',
-            )
+            try:
+                cancellation, created = request_paid_space_cancellation(
+                    booking_id=booking.pk, actor=request.user, reason=reason,
+                )
+            except SpaceCancellationError as exc:
+                messages.error(request, str(exc))
+            else:
+                messages.info(
+                    request,
+                    f'Solicitud #{cancellation.pk} '
+                    + ('enviada para revisión económica.' if created else 'ya está en revisión.'),
+                )
             return redirect(
                 'spaces:provider_booking_detail', booking_id=booking.pk,
             )
@@ -4783,23 +4948,53 @@ def cancel_my_space_booking(
             booked_by=request.user,
         )
 
-        # V131: no cancelar arriendos con pagos económicos ya aprobados.
-        # Requieren flujo de reembolso/revisión aún pendiente de implementar.
-        from apps.payments.models import Payment
+        # Los pagos nuevos aceptan cancelación automática; los anteriores
+        # mantienen su solicitud de revisión administrativa.
+        from apps.payments.models import Payment, SpaceCancellationRequest
+        from apps.payments.services.space_cancellations import (
+            SpaceCancellationError,
+            request_paid_space_cancellation,
+        )
 
-        if Payment.objects.filter(
+        paid_payment = Payment.objects.filter(
             space_booking=booking,
             status__in=[
                 Payment.Status.APPROVED,
                 Payment.Status.PARTIALLY_REFUNDED,
-                Payment.Status.REFUNDED,
             ],
-        ).exists():
-            messages.error(
-                request,
-                'Este arriendo registra un pago. La cancelación requiere '
-                'revisión económica antes de poder continuar.',
-            )
+        ).order_by('-approved_at', '-pk').first()
+        if paid_payment:
+            from apps.payments.services.space_policy import SPACE_POLICY_VERSION
+            if (
+                paid_payment.policy_version == SPACE_POLICY_VERSION
+                and paid_payment.policy_accepted_at is not None
+                and request.POST.get('accept_cancel_policy') != '1'
+            ):
+                messages.error(
+                    request,
+                    'Confirma que revisaste el reembolso calculado antes de cancelar.',
+                )
+                return redirect('spaces:booking_detail', booking_id=booking.pk)
+            try:
+                cancellation, created = request_paid_space_cancellation(
+                    booking_id=booking.pk, actor=request.user, reason=reason,
+                )
+            except SpaceCancellationError as exc:
+                messages.error(request, str(exc))
+            else:
+                if cancellation.status == SpaceCancellationRequest.Status.APPROVED:
+                    messages.success(
+                        request,
+                        'Arriendo cancelado automáticamente. '
+                        f'Reembolso contable: ${cancellation.refund_amount_clp:,} CLP '
+                        '(sandbox, sin dinero real).',
+                    )
+                else:
+                    messages.info(
+                        request,
+                        f'Solicitud #{cancellation.pk} '
+                        + ('enviada para revisión económica.' if created else 'ya está en revisión.'),
+                    )
             return redirect(
                 'spaces:booking_detail', booking_id=booking.pk,
             )
@@ -4937,6 +5132,18 @@ def provider_complete_space_booking(
                 'spaces:provider_booking_detail',
                 booking_id=booking.id,
             )
+
+        from apps.payments.models import SpaceCancellationRequest
+        if SpaceCancellationRequest.objects.filter(
+            booking=booking,
+            status=SpaceCancellationRequest.Status.PENDING,
+        ).exists():
+            messages.error(
+                request,
+                'No puedes completar este arriendo mientras su cancelación '
+                'pagada esté pendiente de revisión administrativa.',
+            )
+            return redirect('spaces:provider_booking_detail', booking_id=booking.id)
 
         current_timezone = (
             timezone.get_current_timezone()

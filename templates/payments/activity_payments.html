@@ -76,6 +76,13 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
         color: #ffd44a;
     }
 
+    .activity-payment-economic-note {
+        margin: -7px 0 18px;
+        color: #97a3b8;
+        font-size: 10px;
+        line-height: 1.55;
+    }
+
     .activity-payment-detail-list {
         display: grid;
         gap: 10px;
@@ -281,7 +288,7 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
             <article class="payments-summary-card">
 
                 <span>
-                    CUPOS PAGADOS
+                    CUPOS PAGADOS ACTIVOS
                 </span>
 
                 <strong>
@@ -296,7 +303,7 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
             <article class="payments-summary-card">
 
                 <span>
-                    BRUTO
+                    BRUTO APROBADO · HISTÓRICO
                 </span>
 
                 <strong>
@@ -309,7 +316,7 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
             <article class="payments-summary-card">
 
                 <span>
-                    NETO ESTIMADO
+                    NETO VIGENTE
                 </span>
 
                 <strong>
@@ -330,12 +337,24 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
                 </span>
 
                 <strong>
-                    {{ settlement_label }}
+                    {% if settlement_code == 'on_hold' or settlement_code == 'settled' %}
+                        {{ settlement_label }}
+                    {% elif net_total == 0 %}
+                        Sin saldo por liquidar
+                    {% else %}
+                        {{ settlement_label }}
+                    {% endif %}
                 </strong>
 
             </div>
 
-            {% if eligible_at %}
+            {% if net_total == 0 and settlement_code != 'on_hold' and settlement_code != 'settled' %}
+
+                <p>
+                    No hay montos pendientes de liquidación.
+                </p>
+
+            {% elif eligible_at %}
 
                 <p>
                     Fecha económica de referencia:
@@ -352,7 +371,7 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
             <article class="activity-payment-economic-card">
 
                 <span>
-                    REEMBOLSOS
+                    REEMBOLSOS REGISTRADOS
                 </span>
 
                 <strong>
@@ -375,6 +394,12 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
             </article>
 
         </div>
+
+        <p class="activity-payment-economic-note">
+            El bruto histórico suma los pagos aprobados, aunque después hayan sido reembolsados.
+            Los intentos cancelados o rechazados no representan cobros y no se incluyen en ese total.
+            El neto vigente ya descuenta reembolsos y comisión de plataforma.
+        </p>
 
 
         {% if sandbox_enabled and activity_settlement and net_total > 0 %}
@@ -534,7 +559,11 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
                             <div class="activity-payment-detail-data">
 
                                 <span>
-                                    PAGO
+                                    {% if payment.status == 'cancelled' or payment.status == 'failed' or payment.status == 'pending' %}
+                                        MONTO DEL INTENTO
+                                    {% else %}
+                                        PAGO APROBADO
+                                    {% endif %}
                                 </span>
 
                                 <strong>
@@ -542,10 +571,16 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
                                 </strong>
 
                                 <p>
-                                    {% if payment.approved_at %}
+                                    {% if payment.status == 'cancelled' %}
+                                        Intento cancelado · sin cobro
+                                    {% elif payment.status == 'failed' %}
+                                        Intento rechazado · sin cobro
+                                    {% elif payment.status == 'pending' %}
+                                        Pago pendiente · aún sin cobro
+                                    {% elif payment.approved_at %}
                                         Aprobado {{ payment.approved_at|date:"d/m/Y H:i" }}
                                     {% else %}
-                                        Intento registrado
+                                        Pago registrado
                                     {% endif %}
                                 </p>
 
@@ -575,7 +610,13 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
                                     </strong>
 
                                     <p>
-                                        Sin devolución
+                                        {% if payment.status == 'cancelled' or payment.status == 'failed' %}
+                                            No corresponde: no hubo cobro
+                                        {% elif payment.status == 'pending' %}
+                                            Aún no corresponde
+                                        {% else %}
+                                            Sin devolución
+                                        {% endif %}
                                     </p>
 
                                 {% endif %}
@@ -590,7 +631,15 @@ Pagos de {{ activity.title }} | EntrenamientoyComunidad
                                 </span>
 
                                 <strong class="activity-payment-status activity-payment-status-{{ payment.status }}">
-                                    {{ payment.get_status_display }}
+                                    {% if payment.status == 'cancelled' %}
+                                        Intento cancelado
+                                    {% elif payment.status == 'failed' %}
+                                        Intento rechazado
+                                    {% elif payment.status == 'pending' %}
+                                        Intento pendiente
+                                    {% else %}
+                                        {{ payment.get_status_display }}
+                                    {% endif %}
                                 </strong>
 
                                 {% if payment.failure_reason %}

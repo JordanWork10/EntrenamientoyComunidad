@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}Pagar sesión profesional | EntrenamientoyComunidad{% endblock %}
+
+{% block content %}
+<section class="account-page payments-page professional-booking-checkout">
+    <div class="account-container">
+        {% if messages %}
+            <div role="status" aria-live="polite">
+                {% for message in messages %}
+                    <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <header class="payments-hero">
+            <div>
+                <span class="payments-overline">SERVICIO PROFESIONAL · PAGO</span>
+                <h1>Tu sesión fue aceptada. <span>Confirma el pago.</span></h1>
+                <p>
+                    La aceptación del Profesional asegura la solicitud del horario,
+                    pero no constituye un pago. Revisa los detalles antes de continuar.
+                </p>
+            </div>
+            <span class="payments-sandbox-badge">SANDBOX · SIN COBRO REAL</span>
+        </header>
+
+        <div class="payments-checkout-grid">
+            <section class="payments-panel" aria-labelledby="summary-title">
+                <div class="payments-panel-title">
+                    <span>01</span>
+                    <h2 id="summary-title">Resumen de tu sesión</h2>
+                </div>
+
+                <article class="payments-activity-card">
+                    <span>SERVICIO INDIVIDUAL</span>
+                    <h3>{{ booking.service_name_snapshot }}</h3>
+                    <p>
+                        Con {{ booking.professional_profile.user.get_full_name|default:booking.professional_profile.user.email }}
+                    </p>
+                    <p>{{ booking.get_mode_snapshot_display }}</p>
+                </article>
+
+                <div class="payments-facts">
+                    <div class="payments-fact">
+                        <span>FECHA</span>
+                        <strong>{{ booking.session_date|date:'d/m/Y' }}</strong>
+                    </div>
+                    <div class="payments-fact">
+                        <span>HORARIO</span>
+                        <strong>{{ booking.start_time|time:'H:i' }} – {{ booking.end_time|time:'H:i' }}</strong>
+                    </div>
+                    <div class="payments-fact">
+                        <span>DURACIÓN</span>
+                        <strong>{{ booking.duration_minutes }} minutos</strong>
+                    </div>
+                    <div class="payments-fact">
+                        <span>ESTADO DE LA RESERVA</span>
+                        <strong>{{ booking.get_status_display }}</strong>
+                    </div>
+                </div>
+
+                <div class="payments-amount">
+                    <span>TOTAL DE LA SESIÓN</span>
+                    <strong>{{ payment.amount_clp|clp }}</strong>
+                    <small>Precio histórico guardado al solicitar la reserva. No se añaden comisiones al Miembro.</small>
+                </div>
+            </section>
+
+            <aside class="payments-panel payments-sandbox-panel" aria-labelledby="payment-title">
+                <div class="payments-panel-title">
+                    <span>02</span>
+                    <h2 id="payment-title">Pago de prueba</h2>
+                </div>
+                <span class="payment-status payment-status-{{ payment.status }}">
+                    {{ payment.get_status_display }}
+                </span>
+
+                <div class="payments-warning">
+                    <strong>Operación simulada</strong>
+                    <p>Este entorno no envía pagos a bancos ni realiza cobros o devoluciones reales.</p>
+                </div>
+
+                <div class="payments-warning">
+                    <strong>Política de cancelación de sesiones · V1</strong>
+                    <p>
+                        Si cancelas antes del inicio: 100 % de devolución con 48 horas o más;
+                        75 % entre 24 y menos de 48 horas; 50 % cuando faltan menos de 24 horas.
+                    </p>
+                    <p>
+                        Desde el inicio no corresponde reembolso automático. Si cancela el Profesional,
+                        se registra el 100 % de devolución. Los casos con dinero liquidado o retenido
+                        requieren revisión administrativa.
+                    </p>
+                </div>
+
+                {% if sandbox_enabled and payment.status == 'pending' and booking.status == 'confirmed' %}
+                    <form method="post" action="{% url 'payments:professional_booking_sandbox_approve' payment.public_id %}">
+                        {% csrf_token %}
+                        <p>
+                            <label>
+                                <input type="checkbox" name="accept_sandbox" value="1" required>
+                                Entiendo que el pago es una simulación sin cobro real.
+                            </label>
+                        </p>
+                        <p>
+                            <label>
+                                <input type="checkbox" name="accept_policy" value="1" required>
+                                Leí y acepto la política de cancelación de sesiones individuales.
+                            </label>
+                        </p>
+                        <div class="payments-action-stack">
+                            <button type="submit" class="payments-button payments-button-approve">
+                                Simular pago aprobado →
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="payments-action-stack">
+                        <form method="post" action="{% url 'payments:professional_booking_sandbox_reject' payment.public_id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="payments-button payments-button-reject">Simular pago rechazado</button>
+                        </form>
+                        <form method="post" action="{% url 'payments:professional_booking_cancel_attempt' payment.public_id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="payments-button payments-button-cancel">Descartar intento</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <p>Este intento ya no está disponible para aprobarse.</p>
+                    <a href="{% url 'payments:professional_booking_receipt' payment.public_id %}" class="payments-button payments-button-link">
+                        Ver estado del intento →
+                    </a>
+                {% endif %}
+            </aside>
+        </div>
+
+        <div class="payments-action-stack">
+            <a href="{% url 'bookings:detail' booking.pk %}" class="account-professional-action">
+                ← Volver a mi reserva
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

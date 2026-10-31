@@ -319,8 +319,7 @@ class Payment(models.Model):
         verbose_name='Miembro que paga',
     )
 
-    # V131: ambos orígenes económicos son opcionales de forma individual.
-    # La restricción de base de datos exige exactamente uno por pago.
+    # Cada pago pertenece exactamente a un origen económico.
     activity = models.ForeignKey(
         Activity,
         on_delete=models.PROTECT,
@@ -337,6 +336,18 @@ class Payment(models.Model):
         null=True,
         blank=True,
         verbose_name='Reserva de espacio',
+    )
+
+    # V131.74: sesión individual solicitada al Profesional.
+    # Nulo para mantener intactos los pagos históricos de actividades
+    # y arriendos, y PROTECT para conservar su trazabilidad.
+    professional_booking = models.ForeignKey(
+        'bookings.Booking',
+        on_delete=models.PROTECT,
+        related_name='payments',
+        null=True,
+        blank=True,
+        verbose_name='Reserva individual de servicio profesional',
     )
 
     registration = models.OneToOneField(
@@ -523,12 +534,24 @@ class Payment(models.Model):
                 ),
                 name='unique_active_paid_payment_per_member_activity',
             ),
-            # V131: nunca asociar una misma operación a dos orígenes
-            # ni guardar pagos sin actividad o reserva de espacio.
+            # Exactamente un origen: actividad, arriendo o sesión individual.
             models.CheckConstraint(
                 condition=(
-                    Q(activity__isnull=False, space_booking__isnull=True)
-                    | Q(activity__isnull=True, space_booking__isnull=False)
+                    Q(
+                        activity__isnull=False,
+                        space_booking__isnull=True,
+                        professional_booking__isnull=True,
+                    )
+                    | Q(
+                        activity__isnull=True,
+                        space_booking__isnull=False,
+                        professional_booking__isnull=True,
+                    )
+                    | Q(
+                        activity__isnull=True,
+                        space_booking__isnull=True,
+                        professional_booking__isnull=False,
+                    )
                 ),
                 name='payment_exactly_one_origin',
             ),
@@ -541,6 +564,14 @@ class Payment(models.Model):
                     status__in=['approved', 'partially_refunded'],
                 ),
                 name='unique_active_paid_space_booking',
+            ),
+            models.UniqueConstraint(
+                fields=['professional_booking'],
+                condition=Q(
+                    professional_booking__isnull=False,
+                    status__in=['approved', 'partially_refunded'],
+                ),
+                name='unique_active_paid_prof_booking',
             ),
         ]
 
@@ -571,14 +602,17 @@ class Payment(models.Model):
     def clean(self):
         errors = {}
 
-        # V131: una operación económica debe tener exactamente un origen.
-        if self.activity_id and self.space_booking_id:
-            errors['space_booking'] = (
-                'Un pago no puede corresponder a una actividad y a un arriendo a la vez.'
-            )
-        elif not self.activity_id and not self.space_booking_id:
+        # Una operación económica debe tener exactamente un origen.
+        origin_count = sum((
+            bool(self.activity_id),
+            bool(self.space_booking_id),
+            bool(self.professional_booking_id),
+        ))
+
+        if origin_count != 1:
             errors['activity'] = (
-                'Asocia el pago con una actividad profesional o con un arriendo.'
+                'Cada pago debe pertenecer a una única actividad, '
+                'reserva de espacio o sesión profesional individual.'
             )
 
         if self.space_booking_id:
@@ -602,10 +636,34 @@ class Payment(models.Model):
                     'Un arriendo de espacio no utiliza una inscripción a actividad.'
                 )
 
-        if self.activity_id:
-            if self.economic_scope == self.EconomicScope.SPACE_BOOKING:
+        if self.professional_booking_id:
+            booking = self.professional_booking
+
+            if self.economic_scope != self.EconomicScope.PROFESSIONAL_SERVICE:
                 errors['economic_scope'] = (
-                    'Un pago de actividad no puede tener origen Reserva de espacio.'
+                    'Las sesiones individuales requieren el origen '
+                    'económico Servicio profesional.'
+                )
+
+            if self.payer_id and booking.booked_by_id != self.payer_id:
+                errors['payer'] = (
+                    'El pagador debe ser el Miembro que solicitó esta sesión.'
+                )
+
+            if self.amount_clp is not None and self.amount_clp != booking.price_clp:
+                errors['amount_clp'] = (
+                    'El monto debe coincidir con el precio histórico de la sesión.'
+                )
+
+            if self.registration_id:
+                errors['registration'] = (
+                    'Una sesión individual no utiliza inscripción a actividad.'
+                )
+
+        if self.activity_id:
+            if self.economic_scope != self.EconomicScope.PROFESSIONAL_ACTIVITY:
+                errors['economic_scope'] = (
+                    'Los pagos de actividades requieren origen Actividad profesional.'
                 )
 
             if self.activity.activity_type != Activity.ActivityType.PROFESSIONAL:
@@ -653,6 +711,8 @@ class Payment(models.Model):
     def __str__(self):
         if self.space_booking_id:
             origin = f'Arriendo #{self.space_booking_id}'
+        elif self.professional_booking_id:
+            origin = f'Sesión profesional #{self.professional_booking_id}'
         elif self.activity_id:
             origin = str(self.activity)
         else:

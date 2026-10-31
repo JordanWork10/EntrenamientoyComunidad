@@ -408,6 +408,28 @@ class Activity(models.Model):
 
     )
 
+    # V131.71: auditoría de la cancelación y bloqueo del horario del organizador.
+    cancelled_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Fecha de cancelación',
+    )
+
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name='cancelled_professional_activities',
+        null=True,
+        blank=True,
+        verbose_name='Responsable de la cancelación',
+    )
+
+    cancellation_reason = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Motivo de cancelación',
+    )
+
 
 
     created_at = models.DateTimeField(
@@ -438,11 +460,47 @@ class Activity(models.Model):
 
         ordering = ['date', 'start_time', 'id']
 
+    def conflicts_with_organizer_cancelled_slot(self):
+        """Impide reutilizar un bloque cancelado por ESTE profesional.
+
+        No afecta a otros profesionales ni bloquea los horarios cancelados
+        voluntariamente por un miembro.
+        """
+        if not (
+            self.organizer_id
+            and self.activity_type == self.ActivityType.PROFESSIONAL
+            and self.date and self.start_time and self.end_time
+        ):
+            return False
+
+        return (
+            Activity.objects.filter(
+                organizer_id=self.organizer_id,
+                activity_type=self.ActivityType.PROFESSIONAL,
+                status=self.Status.CANCELLED,
+                cancelled_by_id=self.organizer_id,
+                date=self.date,
+                start_time__lt=self.end_time,
+                end_time__gt=self.start_time,
+            )
+            .exclude(pk=self.pk)
+            .exists()
+        )
+
 
 
     def clean(self):
 
         errors = {}
+
+        if (
+            self.status == self.Status.PUBLISHED
+            and self.conflicts_with_organizer_cancelled_slot()
+        ):
+            errors['start_time'] = (
+                'Horario no habilitado: este profesional canceló previamente '
+                'una actividad en ese bloque. Elige otra fecha u horario.'
+            )
 
         if (
             self.end_time
@@ -624,6 +682,13 @@ class Activity(models.Model):
     def publish(self):
 
         self.full_clean()
+
+        if self.conflicts_with_organizer_cancelled_slot():
+            raise ValidationError(
+                'Horario no habilitado: la cancelación anterior del '
+                'profesional impide publicar una nueva actividad en '
+                'este mismo bloque.'
+            )
 
 
 

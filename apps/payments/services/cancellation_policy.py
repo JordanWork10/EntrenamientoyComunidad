@@ -58,17 +58,23 @@ def calculate_member_cancellation(
     service_start = _normalize_datetime(service_start)
     cancelled_at = _normalize_datetime(cancelled_at or timezone.now())
 
-    hours = Decimal(
-        str((service_start - cancelled_at).total_seconds() / 3600)
-    ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    # Determinar la politica con el tiempo REAL, antes del redondeo.
+    # Redondear primero permite que 47h 59m 59s se conviertan en 48.00h
+    # y reciban incorrectamente el 100% en lugar del 75%.
+    raw_hours = (
+        Decimal(str((service_start - cancelled_at).total_seconds()))
+        / Decimal('3600')
+    )
+    # El snapshot contable se almacena con dos decimales.
+    hours = raw_hours.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
-    if hours >= Decimal('48'):
+    if raw_hours >= Decimal('48'):
         refund_percent = FULL_REFUND_PERCENT
         bucket = 'at_least_48h'
-    elif hours >= Decimal('24'):
+    elif raw_hours >= Decimal('24'):
         refund_percent = MID_REFUND_PERCENT
         bucket = 'between_24h_and_48h'
-    elif hours > Decimal('0'):
+    elif raw_hours > Decimal('0'):
         refund_percent = LATE_REFUND_PERCENT
         bucket = 'less_than_24h'
     else:

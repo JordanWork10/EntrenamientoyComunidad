@@ -129,7 +129,9 @@ def validate_member_activity_cancellation(
         cancelled_at=cancelled_at,
     )
 
-    if decision.hours_before_service <= 0:
+    # hours_before_service es un snapshot redondeado a centesimas:
+    # el bucket se calculo con el tiempo real, incluso si faltan segundos.
+    if decision.bucket == 'service_started_or_no_show':
         raise RefundProcessingError(
             'La actividad ya comenzó. '
             'La cancelación automática ya no está disponible.'

@@ -273,8 +273,8 @@ Pagos | EntrenamientoyComunidad
 
                 <p>
                     Revisa tus actividades pagadas de forma resumida.
-                    Cada tarjeta reúne los cupos pagados, reembolsos,
-                    comisión y monto neto asociado a una actividad.
+                    Cada tarjeta reúne los cupos pagados activos, el bruto histórico,
+                    los reembolsos, la comisión y el neto vigente de cada actividad.
                 </p>
 
             </div>
@@ -317,7 +317,7 @@ Pagos | EntrenamientoyComunidad
             <article class="payments-summary-card">
 
                 <span>
-                    REEMBOLSADO
+                    REEMBOLSOS REGISTRADOS
                 </span>
 
                 <strong>
@@ -356,8 +356,9 @@ Pagos | EntrenamientoyComunidad
             <div class="professional-payments-intro">
 
                 <p>
-                    Los montos se calculan utilizando las condiciones económicas
-                    guardadas en cada pago.
+                    El bruto histórico incluye solo pagos aprobados, incluso los reembolsados.
+                    Los intentos cancelados o rechazados no cuentan como cobros.
+                    El neto vigente descuenta reembolsos y comisión de plataforma.
                 </p>
 
                 <span class="professional-payments-count">
@@ -399,10 +400,16 @@ Pagos | EntrenamientoyComunidad
                                 </div>
 
 
-                                {% if group.net_total == 0 %}
+                                {% if group.settlement_code == 'on_hold' or group.settlement_code == 'settled' %}
+
+                                    <span class="professional-payment-settlement professional-payment-settlement-{{ group.settlement_code }}">
+                                        {{ group.settlement_label }}
+                                    </span>
+
+                                {% elif group.net_total == 0 %}
 
                                     <span class="professional-payment-settlement professional-payment-settlement-empty">
-                                        Sin monto por liquidar
+                                        Sin saldo por liquidar
                                     </span>
 
                                 {% else %}
@@ -421,7 +428,7 @@ Pagos | EntrenamientoyComunidad
                                 <div class="professional-payment-card-fact">
 
                                     <span>
-                                        CUPOS PAGADOS
+                                        CUPOS PAGADOS ACTIVOS
                                     </span>
 
                                     <strong>
@@ -436,7 +443,7 @@ Pagos | EntrenamientoyComunidad
                                 <div class="professional-payment-card-fact">
 
                                     <span>
-                                        BRUTO
+                                        BRUTO APROBADO · HISTÓRICO
                                     </span>
 
                                     <strong>
@@ -449,7 +456,7 @@ Pagos | EntrenamientoyComunidad
                                 <div class="professional-payment-card-fact">
 
                                     <span>
-                                        REEMBOLSOS
+                                        REEMBOLSOS REGISTRADOS
                                     </span>
 
                                     <strong>
@@ -462,7 +469,7 @@ Pagos | EntrenamientoyComunidad
                                 <div class="professional-payment-card-fact professional-payment-card-fact-net">
 
                                     <span>
-                                        NETO ESTIMADO
+                                        NETO VIGENTE
                                     </span>
 
                                     <strong>
@@ -478,8 +485,12 @@ Pagos | EntrenamientoyComunidad
 
                                 <p class="professional-payment-card-note">
 
-                                    Comisión de plataforma:
+                                    Comisión de plataforma vigente:
                                     {{ group.commission_total|clp }}
+
+                                    {% if group.net_total == 0 and group.settlement_code != 'on_hold' and group.settlement_code != 'settled' %}
+                                        · Sin monto pendiente de liquidación
+                                    {% endif %}
 
                                     {% if group.refunded_count %}
 

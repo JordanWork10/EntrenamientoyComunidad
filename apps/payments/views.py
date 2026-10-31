@@ -120,6 +120,25 @@ def checkout(
             activity_id=activity.pk,
         )
 
+    # V131.72: una inscripción cancelada no se puede reactivar mediante
+    # un pago nuevo. Se conserva el historial de pago/reembolso asociado.
+    if ActivityRegistration.objects.filter(
+        activity=activity,
+        member=request.user,
+        status=ActivityRegistration.Status.CANCELLED,
+    ).exists():
+        messages.error(
+            request,
+            (
+                'Reserva no habilitada. Ya existe una cancelación '
+                'registrada para esta actividad y horario.'
+            ),
+        )
+        return redirect(
+            'activities:detail',
+            activity_id=activity.pk,
+        )
+
     active_registration = (
         ActivityRegistration.objects
         .filter(
@@ -257,6 +276,11 @@ def receipt(
             'activity': payment.activity,
             'sandbox_enabled': _sandbox_enabled(),
             'latest_refund': latest_refund,
+            'reservation_disabled': ActivityRegistration.objects.filter(
+                activity_id=payment.activity_id,
+                member=request.user,
+                status=ActivityRegistration.Status.CANCELLED,
+            ).exists(),
             'retained_amount_clp': max(
                 payment.amount_clp - payment.refunded_amount_clp,
                 0,
@@ -435,6 +459,34 @@ def sandbox_approve(
             )
             .first()
         )
+
+        # Aunque se abra directamente un intento pendiente antiguo,
+        # nunca podemos reactivar una inscripción cancelada ni vincular
+        # un segundo pago a su OneToOneField.
+        if (
+            registration is not None
+            and registration.status == ActivityRegistration.Status.CANCELLED
+        ):
+            payment.status = Payment.Status.CANCELLED
+            payment.failure_reason = (
+                'Reserva no habilitada: esta inscripción '
+                'ya fue cancelada anteriormente.'
+            )
+            payment.save(
+                update_fields=[
+                    'status',
+                    'failure_reason',
+                    'updated_at',
+                ],
+            )
+            messages.error(
+                request,
+                payment.failure_reason,
+            )
+            return redirect(
+                'activities:detail',
+                activity_id=activity.pk,
+            )
 
         already_registered = (
             registration is not None
@@ -624,7 +676,9 @@ def cancel_paid_activity(
                 'Este pago ya fue liquidado y requiere una revisión especial.'
             )
 
-        if decision.hours_before_service <= 0:
+        # El bucket usa el tiempo exacto. Las horas mostradas se redondean
+        # para registrar el snapshot economico y pueden mostrar 0.00h.
+        if decision.bucket == 'service_started_or_no_show':
             raise RefundProcessingError(
                 'La actividad ya comenzó. La cancelación automática ya no está disponible.'
             )

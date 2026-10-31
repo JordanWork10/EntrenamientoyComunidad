@@ -64,29 +64,46 @@ def calculate_economic_amounts(
 
 
 def get_payment_commission_snapshot(payment, at=None):
-    """
-    Resuelve el plan y la comisión para una NUEVA operación.
+    """Determina el beneficiario y congela el plan de un pago nuevo.
 
-    Actividades profesionales: usa al organizador.
-    Arriendos de espacios: usa al propietario/proveedor de la reserva.
-    El resultado se guarda como snapshot al aprobar el pago.
+    Cada origen económico mantiene su propio beneficiario:
+    organizador de actividad, profesional de la sesión o proveedor.
     """
-    if payment.economic_scope in {
-        Payment.EconomicScope.PROFESSIONAL_ACTIVITY,
-        Payment.EconomicScope.PROFESSIONAL_SERVICE,
-    }:
-        if not payment.activity_id or payment.space_booking_id:
+    if payment.economic_scope == Payment.EconomicScope.PROFESSIONAL_ACTIVITY:
+        if (
+            not payment.activity_id
+            or payment.space_booking_id
+            or payment.professional_booking_id
+        ):
             raise ValueError(
-                'El pago profesional debe estar asociado solamente a una actividad.'
+                'Un pago de actividad debe asociarse solamente a esa actividad.'
             )
 
         beneficiary = payment.activity.organizer
         return get_professional_commission_snapshot(beneficiary, at=at)
 
-    if payment.economic_scope == Payment.EconomicScope.SPACE_BOOKING:
-        if not payment.space_booking_id or payment.activity_id:
+    if payment.economic_scope == Payment.EconomicScope.PROFESSIONAL_SERVICE:
+        if (
+            not payment.professional_booking_id
+            or payment.activity_id
+            or payment.space_booking_id
+        ):
             raise ValueError(
-                'El pago de arriendo debe estar asociado solamente a una reserva de espacio.'
+                'Un pago de servicio profesional requiere una sesión individual.'
+            )
+
+        beneficiary = payment.professional_booking.professional_profile.user
+        return get_professional_commission_snapshot(beneficiary, at=at)
+
+    if payment.economic_scope == Payment.EconomicScope.SPACE_BOOKING:
+        if (
+            not payment.space_booking_id
+            or payment.activity_id
+            or payment.professional_booking_id
+        ):
+            raise ValueError(
+                'El pago de arriendo debe estar asociado solamente '
+                'a una reserva de espacio.'
             )
 
         beneficiary = payment.space_booking.provider_profile.user
@@ -96,12 +113,7 @@ def get_payment_commission_snapshot(payment, at=None):
 
 
 def apply_payment_commission_snapshot(payment, at=None, save=True):
-    """
-    Congela plan + porcentaje en el pago y recalcula sus montos económicos.
-
-    Debe utilizarse cuando una operación queda aprobada por primera vez.
-    No debe volver a ejecutarse para cambiar retroactivamente pagos históricos.
-    """
+    """Congela el plan y la comisión al aprobar la operación por primera vez."""
     snapshot = get_payment_commission_snapshot(payment, at=at)
 
     payment.plan_code_snapshot = snapshot.plan_code
@@ -133,7 +145,7 @@ def apply_payment_commission_snapshot(payment, at=None, save=True):
 
 
 def recalculate_payment_after_refund(payment, save=True):
-    """Recalcula montos usando SIEMPRE la comisión histórica ya guardada."""
+    """Recalcula siempre con la comisión histórica guardada en el pago."""
     calculation = calculate_economic_amounts(
         amount_clp=payment.amount_clp,
         refunded_amount_clp=payment.refunded_amount_clp,

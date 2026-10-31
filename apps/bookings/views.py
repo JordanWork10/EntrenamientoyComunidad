@@ -1180,7 +1180,8 @@ def professional_cancel_booking(
     - conserva confirmed_at si alguna vez fue confirmada;
     - registra cancelled_at;
     - crea BookingHistory con estado anterior y nuevo;
-    - al quedar Cancelada, deja de bloquear el horario.
+    - mantiene bloqueado el intervalo para todos los Miembros y
+      servicios del mismo Profesional.
     """
 
     professional_profile = getattr(
@@ -1235,6 +1236,13 @@ def professional_cancel_booking(
         )
 
     with transaction.atomic():
+
+        # Mismo orden de bloqueo que create_booking(): primero el
+        # Perfil Profesional y luego la reserva. Así nadie puede
+        # crear otra solicitud durante esta cancelación.
+        ProfessionalProfile.objects.select_for_update().get(
+            pk=professional_profile.pk,
+        )
 
         booking = get_object_or_404(
             Booking.objects
@@ -1314,8 +1322,8 @@ def professional_cancel_booking(
         request,
         (
             'La reserva fue cancelada. '
-            'El horario volvió a quedar disponible '
-            'si la disponibilidad profesional continúa vigente.'
+            'El horario quedó bloqueado para todos los Miembros '
+            'y no se ofrecerá en ninguno de tus servicios.'
         )
     )
 

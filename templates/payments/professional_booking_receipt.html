@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}Comprobante de sesión profesional | EntrenamientoyComunidad{% endblock %}
+
+{% block content %}
+<section class="account-page payments-page professional-booking-receipt">
+    <div class="account-container">
+        {% if messages %}
+            <div role="status" aria-live="polite">
+                {% for message in messages %}
+                    <div class="activities-message {% if message.tags == 'error' %}activities-message-error{% else %}activities-message-success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <header class="payments-hero">
+            <div>
+                <span class="payments-overline">SERVICIO PROFESIONAL · COMPROBANTE</span>
+                <h1>Estado de <span>tu pago.</span></h1>
+                <p>Consulta el resultado de tu intento y cualquier devolución asociada.</p>
+            </div>
+            <span class="payments-sandbox-badge">SANDBOX · SIN COBRO REAL</span>
+        </header>
+
+        <section class="payments-panel" aria-labelledby="receipt-status">
+            <div class="payments-panel-title">
+                <span>01</span>
+                <h2 id="receipt-status">Resultado del pago</h2>
+            </div>
+
+            <span class="payment-status payment-status-{{ payment.status }}">
+                {{ payment.get_status_display }}
+            </span>
+
+            {% if payment.status == 'approved' %}
+                <div class="payments-warning">
+                    <strong>✓ Pago aprobado en sandbox</strong>
+                    <p>La sesión tiene un pago registrado. No se realizó ningún cobro real.</p>
+                </div>
+            {% elif payment.status == 'partially_refunded' %}
+                <div class="payments-warning">
+                    <strong>Cancelación y devolución parcial registradas</strong>
+                    <p>Una parte del monto quedó retenida según la política que aceptaste.</p>
+                </div>
+            {% elif payment.status == 'refunded' %}
+                <div class="payments-warning">
+                    <strong>Cancelación y devolución completa registradas</strong>
+                    <p>El reembolso es exclusivamente contable y corresponde al ambiente sandbox.</p>
+                </div>
+            {% elif payment.status == 'pending' %}
+                <div class="payments-warning">
+                    <strong>Esperando la simulación de pago</strong>
+                    <p>Tu reserva puede estar aceptada aunque este pago todavía no lo esté.</p>
+                </div>
+            {% else %}
+                <div class="payments-warning">
+                    <strong>El intento de pago no fue aprobado</strong>
+                    <p>Puedes iniciar otro intento desde tu reserva si la sesión sigue vigente.</p>
+                </div>
+            {% endif %}
+
+            <div class="payments-facts">
+                <div class="payments-fact">
+                    <span>IDENTIFICADOR</span>
+                    <strong>{{ payment.public_id }}</strong>
+                </div>
+                <div class="payments-fact">
+                    <span>FECHA DE INTENTO</span>
+                    <strong>{{ payment.created_at|date:'d/m/Y H:i' }}</strong>
+                </div>
+                {% if payment.approved_at %}
+                    <div class="payments-fact">
+                        <span>APROBACIÓN SANDBOX</span>
+                        <strong>{{ payment.approved_at|date:'d/m/Y H:i' }}</strong>
+                    </div>
+                {% endif %}
+                <div class="payments-fact">
+                    <span>RESERVA</span>
+                    <strong>#{{ booking.pk }} · {{ booking.get_status_display }}</strong>
+                </div>
+            </div>
+
+            <article class="payments-activity-card">
+                <span>SERVICIO INDIVIDUAL</span>
+                <h3>{{ booking.service_name_snapshot }}</h3>
+                <p>
+                    {{ booking.session_date|date:'d/m/Y' }} ·
+                    {{ booking.start_time|time:'H:i' }} – {{ booking.end_time|time:'H:i' }}
+                </p>
+                <p>
+                    Profesional: {{ booking.professional_profile.user.get_full_name|default:booking.professional_profile.user.email }}
+                </p>
+            </article>
+
+            <div class="payments-facts">
+                <div class="payments-fact">
+                    <span>MONTO ORIGINAL</span>
+                    <strong>{{ payment.amount_clp|clp }}</strong>
+                </div>
+                <div class="payments-fact">
+                    <span>REEMBOLSOS REGISTRADOS</span>
+                    <strong>{{ payment.refunded_amount_clp|clp }}</strong>
+                </div>
+                <div class="payments-fact">
+                    <span>MONTO NO REEMBOLSADO</span>
+                    <strong>{{ retained_amount_clp|clp }}</strong>
+                </div>
+            </div>
+        </section>
+
+        {% if refunds %}
+            <section class="payments-panel" aria-labelledby="receipt-refunds">
+                <div class="payments-panel-title">
+                    <span>02</span>
+                    <h2 id="receipt-refunds">Devoluciones registradas</h2>
+                </div>
+                {% for refund in refunds %}
+                    <article class="payments-activity-card">
+                        <span>{{ refund.get_status_display }}</span>
+                        <h3>{{ refund.amount_clp|clp }}</h3>
+                        <p>{{ refund.get_reason_display }} · {{ refund.processed_at|date:'d/m/Y H:i' }}</p>
+                        {% if refund.policy_percentage_snapshot is not None %}
+                            <p>Política aplicada: {{ refund.policy_percentage_snapshot }} %</p>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        {% if payment.status == 'pending' %}
+            <div class="payments-action-stack">
+                <a href="{% url 'payments:professional_booking_checkout' booking.pk %}" class="payments-button payments-button-approve">
+                    Continuar con el pago sandbox →
+                </a>
+            </div>
+        {% endif %}
+
+        <div class="payments-action-stack">
+            <a href="{% url 'bookings:detail' booking.pk %}" class="payments-button payments-button-link">
+                ← Volver al detalle de mi reserva
+            </a>
+            {% if payment.status == 'failed' or payment.status == 'cancelled' %}
+                <a href="{% url 'payments:professional_booking_checkout' booking.pk %}" class="payments-button payments-button-link">
+                    Intentar nuevamente si la sesión sigue vigente →
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

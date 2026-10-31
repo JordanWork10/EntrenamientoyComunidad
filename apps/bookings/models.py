@@ -228,6 +228,43 @@ class Booking(models.Model):
             ),
         ]
 
+    @classmethod
+    def blocking_for_professional(
+        cls,
+        *,
+        professional_profile_id,
+        professional_user_id,
+        session_date,
+    ):
+        """Reservas que impiden ofrecer un horario de ese profesional.
+
+        Las solicitudes pendientes y confirmadas ocupan el horario.
+        Una reserva cancelada solo lo bloquea si quien la canceló fue
+        el profesional. El historial permite mantener esta regla sin
+        alterar los estados ni agregar una migración.
+        """
+        return (
+            cls.objects
+            .filter(
+                professional_profile_id=professional_profile_id,
+                session_date=session_date,
+            )
+            .filter(
+                models.Q(
+                    status__in=[
+                        cls.Status.PENDING,
+                        cls.Status.CONFIRMED,
+                    ]
+                )
+                | models.Q(
+                    status=cls.Status.CANCELLED,
+                    history__action=BookingHistory.Action.CANCELLED,
+                    history__changed_by_id=professional_user_id,
+                )
+            )
+            .distinct()
+        )
+
     # =====================================================
     # VALIDACIONES
     # =====================================================
@@ -414,27 +451,24 @@ class Booking(models.Model):
         # EVITAR DOBLE RESERVA DEL PROFESIONAL
         # -------------------------------------------------
 
-        blocking_statuses = [
-            self.Status.PENDING,
-            self.Status.CONFIRMED,
-        ]
-
         if (
             self.professional_profile_id
             and self.session_date
             and self.start_time
             and self.end_time
-            and self.status in blocking_statuses
+            and self.status in [
+                self.Status.PENDING,
+                self.Status.CONFIRMED,
+            ]
         ):
 
             overlapping_booking = (
-                Booking.objects
-                .filter(
-                    professional_profile_id=(
-                        self.professional_profile_id
-                    ),
+                Booking.blocking_for_professional(
+                    professional_profile_id=self.professional_profile_id,
+                    professional_user_id=self.professional_profile.user_id,
                     session_date=self.session_date,
-                    status__in=blocking_statuses,
+                )
+                .filter(
                     start_time__lt=self.end_time,
                     end_time__gt=self.start_time,
                 )
@@ -448,8 +482,9 @@ class Booking(models.Model):
                 raise ValidationError(
                     {
                         'start_time': (
-                            'El Profesional ya posee una reserva '
-                            'que se superpone con este horario.'
+                            'Este horario ya no está disponible: existe '
+                            'una reserva activa o un bloqueo registrado '
+                            'por el Profesional.'
                         )
                     }
                 )

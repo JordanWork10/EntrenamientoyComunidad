@@ -13,6 +13,49 @@ color: #b4ff29;
 background: rgba(180, 255, 41, .06);
 border: 1px solid rgba(180, 255, 41, .34);
 }
+.activities-chip-cancelled {
+color: #ff857a;
+background: rgba(255, 117, 94, .08);
+border: 1px solid rgba(255, 117, 94, .4);
+}
+.activities-cancellation-box {
+margin-top: 14px;
+padding: 16px;
+border: 1px solid rgba(255, 117, 94, .38);
+border-radius: 12px;
+background: rgba(255, 117, 94, .06);
+}
+.activities-cancellation-box strong {
+display: block;
+margin-bottom: 7px;
+}
+.activities-cancellation-box p {
+margin: 4px 0 12px;
+line-height: 1.5;
+}
+.activities-cancellation-box textarea {
+display: block;
+width: 100%;
+min-height: 100px;
+margin: 9px 0;
+padding: 12px;
+border: 1px solid rgba(175, 190, 214, .26);
+border-radius: 9px;
+color: #f3f6fa;
+background: #0c111b;
+font: inherit;
+resize: vertical;
+}
+.activities-cancellation-confirm {
+display: flex;
+align-items: flex-start;
+gap: 9px;
+margin: 12px 0 16px;
+line-height: 1.4;
+}
+.activities-cancellation-confirm input {
+margin-top: 3px;
+}
 </style>
 <section class="account-page activities-page">
 <div class="account-container">
@@ -45,6 +88,11 @@ Profesional verificado
 {% if activity.status == 'draft' %}
 <span class="activities-chip activities-chip-warning">
 Borrador
+</span>
+{% endif %}
+{% if activity.status == 'cancelled' %}
+<span class="activities-chip activities-chip-cancelled">
+Actividad cancelada
 </span>
 {% endif %}
 </div>
@@ -209,6 +257,13 @@ Información para tu sesión
 <p>
 {{ activity.online_access_info }}
 </p>
+{% elif activity.status == 'cancelled' %}
+<strong>
+Acceso cerrado
+</strong>
+<p class="activities-online-private">
+La actividad fue cancelada y su acceso online ya no está habilitado.
+</p>
 {% else %}
 <strong>
 Disponible para personas inscritas
@@ -266,7 +321,11 @@ de
 </progress>
 </div>
 <div class="activities-spots-line">
-{% if activity.is_full %}
+{% if activity.status == 'cancelled' %}
+<strong>
+Reservas cerradas
+</strong>
+{% elif activity.is_full %}
 <strong>
 Cupos completos
 </strong>
@@ -285,7 +344,40 @@ Gratis
 {% endif %}
 </span>
 </div>
+{% if activity.status == 'cancelled' %}
+<div class="activities-cancellation-box">
+<strong>Horario no habilitado</strong>
+<p>
+Esta actividad fue cancelada y no admite nuevas inscripciones.
+{% if activity.cancelled_by_id == activity.organizer_id %}
+El bloque quedó cerrado por decisión del profesional organizador.
+{% endif %}
+</p>
+{% if activity.cancellation_reason %}
+<p>
+<strong>Motivo registrado:</strong>
+{{ activity.cancellation_reason }}
+</p>
+{% endif %}
+{% if activity.price > 0 and request.user.is_authenticated %}
 {% if is_owner %}
+<a
+href="{% url 'payments:activity_payments' activity.id %}"
+class="activities-button activities-button-secondary activities-button-full"
+>
+Consultar los pagos y reembolsos de la actividad →
+</a>
+{% else %}
+<a
+href="{% url 'payments:my_payments' %}"
+class="activities-button activities-button-secondary activities-button-full"
+>
+Consultar mis pagos y reembolsos →
+</a>
+{% endif %}
+{% endif %}
+</div>
+{% elif is_owner %}
 <div class="activities-owner-box">
 <strong>
 Tú organizas esta actividad
@@ -295,12 +387,14 @@ El organizador no ocupa uno de los cupos publicados.
 </p>
 </div>
 {% if activity.activity_type == 'professional' %}
+{% if activity.status != 'cancelled' %}
 <a
 href="{% url 'activities:edit_professional' activity.id %}"
 class="activities-button activities-button-secondary activities-button-full"
 >
 Editar actividad profesional →
 </a>
+{% endif %}
 {% if activity.price > 0 %}
 <a
 href="{% url 'payments:activity_payments' activity.id %}"
@@ -322,6 +416,44 @@ class="activities-button activities-button-primary activities-button-full"
 Publicar actividad →
 </button>
 </form>
+{% endif %}
+{% if can_organizer_cancel %}
+<div class="activities-cancellation-box">
+<strong>¿Necesitas cancelar esta actividad?</strong>
+<p>
+Se anularán las inscripciones vigentes y este horario quedará
+bloqueado para nuevas actividades tuyas. Si hay pagos aprobados,
+se registrará el reembolso total correspondiente en sandbox.
+Las liquidaciones cerradas o retenidas requieren revisión administrativa.
+</p>
+<form method="post" action="{% url 'activities:cancel_professional' activity.id %}">
+{% csrf_token %}
+<label for="cancellation_reason_professional">
+<strong>Motivo de cancelación</strong>
+</label>
+<textarea
+id="cancellation_reason_professional"
+name="cancellation_reason"
+required
+minlength="10"
+maxlength="1000"
+placeholder="Explica brevemente por qué no podrás realizar la actividad."
+></textarea>
+<label class="activities-cancellation-confirm">
+<input type="checkbox" name="confirm_cancel" value="1" required>
+<span>
+Confirmo que no realizaré esta actividad y comprendo que se
+cancelarán las inscripciones vigentes y el horario quedará bloqueado.
+</span>
+</label>
+<button
+type="submit"
+class="activities-button activities-button-danger activities-button-full"
+>
+Confirmar cancelación de la actividad
+</button>
+</form>
+</div>
 {% endif %}
 {% else %}
 <a
@@ -397,6 +529,30 @@ href="{% url 'accounts:login' %}"
 class="activities-button activities-button-primary activities-button-full"
 >
 Inicia sesión para unirte
+</a>
+{% elif reservation_disabled %}
+<div class="activities-cancellation-box">
+<strong>Reserva no habilitada</strong>
+<p>
+Este horario registra una cancelación anterior. Según la política
+aceptada, no se puede generar una nueva inscripción para el mismo bloque.
+</p>
+<p>
+Puedes consultar el pago y el reembolso registrados en tu historial
+o elegir otra actividad.
+</p>
+</div>
+<a
+href="{% url 'payments:my_payments' %}"
+class="activities-button activities-button-secondary activities-button-full"
+>
+Consultar mis pagos →
+</a>
+<a
+href="{% url 'activities:home' %}"
+class="activities-button activities-button-secondary activities-button-full"
+>
+Explorar otras actividades →
 </a>
 {% elif paid_registration_pending %}
 <div class="activities-paid-pending-box payment-ready">

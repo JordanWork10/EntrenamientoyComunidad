@@ -163,14 +163,19 @@ Mi Reserva | EntrenamientoyComunidad
                         </p>
 
                     {% elif booking.status == 'confirmed' %}
-                        <span>RESERVA CONFIRMADA</span>
-                        <strong>
-                            {{ booking.professional_profile.user.first_name|default:booking.professional_profile.user.get_full_name }} confirmó tu sesión
-                        </strong>
-                        <p>
-                            Tu reserva está lista para el {{ booking.session_date|date:"d/m/Y" }}
-                            a las {{ booking.start_time|time:"H:i" }}.
-                        </p>
+                        {% if booking_payment and booking_payment.status == 'approved' %}
+                            <span>RESERVA ACEPTADA · PAGO APROBADO</span>
+                            <strong>Tu sesión está confirmada y pagada en sandbox</strong>
+                            <p>El Profesional te espera el {{ booking.session_date|date:"d/m/Y" }} a las {{ booking.start_time|time:"H:i" }}.</p>
+                        {% elif booking.price_clp == 0 %}
+                            <span>RESERVA ACEPTADA</span>
+                            <strong>El Profesional confirmó tu sesión sin costo</strong>
+                            <p>Te espera el {{ booking.session_date|date:"d/m/Y" }} a las {{ booking.start_time|time:"H:i" }}.</p>
+                        {% else %}
+                            <span>RESERVA ACEPTADA · PAGO PENDIENTE</span>
+                            <strong>El Profesional aceptó tu sesión</strong>
+                            <p>La aceptación del horario no equivale a un pago. Revisa el importe y registra tu pago sandbox antes del inicio.</p>
+                        {% endif %}
 
                     {% elif booking.status == 'cancelled' %}
                         <span>RESERVA CANCELADA</span>
@@ -197,6 +202,39 @@ Mi Reserva | EntrenamientoyComunidad
                 </div>
             </div>
 
+            {% if booking.price_clp > 0 %}
+                <div class="member-booking-secondary-action">
+                    <div>
+                        <strong>Pago de esta sesión</strong>
+                        {% if booking_payment and booking_payment.status == 'approved' %}
+                            <p>Pago aprobado en sandbox. Puedes consultar tu comprobante.</p>
+                        {% elif booking_payment and booking_payment.status == 'refunded' %}
+                            <p>El pago figura como reembolsado. La devolución fue registrada en sandbox.</p>
+                        {% elif booking_payment and booking_payment.status == 'partially_refunded' %}
+                            <p>Se registró una devolución parcial de esta sesión en sandbox.</p>
+                        {% elif booking.status == 'cancelled' %}
+                            <p>Reserva cancelada. No hay pagos pendientes por realizar.</p>
+                        {% elif booking.status == 'confirmed' %}
+                            <p>Pago pendiente por {{ booking.price_clp|clp }}. No se realizan cobros reales.</p>
+                        {% else %}
+                            <p>El pago solo se habilita después de que el Profesional acepte la solicitud.</p>
+                        {% endif %}
+                    </div>
+                    {% if booking_payment and booking_payment.status == 'approved' or booking_payment and booking_payment.status == 'refunded' or booking_payment and booking_payment.status == 'partially_refunded' %}
+                        <a href="{% url 'payments:professional_booking_receipt' booking_payment.public_id %}" class="account-professional-action">
+                            Ver comprobante →
+                        </a>
+                    {% elif can_pay %}
+                        <a href="{% url 'payments:professional_booking_checkout' booking.pk %}" class="account-professional-action">
+                            Realizar pago sandbox →
+                        </a>
+                    {% elif booking_payment %}
+                        <a href="{% url 'payments:professional_booking_receipt' booking_payment.public_id %}" class="account-professional-action">
+                            Ver intento →
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
 
             {% if booking.status == 'cancelled' and booking.cancellation_reason %}
                 <div class="member-booking-cancelled-reason">
@@ -237,7 +275,13 @@ Mi Reserva | EntrenamientoyComunidad
                             Cuéntanos brevemente por qué no podrás asistir
                         </strong>
                         <p>
-                            La cancelación quedará registrada y el horario volverá a estar disponible.
+                            {% if booking_payment and booking_payment.status == 'approved' %}
+                                Según la política aceptada, corresponde 100 % de devolución desde 48 horas antes,
+                                75 % entre 24 y menos de 48 horas, y 50 % con menos de 24 horas de anticipación.
+                                La devolución es contable de sandbox y el horario se liberará.
+                            {% else %}
+                                La cancelación quedará registrada y el horario volverá a estar disponible.
+                            {% endif %}
                         </p>
                     </div>
 
@@ -283,7 +327,13 @@ Mi Reserva | EntrenamientoyComunidad
                 <div class="member-booking-cancel-unavailable">
                     <strong>La cancelación ya no está disponible</strong>
                     <p>
-                        La sesión alcanzó su hora de inicio. El registro se conservará en tu historial.
+                        {% if booking_payment and booking_payment.settlement_status == 'on_hold' %}
+                            El pago está retenido. Solicita revisión administrativa antes de cancelar.
+                        {% elif booking_payment and booking_payment.settlement_status == 'settled' %}
+                            El pago ya fue liquidado y la cancelación necesita revisión administrativa.
+                        {% else %}
+                            La sesión alcanzó su hora de inicio. El registro se conservará en tu historial.
+                        {% endif %}
                     </p>
                 </div>
             {% endif %}

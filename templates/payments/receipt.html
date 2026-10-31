@@ -109,8 +109,13 @@ Resultado del pago | EntrenamientoyComunidad
                     </strong>
 
                     <p>
+                        {% if reservation_disabled %}
+                        Este horario registra una cancelación anterior
+                        y no admite una nueva inscripción.
+                        {% else %}
                         No se reservó ningún cupo.
                         Puedes iniciar un nuevo intento desde la actividad.
+                        {% endif %}
                     </p>
 
 
@@ -122,6 +127,17 @@ Resultado del pago | EntrenamientoyComunidad
 
                     <p>
                         Este intento fue cancelado y no produjo una inscripción.
+                    </p>
+
+                {% elif payment.status == 'pending' and reservation_disabled %}
+
+                    <strong>
+                        Reserva no habilitada
+                    </strong>
+
+                    <p>
+                        Este intento no puede aprobarse porque el horario
+                        ya registra una cancelación anterior.
                     </p>
 
 
@@ -297,12 +313,49 @@ Resultado del pago | EntrenamientoyComunidad
 
                 {% elif payment.status == 'failed' or payment.status == 'cancelled' %}
 
+                    {% if reservation_disabled %}
+
+                    <div class="payments-warning">
+
+                        <strong>Reserva no habilitada</strong>
+
+                        Este horario registra una cancelación anterior.
+                        Puedes revisar la actividad y tu historial de pagos.
+
+                    </div>
+
+                    <a
+                        href="{% url 'activities:detail' activity.id %}"
+                        class="payments-button payments-button-link"
+                    >
+                        Volver a la actividad →
+                    </a>
+
+                    {% else %}
+
                     <a
                         href="{% url 'payments:checkout' activity.id %}"
                         class="payments-button payments-button-link"
                     >
                         Intentar nuevamente →
                     </a>
+
+                    {% endif %}
+
+                {% elif payment.status == 'pending' and reservation_disabled %}
+
+                    <form
+                        method="post"
+                        action="{% url 'payments:cancel' payment.public_id %}"
+                    >
+                        {% csrf_token %}
+                        <button
+                            type="submit"
+                            class="payments-button payments-button-link"
+                        >
+                            Cancelar este intento pendiente
+                        </button>
+                    </form>
 
 
                 {% elif payment.status == 'partially_refunded' or payment.status == 'refunded' %}

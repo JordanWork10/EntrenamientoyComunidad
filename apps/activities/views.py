@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from apps.professionals.models import ProfessionalProfile
 
@@ -19,6 +20,11 @@ from apps.professionals.models import ProfessionalProfile
 from .forms import CommunityActivityForm, ProfessionalActivityForm
 
 from .models import Activity, ActivityRegistration
+
+from apps.payments.services.professional_activity_cancellations import (
+    ProfessionalActivityCancellationError,
+    cancel_professional_activity,
+)
 
 
 
@@ -1288,6 +1294,45 @@ def publish_professional_activity(
 
 
 
+@login_required(login_url='accounts:login')
+@require_POST
+def cancel_professional_activity_view(request, activity_id):
+    activity = get_object_or_404(
+        Activity,
+        pk=activity_id,
+        organizer=request.user,
+        activity_type=Activity.ActivityType.PROFESSIONAL,
+    )
+    if request.POST.get('confirm_cancel') != '1':
+        messages.error(
+            request,
+            'Debes confirmar la cancelación antes de continuar.',
+        )
+        return redirect('activities:detail', activity_id=activity.pk)
+
+    try:
+        outcome = cancel_professional_activity(
+            activity=activity,
+            organizer=request.user,
+            reason=request.POST.get('cancellation_reason', ''),
+        )
+    except ProfessionalActivityCancellationError as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(
+            request,
+            (
+                'Actividad cancelada. El horario quedó bloqueado para '
+                'nuevas actividades de este profesional. '
+                f'Se cancelaron {outcome.cancelled_registrations} '
+                f'inscripciones y registraron {outcome.refunds_created} '
+                'reembolsos contables (sandbox).'
+            ),
+        )
+
+    return redirect('activities:detail', activity_id=activity.pk)
+
+
 def activity_detail(
 
     request,
@@ -1360,7 +1405,14 @@ def activity_detail(
 
             )
 
-        )
+            |
+
+            Q(
+                status=Activity.Status.CANCELLED,
+                registrations__member=request.user,
+            )
+
+        ).distinct()
 
 
 
@@ -1475,16 +1527,27 @@ def activity_detail(
     )
 
     can_access_online_info = (
-        is_owner
-        or is_registered
+        activity.status != Activity.Status.CANCELLED
+        and (is_owner or is_registered)
+    )
+
+    reservation_disabled = (
+        request.user.is_authenticated
+        and activity.activity_type == Activity.ActivityType.PROFESSIONAL
+        and activity.price > 0
+        and activity.status == Activity.Status.PUBLISHED
+        and registration is not None
+        and registration.status == ActivityRegistration.Status.CANCELLED
     )
 
     paid_registration_pending = (
         activity.activity_type
         == Activity.ActivityType.PROFESSIONAL
+        and activity.status == Activity.Status.PUBLISHED
         and activity.price > 0
         and not is_owner
         and not is_registered
+        and not reservation_disabled
     )
 
 
@@ -1505,9 +1568,15 @@ def activity_detail(
 
             'is_registered': is_registered,
             'is_owner': is_owner,
+            'can_organizer_cancel': (
+                is_owner
+                and activity.activity_type == Activity.ActivityType.PROFESSIONAL
+                and activity.status == Activity.Status.PUBLISHED
+            ),
             'can_access_online_info': (
                 can_access_online_info
             ),
+            'reservation_disabled': reservation_disabled,
             'paid_registration_pending': (
                 paid_registration_pending
             ),

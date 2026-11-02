@@ -9,6 +9,123 @@
 
 {% block content %}
 
+<style>
+    /* =====================================================
+       V132.03 - PORTAFOLIO AUDIOVISUAL PÚBLICO
+       ===================================================== */
+
+    .v13203-video-intro {
+        margin-bottom: 22px;
+    }
+
+    .v13203-video-intro p {
+        color: #a9bdca;
+        line-height: 1.7;
+        margin: 10px 0 0;
+    }
+
+    .v13203-video-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .v13203-video-card {
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid rgba(77, 132, 155, 0.45);
+        background: #101d2b;
+        border-radius: 15px;
+    }
+
+    .v13203-video-player {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #03080e;
+        object-fit: contain;
+    }
+
+    .v13203-video-card-body {
+        padding: 18px;
+    }
+
+    .v13203-video-card-body h3 {
+        color: #f0fcff;
+        font-size: 1.05rem;
+        line-height: 1.4;
+        margin: 0 0 10px;
+        overflow-wrap: anywhere;
+    }
+
+    .v13203-video-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        color: #80dce9;
+        font-size: 0.82rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .v13203-video-meta span {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border: 1px solid rgba(0, 191, 219, 0.35);
+        border-radius: 20px;
+        background: rgba(0, 191, 219, 0.08);
+    }
+
+    .v13203-video-description {
+        margin: 0;
+        color: #b6cbd7;
+        line-height: 1.65;
+        font-size: 0.9rem;
+        overflow-wrap: anywhere;
+        white-space: pre-line;
+    }
+
+    .v13203-video-jump {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 11px 16px;
+        border: 1px solid rgba(0, 191, 219, 0.6);
+        color: #8defff;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 750;
+        transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .v13203-video-jump:hover {
+        background: rgba(0, 191, 219, 0.12);
+        border-color: #00bfdb;
+        color: #ffffff;
+    }
+
+    .v13203-video-notice {
+        margin-top: 18px;
+        color: #9bb9c8;
+        font-size: 0.82rem;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 760px) {
+        .v13203-video-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .v13203-video-card-body {
+            padding: 15px;
+        }
+    }
+</style>
+
+
 <section class="account-page public-professional-page">
 
     <div class="account-container">
@@ -77,6 +194,16 @@
                     Ver servicios y horarios
                     <span>→</span>
                 </a>
+
+                {% if portfolio_videos %}
+                    <a
+                        href="#videos-profesional"
+                        class="v13203-video-jump"
+                    >
+                        Ver videos
+                        <span>↓</span>
+                    </a>
+                {% endif %}
 
             </div>
 
@@ -393,6 +520,117 @@
 
 
         <!-- =================================================
+             V132.03 - PORTAFOLIO AUDIOVISUAL PÚBLICO
+        ================================================== -->
+
+        {% if portfolio_videos %}
+
+            <section
+                class="account-panel v13203-public-videos"
+                id="videos-profesional"
+                aria-labelledby="v13203-videos-title"
+            >
+
+                <div class="account-panel-header">
+
+                    <div>
+
+                        <span class="account-panel-number">
+                            03
+                        </span>
+
+                        <h2 id="v13203-videos-title">
+                            Videos del profesional
+                        </h2>
+
+                    </div>
+
+                    <span class="account-panel-tag">
+                        {{ portfolio_videos|length }} PUBLICADOS
+                    </span>
+
+                </div>
+
+
+                <div class="v13203-video-intro">
+
+                    <span class="page-overline">
+                        PORTAFOLIO AUDIOVISUAL
+                    </span>
+
+                    <p>
+                        Conoce el trabajo de este profesional mediante
+                        presentaciones, técnicas, ejercicios y contenidos
+                        demostrativos previamente revisados.
+                    </p>
+
+                </div>
+
+
+                <div class="v13203-video-grid">
+
+                    {% for video in portfolio_videos %}
+
+                        <article class="v13203-video-card">
+
+                            <video
+                                class="v13203-video-player"
+                                controls
+                                preload="none"
+                                playsinline
+                                aria-label="Reproducir {{ video.title }}"
+                                src="{% url 'professionals:portfolio_stream' video.public_id %}"
+                            >
+                                Tu navegador no admite la reproducción de este video.
+                            </video>
+
+                            <div class="v13203-video-card-body">
+
+                                <h3>
+                                    {{ video.title }}
+                                </h3>
+
+                                <div class="v13203-video-meta">
+
+                                    <span>
+                                        {{ video.get_category_display }}
+                                    </span>
+
+                                    <span>
+                                        {{ video.duration_seconds }} segundos
+                                    </span>
+
+                                </div>
+
+                                {% if video.description %}
+
+                                    <p class="v13203-video-description">
+                                        {{ video.description }}
+                                    </p>
+
+                                {% endif %}
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <p class="v13203-video-notice">
+                    Los videos corresponden a material demostrativo publicado
+                    por el profesional y revisado por la administración
+                    de la plataforma.
+                </p>
+
+            </section>
+
+        {% endif %}
+
+
+        <!-- =================================================
              ATENCIÓN Y COBERTURA
         ================================================== -->
 
@@ -403,7 +641,7 @@
                 <div>
 
                     <span class="account-panel-number">
-                        03
+                        {% if portfolio_videos %}04{% else %}03{% endif %}
                     </span>
 
                     <h2>

@@ -47,7 +47,7 @@
         <section class="v131-provider-income-section" aria-label="Jornadas económicas">
             <div class="v131-provider-income-heading">
                 <div>
-                    <span class="v131-provider-income-kicker">JORNADAS POR RECINTO</span>
+                    <span class="v131-provider-income-kicker">V131.81 · JORNADAS POR RECINTO</span>
                     <h2>Revisión de liquidaciones</h2>
                     <p>Consultar esta página no crea ni modifica registros económicos.</p>
                 </div>
@@ -65,7 +65,9 @@
                                 · {{ row.booking_count }} reserva{{ row.booking_count|pluralize }}
                             </p>
                         </div>
-                        {% if row.settlement %}
+                        {% if row.no_balance %}
+                            <span class="v131-admin-space-state">Sin saldo por liquidar</span>
+                        {% elif row.settlement %}
                             <span class="v131-admin-space-state v131-admin-space-state-{{ row.settlement.status }}">
                                 {{ row.settlement.get_status_display }}
                             </span>
@@ -75,16 +77,26 @@
                     </div>
 
                     <div class="v131-provider-income-space-totals">
-                        <div><span>BRUTO REGISTRADO</span><strong>{{ row.gross_total|clp }}</strong></div>
-                        <div><span>COMISIÓN</span><strong>{{ row.commission_total|clp }}</strong></div>
-                        <div><span>NETO CALCULADO</span><strong>{{ row.net_total|clp }}</strong></div>
-                        <div>
-                            <span>VALIDACIÓN OPERATIVA</span>
-                            <strong>{% if row.incomplete %}Falta completar{% else %}Sin reserva pendiente{% endif %}</strong>
-                        </div>
+                        <div><span>BRUTO HISTÓRICO</span><strong>{{ row.gross_total|clp }}</strong></div>
+                        <div><span>REEMBOLSOS REGISTRADOS</span><strong>{{ row.refunded_total|clp }}</strong></div>
+                        <div><span>COMISIÓN VIGENTE</span><strong>{{ row.commission_total|clp }}</strong></div>
+                        <div><span>NETO VIGENTE</span><strong>{{ row.net_total|clp }}</strong></div>
                     </div>
 
                     <div class="v131-admin-space-actions">
+                        <div class="v131-admin-space-detail">
+                            <strong>Situación operativa: {{ row.operational_label }}</strong>
+                            {% if row.no_balance %}
+                                <span>Los pagos totalmente reembolsados conservan su historial, pero no generan dinero para liquidar.</span>
+                            {% elif row.cancelled_with_balance %}
+                                <span>Hay reservas canceladas con importe retenido; el servidor exige comprobar su resolución económica autorizada.</span>
+                            {% elif row.incomplete %}
+                                <span>Se debe completar el arriendo antes de que pueda autorizarse el cierre.</span>
+                            {% endif %}
+                            {% if row.outdated_snapshot %}
+                                <span class="v131-admin-space-warning">Los importes cambiaron respecto de la liquidación preparada. Actualiza la revisión antes de cerrar.</span>
+                            {% endif %}
+                        </div>
                         {% if row.settlement %}
                             <div class="v131-admin-space-detail">
                                 <strong>Liquidación #{{ row.settlement.pk }}</strong>
@@ -119,7 +131,7 @@
                             <form method="post" action="{% url 'payments:space_settlement_prepare' row.space.pk row.date.year row.date.month row.date.day %}">
                                 {% csrf_token %}
                                 <button type="submit" class="v131-admin-space-btn">
-                                    {% if row.settlement %}Actualizar revisión de jornada{% else %}Preparar jornada pendiente{% endif %}
+                                    {% if row.no_balance %}Revisar historial sin saldo{% elif row.settlement %}Actualizar revisión de jornada{% else %}Preparar jornada pendiente{% endif %}
                                 </button>
                             </form>
                         {% endif %}
@@ -137,7 +149,11 @@
                             </form>
                         {% else %}
                             <p class="v131-admin-space-muted">
-                                {% if row.settlement and row.settlement.status == 'settled' %}
+                                {% if row.no_balance %}
+                                    No se habilita un cierre porque el neto de esta jornada es $0 CLP.
+                                {% elif row.outdated_snapshot %}
+                                    Primero actualiza la revisión: existe una diferencia contable pendiente.
+                                {% elif row.settlement and row.settlement.status == 'settled' %}
                                     Jornada ya liquidada: no se permiten nuevos cierres.
                                 {% else %}
                                     El cierre no está habilitado. Debe existir una jornada elegible

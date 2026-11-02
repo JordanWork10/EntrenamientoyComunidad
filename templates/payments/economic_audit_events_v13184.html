@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}Eventos económicos | EntrenamientoyComunidad{% endblock %}
+
+{% block content %}
+<style>
+    .ev84 { background: #080c11; color: #eff6ff; min-height: 78vh; padding: 35px 18px 80px; }
+    .ev84 * { box-sizing: border-box; }
+    .ev84-wrap { max-width: 1110px; margin: auto; }
+    .ev84-hero { background: linear-gradient(130deg, #19212b, #131620); border: 1px solid #765b31; border-radius: 13px; padding: 26px; }
+    .ev84-topline { font-weight: 850; color: #ffce70; letter-spacing: .11em; font-size: .71rem; }
+    .ev84-hero h1 { font-size: clamp(1.7rem, 4vw, 2.65rem); margin: 10px 0; line-height: 1.12; }
+    .ev84-hero h1 em { color: #ffd174; font-style: normal; }
+    .ev84-hero p { color: #adc1d9; max-width: 790px; line-height: 1.65; font-size: .91rem; margin: 10px 0 0; }
+    .ev84-note { margin-top: 13px; background: #102431; border: 1px solid #2d6175; color: #beddec; padding: 14px 16px; border-radius: 10px; font-size: .83rem; line-height: 1.65; }
+    .ev84-card { margin-top: 16px; padding: 20px; background: #101720; border: 1px solid #2d394b; border-radius: 13px; }
+    .ev84-form { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 11px; align-items: end; }
+    .ev84-field { display: flex; flex-direction: column; gap: 7px; }
+    .ev84-field label { font-size: .67rem; color: #8cacc9; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+    .ev84-field input, .ev84-field select { width: 100%; min-height: 42px; padding: 10px; background: #0a111a; border: 1px solid #3a485d; color: #f0f8ff; border-radius: 8px; color-scheme: dark; font-size: .82rem; }
+    .ev84-field input:focus, .ev84-field select:focus { outline: 2px solid #43c7ec; }
+    .ev84-actions { grid-column: 1 / -1; display: flex; gap: 9px; flex-wrap: wrap; }
+    .ev84-button { display: inline-block; text-decoration: none; cursor: pointer; border: 1px solid #269ec1; background: #112a37; color: #82e5fa; border-radius: 8px; padding: 11px 15px; font-size: .82rem; font-weight: 850; }
+    .ev84-button-secondary { border-color: #45566c; color: #bdcce0; background: transparent; }
+    .ev84-resultbar { margin: 20px 0 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .ev84-resultbar h2 { font-size: 1.2rem; margin: 0; }
+    .ev84-resultbar span { border: 1px solid #5b5030; color: #eec56a; border-radius: 20px; padding: 7px 11px; font-size: .78rem; }
+    .ev84-entry { background: #0b121a; border: 1px solid #303e52; border-left: 3px solid #47cbed; border-radius: 10px; padding: 16px; margin-bottom: 11px; }
+    .ev84-entry.ev84-payment { border-left-color: #c695ff; }
+    .ev84-entry.ev84-refund { border-left-color: #56d1ed; }
+    .ev84-entry.ev84-settlement { border-left-color: #ffd070; }
+    .ev84-entryhead { display: flex; justify-content: space-between; gap: 15px; flex-wrap: wrap; }
+    .ev84-entryhead strong { display: block; font-size: 1rem; }
+    .ev84-badge { display: inline-block; margin-left: 7px; padding: 4px 8px; border: 1px solid #536982; color: #c0d5f0; border-radius: 16px; font-size: .7rem; }
+    .ev84-small { color: #91a9c5; font-size: .76rem; margin-top: 7px; }
+    .ev84-id { overflow-wrap: anywhere; font-family: ui-monospace, Consolas, monospace; color: #8cddf6; font-size: .76rem; }
+    .ev84-fields { color: #b7d0e7; font-size: .82rem; line-height: 1.6; margin-top: 12px; }
+    .ev84-fields strong { color: #f7cf75; }
+    .ev84-entry details { margin-top: 13px; background: #121c28; border-radius: 8px; border: 1px solid #344358; padding: 10px 13px; }
+    .ev84-entry summary { cursor: pointer; color: #6ad8f8; font-weight: 800; font-size: .83rem; }
+    .ev84-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .ev84-snapshot { min-width: 0; }
+    .ev84-snapshot span { display: block; color: #93b0ce; text-transform: uppercase; font-size: .68rem; font-weight: 800; padding-bottom: 7px; }
+    .ev84-snapshot pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: #e7f3ff; background: #0a1119; border: 1px solid #25354a; border-radius: 7px; padding: 10px; font-size: .75rem; }
+    .ev84-empty { text-align: center; border: 1px dashed #4c5a70; border-radius: 9px; padding: 25px; color: #b3c8dc; }
+    .ev84-error { background: #2b211d; color: #ffd4b0; border: 1px solid #925538; padding: 11px; border-radius: 8px; margin-top: 10px; font-size: .83rem; }
+    .ev84-pages { display: flex; gap: 11px; align-items: center; flex-wrap: wrap; margin-top: 15px; }
+    .ev84-pages a { color: #7bdffc; border: 1px solid #42677d; padding: 9px 12px; border-radius: 8px; text-decoration: none; font-size: .8rem; }
+    .ev84-pages span { color: #aec5dc; font-size: .82rem; }
+    .ev84-links { margin-top: 20px; display: flex; gap: 18px; flex-wrap: wrap; }
+    .ev84-links a { color: #78dcf8; font-size: .86rem; text-decoration: none; }
+    @media (max-width: 720px) { .ev84 { padding: 20px 10px 55px; } .ev84-card, .ev84-hero { padding: 16px; } .ev84-form, .ev84-compare { grid-template-columns: 1fr; } }
+</style>
+
+<section class="ev84">
+    <div class="ev84-wrap">
+        <header class="ev84-hero">
+            <span class="ev84-topline">ADMINISTRACIÓN · HISTORIAL ECONÓMICO · V131.84</span>
+            <h1>Historial de <em>cambios.</em></h1>
+            <p>Registro de modificaciones de los estados y montos de pagos, reembolsos y liquidaciones. Cada evento conserva una comparación de los datos anteriores y posteriores.</p>
+        </header>
+
+        <aside class="ev84-note" role="note">
+            <strong>Solo lectura.</strong> Los eventos se registran en PostgreSQL dentro de la misma transacción económica. Esta página no modifica operaciones. El responsable solo se indica cuando está identificado de manera fiable; de lo contrario aparece «No identificado». El historial comienza cuando se instala la migración V131.84 y no reconstruye modificaciones anteriores.
+        </aside>
+
+        <div class="ev84-card">
+            <form method="get" class="ev84-form" action="{% url 'payments:economic_audit_events' %}">
+                <div class="ev84-field">
+                    <label for="ev84-source">Tipo de registro</label>
+                    <select id="ev84-source" name="origen">
+                        <option value="todos" {% if selected_source == 'todos' %}selected{% endif %}>Todos</option>
+                        <option value="payment" {% if selected_source == 'payment' %}selected{% endif %}>Pagos</option>
+                        <option value="refund" {% if selected_source == 'refund' %}selected{% endif %}>Reembolsos</option>
+                        <option value="settlement" {% if selected_source == 'settlement' %}selected{% endif %}>Liquidaciones</option>
+                    </select>
+                </div>
+                <div class="ev84-field">
+                    <label for="ev84-action">Operación</label>
+                    <select id="ev84-action" name="accion">
+                        <option value="todas" {% if selected_action == 'todas' %}selected{% endif %}>Todas</option>
+                        <option value="created" {% if selected_action == 'created' %}selected{% endif %}>Creaciones</option>
+                        <option value="updated" {% if selected_action == 'updated' %}selected{% endif %}>Actualizaciones</option>
+                        <option value="deleted" {% if selected_action == 'deleted' %}selected{% endif %}>Eliminaciones</option>
+                    </select>
+                </div>
+                <div class="ev84-field">
+                    <label for="ev84-id">UUID del registro económico</label>
+                    <input id="ev84-id" type="search" name="id" maxlength="50" value="{{ term }}" placeholder="Identificador exacto">
+                </div>
+                <div class="ev84-actions">
+                    <button class="ev84-button" type="submit">Consultar eventos</button>
+                    <a class="ev84-button ev84-button-secondary" href="{% url 'payments:economic_audit_events' %}">Limpiar filtros</a>
+                </div>
+            </form>
+
+            {% if invalid_id %}
+                <div class="ev84-error" role="alert">El identificador debe ser un UUID válido.</div>
+            {% endif %}
+
+            <div class="ev84-resultbar">
+                <h2>Eventos registrados</h2>
+                <span>{{ page_obj.paginator.count }} registro{{ page_obj.paginator.count|pluralize }}</span>
+            </div>
+
+            {% for event in page_obj %}
+                <article class="ev84-entry ev84-{{ event.source_type }}">
+                    <div class="ev84-entryhead">
+                        <div>
+                            <strong>{{ event.get_source_type_display }} #{{ event.source_pk }} <span class="ev84-badge">{{ event.get_action_display }}</span></strong>
+                            <div class="ev84-small">Identificador: <span class="ev84-id">{{ event.source_public_id }}</span></div>
+                        </div>
+                        <div>
+                            <div class="ev84-small">{{ event.occurred_at|date:'d/m/Y H:i:s' }}</div>
+                            <div class="ev84-small">Responsable: {% if event.actor_identifier %}#{{ event.actor_identifier }} ({{ event.actor_source }}){% else %}No identificado{% endif %}</div>
+                        </div>
+                    </div>
+
+                    <div class="ev84-fields">
+                        <strong>Campos afectados:</strong>
+                        {% if event.changed_fields %}{{ event.changed_fields|join:', ' }}{% else %}Sin diferencias en campos vigilados{% endif %}
+                    </div>
+
+                    <details>
+                        <summary>Ver valores anteriores y posteriores</summary>
+                        <div class="ev84-compare">
+                            <div class="ev84-snapshot">
+                                <span>Antes</span>
+                                <pre>{{ event.before_state }}</pre>
+                            </div>
+                            <div class="ev84-snapshot">
+                                <span>Después</span>
+                                <pre>{{ event.after_state }}</pre>
+                            </div>
+                        </div>
+                    </details>
+                </article>
+            {% empty %}
+                <div class="ev84-empty">No hay cambios económicos registrados con estos filtros. Los cambios realizados antes de instalar la V131.84 no se incorporan retroactivamente.</div>
+            {% endfor %}
+
+            {% if page_obj.has_other_pages %}
+                <nav class="ev84-pages" aria-label="Paginación de eventos">
+                    {% if page_obj.has_previous %}
+                        <a href="?{{ page_query }}&amp;pagina=1">Primera</a>
+                        <a href="?{{ page_query }}&amp;pagina={{ page_obj.previous_page_number }}">Anterior</a>
+                    {% endif %}
+                    <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                    {% if page_obj.has_next %}
+                        <a href="?{{ page_query }}&amp;pagina={{ page_obj.next_page_number }}">Siguiente</a>
+                        <a href="?{{ page_query }}&amp;pagina={{ page_obj.paginator.num_pages }}">Última</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        </div>
+
+        <nav class="ev84-links" aria-label="Administración económica">
+            <a href="{% url 'payments:admin_economic_audit' %}">← Auditoría económica V131.83</a>
+            <a href="{% url 'payments:professional_day_settlement_admin' %}">Liquidaciones profesionales →</a>
+            <a href="{% url 'payments:space_settlement_admin' %}">Liquidaciones de espacios →</a>
+        </nav>
+    </div>
+</section>
+{% endblock %}

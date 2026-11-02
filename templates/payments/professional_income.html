@@ -253,6 +253,79 @@ Pagos | EntrenamientoyComunidad
             grid-template-columns: 1fr;
         }
     }
+
+    /* V131.76: identidad cian para sesiones individuales. */
+    .professional-payments-section--sessions {
+        margin-top: 16px;
+    }
+
+    .professional-payment-card--session {
+        border-top-color: #3ed3ff;
+    }
+
+    .professional-payment-card--session .professional-payment-card-kicker,
+    .professional-payment-card--session .professional-payment-card-actions a {
+        color: #3ed3ff;
+    }
+
+    .professional-payment-card--session .professional-payment-card-note strong {
+        color: #b5c4d9;
+    }
+
+    .professional-payment-settlement-refunded {
+        color: #76e6ef;
+        background: rgba(62, 211, 255, .08);
+        border: 1px solid rgba(62, 211, 255, .34);
+    }
+
+    .professional-payment-settlement-partially_refunded {
+        color: #ffb47d;
+        background: rgba(255, 158, 100, .08);
+        border: 1px solid rgba(255, 158, 100, .35);
+    }
+
+    .professional-session-member {
+        display: block;
+        margin-top: 8px;
+        color: #b5c4d9;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    /* V131.79: seguimiento económico separado del estado del reembolso. */
+    .professional-session-settlement {
+        margin-top: 13px;
+        padding: 12px 14px;
+        border: 1px solid rgba(62, 211, 255, .24);
+        border-radius: 9px;
+        background: rgba(19, 43, 56, .45);
+        color: #b8d0e3;
+        font-size: 11px;
+        line-height: 1.65;
+    }
+
+    .professional-session-settlement strong {
+        display: block;
+        margin-bottom: 3px;
+        color: #7bdbff;
+        font-size: 12px;
+    }
+
+    .professional-session-settlement--zero {
+        border-color: rgba(126, 220, 227, .35);
+    }
+
+    .professional-session-settlement--zero strong { color: #9ce8eb; }
+    .professional-session-settlement--hold { border-color: rgba(255, 163, 110, .4); }
+    .professional-session-settlement--hold strong { color: #ffbb8e; }
+    .professional-session-settlement--settled strong { color: #81e9ba; }
+
+    .professional-payments-summary-note {
+        margin: 10px 0 18px;
+        color: #a4b9cd;
+        font-size: 11px;
+        line-height: 1.65;
+    }
 </style>
 
 <section class="payments-page">
@@ -272,9 +345,9 @@ Pagos | EntrenamientoyComunidad
                 </h1>
 
                 <p>
-                    Revisa tus actividades pagadas de forma resumida.
-                    Cada tarjeta reúne los cupos pagados activos, el bruto histórico,
-                    los reembolsos, la comisión y el neto vigente de cada actividad.
+                    Revisa tus pagos de actividades profesionales y sesiones individuales.
+                    Cada tarjeta conserva el bruto aprobado histórico, los reembolsos,
+                    la comisión y el neto vigente, sin mezclar ambos tipos de servicio.
                 </p>
 
             </div>
@@ -284,7 +357,6 @@ Pagos | EntrenamientoyComunidad
             </div>
 
         </header>
-
 
         <section class="payments-summary-grid">
 
@@ -300,7 +372,6 @@ Pagos | EntrenamientoyComunidad
 
             </article>
 
-
             <article class="payments-summary-card">
 
                 <span>
@@ -312,7 +383,6 @@ Pagos | EntrenamientoyComunidad
                 </strong>
 
             </article>
-
 
             <article class="payments-summary-card">
 
@@ -328,6 +398,11 @@ Pagos | EntrenamientoyComunidad
 
         </section>
 
+        <p class="professional-payments-summary-note">
+            «Por liquidar» incluye los saldos netos pendientes, elegibles y en revisión.
+            No significa que estén disponibles para transferencia inmediata.
+            Las liquidaciones se registran únicamente en sandbox.
+        </p>
 
         <section class="payments-panel professional-income-panel">
 
@@ -352,7 +427,6 @@ Pagos | EntrenamientoyComunidad
 
             </div>
 
-
             <div class="professional-payments-intro">
 
                 <p>
@@ -367,7 +441,6 @@ Pagos | EntrenamientoyComunidad
                 </span>
 
             </div>
-
 
             {% if activity_groups %}
 
@@ -399,7 +472,6 @@ Pagos | EntrenamientoyComunidad
 
                                 </div>
 
-
                                 {% if group.settlement_code == 'on_hold' or group.settlement_code == 'settled' %}
 
                                     <span class="professional-payment-settlement professional-payment-settlement-{{ group.settlement_code }}">
@@ -422,7 +494,6 @@ Pagos | EntrenamientoyComunidad
 
                             </div>
 
-
                             <div class="professional-payment-card-facts">
 
                                 <div class="professional-payment-card-fact">
@@ -439,7 +510,6 @@ Pagos | EntrenamientoyComunidad
 
                                 </div>
 
-
                                 <div class="professional-payment-card-fact">
 
                                     <span>
@@ -452,7 +522,6 @@ Pagos | EntrenamientoyComunidad
 
                                 </div>
 
-
                                 <div class="professional-payment-card-fact">
 
                                     <span>
@@ -464,7 +533,6 @@ Pagos | EntrenamientoyComunidad
                                     </strong>
 
                                 </div>
-
 
                                 <div class="professional-payment-card-fact professional-payment-card-fact-net">
 
@@ -479,7 +547,6 @@ Pagos | EntrenamientoyComunidad
                                 </div>
 
                             </div>
-
 
                             <div class="professional-payment-card-footer">
 
@@ -503,7 +570,6 @@ Pagos | EntrenamientoyComunidad
 
                                 </p>
 
-
                                 <div class="professional-payment-card-actions">
 
                                     <a href="{% url 'payments:activity_payments' group.activity.id %}">
@@ -523,7 +589,6 @@ Pagos | EntrenamientoyComunidad
                     {% endfor %}
 
                 </div>
-
 
             {% else %}
 
@@ -552,6 +617,154 @@ Pagos | EntrenamientoyComunidad
 
         </section>
 
+        <!-- V131.76: SESIONES INDIVIDUALES CON MOVIMIENTOS ECONÓMICOS -->
+        <section class="payments-panel professional-income-panel professional-payments-section--sessions">
+
+            <div class="payments-panel-title professional-income-title">
+                <span>02</span>
+                <div>
+                    <h2>Sesiones individuales con pagos</h2>
+                    <p>
+                        Consulta lo pagado por cada Miembro, las devoluciones,
+                        la comisión de plataforma y el neto vigente del Profesional.
+                    </p>
+                </div>
+            </div>
+
+            <div class="professional-payments-intro">
+                <p>
+                    Solo se contabilizan pagos aprobados históricamente.
+                    Los reembolsos completos conservan su trazabilidad, pero
+                    no generan saldo vigente por liquidar.
+                </p>
+                <span class="professional-payments-count">
+                    {{ paid_session_count }} pago{{ paid_session_count|pluralize }} de sesión
+                </span>
+            </div>
+
+            {% if session_groups %}
+                <div class="professional-payment-card-list">
+                    {% for group in session_groups %}
+                        <article class="professional-payment-card professional-payment-card--session">
+                            <div class="professional-payment-card-head">
+                                <div class="professional-payment-card-head-copy">
+                                    <span class="professional-payment-card-kicker">
+                                        SERVICIO PROFESIONAL · SESIÓN INDIVIDUAL
+                                    </span>
+                                    <h3>{{ group.booking.service_name_snapshot }}</h3>
+                                    <span class="professional-session-member">
+                                        Miembro: {{ group.member.get_full_name|default:group.member.email }}
+                                    </span>
+                                    <p class="professional-payment-card-date">
+                                        {{ group.booking.session_date|date:"d/m/Y" }}
+                                        ·
+                                        {{ group.booking.start_time|time:"H:i" }}
+                                        –
+                                        {{ group.booking.end_time|time:"H:i" }}
+                                        · Reserva {{ group.booking.get_status_display }}
+                                    </p>
+                                </div>
+                                <span class="professional-payment-settlement professional-payment-settlement-{{ group.settlement_code }}">
+                                    {{ group.settlement_label }}
+                                </span>
+                            </div>
+
+                            <div class="professional-payment-card-facts">
+                                <div class="professional-payment-card-fact">
+                                    <span>BRUTO APROBADO · HISTÓRICO</span>
+                                    <strong>{{ group.gross_total|clp }}</strong>
+                                </div>
+                                <div class="professional-payment-card-fact">
+                                    <span>REEMBOLSOS REGISTRADOS</span>
+                                    <strong>{{ group.refunded_total|clp }}</strong>
+                                </div>
+                                <div class="professional-payment-card-fact">
+                                    <span>COMISIÓN VIGENTE</span>
+                                    <strong>{{ group.commission_total|clp }}</strong>
+                                </div>
+                                <div class="professional-payment-card-fact professional-payment-card-fact-net">
+                                    <span>NETO VIGENTE</span>
+                                    <strong>{{ group.net_total|clp }}</strong>
+                                </div>
+                            </div>
+
+                            {% if group.net_total == 0 %}
+                                <div class="professional-session-settlement professional-session-settlement--zero">
+                                    <strong>Sin saldo por liquidar</strong>
+                                    Este pago conserva su historial, pero el reembolso completo
+                                    deja un neto de $0 CLP para el Profesional.
+                                </div>
+                            {% elif group.payment.settlement_status == 'settled' %}
+                                <div class="professional-session-settlement professional-session-settlement--settled">
+                                    <strong>Liquidación registrada en sandbox</strong>
+                                    {% if group.payment.settled_at %}
+                                        Liquidado el {{ group.payment.settled_at|date:"d/m/Y" }}
+                                        a las {{ group.payment.settled_at|time:"H:i" }}.
+                                    {% endif %}
+                                    No se realizó ninguna transferencia bancaria real.
+                                </div>
+                            {% elif group.payment.settlement_status == 'on_hold' %}
+                                <div class="professional-session-settlement professional-session-settlement--hold">
+                                    <strong>Liquidación en revisión</strong>
+                                    El saldo está retenido hasta que la administración resuelva
+                                    las condiciones pendientes. No se permite cerrar la liquidación.
+                                </div>
+                            {% elif group.payment.settlement_status == 'eligible' %}
+                                <div class="professional-session-settlement">
+                                    <strong>Elegible para liquidación</strong>
+                                    Se cumplió la fecha económica mínima. El cierre todavía
+                                    requiere las comprobaciones y autorización correspondientes.
+                                </div>
+                            {% else %}
+                                <div class="professional-session-settlement">
+                                    <strong>Pendiente de liquidación</strong>
+                                    {% if group.payment.settlement_eligible_at %}
+                                        Fecha mínima de elegibilidad:
+                                        {{ group.payment.settlement_eligible_at|date:"d/m/Y" }}
+                                        a las {{ group.payment.settlement_eligible_at|time:"H:i" }}.
+                                    {% else %}
+                                        La fecha de elegibilidad todavía no está registrada.
+                                    {% endif %}
+                                    No implica un pago bancario ni una liquidación inmediata.
+                                </div>
+                            {% endif %}
+
+                            <div class="professional-payment-card-footer">
+                                <p class="professional-payment-card-note">
+                                    {% if group.payment.status == 'refunded' %}
+                                        Pago completamente reembolsado en sandbox.
+                                        Sin saldo vigente por liquidar.
+                                    {% elif group.payment.status == 'partially_refunded' %}
+                                        Devolución parcial aplicada; la comisión y el neto
+                                        corresponden al monto no reembolsado.
+                                    {% else %}
+                                        Pago aprobado; comisión y neto congelados al aprobar.
+                                    {% endif %}
+                                    <strong>Referencia: {{ group.payment.provider_reference|default:"Sandbox" }}</strong>
+                                </p>
+                                <div class="professional-payment-card-actions">
+                                    <a href="{% url 'bookings:professional_detail' group.booking.id %}">
+                                        Ver reserva →
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="professional-payments-empty">
+                    <span>PRO</span>
+                    <div>
+                        <strong>Todavía no tienes sesiones individuales pagadas</strong>
+                        <p>
+                            Cuando un Miembro pague una reserva individual aceptada,
+                            su movimiento económico aparecerá aquí.
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+
+        </section>
 
         <div class="professional-income-footer-actions">
 

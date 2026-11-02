@@ -36,3 +36,7 @@ urlpatterns = [
     path('<int:booking_id>/cancelar/', professional_booking_bridge_views.cancel_my_booking, name='cancel_my_booking'),
     path('<int:booking_id>/', professional_booking_bridge_views.booking_detail, name='detail'),
 ]
+
+from apps.payments.economic_actor_routes_v13186 import enable_external_economic_audit
+
+urlpatterns = enable_external_economic_audit(urlpatterns, app_name='bookings')

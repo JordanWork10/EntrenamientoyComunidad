@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}Liquidaciones de sesiones profesionales | EntrenamientoyComunidad{% endblock %}
+
+{% block content %}
+<style>
+    .v13178-admin { color: #eaf4ff; background: #080b10; padding: 48px 20px 74px; min-height: 75vh; }
+    .v13178-admin * { box-sizing: border-box; }
+    .v13178-wrap { max-width: 1120px; margin: 0 auto; }
+    .v13178-hero, .v13178-card { border: 1px solid #2b3545; border-radius: 14px; background: #111720; }
+    .v13178-hero { padding: 30px; margin-bottom: 18px; background: linear-gradient(115deg, #17222c, #13151c); }
+    .v13178-eyebrow { font-size: .72rem; text-transform: uppercase; letter-spacing: .13em; font-weight: 800; color: #32cbf6; }
+    .v13178-hero h1 { margin: 9px 0 10px; font-size: clamp(1.8rem, 4vw, 2.7rem); line-height: 1.1; }
+    .v13178-hero h1 span { color: #34c6f3; }
+    .v13178-hero p, .v13178-subtle { color: #9db2c9; line-height: 1.65; font-size: .93rem; }
+    .v13178-hero p { max-width: 760px; margin-bottom: 14px; }
+    .v13178-sandbox { display: inline-block; border: 1px solid #785b28; color: #ffc963; border-radius: 8px; padding: 9px 13px; font-size: .72rem; font-weight: 800; }
+    .v13178-note { border: 1px solid #245166; border-radius: 12px; background: #10202a; padding: 17px 20px; margin-bottom: 20px; }
+    .v13178-note strong { color: #70dfff; }
+    .v13178-note p { margin: 7px 0 0; color: #bfd4e3; line-height: 1.6; }
+    .v13178-list-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin: 25px 0 14px; }
+    .v13178-list-head h2 { margin: 3px 0; font-size: 1.45rem; }
+    .v13178-counter { white-space: nowrap; color: #e7bf68; border: 1px solid #65542d; padding: 7px 12px; border-radius: 30px; font-size: .79rem; }
+    .v13178-card { padding: 22px; margin-bottom: 16px; border-top: 3px solid #2bc8ef; }
+    .v13178-card-head { display: flex; align-items: start; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .v13178-card-head h3 { margin: 5px 0; font-size: 1.22rem; }
+    .v13178-tag { padding: 7px 10px; border: 1px solid #566273; border-radius: 20px; color: #b3c9e3; font-size: .72rem; font-weight: 800; }
+    .v13178-tag-eligible { color: #4ae7b1; border-color: #267e69; }
+    .v13178-tag-settled { color: #6bdcf7; border-color: #297b90; }
+    .v13178-tag-on_hold { color: #ffb3a1; border-color: #954435; }
+    .v13178-tag-zero { color: #a1e2e9; border-color: #3f7a81; }
+    .v13178-totals { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; margin: 19px 0; }
+    .v13178-total { border: 1px solid #29384c; background: #0d131a; padding: 13px 12px; border-radius: 9px; }
+    .v13178-total span { display: block; color: #849eb6; text-transform: uppercase; font-size: .65rem; letter-spacing: .07em; font-weight: 750; }
+    .v13178-total strong { display: block; margin-top: 8px; color: #f7ca70; font-size: 1rem; white-space: nowrap; }
+    .v13178-info { border-top: 1px solid #273244; padding-top: 13px; display: grid; gap: 5px; }
+    .v13178-info p { margin: 0; color: #acc0d3; font-size: .84rem; }
+    .v13178-warning { color: #ffb6aa !important; }
+    .v13178-actions { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: start; gap: 14px; }
+    .v13178-actions form { flex: 1 1 240px; }
+    .v13178-actions label { display: flex; align-items: start; gap: 8px; color: #c3d5e5; line-height: 1.5; font-size: .8rem; margin-bottom: 10px; }
+    .v13178-actions input { margin-top: 4px; accent-color: #32c5ec; }
+    .v13178-button { width: 100%; border: 1px solid #2b99bb; border-radius: 9px; background: #102431; color: #7cdfff; padding: 12px; font-weight: 800; cursor: pointer; }
+    .v13178-button:hover { background: #163b4d; }
+    .v13178-button-close { background: #29301c; border-color: #677f2d; color: #d8fa75; }
+    .v13178-button-close:hover { background: #354222; }
+    .v13178-button-hold { border-color: #95674b; color: #ffd2a2; background: #30251d; }
+    .v13178-empty { border: 1px dashed #415067; border-radius: 12px; padding: 30px; text-align: center; color: #b8cbe1; }
+    .v13178-links { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 22px; }
+    .v13178-links a { color: #70d7ff; text-decoration: none; font-size: .85rem; }
+    .v13178-message { margin-bottom: 14px; padding: 13px; border-radius: 8px; border: 1px solid #437c78; color: #bff8e3; }
+    .v13178-message-error { border-color: #b65f60; color: #ffb5b9; }
+    @media (max-width: 820px) { .v13178-totals { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 480px) { .v13178-admin { padding: 25px 12px; } .v13178-hero, .v13178-card { padding: 18px; } .v13178-totals { grid-template-columns: 1fr 1fr; } .v13178-list-head { align-items: start; flex-direction: column; } }
+</style>
+
+<section class="v13178-admin">
+    <div class="v13178-wrap">
+        <header class="v13178-hero">
+            <span class="v13178-eyebrow">ADMINISTRACIÓN · CENTRO PROFESIONAL</span>
+            <h1>Liquidaciones de <span>sesiones.</span></h1>
+            <p>
+                Revisa los pagos de sesiones individuales por profesional y jornada.
+                Preparar una liquidación no equivale a pagarla. Solo un administrador
+                autorizado puede cerrar una jornada elegible.
+            </p>
+            <span class="v13178-sandbox">SANDBOX · SIN TRANSFERENCIAS REALES</span>
+        </header>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="v13178-message {% if message.tags == 'error' %}v13178-message-error{% endif %}" role="status">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="v13178-note" role="note">
+            <strong>Protección de los pagos del profesional</strong>
+            <p>
+                El cierre usa la hora real. Una sesión con saldo debe estar completada
+                o cancelada con devolución parcial válida; deben transcurrir al menos
+                24 horas desde su término y no puede existir una incidencia abierta,
+                un reembolso pendiente ni una retención. Los pagos totalmente reembolsados
+                conservan su historial, pero no generan saldo.
+            </p>
+        </div>
+
+        <div class="v13178-list-head">
+            <div>
+                <span class="v13178-eyebrow">V131.78 · CONTROL POR JORNADA</span>
+                <h2>Jornadas económicas</h2>
+                <p class="v13178-subtle">La consulta es de solo lectura; los botones requieren confirmación.</p>
+            </div>
+            <span class="v13178-counter">{{ rows|length }} jornada{{ rows|length|pluralize }}</span>
+        </div>
+
+        {% for row in rows %}
+            <article class="v13178-card">
+                <div class="v13178-card-head">
+                    <div>
+                        <span class="v13178-eyebrow">PROFESIONAL #{{ row.professional.pk }} · {{ row.date|date:"d/m/Y" }}</span>
+                        <h3>{{ row.professional.get_full_name|default:row.professional.get_username }}</h3>
+                        <p class="v13178-subtle">{{ row.payment_count }} pago{{ row.payment_count|pluralize }} económico{{ row.payment_count|pluralize }} de sesión individual</p>
+                    </div>
+                    {% if row.net_total == 0 %}
+                        <span class="v13178-tag v13178-tag-zero">Sin saldo por liquidar</span>
+                    {% elif row.settlement %}
+                        <span class="v13178-tag v13178-tag-{{ row.settlement.status }}">{{ row.settlement.get_status_display }}</span>
+                    {% else %}
+                        <span class="v13178-tag">Sin liquidación preparada</span>
+                    {% endif %}
+                </div>
+
+                <div class="v13178-totals">
+                    <div class="v13178-total"><span>Bruto histórico</span><strong>{{ row.gross_total|clp }}</strong></div>
+                    <div class="v13178-total"><span>Reembolsos</span><strong>{{ row.refunded_total|clp }}</strong></div>
+                    <div class="v13178-total"><span>Comisión</span><strong>{{ row.commission_total|clp }}</strong></div>
+                    <div class="v13178-total"><span>Neto vigente</span><strong>{{ row.net_total|clp }}</strong></div>
+                    <div class="v13178-total"><span>Sesiones por completar</span><strong>{% if row.awaiting_completion %}Sí{% else %}Ninguna{% endif %}</strong></div>
+                </div>
+
+                {% if row.settlement %}
+                    <div class="v13178-info">
+                        <p>
+                            Liquidación #{{ row.settlement.pk }} ·
+                            {% if row.net_total == 0 %}
+                                Sin saldo por liquidar (estado contable: {{ row.settlement.get_status_display }})
+                            {% else %}
+                                Estado: {{ row.settlement.get_status_display }}
+                            {% endif %}
+                        </p>
+                        {% if row.net_total == 0 %}
+                            <p>No se habilitará una liquidación porque el neto de esta jornada es $0 CLP.</p>
+                        {% elif row.settlement.eligible_at %}
+                            <p>Elegible desde: {{ row.settlement.eligible_at|date:"d/m/Y H:i" }}</p>
+                        {% endif %}
+                        {% if row.settlement.hold_reason %}
+                            <p class="v13178-warning">Motivo de revisión: {{ row.settlement.hold_reason }}</p>
+                        {% endif %}
+                        {% if row.settlement.settled_at %}
+                            <p>Liquidada: {{ row.settlement.settled_at|date:"d/m/Y H:i" }}</p>
+                            <p>Autorizó: {% if row.settlement.settled_by %}{{ row.settlement.settled_by.get_full_name|default:row.settlement.settled_by.get_username }}{% else %}Sin registro histórico{% endif %}</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <div class="v13178-actions">
+                    {% if row.can_prepare %}
+                        <form method="post" action="{% url 'payments:professional_day_settlement_prepare' row.professional.pk row.date.year row.date.month row.date.day %}">
+                            {% csrf_token %}
+                            <button type="submit" class="v13178-button">
+                                {% if row.settlement %}Actualizar revisión de jornada{% else %}Preparar jornada{% endif %}
+                            </button>
+                        </form>
+                    {% endif %}
+                    {% if row.can_settle %}
+                        <form method="post" action="{% url 'payments:professional_day_settlement_close' row.settlement.pk %}">
+                            {% csrf_token %}
+                            <label><input type="checkbox" name="confirm" value="yes" required>Confirmo el cierre contable exclusivamente en sandbox.</label>
+                            <button type="submit" class="v13178-button v13178-button-close">Liquidar jornada en sandbox</button>
+                        </form>
+                    {% endif %}
+                    {% if row.can_release %}
+                        <form method="post" action="{% url 'payments:professional_day_settlement_release' row.settlement.pk %}">
+                            {% csrf_token %}
+                            <label><input type="checkbox" name="confirm" value="yes" required>Revisé la incidencia o el problema y solicito liberar la retención.</label>
+                            <button type="submit" class="v13178-button v13178-button-hold">Revisar y liberar retención</button>
+                        </form>
+                    {% endif %}
+                    {% if row.net_total == 0 %}
+                        <p class="v13178-subtle">No hay monto que liquidar; el historial económico se conserva.</p>
+                    {% elif row.settlement and row.settlement.status == 'settled' %}
+                        <p class="v13178-subtle">Jornada liquidada: no se permite cerrarla nuevamente.</p>
+                    {% elif not row.can_settle %}
+                        <p class="v13178-subtle">El cierre solo se habilita cuando todas las condiciones se cumplen.</p>
+                    {% endif %}
+                </div>
+            </article>
+        {% empty %}
+            <div class="v13178-empty">
+                <strong>Todavía no existen jornadas de sesiones con pagos.</strong>
+                <p>Cuando un miembro tenga un pago aprobado, aparecerá aquí.</p>
+            </div>
+        {% endfor %}
+
+        <nav class="v13178-links" aria-label="Navegación administrativa">
+            <a href="{% url 'admin:index' %}">← Administración de Django</a>
+            <a href="{% url 'payments:space_settlement_admin' %}">Liquidaciones de espacios →</a>
+            <a href="{% url 'payments:space_cancellation_admin' %}">Cancelaciones pagadas de espacios →</a>
+        </nav>
+    </div>
+</section>
+{% endblock %}

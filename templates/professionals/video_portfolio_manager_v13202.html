@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis videos | Centro Profesional{% endblock %}
+
+{% block content %}
+<style>
+  .v132-video-page { color: #e6f5fa; padding: 32px 16px 72px; }
+  .v132-video-wrap { max-width: 1100px; margin: 0 auto; }
+  .v132-video-hero, .v132-video-card { background: #111c29; border: 1px solid #2d4756; border-radius: 14px; }
+  .v132-video-hero { padding: 27px; border-color: #21899c; margin-bottom: 18px; }
+  .v132-video-kicker { color: #63def3; letter-spacing: .1em; font-size: .75rem; font-weight: 800; }
+  .v132-video-hero h1 { font-size: clamp(1.6rem, 4vw, 2.45rem); margin: 8px 0 10px; color: #fff; }
+  .v132-video-hero p, .v132-video-muted { color: #9ebacc; line-height: 1.6; }
+  .v132-video-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .v132-video-button { background: #00bfdb; color: #00151c; border: 1px solid #00bfdb; padding: 10px 16px; border-radius: 9px; font-weight: 800; text-decoration: none; cursor: pointer; }
+  .v132-video-button:hover { filter: brightness(1.08); }
+  .v132-video-button-secondary { background: transparent; color: #9becff; border-color: #476677; }
+  .v132-video-button-danger { background: transparent; color: #ffc7c7; border-color: #934a56; }
+  .v132-video-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; margin-bottom: 18px; }
+  .v132-video-card { padding: 20px; }
+  .v132-video-stat { display: block; margin: 8px 0; color: #fff; font-weight: 850; font-size: 1.35rem; }
+  .v132-video-subtitle { font-size: 1.05rem; margin: 0 0 14px; color: #fff; }
+  .v132-video-form { display: grid; gap: 14px; }
+  .v132-video-form label { display: block; margin-bottom: 6px; color: #c6e9f3; font-weight: 700; }
+  .v132-video-form input:not([type=checkbox]), .v132-video-form select, .v132-video-form textarea { width: 100%; background: #07101b; border: 1px solid #496173; border-radius: 8px; padding: 11px 12px; color: #fff; box-sizing: border-box; }
+  .v132-video-form input[type=file] { font-size: .94rem; }
+  .v132-video-form textarea { resize: vertical; }
+  .v132-video-form input:focus, .v132-video-form textarea:focus, .v132-video-form select:focus { outline: 2px solid #00bfdb; outline-offset: 2px; }
+  .v132-video-check { display: flex; gap: 10px; align-items: flex-start; }
+  .v132-video-check label { font-weight: 500; line-height: 1.5; margin: 0; }
+  .v132-video-check input { margin-top: 6px; }
+  .v132-video-error { color: #ffc2c2; margin: 6px 0; }
+  .v132-video-note { background: #0c2734; border: 1px solid #186779; color: #c8f4ff; border-radius: 9px; padding: 12px 14px; margin-bottom: 18px; }
+  .v132-video-status { display: inline-block; border: 1px solid #64869a; border-radius: 20px; padding: 4px 10px; font-size: .78rem; color: #e2f9ff; }
+  .v132-video-status-approved { color: #a6ffe2; border-color: #3b9879; }
+  .v132-video-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .v132-video-item h3 { color: #fff; margin: 13px 0 5px; }
+  .v132-video-player { width: 100%; aspect-ratio: 16 / 9; border-radius: 9px; background: #03070c; }
+  .v132-video-item small { color: #a9c5d2; }
+  .v132-video-empty { text-align: center; padding: 36px; color: #abc8d6; border: 1px dashed #496173; border-radius: 12px; }
+  .v132-video-section { margin-top: 24px; }
+  @media (max-width: 720px) { .v132-video-grid, .v132-video-list { grid-template-columns: 1fr; } .v132-video-hero, .v132-video-card { padding: 18px; } }
+</style>
+
+<section class="account-page v132-video-page">
+  <div class="v132-video-wrap">
+    <header class="v132-video-hero">
+      <span class="v132-video-kicker">CENTRO PROFESIONAL · PORTAFOLIO AUDIOVISUAL · V132.02</span>
+      <h1>Mis videos profesionales</h1>
+      <p>Muestra tus técnicas, ejercicios, clases y contenidos educativos. Cada video se revisará antes de aparecer públicamente.</p>
+      <div class="v132-video-actions">
+        <a class="v132-video-button v132-video-button-secondary" href="{% url 'professionals:dashboard' %}">← Volver al Centro Profesional</a>
+        <a class="v132-video-button v132-video-button-secondary" href="{% url 'subscriptions:plans' %}">Ver planes y beneficios</a>
+      </div>
+    </header>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="v132-video-note" role="status">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="v132-video-grid" aria-label="Resumen de capacidad">
+      <div class="v132-video-card">
+        <span class="v132-video-kicker">PLAN ACTUAL</span>
+        <strong class="v132-video-stat">{{ quota.label }}</strong>
+        <small class="v132-video-muted">Los límites se aplican según tu suscripción vigente.</small>
+      </div>
+      <div class="v132-video-card">
+        <span class="v132-video-kicker">VIDEOS OCUPADOS</span>
+        <strong class="v132-video-stat">{{ used_count }} / {{ quota.max_videos }}</strong>
+        <small class="v132-video-muted">Los videos pendientes y rechazados con archivo también ocupan espacio hasta eliminarlos.</small>
+      </div>
+      <div class="v132-video-card">
+        <span class="v132-video-kicker">DURACIÓN ACUMULADA</span>
+        <strong class="v132-video-stat">{{ used_seconds }} / {{ quota.max_total_seconds }} s</strong>
+        <small class="v132-video-muted">Máximo individual: {{ quota.max_seconds_per_video }} s · Archivo: hasta {% widthratio quota.max_file_bytes 1048576 1 %} MB.</small>
+      </div>
+    </div>
+
+    <div class="v132-video-note">
+      <strong>Importante:</strong> este espacio es solo para material demostrativo con derechos de publicación. No subas fichas clínicas, tratamientos de pacientes identificables ni videos privados de recuperación.
+    </div>
+
+    <section class="v132-video-card v132-video-section" aria-labelledby="video-cargar-titulo">
+      <h2 class="v132-video-subtitle" id="video-cargar-titulo">Agregar un video</h2>
+      <form class="v132-video-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="v132-video-error" role="alert">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div><label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>{{ form.title }}{{ form.title.errors }}</div>
+        <div><label for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>{{ form.category }}{{ form.category.errors }}</div>
+        <div><label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>{{ form.description }}{{ form.description.errors }}</div>
+        <div><label for="{{ form.video.id_for_label }}">{{ form.video.label }}</label>{{ form.video }}{{ form.video.errors }}</div>
+        <div class="v132-video-check">{{ form.rights_confirmed }}<label for="{{ form.rights_confirmed.id_for_label }}">{{ form.rights_confirmed.label }}</label></div>
+        {{ form.rights_confirmed.errors }}
+        <div><button class="v132-video-button" type="submit">Enviar video a revisión</button></div>
+      </form>
+    </section>
+
+    <section class="v132-video-section" aria-labelledby="mis-videos-titulo">
+      <h2 class="v132-video-subtitle" id="mis-videos-titulo">Videos registrados</h2>
+      {% if videos %}
+        <div class="v132-video-list">
+          {% for video in videos %}
+            <article class="v132-video-card v132-video-item">
+              {% if video.video_file %}
+                <video class="v132-video-player" controls preload="metadata" playsinline src="{% url 'professionals:portfolio_stream' video.public_id %}">
+                  Tu navegador no puede reproducir este video.
+                </video>
+              {% else %}
+                <div class="v132-video-empty">Sin archivo local disponible</div>
+              {% endif %}
+              <h3>{{ video.title }}</h3>
+              <span class="v132-video-status {% if video.status == 'approved' %}v132-video-status-approved{% endif %}">{{ video.get_status_display }}</span>
+              <p class="v132-video-muted">{{ video.get_category_display }} · {{ video.duration_seconds|default:'—' }} s</p>
+              {% if video.description %}<p>{{ video.description }}</p>{% endif %}
+              {% if video.review_notes %}<p class="v132-video-error">Revisión: {{ video.review_notes }}</p>{% endif %}
+              <small>Enviado: {{ video.created_at|date:'d/m/Y H:i' }}</small>
+              <form method="post" action="{% url 'professionals:portfolio_delete' video.public_id %}" onsubmit="return confirm('¿Eliminar este video definitivamente?');" style="margin-top:14px;">
+                {% csrf_token %}
+                <button class="v132-video-button v132-video-button-danger" type="submit">Eliminar video</button>
+              </form>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="v132-video-empty">Todavía no has subido videos. Puedes comenzar con una presentación de tu trabajo.</div>
+      {% endif %}
+    </section>
+  </div>
+</section>
+{% endblock %}

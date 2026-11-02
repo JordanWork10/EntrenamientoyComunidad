@@ -11,6 +11,9 @@ from .models import (
     ProfessionalSpecialty,
 )
 
+# V132.03: Modelo del portafolio audiovisual profesional.
+from .video_models_v13200 import ProfessionalPortfolioVideo
+
 
 def _published_services_queryset():
     """
@@ -354,6 +357,9 @@ def public_professional_detail(
     Solo expone información profesional pública.
     Nunca muestra RUT, correo, teléfono ni otros
     datos privados de la Cuenta Única.
+
+    V132.03:
+    Incorpora videos profesionales aprobados.
     """
 
     professional = get_object_or_404(
@@ -372,6 +378,10 @@ def public_professional_detail(
         is_public=True,
     )
 
+    # =====================================================
+    # COBERTURA PROFESIONAL
+    # =====================================================
+
     coverage_communes = (
         professional
         .coverage_communes
@@ -386,6 +396,10 @@ def public_professional_detail(
             'name',
         )
     )
+
+    # =====================================================
+    # SERVICIOS PUBLICADOS
+    # =====================================================
 
     services = list(
         _published_services_queryset()
@@ -407,6 +421,41 @@ def public_professional_detail(
         )
     )
 
+    # =====================================================
+    # V132.03 - VIDEOS PROFESIONALES APROBADOS
+    # =====================================================
+    #
+    # El perfil ya fue validado como:
+    # - Profesional verificado.
+    # - Perfil público.
+    #
+    # Por seguridad, únicamente consultamos videos
+    # que administración haya aprobado.
+    #
+    # Los videos pendientes, rechazados y ocultos
+    # no se entregan al HTML público.
+    # =====================================================
+
+    portfolio_videos = list(
+        ProfessionalPortfolioVideo.objects
+        .filter(
+            professional_profile=professional,
+            status=(
+                ProfessionalPortfolioVideo
+                .Status
+                .APPROVED
+            ),
+        )
+        .order_by(
+            '-published_at',
+            '-created_at',
+        )
+    )
+
+    # =====================================================
+    # MODALIDADES DE ATENCIÓN
+    # =====================================================
+
     mode_labels = []
 
     if professional.offers_in_person:
@@ -419,6 +468,10 @@ def public_professional_detail(
             'Online'
         )
 
+    # =====================================================
+    # RENDERIZAR PERFIL PÚBLICO
+    # =====================================================
+
     return render(
         request,
         'professionals/public_professional_detail.html',
@@ -428,6 +481,8 @@ def public_professional_detail(
             'service_count': len(services),
             'coverage_communes': coverage_communes,
             'mode_labels': mode_labels,
+
+            # V132.03: Galería pública de videos.
+            'portfolio_videos': portfolio_videos,
         }
     )
-

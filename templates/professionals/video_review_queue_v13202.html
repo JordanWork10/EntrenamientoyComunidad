@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Revisión de videos | Administración{% endblock %}
+
+{% block content %}
+<style>
+  .v132-review-page { padding: 36px 16px 76px; color: #e6f5fa; }
+  .v132-review-wrap { max-width: 1040px; margin: 0 auto; }
+  .v132-review-hero, .v132-review-card { background: #101b27; border: 1px solid #30495d; border-radius: 13px; padding: 24px; }
+  .v132-review-hero { border-color: #bd8b33; margin-bottom: 18px; }
+  .v132-review-hero h1 { font-size: 2rem; color: #fff; margin: 8px 0; }
+  .v132-review-kicker { color: #facb74; font-size: .75rem; font-weight: 850; letter-spacing: .1em; }
+  .v132-review-muted { color: #a7c3d3; line-height: 1.6; }
+  .v132-review-list { display: grid; gap: 16px; }
+  .v132-review-card h2 { color: #fff; margin: 0 0 9px; }
+  .v132-review-player { display: block; width: 100%; max-width: 600px; aspect-ratio: 16 / 9; background: #03080c; border-radius: 10px; margin: 14px 0; }
+  .v132-review-actions { display: grid; gap: 10px; max-width: 650px; }
+  .v132-review-actions select, .v132-review-actions textarea { background: #07111b; color: #fff; border: 1px solid #537181; border-radius: 8px; padding: 10px; width: 100%; box-sizing: border-box; }
+  .v132-review-button { border: 1px solid #e0aa52; background: #ffbd51; color: #1b1303; font-weight: 800; border-radius: 8px; padding: 11px 17px; cursor: pointer; justify-self: start; }
+  .v132-review-link { color: #8ae8ff; text-decoration: none; }
+  .v132-review-empty { border: 1px dashed #537181; padding: 30px; border-radius: 10px; text-align: center; }
+  .v132-review-message { padding: 12px; border: 1px solid #357b88; border-radius: 8px; margin: 12px 0; }
+  .v132-review-note { background: #172b39; border-left: 3px solid #ffbd51; padding: 11px 14px; margin: 14px 0; }
+</style>
+
+<section class="account-page v132-review-page">
+  <div class="v132-review-wrap">
+    <header class="v132-review-hero">
+      <span class="v132-review-kicker">ADMINISTRACIÓN · PORTAFOLIO AUDIOVISUAL · V132.02</span>
+      <h1>Revisión de videos</h1>
+      <p class="v132-review-muted">Valida que el contenido sea demostrativo, apropiado y publicable antes de aprobarlo. Esta página es exclusiva para personal administrador.</p>
+      <a class="v132-review-link" href="{% url 'professionals:public_service_catalog' %}">← Explorar profesionales</a>
+    </header>
+
+    {% if messages %}
+      {% for message in messages %}<div class="v132-review-message" role="status">{{ message }}</div>{% endfor %}
+    {% endif %}
+
+    <div class="v132-review-note">
+      No aprobar material con pacientes identificables, datos clínicos sensibles, falta de autorización o afirmaciones de resultados terapéuticos no sustentadas. Si hay dudas, rechazar y explicar el motivo.
+    </div>
+
+    {% if videos %}
+      <div class="v132-review-list">
+        {% for video in videos %}
+          <article class="v132-review-card">
+            <span class="v132-review-kicker">PENDIENTE DE REVISIÓN</span>
+            <h2>{{ video.title }}</h2>
+            <p><strong>Profesional:</strong> {{ video.professional_profile.user.get_full_name|default:video.professional_profile.user.email }}</p>
+            <p><strong>Tipo:</strong> {{ video.get_category_display }} · <strong>Duración:</strong> {{ video.duration_seconds }} s</p>
+            {% if video.description %}<p class="v132-review-muted">{{ video.description }}</p>{% endif %}
+            {% if video.video_file %}
+              <video class="v132-review-player" controls preload="metadata" playsinline src="{% url 'professionals:portfolio_stream' video.public_id %}">Tu navegador no admite video HTML5.</video>
+            {% else %}
+              <p class="v132-review-muted">No hay un archivo local para reproducir.</p>
+            {% endif %}
+            <form class="v132-review-actions" method="post" action="{% url 'professionals:portfolio_review_decide' video.public_id %}">
+              {% csrf_token %}
+              <label for="decision-{{ video.pk }}">Decisión</label>
+              <select id="decision-{{ video.pk }}" name="decision" required>
+                <option value="approve">Aprobar video</option>
+                <option value="reject">Rechazar video</option>
+              </select>
+              <label for="notes-{{ video.pk }}">Motivo / observaciones de revisión (obligatorio al rechazar)</label>
+              <textarea id="notes-{{ video.pk }}" name="notes" rows="3" maxlength="1000" placeholder="Explica el motivo de un eventual rechazo..."></textarea>
+              <button class="v132-review-button" type="submit">Guardar decisión</button>
+            </form>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="v132-review-empty">No existen videos pendientes de revisión.</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

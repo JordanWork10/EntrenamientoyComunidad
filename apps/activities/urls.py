@@ -58,3 +58,7 @@ urlpatterns = [
         name='detail',
     ),
 ]
+
+from apps.payments.economic_actor_routes_v13186 import enable_external_economic_audit
+
+urlpatterns = enable_external_economic_audit(urlpatterns, app_name='activities')

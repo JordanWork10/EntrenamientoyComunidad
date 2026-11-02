@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 {% load clp_filters payment_extras subscription_extras %}
 
@@ -224,6 +223,147 @@ Centro Profesional | EntrenamientoyComunidad
             </div>
         </section>
 
+        <!-- V132.03: ACCESO AL PORTAFOLIO AUDIOVISUAL -->
+        <style>
+            .v13203-portfolio-hub {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
+                align-items: center;
+                gap: 22px;
+                margin: 18px 0 26px;
+                padding: 23px 25px;
+                border: 1px solid rgba(0, 191, 219, .45);
+                border-radius: 15px;
+                background: linear-gradient(115deg, #0d2531, #101d2c);
+            }
+
+            .v13203-portfolio-hub-copy {
+                min-width: 0;
+            }
+
+            .v13203-portfolio-hub-kicker {
+                display: block;
+                color: #70e5f5;
+                font-size: .72rem;
+                letter-spacing: .11em;
+                font-weight: 800;
+                margin-bottom: 7px;
+            }
+
+            .v13203-portfolio-hub h2 {
+                color: #f2fdff;
+                font-size: clamp(1.16rem, 2.5vw, 1.5rem);
+                margin: 0 0 8px;
+            }
+
+            .v13203-portfolio-hub p {
+                color: #b4cad7;
+                line-height: 1.6;
+                margin: 0;
+                max-width: 660px;
+            }
+
+            .v13203-portfolio-hub-actions {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 9px;
+                min-width: 195px;
+            }
+
+            .v13203-portfolio-count {
+                color: #98e8f2;
+                text-align: right;
+                font-size: .81rem;
+                font-weight: 700;
+            }
+
+            .v13203-portfolio-link {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                text-align: center;
+                padding: 11px 15px;
+                border-radius: 10px;
+                font-size: .9rem;
+                font-weight: 800;
+                text-decoration: none;
+                background: #00bfd9;
+                color: #03141c;
+                border: 1px solid #00bfd9;
+                transition: filter .18s ease, background .18s ease;
+            }
+
+            .v13203-portfolio-link:hover {
+                filter: brightness(1.09);
+            }
+
+            .v13203-portfolio-link-secondary {
+                background: transparent;
+                color: #9cefff;
+                border-color: rgba(139, 216, 230, .5);
+            }
+
+            .v13203-portfolio-link-secondary:hover {
+                background: rgba(0, 191, 217, .10);
+            }
+
+            @media (max-width: 810px) {
+                .v13203-portfolio-hub {
+                    grid-template-columns: 1fr;
+                    padding: 19px;
+                }
+
+                .v13203-portfolio-hub-actions {
+                    min-width: 0;
+                }
+
+                .v13203-portfolio-count {
+                    text-align: left;
+                }
+            }
+        </style>
+
+        <section class="v13203-portfolio-hub"
+                 aria-label="Portafolio audiovisual profesional">
+            <div class="v13203-portfolio-hub-copy">
+                <span class="v13203-portfolio-hub-kicker">
+                    TU PORTAFOLIO AUDIOVISUAL
+                </span>
+
+                <h2>Muestra cómo trabajas.</h2>
+
+                <p>
+                    Sube presentaciones, técnicas y demostraciones para que
+                    los miembros conozcan tu trabajo. Cada video se revisa
+                    antes de publicarse en tu perfil profesional.
+                </p>
+            </div>
+
+            <div class="v13203-portfolio-hub-actions">
+                {% with video_count=professional_profile.portfolio_videos.count %}
+                    <span class="v13203-portfolio-count">
+                        {{ video_count }} video{{ video_count|pluralize:"s" }} registrado{{ video_count|pluralize:"s" }}
+                    </span>
+                {% endwith %}
+
+                <a class="v13203-portfolio-link"
+                   href="{% url 'professionals:portfolio_manager' %}">
+                    Administrar mis videos
+                    <span aria-hidden="true">→</span>
+                </a>
+
+                {% if professional_profile.is_public %}
+                    <a class="v13203-portfolio-link v13203-portfolio-link-secondary"
+                       href="{% url 'professionals:public_professional_detail' professional_profile.pk %}">
+                        Ver mi perfil público
+                        <span aria-hidden="true">↗</span>
+                    </a>
+                {% endif %}
+            </div>
+        </section>
+
         <!-- NOVEDADES PROFESIONALES -->
         {% if professional_updates %}
             <section class="professional-updates-section"
@@ -237,7 +377,9 @@ Centro Profesional | EntrenamientoyComunidad
                         <span class="professional-updates-overline">
                             NOVEDADES PROFESIONALES
                         </span>
+
                         <h2>Cambios importantes en tus reservas</h2>
+
                         <p>
                             Solicitudes, cancelaciones e incidencias de tus servicios
                             que conviene revisar.
@@ -293,6 +435,7 @@ Centro Profesional | EntrenamientoyComunidad
                                                 SERVICIO PROFESIONAL
                                             {% endif %}
                                         </span>
+
                                         <h3>{{ update.title }}</h3>
                                         <p>{{ update.summary }}</p>
                                     </div>
@@ -330,6 +473,7 @@ Centro Profesional | EntrenamientoyComunidad
                                     <span>FECHA</span>
                                     <strong>{{ update.booking.session_date|date:"d M Y"|upper }}</strong>
                                 </div>
+
                                 <div>
                                     <span>HORARIO</span>
                                     <strong>
@@ -338,10 +482,12 @@ Centro Profesional | EntrenamientoyComunidad
                                         {{ update.booking.end_time|time:"H:i" }}
                                     </strong>
                                 </div>
+
                                 <div>
                                     <span>SERVICIO</span>
                                     <strong>{{ update.booking.service_name_snapshot }}</strong>
                                 </div>
+
                                 <div>
                                     <span>CAMBIO</span>
                                     <strong>{{ update.created_at|date:"d/m/Y H:i" }}</strong>

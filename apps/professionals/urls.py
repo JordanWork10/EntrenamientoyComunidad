@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 
 from . import public_views
 from . import views
@@ -9,6 +9,14 @@ app_name = 'professionals'
 
 
 urlpatterns = [
+
+        # V132.02 — Portafolio audiovisual profesional
+    path(
+        'videos/',
+        include('apps.professionals.video_urls_v13202'),
+    ),
+    
+
     # =====================================================
     # CATÁLOGO PÚBLICO
     # =====================================================

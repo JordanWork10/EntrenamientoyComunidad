@@ -26,9 +26,9 @@
                 </h1>
 
                 <p>
-                    Consulta los pagos registrados, las comisiones y el saldo
-                    contable de cada recinto. Una reserva confirmada no equivale
-                    a un pago aprobado ni a dinero recibido.
+                    Consulta los pagos aprobados históricamente, sus reembolsos,
+                    las comisiones y el neto vigente de cada recinto. Una reserva
+                    confirmada no equivale a un pago ni a dinero recibido.
                 </p>
             </div>
 
@@ -47,9 +47,8 @@
                 Los importes se calculan a partir de los pagos guardados en el sistema.
                 Las liquidaciones pueden tener un estado contable en sandbox,
                 pero ese estado no acredita un depósito real.
-                Los reembolsos automáticos de reservas con política aceptada
-                son únicamente registros contables de prueba. Las transferencias
-                bancarias no están habilitadas aquí.
+                Los reembolsos automáticos y las transferencias bancarias
+                no están habilitados aquí.
             </p>
         </div>
 
@@ -85,7 +84,7 @@
                 <span>NETO REGISTRADO PARA EL PROVEEDOR</span>
                 <strong>{{ totals.net_total|clp }}</strong>
                 <small>
-                    Saldo contable vigente, no dinero transferido
+                    Importe neto actual después de reembolsos y comisión; no es un depósito
                 </small>
             </article>
         </section>
@@ -133,9 +132,8 @@
                         La fecha indicada en cada movimiento es la primera fecha
                         posible de evaluación: 24 horas después del término del
                         horario. También se requiere que el arriendo figure como
-                        completado o tenga una cancelación económica autorizada,
-                        sin incidencias ni reembolsos pendientes.
-                        No se liquida automáticamente.
+                        completado y que no existan incidencias o reembolsos
+                        pendientes. No se liquida automáticamente.
                     </p>
                 </div>
             </div>
@@ -213,9 +211,9 @@
                         </div>
 
                         <div>
-                            <span>INTENTOS PENDIENTES</span>
+                            <span>REEMBOLSOS</span>
                             <strong>
-                                {{ group.pending_count }}
+                                {{ group.refunded_total|clp }}
                             </strong>
                         </div>
                     </div>
@@ -228,6 +226,9 @@
                         </span>
                         <span>
                             <b>Liquidado en registros:</b> {{ group.settled_total|clp }}
+                        </span>
+                        <span>
+                            <b>Intentos pendientes:</b> {{ group.pending_count }}
                         </span>
                     </div>
 
@@ -270,7 +271,7 @@
                                         </div>
 
                                         <div class="v131-provider-income-row-money">
-                                            <span>IMPORTE</span>
+                                            <span>BRUTO HISTÓRICO</span>
 
                                             <strong>
                                                 {{ payment.amount_clp|clp }}
@@ -279,7 +280,17 @@
                                             {% if payment.status == 'approved' or payment.status == 'partially_refunded' or payment.status == 'refunded' %}
 
                                                 <small>
-                                                    Comisión
+                                                    Reembolsos registrados:
+                                                    {{ payment.refunded_amount_clp|clp }}
+                                                </small>
+
+                                                <small>
+                                                    Base no reembolsada:
+                                                    {{ payment.refundable_amount_clp|clp }}
+                                                </small>
+
+                                                <small>
+                                                    Comisión vigente
                                                     {{ payment.commission_rate_percent }}%:
                                                     {{ payment.commission_amount_clp|clp }}
                                                 </small>
@@ -306,50 +317,46 @@
 
                                             {% if payment.status == 'approved' or payment.status == 'partially_refunded' or payment.status == 'refunded' %}
 
-                                                {% if payment.status == 'refunded' and payment.net_amount_clp == 0 %}
+                                                <small>
+                                                    {{ payment.get_settlement_status_display }}
+                                                </small>
+
+                                                {% if payment.net_amount_clp == 0 %}
 
                                                     <small class="v131-provider-income-eligibility">
-                                                        Sin saldo por liquidar
+                                                        Sin saldo por liquidar. Se conserva el historial del reembolso completo.
                                                     </small>
 
-                                                {% else %}
+                                                {% elif payment.settlement_status == 'pending' %}
+
+                                                    {% if payment.settlement_eligible_at %}
+                                                        <small class="v131-provider-income-eligibility">
+                                                            Evaluación posible desde el
+                                                            {{ payment.settlement_eligible_at|date:"d/m/Y H:i" }}
+                                                        </small>
+                                                    {% endif %}
 
                                                     <small>
-                                                        {{ payment.get_settlement_status_display }}
+                                                        Si hay saldo, requiere reserva completada y sin incidencias.
                                                     </small>
 
-                                                    {% if payment.settlement_status == 'pending' %}
+                                                {% elif payment.settlement_status == 'eligible' %}
 
-                                                        {% if payment.settlement_eligible_at %}
-                                                            <small class="v131-provider-income-eligibility">
-                                                                Evaluación posible desde el
-                                                                {{ payment.settlement_eligible_at|date:"d/m/Y H:i" }}
-                                                            </small>
-                                                        {% endif %}
+                                                    <small class="v131-provider-income-eligibility">
+                                                        Elegible en el sistema; no es una transferencia.
+                                                    </small>
 
-                                                        <small>
-                                                            Si hay saldo, requiere reserva completada o cancelación aprobada, sin incidencias.
-                                                        </small>
+                                                {% elif payment.settlement_status == 'on_hold' %}
 
-                                                    {% elif payment.settlement_status == 'eligible' %}
+                                                    <small class="v131-provider-income-eligibility">
+                                                        Revisión necesaria antes de liquidar.
+                                                    </small>
 
-                                                        <small class="v131-provider-income-eligibility">
-                                                            Elegible en el sistema; no es una transferencia.
-                                                        </small>
+                                                {% elif payment.settlement_status == 'settled' %}
 
-                                                    {% elif payment.settlement_status == 'on_hold' %}
-
-                                                        <small class="v131-provider-income-eligibility">
-                                                            Revisión necesaria antes de liquidar.
-                                                        </small>
-
-                                                    {% elif payment.settlement_status == 'settled' %}
-
-                                                        <small class="v131-provider-income-eligibility">
-                                                            Liquidación contable registrada en sandbox.
-                                                        </small>
-
-                                                    {% endif %}
+                                                    <small class="v131-provider-income-eligibility">
+                                                        Liquidación contable registrada en sandbox.
+                                                    </small>
 
                                                 {% endif %}
 

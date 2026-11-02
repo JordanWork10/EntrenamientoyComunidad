@@ -1,229 +1,488 @@
 {% extends 'base.html' %}
 {% load clp_filters %}
 
-{% block title %}
-Mis pagos | EntrenamientoyComunidad
-{% endblock %}
+{% block title %}Mis pagos | EntrenamientoyComunidad{% endblock %}
 
 {% block content %}
 
-<section class="account-page payments-page">
+<style>
+    /* V131.80: historial económico del Miembro. Estilos limitados a esta página. */
+    .v13180-member-payments {
+        --mp-bg: #0e141d;
+        --mp-inner: #0a1017;
+        --mp-line: #273445;
+        --mp-text: #f5f8ff;
+        --mp-muted: #a0b3d0;
+        --mp-cyan: #24d0ff;
+        --mp-yellow: #ffd34d;
+        --mp-purple: #bc89ff;
+        --mp-coral: #ff9b79;
+        color: var(--mp-text);
+        padding: 30px 0 70px;
+    }
+    .v13180-member-payments *,
+    .v13180-member-payments *::before,
+    .v13180-member-payments *::after { box-sizing: border-box; }
+    .v13180-member-payments .mp-shell {
+        width: min(1120px, calc(100% - 36px));
+        margin: 0 auto;
+    }
+    .v13180-member-payments .mp-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        background: linear-gradient(125deg, #191e27 0%, #131b28 100%);
+        border: 1px solid #585037;
+        border-radius: 12px;
+        padding: clamp(22px, 4vw, 36px);
+    }
+    .v13180-member-payments .mp-eyebrow,
+    .v13180-member-payments .mp-small-label {
+        display: block;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+    .v13180-member-payments .mp-eyebrow { color: var(--mp-yellow); }
+    .v13180-member-payments h1 {
+        margin: 9px 0 12px;
+        color: #fff;
+        font-size: clamp(30px, 5vw, 43px);
+        line-height: 1.08;
+    }
+    .v13180-member-payments h1 span { color: var(--mp-yellow); }
+    .v13180-member-payments .mp-hero p {
+        color: var(--mp-muted);
+        max-width: 670px;
+        margin: 0;
+        line-height: 1.6;
+        font-size: 14px;
+    }
+    .v13180-member-payments .mp-sandbox {
+        white-space: nowrap;
+        color: var(--mp-yellow);
+        border: 1px solid #66572b;
+        background: #28261f;
+        border-radius: 8px;
+        padding: 11px 13px;
+        text-transform: uppercase;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .04em;
+    }
+    .v13180-member-payments .mp-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin: 14px 0;
+    }
+    .v13180-member-payments .mp-stat {
+        background: var(--mp-bg);
+        border: 1px solid var(--mp-line);
+        border-radius: 9px;
+        padding: 16px 17px;
+        min-width: 0;
+    }
+    .v13180-member-payments .mp-stat .mp-small-label { color: #8497b5; }
+    .v13180-member-payments .mp-stat strong {
+        display: block;
+        margin-top: 9px;
+        font-size: clamp(17px, 2vw, 23px);
+        color: var(--mp-yellow);
+        overflow-wrap: anywhere;
+    }
+    .v13180-member-payments .mp-note {
+        margin: 0 0 15px;
+        color: #88a8cc;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+    .v13180-member-payments .mp-panel {
+        background: var(--mp-bg);
+        border: 1px solid var(--mp-line);
+        border-radius: 12px;
+        padding: clamp(15px, 2.5vw, 25px);
+    }
+    .v13180-member-payments .mp-panel-heading {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+    .v13180-member-payments .mp-section-no {
+        color: var(--mp-yellow);
+        font-size: 11px;
+        font-weight: 800;
+    }
+    .v13180-member-payments h2 {
+        color: #fff;
+        margin: 0;
+        font-size: 20px;
+    }
+    .v13180-member-payments .mp-section-description {
+        margin: 0 0 18px;
+        color: var(--mp-muted);
+        font-size: 13px;
+        line-height: 1.55;
+    }
+    .v13180-member-payments .mp-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+    .v13180-member-payments .mp-filter {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border: 1px solid #34465e;
+        border-radius: 8px;
+        padding: 10px 13px;
+        background: #0b121a;
+        color: #bad3ef;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+    .v13180-member-payments .mp-filter:hover,
+    .v13180-member-payments .mp-filter:focus-visible {
+        border-color: var(--mp-cyan);
+        color: var(--mp-cyan);
+    }
+    .v13180-member-payments .mp-filter[aria-current="page"] {
+        color: #06121c;
+        border-color: var(--mp-cyan);
+        background: var(--mp-cyan);
+    }
+    .v13180-member-payments .mp-filter small { opacity: .78; }
+    .v13180-member-payments .mp-list { display: grid; gap: 12px; }
+    .v13180-member-payments .mp-entry {
+        border: 1px solid #2d3c50;
+        border-left: 4px solid var(--mp-purple);
+        border-radius: 10px;
+        background: #0c131b;
+        padding: 19px 20px;
+    }
+    .v13180-member-payments .mp-entry--session { border-left-color: var(--mp-cyan); }
+    .v13180-member-payments .mp-entry--space { border-left-color: var(--mp-coral); }
+    .v13180-member-payments .mp-entry-top {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 15px;
+    }
+    .v13180-member-payments .mp-type {
+        display: inline-block;
+        margin-bottom: 6px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--mp-purple);
+    }
+    .v13180-member-payments .mp-entry--session .mp-type { color: var(--mp-cyan); }
+    .v13180-member-payments .mp-entry--space .mp-type { color: var(--mp-coral); }
+    .v13180-member-payments .mp-entry h3 {
+        margin: 0;
+        font-size: 18px;
+        color: #fff;
+        overflow-wrap: anywhere;
+    }
+    .v13180-member-payments .mp-details {
+        margin: 7px 0 0;
+        font-size: 12px;
+        color: var(--mp-muted);
+        line-height: 1.6;
+    }
+    .v13180-member-payments .mp-status {
+        display: inline-flex;
+        border: 1px solid #435469;
+        border-radius: 100px;
+        color: #a8c6e8;
+        padding: 7px 11px;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+    .v13180-member-payments .mp-status--approved {
+        border-color: #1a876d;
+        color: #39e4ae;
+        background: #0c2624;
+    }
+    .v13180-member-payments .mp-status--partially_refunded {
+        border-color: #b47845;
+        color: #ffb878;
+        background: #2a201b;
+    }
+    .v13180-member-payments .mp-status--refunded {
+        border-color: #177990;
+        color: #56deff;
+        background: #10242e;
+    }
+    .v13180-member-payments .mp-status--failed,
+    .v13180-member-payments .mp-status--cancelled {
+        border-color: #864553;
+        color: #ff929e;
+        background: #27181e;
+    }
+    .v13180-member-payments .mp-data-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 9px;
+        margin-top: 18px;
+    }
+    .v13180-member-payments .mp-data {
+        border: 1px solid #253244;
+        border-radius: 8px;
+        padding: 11px 12px;
+        min-width: 0;
+    }
+    .v13180-member-payments .mp-data .mp-small-label { color: #7f93b4; }
+    .v13180-member-payments .mp-data strong {
+        display: block;
+        margin-top: 6px;
+        color: #fff;
+        font-size: 15px;
+    }
+    .v13180-member-payments .mp-data--highlight strong { color: var(--mp-yellow); }
+    .v13180-member-payments .mp-entry-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        border-top: 1px solid #263447;
+        margin-top: 15px;
+        padding-top: 13px;
+    }
+    .v13180-member-payments .mp-entry-footer time {
+        color: #8198ba;
+        font-size: 11px;
+    }
+    .v13180-member-payments .mp-entry-footer a {
+        color: var(--mp-cyan);
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 800;
+    }
+    .v13180-member-payments .mp-entry-footer a:hover { text-decoration: underline; }
+    .v13180-member-payments .mp-empty {
+        border: 1px dashed #374961;
+        padding: 28px 20px;
+        text-align: center;
+        border-radius: 9px;
+        background: var(--mp-inner);
+    }
+    .v13180-member-payments .mp-empty h3 { margin: 0 0 8px; color: #fff; }
+    .v13180-member-payments .mp-empty p { color: var(--mp-muted); margin: 0; }
+    .v13180-member-payments .mp-back {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin: 22px 0 0;
+    }
+    .v13180-member-payments .mp-back a {
+        color: #c9ff49;
+        font-weight: 800;
+        text-decoration: none;
+        font-size: 12px;
+    }
+    .v13180-member-payments .mp-back a:last-child { color: var(--mp-cyan); }
+    @media (max-width: 760px) {
+        .v13180-member-payments .mp-hero { flex-direction: column; }
+        .v13180-member-payments .mp-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .v13180-member-payments .mp-data-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 440px) {
+        .v13180-member-payments .mp-stats,
+        .v13180-member-payments .mp-data-grid { grid-template-columns: 1fr; }
+        .v13180-member-payments .mp-entry { padding: 15px; }
+    }
+</style>
 
-    <div class="account-container">
+<section class="v13180-member-payments">
+    <div class="mp-shell">
 
-        <header class="payments-hero">
-
+        <header class="mp-hero">
             <div>
-
-                <span class="payments-overline">
-                    MI CUENTA
-                </span>
-
-                <h1>
-                    Mis
-                    <span>
-                        pagos.
-                    </span>
-                </h1>
-
+                <span class="mp-eyebrow">Mi cuenta · Historial económico</span>
+                <h1>Tus <span>pagos.</span></h1>
                 <p>
-                    Consulta los intentos de pago realizados
-                    para actividades profesionales y arriendos de espacios.
+                    Revisa tus actividades, sesiones individuales y arriendos de espacios.
+                    Conservamos el importe aprobado, los reembolsos y el comprobante de cada intento,
+                    incluso si la reserva fue cancelada.
                 </p>
-
             </div>
-
+            <span class="mp-sandbox">Sandbox · Sin cobros reales</span>
         </header>
 
-        <section class="payments-summary-grid">
-
-            <article class="payments-summary-card">
-
-                <span>
-                    MOVIMIENTOS
-                </span>
-
-                <strong>
-                    {{ payments|length }}
-                </strong>
-
-            </article>
-
-            <article class="payments-summary-card">
-
-                <span>
-                    TOTAL APROBADO
-                </span>
-
-                <strong>
-                    {{ approved_total|clp }}
-                </strong>
-
-            </article>
-
-            <article class="payments-summary-card">
-
-                <span>
-                    MONEDA
-                </span>
-
-                <strong>
-                    CLP
-                </strong>
-
-            </article>
-
-        </section>
-
-        <section class="payments-panel">
-
-            <div class="payments-panel-title">
-
-                <span>
-                    01
-                </span>
-
-                <h2>
-                    Historial
-                </h2>
-
+        <div class="mp-stats" aria-label="Resumen de todos tus pagos">
+            <div class="mp-stat">
+                <span class="mp-small-label">Movimientos</span>
+                <strong>{{ movements_total }}</strong>
             </div>
+            <div class="mp-stat">
+                <span class="mp-small-label">Aprobado histórico</span>
+                <strong>{{ approved_total|clp }}</strong>
+            </div>
+            <div class="mp-stat">
+                <span class="mp-small-label">Reembolsos registrados</span>
+                <strong>{{ refunded_total|clp }}</strong>
+            </div>
+            <div class="mp-stat">
+                <span class="mp-small-label">Monto no reembolsado</span>
+                <strong>{{ retained_total|clp }}</strong>
+            </div>
+        </div>
+
+        <p class="mp-note">
+            El resumen corresponde a todos tus pagos, aunque selecciones un filtro.
+            Los intentos pendientes, cancelados o rechazados no se contabilizan como pagos aprobados.
+            Todos los importes mostrados pertenecen al entorno de prueba.
+        </p>
+
+        <section class="mp-panel" aria-labelledby="mp-history-title">
+            <div class="mp-panel-heading">
+                <span class="mp-section-no">01</span>
+                <h2 id="mp-history-title">Historial de movimientos</h2>
+            </div>
+            <p class="mp-section-description">
+                Filtra por tipo de servicio. Cada comprobante corresponde únicamente a tu cuenta.
+            </p>
+
+            <nav class="mp-filters" aria-label="Filtrar historial por tipo">
+                <a class="mp-filter" href="?tipo=todos"
+                   {% if selected_type == 'todos' %}aria-current="page"{% endif %}>
+                    Todos <small>{{ movements_total }}</small>
+                </a>
+                <a class="mp-filter" href="?tipo=actividades"
+                   {% if selected_type == 'actividades' %}aria-current="page"{% endif %}>
+                    Actividades <small>{{ activities_count }}</small>
+                </a>
+                <a class="mp-filter" href="?tipo=sesiones"
+                   {% if selected_type == 'sesiones' %}aria-current="page"{% endif %}>
+                    Sesiones individuales <small>{{ sessions_count }}</small>
+                </a>
+                <a class="mp-filter" href="?tipo=espacios"
+                   {% if selected_type == 'espacios' %}aria-current="page"{% endif %}>
+                    Espacios <small>{{ spaces_count }}</small>
+                </a>
+            </nav>
 
             {% if payments %}
-
-                <div class="payments-list">
-
+                <div class="mp-list">
                     {% for payment in payments %}
+                        <article class="mp-entry {% if payment.professional_booking_id %}mp-entry--session{% elif payment.space_booking_id %}mp-entry--space{% endif %}">
+                            <div class="mp-entry-top">
+                                <div>
+                                    {% if payment.professional_booking_id %}
+                                        <span class="mp-type">Servicio profesional · Sesión individual</span>
+                                        <h3>{{ payment.professional_booking.service_name_snapshot }}</h3>
+                                        <p class="mp-details">
+                                            {{ payment.professional_booking.session_date|date:"d/m/Y" }}
+                                            · {{ payment.professional_booking.start_time|time:"H:i" }}
+                                            – {{ payment.professional_booking.end_time|time:"H:i" }}
+                                            · Reserva #{{ payment.professional_booking_id }}
+                                        </p>
+                                        <p class="mp-details">
+                                            Con {{ payment.professional_booking.professional_profile.user.get_full_name|default:payment.professional_booking.professional_profile.user.username }}
+                                            · {{ payment.professional_booking.get_status_display }}
+                                        </p>
+                                    {% elif payment.space_booking_id %}
+                                        <span class="mp-type">Arriendo de espacio</span>
+                                        <h3>{{ payment.space_booking.space_name_snapshot }}</h3>
+                                        <p class="mp-details">
+                                            {{ payment.space_booking.session_date|date:"d/m/Y" }}
+                                            · {{ payment.space_booking.start_time|time:"H:i" }}
+                                            – {{ payment.space_booking.end_time|time:"H:i" }}
+                                        </p>
+                                    {% else %}
+                                        <span class="mp-type">Actividad profesional</span>
+                                        <h3>{{ payment.activity.title }}</h3>
+                                        <p class="mp-details">
+                                            {{ payment.activity.date|date:"d/m/Y" }}
+                                            · {{ payment.activity.start_time|time:"H:i" }}
+                                            – {{ payment.activity.end_time|time:"H:i" }}
+                                        </p>
+                                    {% endif %}
+                                </div>
 
-                        <article class="payment-row">
-
-                            <div class="payment-row-main">
-
-                                {% if payment.space_booking_id %}
-
-                                    <span>
-                                        ARRIENDO DE ESPACIO
-                                    </span>
-
-                                    <strong>
-                                        {{ payment.space_booking.space_name_snapshot }}
-                                    </strong>
-
-                                    <p>
-                                        {{ payment.space_booking.session_date|date:"d/m/Y" }}
-                                        ·
-                                        {{ payment.space_booking.start_time|time:"H:i" }}
-                                        –
-                                        {{ payment.space_booking.end_time|time:"H:i" }}
-                                    </p>
-
-                                {% else %}
-
-                                    <span>
-                                        ACTIVIDAD PROFESIONAL
-                                    </span>
-
-                                    <strong>
-                                        {{ payment.activity.title }}
-                                    </strong>
-
-                                    <p>
-                                        {{ payment.activity.date|date:"d/m/Y" }}
-                                        ·
-                                        {{ payment.activity.start_time|time:"H:i" }}
-                                        –
-                                        {{ payment.activity.end_time|time:"H:i" }}
-                                    </p>
-
-                                {% endif %}
-
-                            </div>
-
-                            <div class="payment-row-data payment-row-amount">
-
-                                <span>
-                                    MONTO
-                                </span>
-
-                                <strong>
-                                    {{ payment.amount_clp|clp }}
-                                </strong>
-
-                            </div>
-
-                            <div class="payment-row-data">
-
-                                <span>
-                                    ESTADO
-                                </span>
-
-                                <strong class="payment-status payment-status-{{ payment.status }}">
+                                <span class="mp-status mp-status--{{ payment.status }}">
                                     {{ payment.get_status_display }}
-                                </strong>
-
+                                </span>
                             </div>
 
-                            <div class="payment-row-actions">
+                            <div class="mp-data-grid">
+                                <div class="mp-data mp-data--highlight">
+                                    <span class="mp-small-label">Monto del intento</span>
+                                    <strong>{{ payment.amount_clp|clp }}</strong>
+                                </div>
+                                <div class="mp-data">
+                                    <span class="mp-small-label">Reembolsos registrados</span>
+                                    <strong>{{ payment.refunded_amount_clp|clp }}</strong>
+                                </div>
+                                <div class="mp-data">
+                                    <span class="mp-small-label">
+                                        {% if payment.status == 'pending' or payment.status == 'cancelled' or payment.status == 'failed' %}
+                                            Pago no aprobado
+                                        {% else %}
+                                            Monto no reembolsado
+                                        {% endif %}
+                                    </span>
+                                    <strong>
+                                        {% if payment.status == 'pending' or payment.status == 'cancelled' or payment.status == 'failed' %}
+                                            —
+                                        {% else %}
+                                            {{ payment.refundable_amount_clp|clp }}
+                                        {% endif %}
+                                    </strong>
+                                </div>
+                            </div>
 
-                                <span>
-                                    {{ payment.created_at|date:"d/m/Y H:i" }}
-                                </span>
-
-                                {% if payment.space_booking_id %}
-
+                            <div class="mp-entry-footer">
+                                <time datetime="{{ payment.created_at|date:'c' }}">
+                                    Intento registrado: {{ payment.created_at|date:"d/m/Y H:i" }}
+                                </time>
+                                {% if payment.professional_booking_id %}
+                                    <a href="{% url 'payments:professional_booking_receipt' payment.public_id %}">
+                                        Ver comprobante y devoluciones →
+                                    </a>
+                                {% elif payment.space_booking_id %}
                                     <a href="{% url 'payments:space_receipt' payment.public_id %}">
                                         Ver comprobante →
                                     </a>
-
                                 {% else %}
-
                                     <a href="{% url 'payments:receipt' payment.public_id %}">
                                         Ver comprobante →
                                     </a>
-
                                 {% endif %}
-
                             </div>
-
                         </article>
-
                     {% endfor %}
-
                 </div>
-
             {% else %}
-
-                <div class="activities-empty-state activities-empty-state-small">
-
-                    <h3>
-                        Todavía no tienes pagos.
-                    </h3>
-
-                    <p>
-                        Cuando realices un intento de pago por una actividad
-                        profesional o un arriendo, el movimiento aparecerá aquí.
-                    </p>
-
+                <div class="mp-empty">
+                    {% if movements_total %}
+                        <h3>No hay movimientos para este filtro.</h3>
+                        <p>Puedes seleccionar “Todos” para volver a ver tu historial completo.</p>
+                    {% else %}
+                        <h3>Aún no tienes pagos registrados.</h3>
+                        <p>Cuando realices un intento de pago, aparecerá aquí con su comprobante.</p>
+                    {% endif %}
                 </div>
-
             {% endif %}
-
         </section>
 
-        <div class="activities-bottom-actions">
-
-            <a href="{% url 'accounts:dashboard' %}">
-                ← Volver a Mi cuenta
-            </a>
-
-            <a href="{% url 'activities:home' %}">
-                Explorar actividades →
-            </a>
-
+        <div class="mp-back">
+            <a href="{% url 'accounts:dashboard' %}">← Volver a Mi cuenta</a>
+            <a href="{% url 'activities:home' %}">Explorar actividades →</a>
         </div>
-
     </div>
-
 </section>
 
 {% endblock %}

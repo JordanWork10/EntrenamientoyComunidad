@@ -1,0 +1,872 @@
+Creating test database for alias 'default' ('test_entrenamientoycomunidad_v2')...
+Found 13 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: messages, staticfiles
+  Apply all migrations: accounts, activities, admin, auth, axes, bookings, contenttypes, locations, payments, professionals, sessions, spaces, subscriptions
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying locations.0001_initial... OK
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying accounts.0002_platforminterest_user_rut_memberprofile... OK
+  Applying accounts.0003_user_gender... OK
+  Applying accounts.0004_notificationreadstate... OK
+  Applying spaces.0001_initial... OK
+  Applying spaces.0002_spaceproviderprofile_base_address_and_more... OK
+  Applying spaces.0003_spaceamenity_spaceequipment_spacetype_space_and_more... OK
+  Applying spaces.0004_space_additional_features_alter_space_surface_m2... OK
+  Applying spaces.0005_spaceavailability_spaceavailabilityhistory_and_more... OK
+  Applying spaces.0006_spacebooking_spacebookinghistory_and_more... OK
+  Applying spaces.0007_spaceavailabilityexception_and_more... OK
+  Applying spaces.0008_space_allowed_uses_space_environment_and_more... OK
+  Applying spaces.0009_spaceamenity_recommended_space_types_and_more... OK
+  Applying professionals.0001_initial... OK
+  Applying professionals.0002_professionalcredential... OK
+  Applying professionals.0003_professionalservice... OK
+  Applying professionals.0004_professionalservice_in_person_location_type_and_more... OK
+  Applying professionals.0005_professionalserviceavailability... OK
+  Applying professionals.0006_professionalserviceavailabilityhistory... OK
+  Applying professionals.0007_backfill_availability_history... OK
+  Applying activities.0001_initial... OK
+  Applying activities.0002_activity_space_booking... OK
+  Applying activities.0003_activity_cancellation_reason_activity_cancelled_at_and_more... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying axes.0001_initial... OK
+  Applying axes.0002_auto_20151217_2044... OK
+  Applying axes.0003_auto_20160322_0929... OK
+  Applying axes.0004_auto_20181024_1538... OK
+  Applying axes.0005_remove_accessattempt_trusted... OK
+  Applying axes.0006_remove_accesslog_trusted... OK
+  Applying axes.0007_alter_accessattempt_unique_together... OK
+  Applying axes.0008_accessfailurelog... OK
+  Applying axes.0009_add_session_hash... OK
+  Applying axes.0010_accessattemptexpiration... OK
+  Applying bookings.0001_initial... OK
+  Applying bookings.0002_alter_booking_status_alter_bookinghistory_action... OK
+  Applying bookings.0003_bookingsessionreview... OK
+  Applying bookings.0004_bookingsessionincident... OK
+  Applying bookings.0005_backfill_session_incidents... OK
+  Applying bookings.0006_bookingincidentprofessionalresponse... OK
+  Applying payments.0001_initial... OK
+  Applying payments.0002_refund_settlement_and_more... OK
+  Applying payments.0003_payment_space_booking_alter_payment_activity_and_more... OK
+  Applying payments.0004_settlement_space_and_more... OK
+  Applying payments.0005_settlement_settled_by_and_constraint... OK
+  Applying payments.0006_spacecancellationrequest... OK
+  Applying payments.0007_professional_booking_payment... OK
+  Applying payments.0008_professional_day_settlement... OK
+  Applying payments.0009_economic_audit_v13184... OK
+  Applying payments.0010_economic_actor_context_v13185... OK
+  Applying professionals.0008_professional_portfolio_video_v13200... OK
+  Applying professionals.0009_private_professional_video_v13201... OK
+  Applying sessions.0001_initial... OK
+  Applying subscriptions.0001_initial...test_admin_can_approve_video (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_admin_can_approve_video) ... ok
+test_admin_reject_requires_explanation (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_admin_reject_requires_explanation) ... ok
+test_approved_video_is_public_only_for_public_profile (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_approved_video_is_public_only_for_public_profile) ... ERROR
+test_guest_must_sign_in_to_manager (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_guest_must_sign_in_to_manager) ... ok
+test_member_cannot_open_admin_review_queue (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_member_cannot_open_admin_review_queue) ... ERROR
+test_owner_can_delete_video (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_owner_can_delete_video) ... ERROR
+test_owner_can_submit_video_for_review (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_owner_can_submit_video_for_review) ... ERROR
+test_owner_cannot_delete_video_from_another_account (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_owner_cannot_delete_video_from_another_account) ... ERROR
+test_pending_video_is_not_public_but_owner_can_preview (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_pending_video_is_not_public_but_owner_can_preview) ... ERROR
+test_range_request_returns_partial_video (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_range_request_returns_partial_video) ... ERROR
+test_regular_member_cannot_manage_professional_videos (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_regular_member_cannot_manage_professional_videos) ... ERROR
+test_staff_can_open_admin_review_queue (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_staff_can_open_admin_review_queue) ... ERROR
+test_verified_owner_can_open_manager (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_verified_owner_can_open_manager) ... ERROR
+
+======================================================================
+ERROR: test_approved_video_is_public_only_for_public_profile (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_approved_video_is_public_only_for_public_profile)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+psycopg.OperationalError: the connection is closed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 196, in test_approved_video_is_public_only_for_public_profile
+    self.profile.save(update_fields=['is_public'])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 904, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 996, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 1142, in _save_table
+    results = self._do_update(
+        base_qs,
+    ...<5 lines>...
+        returning_fields,
+    )
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 1246, in _do_update
+    return filtered._update(values, returning_fields)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\query.py", line 1473, in _update
+    return query.get_compiler(self.db).execute_returning_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 2168, in execute_returning_sql
+    row_count = self.execute_sql(ROW_COUNT)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 2139, in execute_sql
+    row_count = super().execute_sql(result_type)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1641, in execute_sql
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 320, in cursor
+    return self._cursor()
+           ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 297, in _cursor
+    with self.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+django.db.utils.OperationalError: the connection is closed
+
+======================================================================
+ERROR: test_member_cannot_open_admin_review_queue (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_member_cannot_open_admin_review_queue)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+psycopg.OperationalError: the connection is closed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 137, in test_member_cannot_open_admin_review_queue
+    self.client.force_login(self.owner)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\test\client.py", line 858, in force_login
+    self._login(user, backend)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\test\client.py", line 879, in _login
+    if self.session:
+       ^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\test\client.py", line 815, in session
+    session.save()
+    ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 121, in save
+    return self.create()
+           ~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 70, in create
+    self._session_key = self._get_new_session_key()
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\base.py", line 201, in _get_new_session_key
+    if not self.exists(session_key):
+           ~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 63, in exists
+    return self.model.objects.filter(session_key=session_key).exists()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\query.py", line 1483, in exists
+    return self.query.has_results(using=self.db)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\query.py", line 686, in has_results
+    return compiler.has_results()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1611, in has_results
+    return bool(self.execute_sql(SINGLE))
+                ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1641, in execute_sql
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 320, in cursor
+    return self._cursor()
+           ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 297, in _cursor
+    with self.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+django.db.utils.OperationalError: the connection is closed
+
+======================================================================
+ERROR: test_owner_can_delete_video (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_owner_can_delete_video)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+psycopg.OperationalError: the connection is closed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 246, in test_owner_can_delete_video
+    video = self._video()
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 106, in _video
+    video.full_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 1713, in full_clean
+    self.clean_fields(exclude=exclude)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 1768, in clean_fields
+    setattr(self, f.attname, f.clean(raw_value, self))
+                             ~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 876, in clean
+    self.validate(value, model_instance)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\fields\related.py", line 1227, in validate
+    if not qs.exists():
+           ~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\query.py", line 1483, in exists
+    return self.query.has_results(using=self.db)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\query.py", line 686, in has_results
+    return compiler.has_results()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1611, in has_results
+    return bool(self.execute_sql(SINGLE))
+                ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1641, in execute_sql
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 320, in cursor
+    return self._cursor()
+           ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 297, in _cursor
+    with self.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+django.db.utils.OperationalError: the connection is closed
+
+======================================================================
+ERROR: test_owner_can_submit_video_for_review (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_owner_can_submit_video_for_review)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+psycopg.OperationalError: the connection is closed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\jorda\AppData\Local\Programs\Python\Python313\Lib\unittest\mock.py", line 1423, in patched
+    return func(*newargs, **newkeywargs)
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 333, in test_owner_can_submit_video_for_review
+    self.client.force_login(self.owner)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\test\client.py", line 858, in force_login
+    self._login(user, backend)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\test\client.py", line 879, in _login
+    if self.session:
+       ^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\test\client.py", line 815, in session
+    session.save()
+    ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 121, in save
+    return self.create()
+           ~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 70, in create
+    self._session_key = self._get_new_session_key()
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\base.py", line 201, in _get_new_session_key
+    if not self.exists(session_key):
+           ~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 63, in exists
+    return self.model.objects.filter(session_key=session_key).exists()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\query.py", line 1483, in exists
+    return self.query.has_results(using=self.db)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\query.py", line 686, in has_results
+    return compiler.has_results()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1611, in has_results
+    return bool(self.execute_sql(SINGLE))
+                ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1641, in execute_sql
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 320, in cursor
+    return self._cursor()
+           ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 297, in _cursor
+    with self.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+django.db.utils.OperationalError: the connection is closed
+
+======================================================================
+ERROR: test_owner_cannot_delete_video_from_another_account (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_owner_cannot_delete_video_from_another_account)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+psycopg.OperationalError: the connection is closed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 229, in test_owner_cannot_delete_video_from_another_account
+    video = self._video()
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 106, in _video
+    video.full_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 1713, in full_clean
+    self.clean_fields(exclude=exclude)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 1768, in clean_fields
+    setattr(self, f.attname, f.clean(raw_value, self))
+                             ~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 876, in clean
+    self.validate(value, model_instance)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\fields\related.py", line 1227, in validate
+    if not qs.exists():
+           ~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\query.py", line 1483, in exists
+    return self.query.has_results(using=self.db)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\query.py", line 686, in has_results
+    return compiler.has_results()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1611, in has_results
+    return bool(self.execute_sql(SINGLE))
+                ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1641, in execute_sql
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 320, in cursor
+    return self._cursor()
+           ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 297, in _cursor
+    with self.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+django.db.utils.OperationalError: the connection is closed
+
+======================================================================
+ERROR: test_pending_video_is_not_public_but_owner_can_preview (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_pending_video_is_not_public_but_owner_can_preview)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+psycopg.OperationalError: the connection is closed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 157, in test_pending_video_is_not_public_but_owner_can_preview
+    video = self._video()
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 106, in _video
+    video.full_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 1713, in full_clean
+    self.clean_fields(exclude=exclude)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 1768, in clean_fields
+    setattr(self, f.attname, f.clean(raw_value, self))
+                             ~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 876, in clean
+    self.validate(value, model_instance)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\fields\related.py", line 1227, in validate
+    if not qs.exists():
+           ~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\query.py", line 1483, in exists
+    return self.query.has_results(using=self.db)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\query.py", line 686, in has_results
+    return compiler.has_results()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1611, in has_results
+    return bool(self.execute_sql(SINGLE))
+                ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1641, in execute_sql
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 320, in cursor
+    return self._cursor()
+           ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 297, in _cursor
+    with self.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+django.db.utils.OperationalError: the connection is closed
+
+======================================================================
+ERROR: test_range_request_returns_partial_video (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_range_request_returns_partial_video)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+psycopg.OperationalError: the connection is closed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 201, in test_range_request_returns_partial_video
+    video = self._video(
+        status=ProfessionalPortfolioVideo.Status.APPROVED
+    )
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 106, in _video
+    video.full_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 1713, in full_clean
+    self.clean_fields(exclude=exclude)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 1768, in clean_fields
+    setattr(self, f.attname, f.clean(raw_value, self))
+                             ~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 876, in clean
+    self.validate(value, model_instance)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\fields\related.py", line 1227, in validate
+    if not qs.exists():
+           ~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\query.py", line 1483, in exists
+    return self.query.has_results(using=self.db)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\query.py", line 686, in has_results
+    return compiler.has_results()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1611, in has_results
+    return bool(self.execute_sql(SINGLE))
+                ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1641, in execute_sql
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 320, in cursor
+    return self._cursor()
+           ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 297, in _cursor
+    with self.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+django.db.utils.OperationalError: the connection is closed
+
+======================================================================
+ERROR: test_regular_member_cannot_manage_professional_videos (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_regular_member_cannot_manage_professional_videos)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+psycopg.OperationalError: the connection is closed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 118, in test_regular_member_cannot_manage_professional_videos
+    self.client.force_login(self.other)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\test\client.py", line 858, in force_login
+    self._login(user, backend)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\test\client.py", line 879, in _login
+    if self.session:
+       ^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\test\client.py", line 815, in session
+    session.save()
+    ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 121, in save
+    return self.create()
+           ~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 70, in create
+    self._session_key = self._get_new_session_key()
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\base.py", line 201, in _get_new_session_key
+    if not self.exists(session_key):
+           ~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 63, in exists
+    return self.model.objects.filter(session_key=session_key).exists()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\query.py", line 1483, in exists
+    return self.query.has_results(using=self.db)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\query.py", line 686, in has_results
+    return compiler.has_results()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1611, in has_results
+    return bool(self.execute_sql(SINGLE))
+                ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1641, in execute_sql
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 320, in cursor
+    return self._cursor()
+           ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 297, in _cursor
+    with self.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+django.db.utils.OperationalError: the connection is closed
+
+======================================================================
+ERROR: test_staff_can_open_admin_review_queue (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_staff_can_open_admin_review_queue)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+psycopg.OperationalError: the connection is closed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 146, in test_staff_can_open_admin_review_queue
+    self._video()
+    ~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 106, in _video
+    video.full_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 1713, in full_clean
+    self.clean_fields(exclude=exclude)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\base.py", line 1768, in clean_fields
+    setattr(self, f.attname, f.clean(raw_value, self))
+                             ~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 876, in clean
+    self.validate(value, model_instance)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\fields\related.py", line 1227, in validate
+    if not qs.exists():
+           ~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\query.py", line 1483, in exists
+    return self.query.has_results(using=self.db)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\query.py", line 686, in has_results
+    return compiler.has_results()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1611, in has_results
+    return bool(self.execute_sql(SINGLE))
+                ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1641, in execute_sql
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 320, in cursor
+    return self._cursor()
+           ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 297, in _cursor
+    with self.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+django.db.utils.OperationalError: the connection is closed
+
+======================================================================
+ERROR: test_verified_owner_can_open_manager (apps.professionals.tests_professional_video_views_v13202.ProfessionalVideoViewsTests.test_verified_owner_can_open_manager)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+psycopg.OperationalError: the connection is closed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\EntrenamientoyComunidadV2\apps\professionals\tests_professional_video_views_v13202.py", line 127, in test_verified_owner_can_open_manager
+    self.client.force_login(self.owner)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\test\client.py", line 858, in force_login
+    self._login(user, backend)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\test\client.py", line 879, in _login
+    if self.session:
+       ^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\test\client.py", line 815, in session
+    session.save()
+    ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 121, in save
+    return self.create()
+           ~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 70, in create
+    self._session_key = self._get_new_session_key()
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\base.py", line 201, in _get_new_session_key
+    if not self.exists(session_key):
+           ~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 63, in exists
+    return self.model.objects.filter(session_key=session_key).exists()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\query.py", line 1483, in exists
+    return self.query.has_results(using=self.db)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\query.py", line 686, in has_results
+    return compiler.has_results()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1611, in has_results
+    return bool(self.execute_sql(SINGLE))
+                ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1641, in execute_sql
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 320, in cursor
+    return self._cursor()
+           ~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 297, in _cursor
+    with self.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\base\base.py", line 298, in _cursor
+    return self._prepare_cursor(self.create_cursor(name))
+                                ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\utils\asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\django\db\backends\postgresql\base.py", line 442, in create_cursor
+    cursor = self.connection.cursor()
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\connection.py", line 240, in cursor
+    self._check_connection_ok()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\EntrenamientoyComunidadV2\.venv\Lib\site-packages\psycopg\_connection_base.py", line 541, in _check_connection_ok
+    raise e.OperationalError("the connection is closed")
+django.db.utils.OperationalError: the connection is closed
+
+----------------------------------------------------------------------
+Ran 13 tests in 1.926s
+
+FAILED (errors=10)
+Destroying test database for alias 'default' ('test_entrenamientoycomunidad_v2')...
+ OK
+System check identified no issues (0 silenced).

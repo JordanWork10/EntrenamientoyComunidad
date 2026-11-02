@@ -163,6 +163,24 @@ class Settlement(models.Model):
                 condition=Q(scope_type='space_day'),
                 name='unique_settlement_per_space_day',
             ),
+            # V131.78: una jornada por Profesional y fecha, incluso con
+            # varias sesiones individuales pagadas ese mismo día.
+            models.UniqueConstraint(
+                fields=['beneficiary', 'reference_date'],
+                condition=Q(scope_type='professional_day'),
+                name='unique_settlement_professional_day',
+            ),
+            models.CheckConstraint(
+                condition=(
+                    ~Q(scope_type='professional_day')
+                    | (
+                        Q(reference_date__isnull=False)
+                        & Q(activity__isnull=True)
+                        & Q(space__isnull=True)
+                    )
+                ),
+                name='settlement_professional_day_origin',
+            ),
             # Las jornadas de espacios requieren recinto y fecha; no actividad.
             models.CheckConstraint(
                 condition=(
@@ -203,6 +221,20 @@ class Settlement(models.Model):
 
     def clean(self):
         errors = {}
+
+        if self.scope_type == self.ScopeType.PROFESSIONAL_DAY:
+            if not self.reference_date:
+                errors['reference_date'] = (
+                    'Una jornada profesional necesita su fecha de referencia.'
+                )
+            if self.activity_id:
+                errors['activity'] = (
+                    'Una jornada de sesiones individuales no usa actividad.'
+                )
+            if self.space_id:
+                errors['space'] = (
+                    'Una jornada de sesiones individuales no usa recinto.'
+                )
 
         if self.scope_type == self.ScopeType.ACTIVITY and not self.activity_id:
             errors['activity'] = (

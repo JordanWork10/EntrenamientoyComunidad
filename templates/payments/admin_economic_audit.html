@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load clp_filters %}
+
+{% block title %}Auditoría económica | EntrenamientoyComunidad{% endblock %}
+
+{% block content %}
+<style>
+    .aud83 { background: #080b10; color: #ecf5ff; min-height: 75vh; padding: 34px 18px 75px; }
+    .aud83 * { box-sizing: border-box; }
+    .aud83-wrap { max-width: 1200px; margin: 0 auto; }
+    .aud83-hero { background: linear-gradient(115deg, #191f29, #14161e); border: 1px solid #6b5930; border-radius: 13px; padding: 26px 28px; }
+    .aud83-kicker { color: #ffc95f; font-size: .72rem; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
+    .aud83-hero h1 { font-size: clamp(1.8rem, 4vw, 2.7rem); line-height: 1.13; margin: 9px 0; }
+    .aud83-hero h1 span { color: #ffc75e; }
+    .aud83-hero p { font-size: .91rem; color: #b3c6df; line-height: 1.65; max-width: 740px; margin: 12px 0; }
+    .aud83-tag { display: inline-block; color: #ffd16c; border: 1px solid #725e30; background: #29251d; padding: 9px 11px; border-radius: 8px; font-size: .71rem; font-weight: 800; }
+    .aud83-note { padding: 14px 16px; border: 1px solid #215c72; background: #10212b; border-radius: 10px; margin: 15px 0; font-size: .82rem; color: #b5dff3; line-height: 1.55; }
+    .aud83-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 16px 0; }
+    .aud83-stat { background: #101721; border: 1px solid #2b394a; border-radius: 11px; padding: 15px; }
+    .aud83-stat span { display: block; text-transform: uppercase; color: #8ba8c8; font-size: .69rem; font-weight: 800; letter-spacing: .08em; }
+    .aud83-stat strong { display: block; color: #ffcc62; font-size: 1.17rem; margin-top: 6px; }
+    .aud83-panel { background: #101721; border: 1px solid #2a384b; border-radius: 13px; padding: 20px; }
+    .aud83-tabs { display: flex; gap: 9px; flex-wrap: wrap; margin-bottom: 18px; }
+    .aud83-tabs a { border: 1px solid #334660; border-radius: 9px; color: #b3cce8; padding: 11px 14px; text-decoration: none; font-weight: 750; font-size: .82rem; background: #0c1119; }
+    .aud83-tabs a:hover { border-color: #3cc9e9; }
+    .aud83-tabs a[aria-current="page"] { color: #091019; background: #44d4f4; border-color: #44d4f4; }
+    .aud83-tabs small { opacity: .8; font-size: .71rem; margin-left: 4px; }
+    .aud83-form { display: grid; grid-template-columns: 1.3fr 1fr 1.8fr 1fr 1fr; gap: 11px; align-items: end; border: 1px solid #26364a; background: #0b1119; border-radius: 10px; padding: 15px; }
+    .aud83-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .aud83-field label { color: #9db6d4; text-transform: uppercase; letter-spacing: .08em; font-size: .66rem; font-weight: 800; }
+    .aud83-field input, .aud83-field select { color: #ecf6ff; background: #0d1420; border: 1px solid #334256; border-radius: 7px; padding: 10px 8px; font: inherit; font-size: .82rem; min-height: 42px; width: 100%; color-scheme: dark; }
+    .aud83-field input:focus, .aud83-field select:focus { outline: 2px solid #38cbef; outline-offset: 1px; }
+    .aud83-buttons { grid-column: 1 / -1; display: flex; gap: 9px; flex-wrap: wrap; }
+    .aud83-btn { border: 1px solid #2d9ac3; border-radius: 8px; color: #80eaff; background: #102836; padding: 10px 16px; font-weight: 850; font-size: .82rem; cursor: pointer; text-decoration: none; }
+    .aud83-btn:hover { background: #174258; }
+    .aud83-btn-secondary { background: transparent; border-color: #35445a; color: #bfd1e7; }
+    .aud83-alert { color: #ffd3b8; border: 1px solid #95523b; background: #29201e; border-radius: 8px; padding: 12px; margin-top: 12px; font-size: .84rem; }
+    .aud83-listhead { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin: 20px 0 12px; flex-wrap: wrap; }
+    .aud83-listhead h2 { font-size: 1.2rem; margin: 0; }
+    .aud83-listhead span { border: 1px solid #66552e; border-radius: 30px; padding: 7px 12px; color: #f4c667; font-size: .79rem; }
+    .aud83-scroll { overflow-x: auto; border: 1px solid #2b3a4f; border-radius: 9px; }
+    .aud83-table { border-collapse: collapse; width: 100%; min-width: 950px; font-size: .79rem; }
+    .aud83-table th { text-align: left; color: #8db4d2; text-transform: uppercase; letter-spacing: .055em; font-size: .65rem; padding: 12px 11px; background: #16202d; }
+    .aud83-table td { border-top: 1px solid #29374a; padding: 14px 11px; vertical-align: top; color: #d6e3f3; }
+    .aud83-table tbody tr:nth-child(2n) { background: #101a25; }
+    .aud83-table tbody tr:hover { background: #152536; }
+    .aud83-amount { white-space: nowrap; color: #ffd073; font-weight: 850; }
+    .aud83-uuid { display: inline-block; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .72rem; overflow-wrap: anywhere; max-width: 225px; color: #9cdef7; }
+    .aud83-meta { display: block; color: #8ba4bf; font-size: .72rem; margin-top: 5px; }
+    .aud83-status { display: inline-block; border: 1px solid #60708a; border-radius: 20px; padding: 5px 8px; font-weight: 800; font-size: .72rem; white-space: nowrap; }
+    .aud83-empty { text-align: center; padding: 27px; border: 1px dashed #45566c; border-radius: 9px; color: #b4c7df; }
+    .aud83-pages { margin-top: 16px; display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
+    .aud83-pages a { text-decoration: none; color: #73def8; border: 1px solid #35647c; padding: 9px 13px; border-radius: 8px; font-size: .83rem; }
+    .aud83-pages span { color: #bfd0e1; font-size: .8rem; }
+    .aud83-nav { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 20px; }
+    .aud83-nav a { color: #76def8; text-decoration: none; font-size: .82rem; }
+    .aud83-nav a:hover { text-decoration: underline; }
+    @media(max-width: 1000px) { .aud83-form { grid-template-columns: repeat(2, minmax(0, 1fr)); } .aud83-field-search { grid-column: 1 / -1; } }
+    @media(max-width: 620px) { .aud83 { padding: 18px 11px 50px; } .aud83-hero, .aud83-panel { padding: 16px; } .aud83-stats { grid-template-columns: 1fr; } .aud83-form { grid-template-columns: 1fr; } .aud83-field-search { grid-column: auto; } }
+</style>
+
+<section class="aud83">
+    <div class="aud83-wrap">
+        <header class="aud83-hero">
+            <span class="aud83-kicker">ADMINISTRACIÓN · AUDITORÍA ECONÓMICA · V131.83</span>
+            <h1>Rastrea cada <span>movimiento.</span></h1>
+            <p>Historial administrativo de pagos, solicitudes de reembolso y liquidaciones de actividades, sesiones individuales y espacios. Los valores son los registros históricos almacenados, no una instrucción de cobro.</p>
+            {% if sandbox_enabled %}
+                <span class="aud83-tag">SANDBOX · SIN COBROS NI TRANSFERENCIAS REALES</span>
+            {% else %}
+                <span class="aud83-tag">CONSULTA DE REGISTROS · SOLO LECTURA</span>
+            {% endif %}
+        </header>
+
+        <div class="aud83-note" role="note">
+            <strong>Consulta protegida.</strong> Solo personal autorizado puede acceder. Esta pantalla no aprueba, rechaza, reembolsa ni liquida operaciones. Los totales superiores son globales y no cambian con los filtros. Un estado contable «Liquidado» no demuestra por sí solo una transferencia bancaria.
+        </div>
+
+        <div class="aud83-stats" aria-label="Totales económicos históricos de pagos aprobados">
+            <div class="aud83-stat"><span>Bruto aprobado histórico</span><strong>{{ gross_total|clp }}</strong></div>
+            <div class="aud83-stat"><span>Reembolsos acumulados en pagos</span><strong>{{ refunded_total|clp }}</strong></div>
+            <div class="aud83-stat"><span>Neto vigente registrado</span><strong>{{ net_total|clp }}</strong></div>
+        </div>
+
+        <section class="aud83-panel" aria-label="Consulta de auditoría">
+            <nav class="aud83-tabs" aria-label="Tipo de registro">
+                <a href="?tipo=pagos" {% if kind == 'pagos' %}aria-current="page"{% endif %}>Pagos <small>{{ payment_count }}</small></a>
+                <a href="?tipo=reembolsos" {% if kind == 'reembolsos' %}aria-current="page"{% endif %}>Reembolsos <small>{{ refund_count }}</small></a>
+                <a href="?tipo=liquidaciones" {% if kind == 'liquidaciones' %}aria-current="page"{% endif %}>Liquidaciones <small>{{ settlement_count }}</small></a>
+            </nav>
+
+            <form method="get" class="aud83-form" action="{% url 'payments:admin_economic_audit' %}">
+                <input type="hidden" name="tipo" value="{{ kind }}">
+                <div class="aud83-field">
+                    <label for="aud83-origin">Origen</label>
+                    <select id="aud83-origin" name="origen">
+                        <option value="todos" {% if origin == 'todos' %}selected{% endif %}>Todos los orígenes</option>
+                        <option value="actividades" {% if origin == 'actividades' %}selected{% endif %}>Actividades</option>
+                        <option value="sesiones" {% if origin == 'sesiones' %}selected{% endif %}>Sesiones individuales</option>
+                        <option value="espacios" {% if origin == 'espacios' %}selected{% endif %}>Espacios</option>
+                    </select>
+                </div>
+                <div class="aud83-field">
+                    <label for="aud83-status">Estado</label>
+                    <select id="aud83-status" name="estado">
+                        <option value="">Todos los estados</option>
+                        {% for code, label in status_choices %}
+                            <option value="{{ code }}" {% if selected_status == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="aud83-field aud83-field-search">
+                    <label for="aud83-search">Identificador UUID o referencia</label>
+                    <input id="aud83-search" type="search" name="buscar" maxlength="120" value="{{ term }}" placeholder="UUID o referencia del proveedor">
+                </div>
+                <div class="aud83-field">
+                    <label for="aud83-from">Desde</label>
+                    <input id="aud83-from" type="date" name="desde" value="{{ start_input }}">
+                </div>
+                <div class="aud83-field">
+                    <label for="aud83-to">Hasta</label>
+                    <input id="aud83-to" type="date" name="hasta" value="{{ end_input }}">
+                </div>
+                <div class="aud83-buttons">
+                    <button class="aud83-btn" type="submit">Buscar movimientos</button>
+                    <a class="aud83-btn aud83-btn-secondary" href="{% url 'payments:admin_economic_audit' %}?tipo={{ kind }}">Limpiar filtros</a>
+                </div>
+            </form>
+
+            {% if invalid_dates %}
+                <div class="aud83-alert" role="alert">Revisa las fechas: utiliza fechas válidas y asegúrate de que «Desde» no sea posterior a «Hasta».</div>
+            {% endif %}
+
+            <div class="aud83-listhead">
+                <h2>{% if kind == 'pagos' %}Historial de pagos{% elif kind == 'reembolsos' %}Historial de reembolsos{% else %}Historial de liquidaciones{% endif %}</h2>
+                <span>{{ page_obj.paginator.count }} resultado{{ page_obj.paginator.count|pluralize }}</span>
+            </div>
+
+            {% if page_obj %}
+                <div class="aud83-scroll" role="region" aria-label="Movimientos económicos" tabindex="0">
+                    <table class="aud83-table">
+                        {% if kind == 'pagos' %}
+                            <thead><tr><th>Pago / referencia</th><th>Origen y miembro</th><th>Estado / fecha</th><th>Bruto histórico</th><th>Reembolsado</th><th>Comisión</th><th>Neto vigente</th></tr></thead>
+                            <tbody>
+                                {% for row in page_obj %}
+                                <tr>
+                                    <td><span class="aud83-uuid">{{ row.public_id }}</span>{% if row.provider_reference %}<span class="aud83-meta">Ref.: {{ row.provider_reference }}</span>{% endif %}</td>
+                                    <td>
+                                        {% if row.activity_id %}<strong>Actividad</strong><span class="aud83-meta">{{ row.activity.title }}</span>
+                                        {% elif row.professional_booking_id %}<strong>Sesión individual #{{ row.professional_booking_id }}</strong>
+                                        {% elif row.space_booking_id %}<strong>Espacio · Reserva #{{ row.space_booking_id }}</strong>
+                                        {% else %}<strong>Origen no identificado</strong>{% endif %}
+                                        <span class="aud83-meta">Miembro: {{ row.payer.get_username }} · Registro #{{ row.pk }}</span>
+                                    </td>
+                                    <td><span class="aud83-status">{{ row.get_status_display }}</span><span class="aud83-meta">{{ row.created_at|date:'d/m/Y H:i' }}</span><span class="aud83-meta">Liquidación: {{ row.get_settlement_status_display }}</span></td>
+                                    <td class="aud83-amount">{{ row.amount_clp|clp }}</td>
+                                    <td class="aud83-amount">{{ row.refunded_amount_clp|clp }}</td>
+                                    <td class="aud83-amount">{{ row.commission_amount_clp|clp }}</td>
+                                    <td class="aud83-amount">{{ row.net_amount_clp|clp }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        {% elif kind == 'reembolsos' %}
+                            <thead><tr><th>Reembolso / pago</th><th>Origen y solicitante</th><th>Motivo / política</th><th>Estado / fecha</th><th>Monto solicitado</th></tr></thead>
+                            <tbody>
+                                {% for row in page_obj %}
+                                <tr>
+                                    <td><span class="aud83-uuid">{{ row.public_id }}</span><span class="aud83-meta">Pago: <span class="aud83-uuid">{{ row.payment.public_id }}</span></span>{% if row.provider_reference %}<span class="aud83-meta">Ref.: {{ row.provider_reference }}</span>{% endif %}</td>
+                                    <td>
+                                        {% if row.payment.activity_id %}<strong>Actividad</strong>
+                                        {% elif row.payment.professional_booking_id %}<strong>Sesión individual #{{ row.payment.professional_booking_id }}</strong>
+                                        {% elif row.payment.space_booking_id %}<strong>Espacio · Reserva #{{ row.payment.space_booking_id }}</strong>
+                                        {% endif %}
+                                        <span class="aud83-meta">Miembro: {{ row.payment.payer.get_username }}</span>
+                                        <span class="aud83-meta">Solicita: {% if row.requested_by %}{{ row.requested_by.get_username }}{% else %}Sin registro{% endif %}</span>
+                                    </td>
+                                    <td>{{ row.get_reason_display }}<span class="aud83-meta">Tipo: {{ row.get_refund_type_display }}</span><span class="aud83-meta">Política: {{ row.policy_version_snapshot|default:'Sin snapshot' }}{% if row.policy_percentage_snapshot != None %} · {{ row.policy_percentage_snapshot }}%{% endif %}</span></td>
+                                    <td><span class="aud83-status">{{ row.get_status_display }}</span><span class="aud83-meta">Solicitado: {{ row.requested_at|date:'d/m/Y H:i' }}</span>{% if row.processed_at %}<span class="aud83-meta">Procesado: {{ row.processed_at|date:'d/m/Y H:i' }}</span>{% endif %}</td>
+                                    <td class="aud83-amount">{{ row.amount_clp|clp }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        {% else %}
+                            <thead><tr><th>Liquidación / referencia</th><th>Ámbito / beneficiario</th><th>Estado / fechas</th><th>Bruto</th><th>Reembolsos</th><th>Comisión</th><th>Neto</th></tr></thead>
+                            <tbody>
+                                {% for row in page_obj %}
+                                <tr>
+                                    <td><span class="aud83-uuid">{{ row.public_id }}</span><span class="aud83-meta">Liquidación #{{ row.pk }}</span>{% if row.provider_reference %}<span class="aud83-meta">Ref.: {{ row.provider_reference }}</span>{% endif %}</td>
+                                    <td><strong>{{ row.get_scope_type_display }}</strong><span class="aud83-meta">Beneficiario: {{ row.beneficiary.get_username }}</span>{% if row.activity %}<span class="aud83-meta">{{ row.activity.title }}</span>{% elif row.space %}<span class="aud83-meta">{{ row.space.name }}</span>{% endif %}{% if row.reference_date %}<span class="aud83-meta">Jornada: {{ row.reference_date|date:'d/m/Y' }}</span>{% endif %}</td>
+                                    <td><span class="aud83-status">{{ row.get_status_display }}</span><span class="aud83-meta">Creada: {{ row.created_at|date:'d/m/Y H:i' }}</span>{% if row.settled_at %}<span class="aud83-meta">Cerrada: {{ row.settled_at|date:'d/m/Y H:i' }}</span>{% endif %}{% if row.settled_by %}<span class="aud83-meta">Autorizó: {{ row.settled_by.get_username }}</span>{% endif %}</td>
+                                    <td class="aud83-amount">{{ row.gross_amount_clp|clp }}</td>
+                                    <td class="aud83-amount">{{ row.refunded_amount_clp|clp }}</td>
+                                    <td class="aud83-amount">{{ row.commission_amount_clp|clp }}</td>
+                                    <td class="aud83-amount">{{ row.net_amount_clp|clp }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        {% endif %}
+                    </table>
+                </div>
+            {% else %}
+                <div class="aud83-empty">No se encontraron registros con estos filtros. Puedes limpiarlos y volver a consultar.</div>
+            {% endif %}
+
+            {% if page_obj.has_other_pages %}
+                <nav class="aud83-pages" aria-label="Paginación de registros">
+                    {% if page_obj.has_previous %}
+                        <a href="?{{ page_query }}&amp;pagina=1">Primera</a>
+                        <a href="?{{ page_query }}&amp;pagina={{ page_obj.previous_page_number }}">Anterior</a>
+                    {% endif %}
+                    <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                    {% if page_obj.has_next %}
+                        <a href="?{{ page_query }}&amp;pagina={{ page_obj.next_page_number }}">Siguiente</a>
+                        <a href="?{{ page_query }}&amp;pagina={{ page_obj.paginator.num_pages }}">Última</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        </section>
+
+        <nav class="aud83-nav" aria-label="Administración relacionada">
+            <a href="{% url 'payments:professional_day_settlement_admin' %}">Liquidaciones de sesiones →</a>
+            <a href="{% url 'payments:space_settlement_admin' %}">Liquidaciones de espacios →</a>
+            <a href="{% url 'payments:space_cancellation_admin' %}">Cancelaciones de espacios →</a>
+        </nav>
+    </div>
+</section>
+{% endblock %}

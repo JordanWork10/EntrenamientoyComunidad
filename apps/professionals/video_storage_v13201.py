@@ -1,42 +1,32 @@
-"""V132.01: almacenamiento LOCAL PRIVADO para videos demostrativos.
+"""Destino: apps/professionals/video_storage_v13201.py
 
-Destino: apps/professionals/video_storage_v13201.py
+V132.06.3A: almacenamiento local privado siempre disponible.
 
-Nunca exponer esta carpeta desde nginx, Apache, WhiteNoise ni MEDIA_URL.
-La entrega de bytes se hará mediante una vista que compruebe permisos.
+El FileField de Django debe poder instanciarse en modo local y Supabase:
+su existencia no activa cargas locales cuando el modo remoto está elegido.
+
+Esto permite leer los archivos locales antiguos mientras los nuevos se
+registran en external_asset_id mediante el adaptador remoto
+(etapa siguiente).
 """
 
-from pathlib import Path
-
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.core.files.storage import FileSystemStorage
 from django.utils.deconstruct import deconstructible
+
+from .video_storage_config_v13206 import (
+    get_professional_video_storage_config,
+)
 
 
 @deconstructible
 class PrivatePortfolioStorage(FileSystemStorage):
-    """Aísla los videos del MEDIA_ROOT normalmente publicado."""
+    """Aísla videos del MEDIA_ROOT y nunca entrega una URL directa."""
 
     def __init__(self):
-        project_root = Path(settings.BASE_DIR).resolve()
-        configured_root = getattr(
-            settings,
-            'PROFESSIONAL_VIDEO_PRIVATE_ROOT',
-            project_root / '_private_professional_videos',
-        )
-        private_root = Path(configured_root).resolve()
-
-        media_value = getattr(settings, 'MEDIA_ROOT', None)
-        if media_value:
-            media_root = Path(media_value).resolve()
-            if private_root == media_root or media_root in private_root.parents:
-                raise ImproperlyConfigured(
-                    'PROFESSIONAL_VIDEO_PRIVATE_ROOT debe quedar fuera de MEDIA_ROOT.'
-                )
+        config = get_professional_video_storage_config()
 
         super().__init__(
-            location=str(private_root),
+            location=str(config.local_root),
             base_url=None,
             file_permissions_mode=0o600,
             directory_permissions_mode=0o700,
@@ -44,5 +34,6 @@ class PrivatePortfolioStorage(FileSystemStorage):
 
     def url(self, name):
         raise ValueError(
-            'Los videos privados no tienen URL directa. Usa la vista autorizada.'
+            'Los videos privados no tienen URL directa. '
+            'Usa la vista autorizada.'
         )

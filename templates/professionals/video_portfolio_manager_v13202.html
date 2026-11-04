@@ -45,7 +45,7 @@
 <section class="account-page v132-video-page">
   <div class="v132-video-wrap">
     <header class="v132-video-hero">
-      <span class="v132-video-kicker">CENTRO PROFESIONAL · PORTAFOLIO AUDIOVISUAL · V132.02</span>
+      <span class="v132-video-kicker">CENTRO PROFESIONAL · PORTAFOLIO AUDIOVISUAL · V132.06.3D</span>
       <h1>Mis videos profesionales</h1>
       <p>Muestra tus técnicas, ejercicios, clases y contenidos educativos. Cada video se revisará antes de aparecer públicamente.</p>
       <div class="v132-video-actions">
@@ -107,12 +107,14 @@
         <div class="v132-video-list">
           {% for video in videos %}
             <article class="v132-video-card v132-video-item">
-              {% if video.video_file %}
-                <video class="v132-video-player" controls preload="metadata" playsinline src="{% url 'professionals:portfolio_stream' video.public_id %}">
+              {% if video.status == 'processing' %}
+                <div class="v132-video-empty">El video se está procesando. Estará disponible al finalizar la carga.</div>
+              {% elif video.video_file or video.external_asset_id %}
+                <video class="v132-video-player" controls preload="metadata" playsinline aria-label="Reproducir {{ video.title }}" src="{% url 'professionals:portfolio_stream' video.public_id %}">
                   Tu navegador no puede reproducir este video.
                 </video>
               {% else %}
-                <div class="v132-video-empty">Sin archivo local disponible</div>
+                <div class="v132-video-empty">Archivo de video no disponible.</div>
               {% endif %}
               <h3>{{ video.title }}</h3>
               <span class="v132-video-status {% if video.status == 'approved' %}v132-video-status-approved{% endif %}">{{ video.get_status_display }}</span>
@@ -120,6 +122,11 @@
               {% if video.description %}<p>{{ video.description }}</p>{% endif %}
               {% if video.review_notes %}<p class="v132-video-error">Revisión: {{ video.review_notes }}</p>{% endif %}
               <small>Enviado: {{ video.created_at|date:'d/m/Y H:i' }}</small>
+              {% if video.status == 'pending_review' %}
+                <div style="margin-top:14px;">
+                  <a class="v132-video-button v132-video-button-secondary" href="{% url 'professionals:portfolio_edit' video.public_id %}">Editar información</a>
+                </div>
+              {% endif %}
               <form method="post" action="{% url 'professionals:portfolio_delete' video.public_id %}" onsubmit="return confirm('¿Eliminar este video definitivamente?');" style="margin-top:14px;">
                 {% csrf_token %}
                 <button class="v132-video-button v132-video-button-danger" type="submit">Eliminar video</button>

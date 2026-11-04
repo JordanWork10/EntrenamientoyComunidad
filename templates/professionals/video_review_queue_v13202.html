@@ -26,7 +26,7 @@
 <section class="account-page v132-review-page">
   <div class="v132-review-wrap">
     <header class="v132-review-hero">
-      <span class="v132-review-kicker">ADMINISTRACIÓN · PORTAFOLIO AUDIOVISUAL · V132.02</span>
+      <span class="v132-review-kicker">ADMINISTRACIÓN · PORTAFOLIO AUDIOVISUAL · V132.06.3D</span>
       <h1>Revisión de videos</h1>
       <p class="v132-review-muted">Valida que el contenido sea demostrativo, apropiado y publicable antes de aprobarlo. Esta página es exclusiva para personal administrador.</p>
       <a class="v132-review-link" href="{% url 'professionals:public_service_catalog' %}">← Explorar profesionales</a>
@@ -49,10 +49,10 @@
             <p><strong>Profesional:</strong> {{ video.professional_profile.user.get_full_name|default:video.professional_profile.user.email }}</p>
             <p><strong>Tipo:</strong> {{ video.get_category_display }} · <strong>Duración:</strong> {{ video.duration_seconds }} s</p>
             {% if video.description %}<p class="v132-review-muted">{{ video.description }}</p>{% endif %}
-            {% if video.video_file %}
-              <video class="v132-review-player" controls preload="metadata" playsinline src="{% url 'professionals:portfolio_stream' video.public_id %}">Tu navegador no admite video HTML5.</video>
+            {% if video.video_file or video.external_asset_id %}
+              <video class="v132-review-player" controls preload="metadata" playsinline aria-label="Revisar {{ video.title }}" src="{% url 'professionals:portfolio_stream' video.public_id %}">Tu navegador no admite video HTML5.</video>
             {% else %}
-              <p class="v132-review-muted">No hay un archivo local para reproducir.</p>
+              <p class="v132-review-muted">No hay un archivo de video disponible para reproducir.</p>
             {% endif %}
             <form class="v132-review-actions" method="post" action="{% url 'professionals:portfolio_review_decide' video.public_id %}">
               {% csrf_token %}

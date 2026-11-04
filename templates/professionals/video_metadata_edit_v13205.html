@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar video | Centro Profesional{% endblock %}
+
+{% block content %}
+<style>
+  .v13205-edit-page { color: #e6f5fa; padding: 36px 16px 72px; }
+  .v13205-edit-wrap { max-width: 800px; margin: 0 auto; }
+  .v13205-edit-card { background: #111c29; border: 1px solid #2d4756; border-radius: 14px; padding: 26px; }
+  .v13205-edit-card + .v13205-edit-card { margin-top: 16px; }
+  .v13205-edit-kicker { color: #63def3; letter-spacing: .1em; font-size: .75rem; font-weight: 850; }
+  .v13205-edit-title { color: #fff; font-size: clamp(1.5rem, 4vw, 2.1rem); margin: 8px 0 10px; }
+  .v13205-edit-muted { color: #a9cbd9; line-height: 1.6; }
+  .v13205-edit-form { display: grid; gap: 16px; margin-top: 16px; }
+  .v13205-edit-field label { display: block; font-weight: 750; color: #c7eaf4; margin-bottom: 7px; }
+  .v13205-edit-field input, .v13205-edit-field select, .v13205-edit-field textarea { display: block; width: 100%; padding: 11px 12px; box-sizing: border-box; background: #07101b; border: 1px solid #496173; border-radius: 8px; color: #fff; font: inherit; }
+  .v13205-edit-field textarea { resize: vertical; min-height: 110px; }
+  .v13205-edit-field input:focus, .v13205-edit-field select:focus, .v13205-edit-field textarea:focus { outline: 2px solid #00bfdb; outline-offset: 2px; }
+  .v13205-edit-errors { color: #ffbaba; margin: 6px 0; }
+  .v13205-edit-alert { background: #0c2734; border: 1px solid #186779; border-radius: 9px; padding: 13px 15px; margin-top: 15px; color: #c8f4ff; }
+  .v13205-edit-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .v13205-edit-button { border: 1px solid #00bfdb; background: #00bfdb; color: #00151c; text-decoration: none; font-weight: 850; padding: 11px 16px; border-radius: 9px; cursor: pointer; }
+  .v13205-edit-button:hover { filter: brightness(1.08); }
+  .v13205-edit-button-secondary { color: #a9edfa; background: transparent; border-color: #476677; }
+  .v13205-edit-player { display: block; width: 100%; max-width: 480px; aspect-ratio: 16 / 9; background: #050a10; border-radius: 9px; margin-top: 14px; }
+  @media (max-width: 640px) { .v13205-edit-card { padding: 19px; } }
+</style>
+
+<section class="account-page v13205-edit-page">
+  <div class="v13205-edit-wrap">
+    <header class="v13205-edit-card">
+      <span class="v13205-edit-kicker">CENTRO PROFESIONAL · PORTAFOLIO AUDIOVISUAL · V132.06.3D</span>
+      <h1 class="v13205-edit-title">Editar información del video</h1>
+      <p class="v13205-edit-muted">Puedes corregir el título, el tipo de contenido y la descripción mientras el video esté pendiente de revisión. El archivo y el estado de revisión no cambiarán.</p>
+      <a class="v13205-edit-button v13205-edit-button-secondary" href="{% url 'professionals:portfolio_manager' %}">← Volver a mis videos</a>
+    </header>
+
+    <section class="v13205-edit-card" aria-labelledby="v13205-video-label">
+      <h2 id="v13205-video-label" style="color:#fff;margin:0 0 8px;font-size:1.1rem;">{{ video.title }}</h2>
+      <p class="v13205-edit-muted" style="margin:0;">Estado actual: <strong>{{ video.get_status_display }}</strong> · Duración: {{ video.duration_seconds|default:'—' }} segundos</p>
+      {% if video.video_file or video.external_asset_id %}
+        <video class="v13205-edit-player" controls preload="metadata" playsinline aria-label="Vista previa de {{ video.title }}" src="{% url 'professionals:portfolio_stream' video.public_id %}">Tu navegador no puede reproducir este video.</video>
+      {% endif %}
+      <div class="v13205-edit-alert">Esta modificación no reemplaza el archivo ni salta la revisión del administrador.</div>
+    </section>
+
+    <section class="v13205-edit-card" aria-labelledby="v13205-form-heading">
+      <h2 id="v13205-form-heading" style="color:#fff;margin:0;font-size:1.15rem;">Información del video</h2>
+      <form class="v13205-edit-form" method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="v13205-edit-errors" role="alert">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="v13205-edit-field">
+          <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+          {{ form.title }}
+          {% if form.title.errors %}<div class="v13205-edit-errors" role="alert">{{ form.title.errors }}</div>{% endif %}
+        </div>
+        <div class="v13205-edit-field">
+          <label for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+          {{ form.category }}
+          {% if form.category.errors %}<div class="v13205-edit-errors" role="alert">{{ form.category.errors }}</div>{% endif %}
+        </div>
+        <div class="v13205-edit-field">
+          <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+          {{ form.description }}
+          {% if form.description.errors %}<div class="v13205-edit-errors" role="alert">{{ form.description.errors }}</div>{% endif %}
+        </div>
+        <div class="v13205-edit-actions">
+          <button class="v13205-edit-button" type="submit">Guardar cambios</button>
+          <a class="v13205-edit-button v13205-edit-button-secondary" href="{% url 'professionals:portfolio_manager' %}">Cancelar</a>
+        </div>
+      </form>
+    </section>
+  </div>
+</section>
+{% endblock %}

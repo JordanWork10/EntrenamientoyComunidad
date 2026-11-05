@@ -12,6 +12,9 @@ from django.utils import timezone
 
 from apps.locations.models import Commune
 
+# V132.06.5A - Registro persistente de limpieza de videos.
+from .video_storage_cleanup_models_v132065 import ProfessionalVideoStorageCleanup
+
 
 class ProfessionalCategory(models.Model):
     """

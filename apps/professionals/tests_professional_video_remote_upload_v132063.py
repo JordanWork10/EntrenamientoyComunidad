@@ -1,9 +1,22 @@
-"""V132.06.3B: pruebas de subida a Supabase con S3 simulado.
+"""
+V132.06.5A - Pruebas de subida privada a Supabase Storage.
 
 Destino:
 apps/professionals/tests_professional_video_remote_upload_v132063.py
 
-No utiliza Supabase ni sus credenciales reales.
+Todas las operaciones S3 están simuladas.
+
+NO utiliza credenciales reales.
+NO sube archivos a Supabase.
+NO elimina archivos del bucket real.
+
+Verifica:
+- Reserva de cuota durante procesamiento.
+- Subida remota correcta.
+- Limpieza después de errores.
+- Registro persistente de tareas de limpieza.
+- Reintentos de eliminación.
+- Conservación de referencias ante fallos de base de datos.
 """
 
 import os
@@ -20,10 +33,16 @@ from .models import (
     ProfessionalCategory,
     ProfessionalProfile,
     ProfessionalSpecialty,
+    ProfessionalVideoStorageCleanup,
 )
 
 from .video_models_v13200 import ProfessionalPortfolioVideo
 from .video_probe_v13201 import VideoProbeResult
+
+from .video_storage_cleanup_service_v132065 import (
+    run_remote_video_cleanup,
+)
+
 from .video_upload_service_v13201 import (
     create_professional_portfolio_video,
 )
@@ -43,7 +62,8 @@ FAKE_S3_ENV = {
 def sample_mp4():
     return SimpleUploadedFile(
         'prueba.mp4',
-        b'\x00\x00\x00\x18ftypisom\x00\x00\x00\x00' + b'0' * 100,
+        b'\x00\x00\x00\x18ftypisom\x00\x00\x00\x00'
+        + b'0' * 100,
         content_type='video/mp4',
     )
 
@@ -85,13 +105,16 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
         )
 
     def setUp(self):
+        # Sustituye las credenciales reales por valores de prueba.
         self.env = patch.dict(
             os.environ,
             FAKE_S3_ENV,
         )
+
         self.env.start()
         self.addCleanup(self.env.stop)
 
+        # Interceptar la creación del cliente S3.
         self.factory_patch = patch(
             'apps.professionals.video_upload_service_v13201.'
             'SupabaseVideoS3Adapter.from_settings'
@@ -100,6 +123,7 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
         self.factory = self.factory_patch.start()
         self.addCleanup(self.factory_patch.stop)
 
+        # FFprobe también se simula.
         self.probe_patch = patch(
             'apps.professionals.video_upload_service_v13201.'
             'probe_local_video'
@@ -115,6 +139,13 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
         )
 
         self.adapter = Mock()
+
+        # El servicio de limpieza comprueba que el bucket
+        # utilizado coincida con el registrado.
+        self.adapter.bucket = (
+            FAKE_S3_ENV['SUPABASE_VIDEO_S3_BUCKET']
+        )
+
         self.factory.return_value = self.adapter
 
         self.adapter.new_key.side_effect = lambda **kw: (
@@ -139,7 +170,9 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
             rights_confirmed=True,
         )
 
-    def test_remote_upload_reserves_processing_quota_and_finishes_pending(self):
+    def test_remote_upload_reserves_processing_quota_and_finishes_pending(
+        self,
+    ):
         observed = []
 
         def observe_upload(
@@ -149,10 +182,12 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
             fileobj,
         ):
             video = ProfessionalPortfolioVideo.objects.get(
-                external_asset_id=key,
+                external_asset_id=key
             )
 
-            observed.append(video.status)
+            observed.append(
+                video.status
+            )
 
             self.assertEqual(
                 professional_profile_id,
@@ -160,7 +195,7 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
             )
 
             self.assertTrue(
-                fileobj.read(4),
+                fileobj.read(4)
             )
 
         self.adapter.upload.side_effect = observe_upload
@@ -169,7 +204,9 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
 
         self.assertEqual(
             observed,
-            [ProfessionalPortfolioVideo.Status.PROCESSING],
+            [
+                ProfessionalPortfolioVideo.Status.PROCESSING
+            ],
         )
 
         self.assertEqual(
@@ -182,40 +219,66 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
             ProfessionalPortfolioVideo.StorageBackend.EXTERNAL,
         )
 
-        self.assertFalse(video.video_file)
-        self.assertEqual(video.duration_seconds, 30)
-        self.assertEqual(video.file_size_bytes, sample_mp4().size)
+        self.assertFalse(
+            video.video_file
+        )
+
+        self.assertEqual(
+            video.duration_seconds,
+            30,
+        )
+
+        self.assertEqual(
+            video.file_size_bytes,
+            sample_mp4().size,
+        )
 
         self.assertRegex(
             video.external_asset_id,
-            (
-                rf'^professional_videos/{self.profile.pk}/'
-                rf'[0-9a-f]{{32}}\.mp4$'
-            ),
+            rf'^professional_videos/{self.profile.pk}/'
+            rf'[0-9a-f]{{32}}\.mp4$',
         )
 
         self.adapter.head.assert_called_once()
         self.adapter.delete.assert_not_called()
 
+        self.assertEqual(
+            ProfessionalVideoStorageCleanup.objects.count(),
+            0,
+        )
+
     def test_failed_remote_upload_cleans_up_reservation_and_object(self):
         self.adapter.upload.side_effect = RuntimeError(
-            'error S3 simulado',
+            'error S3 simulado'
         )
 
         with patch(
             'apps.professionals.video_upload_service_v13201.logger'
         ):
-            with self.assertRaisesRegex(
-                ValidationError,
-                'No se pudo almacenar',
-            ):
-                self._upload()
+            with self.captureOnCommitCallbacks(execute=True):
+                with self.assertRaisesRegex(
+                    ValidationError,
+                    'No se pudo almacenar',
+                ):
+                    self._upload()
 
         self.assertFalse(
-            ProfessionalPortfolioVideo.objects.exists(),
+            ProfessionalPortfolioVideo.objects.exists()
         )
 
         self.adapter.delete.assert_called_once()
+
+        task = ProfessionalVideoStorageCleanup.objects.get()
+
+        self.assertEqual(
+            task.status,
+            ProfessionalVideoStorageCleanup.Status.COMPLETED,
+        )
+
+        self.assertEqual(
+            task.reason,
+            ProfessionalVideoStorageCleanup.Reason.FAILED_UPLOAD,
+        )
 
     def test_remote_size_mismatch_cleans_up(self):
         self.adapter.head.return_value = {
@@ -223,17 +286,23 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
             'content_type': 'video/mp4',
         }
 
-        with self.assertRaisesRegex(
-            ValidationError,
-            'tamaño remoto',
-        ):
-            self._upload()
+        with self.captureOnCommitCallbacks(execute=True):
+            with self.assertRaisesRegex(
+                ValidationError,
+                'tamaño remoto',
+            ):
+                self._upload()
 
         self.assertFalse(
-            ProfessionalPortfolioVideo.objects.exists(),
+            ProfessionalPortfolioVideo.objects.exists()
         )
 
         self.adapter.delete.assert_called_once()
+
+        self.assertEqual(
+            ProfessionalVideoStorageCleanup.objects.get().status,
+            ProfessionalVideoStorageCleanup.Status.COMPLETED,
+        )
 
     def test_remote_content_type_mismatch_cleans_up(self):
         self.adapter.head.return_value = {
@@ -241,14 +310,15 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
             'content_type': 'application/octet-stream',
         }
 
-        with self.assertRaisesRegex(
-            ValidationError,
-            'formato remoto',
-        ):
-            self._upload()
+        with self.captureOnCommitCallbacks(execute=True):
+            with self.assertRaisesRegex(
+                ValidationError,
+                'formato remoto',
+            ):
+                self._upload()
 
         self.assertFalse(
-            ProfessionalPortfolioVideo.objects.exists(),
+            ProfessionalPortfolioVideo.objects.exists()
         )
 
         self.adapter.delete.assert_called_once()
@@ -256,7 +326,7 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
     def test_quota_rejects_fourth_video_without_remote_transfer(self):
         for index in range(3):
             self._upload(
-                title=f'Video remoto {index}',
+                title=f'Video remoto {index}'
             )
 
         with self.assertRaisesRegex(
@@ -264,7 +334,7 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
             'máximo de 3',
         ):
             self._upload(
-                title='Cuarto video remoto',
+                title='Cuarto video remoto'
             )
 
         self.assertEqual(
@@ -291,7 +361,7 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
             self._upload()
 
         self.assertFalse(
-            ProfessionalPortfolioVideo.objects.exists(),
+            ProfessionalPortfolioVideo.objects.exists()
         )
 
         self.adapter.upload.assert_not_called()
@@ -305,21 +375,116 @@ class ProfessionalVideoRemoteUploadTests(TestCase):
             fileobj,
         ):
             ProfessionalPortfolioVideo.objects.filter(
-                external_asset_id=key,
+                external_asset_id=key
             ).delete()
 
-        self.adapter.upload.side_effect = (
-            cancel_while_uploading
-        )
+        self.adapter.upload.side_effect = cancel_while_uploading
 
-        with self.assertRaisesRegex(
-            ValidationError,
-            'cancelada',
-        ):
-            self._upload()
+        with self.captureOnCommitCallbacks(execute=True):
+            with self.assertRaisesRegex(
+                ValidationError,
+                'cancelada',
+            ):
+                self._upload()
 
         self.assertFalse(
-            ProfessionalPortfolioVideo.objects.exists(),
+            ProfessionalPortfolioVideo.objects.exists()
         )
 
         self.adapter.delete.assert_called_once()
+
+    def test_failed_remote_cleanup_persists_until_retry(self):
+        """
+        Una subida fallida no debe perder su referencia
+        aunque también falle la eliminación remota.
+        """
+        self.adapter.upload.side_effect = RuntimeError(
+            'S3 upload simulado'
+        )
+
+        self.adapter.delete.side_effect = RuntimeError(
+            'S3 delete simulado'
+        )
+
+        with patch(
+            'apps.professionals.video_upload_service_v13201.logger'
+        ), patch(
+            'apps.professionals.video_storage_cleanup_service_v132065.logger'
+        ):
+            with self.captureOnCommitCallbacks(execute=True):
+                with self.assertRaisesRegex(
+                    ValidationError,
+                    'No se pudo almacenar',
+                ):
+                    self._upload()
+
+        self.assertFalse(
+            ProfessionalPortfolioVideo.objects.exists()
+        )
+
+        task = ProfessionalVideoStorageCleanup.objects.get()
+
+        self.assertEqual(
+            task.status,
+            ProfessionalVideoStorageCleanup.Status.PENDING,
+        )
+
+        self.assertEqual(
+            task.attempts,
+            1,
+        )
+
+        # Simular recuperación de Supabase.
+        self.adapter.delete.side_effect = None
+
+        self.assertTrue(
+            run_remote_video_cleanup(task.pk)
+        )
+
+        task.refresh_from_db()
+
+        self.assertEqual(
+            task.status,
+            ProfessionalVideoStorageCleanup.Status.COMPLETED,
+        )
+
+    def test_queue_database_failure_keeps_processing_reservation(self):
+        """
+        Si no puede registrarse la tarea, el video PROCESSING
+        conserva la referencia remota para recuperación.
+        """
+        self.adapter.upload.side_effect = RuntimeError(
+            'S3 upload simulado'
+        )
+
+        with patch(
+            'apps.professionals.video_upload_service_v13201.'
+            'queue_remote_video_cleanup',
+            side_effect=RuntimeError(
+                'Base de datos no disponible'
+            ),
+        ), patch(
+            'apps.professionals.video_upload_service_v13201.logger'
+        ):
+            with self.assertRaisesRegex(
+                ValidationError,
+                'no se pudo registrar su limpieza',
+            ):
+                self._upload()
+
+        self.assertEqual(
+            ProfessionalVideoStorageCleanup.objects.count(),
+            0,
+        )
+
+        self.assertEqual(
+            ProfessionalPortfolioVideo.objects.count(),
+            1,
+        )
+
+        self.assertEqual(
+            ProfessionalPortfolioVideo.objects.get().status,
+            ProfessionalPortfolioVideo.Status.PROCESSING,
+        )
+
+        self.adapter.delete.assert_not_called()

@@ -1,15 +1,33 @@
-"""V132.06.3B: subida profesional local o privada en Supabase Storage.
+"""
+V132.06.5A: subida profesional local o privada en Supabase Storage.
 
-Destino: apps/professionals/video_upload_service_v13201.py
+Destino:
+apps/professionals/video_upload_service_v13201.py
 
-Conserva FFprobe, límites por plan, confirmación de derechos y bloqueo
-transaccional de cuotas. El modo remoto reserva la cuota en PROCESSING,
-sube fuera de la transacción y deja PENDING_REVIEW tras verificar el objeto.
+Conserva:
+- Validación con FFprobe.
+- Límites de suscripción.
+- Confirmación de derechos.
+- Bloqueo transaccional de cuotas.
+- Compatibilidad con almacenamiento local.
+- Subida privada a Supabase Storage.
+
+El modo remoto reserva la cuota en PROCESSING,
+sube fuera de la transacción y deja PENDING_REVIEW
+después de verificar el objeto.
+
+V132.06.5A:
+Si falla una subida remota, registra una tarea duradera
+de limpieza antes de liberar la reserva.
+
+La eliminación del objeto remoto se intenta únicamente
+después de confirmar la transacción de la base de datos.
 """
 
 import logging
 import os
 import tempfile
+
 from pathlib import Path
 
 from django.core.exceptions import ValidationError
@@ -18,22 +36,70 @@ from django.db import transaction
 from django.db.models import Q, Sum
 
 from .models import ProfessionalProfile
+
 from .professional_video_quota_v13200 import (
     get_professional_video_quota,
     validate_professional_video_upload,
 )
+
 from .video_models_v13200 import ProfessionalPortfolioVideo
-from .video_probe_v13201 import SUPPORTED_VIDEO_EXTENSIONS, probe_local_video
-from .video_storage_config_v13206 import get_professional_video_storage_config
-from .video_supabase_s3_adapter_v13206 import SupabaseVideoS3Adapter
+
+from .video_probe_v13201 import (
+    SUPPORTED_VIDEO_EXTENSIONS,
+    probe_local_video,
+)
+
+from .video_storage_config_v13206 import (
+    get_professional_video_storage_config,
+)
+
+from .video_storage_cleanup_models_v132065 import (
+    ProfessionalVideoStorageCleanup,
+)
+
+from .video_storage_cleanup_service_v132065 import (
+    queue_remote_video_cleanup,
+    run_remote_video_cleanup,
+)
+
+from .video_supabase_s3_adapter_v13206 import (
+    SupabaseVideoS3Adapter,
+)
 
 
 logger = logging.getLogger(__name__)
+
 
 _CONTENT_TYPES = {
     '.mp4': 'video/mp4',
     '.webm': 'video/webm',
 }
+
+
+def _cleanup_failed_upload_after_commit(task_id):
+    """
+    Intenta limpiar una subida fallida después del commit.
+
+    Si Supabase no está disponible, el servicio conserva
+    automáticamente la tarea pendiente.
+
+    Un error inesperado tampoco debe borrar la tarea.
+    """
+
+    try:
+        completed = run_remote_video_cleanup(task_id)
+
+        if not completed:
+            logger.warning(
+                'Quedó pendiente la limpieza de subida %s.',
+                task_id,
+            )
+
+    except Exception:
+        logger.exception(
+            'No se pudo procesar la limpieza de subida %s.',
+            task_id,
+        )
 
 
 def _locked_profile_with_available_quota(
@@ -42,25 +108,39 @@ def _locked_profile_with_available_quota(
     duration_seconds,
     file_size_bytes,
 ):
-    """Se llama exclusivamente dentro de transaction.atomic()."""
+    """
+    Obtiene el perfil profesional con bloqueo transaccional.
+
+    Debe ejecutarse exclusivamente dentro de transaction.atomic().
+    """
 
     try:
-        profile = ProfessionalProfile.objects.select_for_update().get(
-            user=user,
-            verification_status=(
-                ProfessionalProfile.VerificationStatus.VERIFIED
-            ),
+        profile = (
+            ProfessionalProfile.objects
+            .select_for_update()
+            .get(
+                user=user,
+                verification_status=(
+                    ProfessionalProfile
+                    .VerificationStatus.VERIFIED
+                ),
+            )
         )
+
     except ProfessionalProfile.DoesNotExist as exc:
         raise ValidationError(
             'Necesitas un perfil profesional verificado.'
         ) from exc
 
     # Los objetos externos en PROCESSING también reservan cuota.
-    stored = ProfessionalPortfolioVideo.objects.filter(
-        professional_profile=profile,
-    ).filter(
-        ~Q(video_file='') | ~Q(external_asset_id=''),
+    stored = (
+        ProfessionalPortfolioVideo.objects
+        .filter(
+            professional_profile=profile,
+        )
+        .filter(
+            ~Q(video_file='') | ~Q(external_asset_id=''),
+        )
     )
 
     usage = stored.aggregate(
@@ -72,7 +152,9 @@ def _locked_profile_with_available_quota(
         duration_seconds=duration_seconds,
         file_size_bytes=file_size_bytes,
         existing_count=stored.count(),
-        existing_total_seconds=usage['total_seconds'] or 0,
+        existing_total_seconds=(
+            usage['total_seconds'] or 0
+        ),
     )
 
     return profile
@@ -87,9 +169,14 @@ def _save_local_video(
     real_size,
     details,
 ):
-    """Conserva la ruta de almacenamiento que ya funciona en desarrollo."""
+    """
+    Conserva el almacenamiento local privado.
+
+    No utiliza Supabase ni genera tareas de limpieza remota.
+    """
 
     with transaction.atomic():
+
         profile = _locked_profile_with_available_quota(
             user,
             duration_seconds=metadata.duration_seconds,
@@ -113,6 +200,7 @@ def _save_local_video(
 
         try:
             with open(temporary_path, 'rb') as source:
+
                 instance.video_file.save(
                     f'video{extension}',
                     File(source),
@@ -125,8 +213,12 @@ def _save_local_video(
             instance.save()
 
         except Exception:
+
             if saved_name:
-                instance.video_file.storage.delete(saved_name)
+                instance.video_file.storage.delete(
+                    saved_name
+                )
+
             raise
 
     return instance
@@ -141,12 +233,23 @@ def _save_remote_video(
     real_size,
     details,
 ):
-    """Reserva cuota, sube por S3 y marca pendiente tras comprobar tamaño/tipo."""
+    """
+    Sube un video privado mediante Supabase Storage S3.
+
+    La cuota se reserva antes de subir el archivo.
+
+    Si falla el proceso, se registra una tarea persistente
+    de limpieza y se libera la reserva de forma transaccional.
+    """
 
     adapter = SupabaseVideoS3Adapter.from_settings()
 
-    # Paso 1: reservar la cuota en un estado que no es público.
+    # ---------------------------------------------------------
+    # PASO 1: RESERVAR LA CUOTA
+    # ---------------------------------------------------------
+
     with transaction.atomic():
+
         profile = _locked_profile_with_available_quota(
             user,
             duration_seconds=metadata.duration_seconds,
@@ -175,15 +278,23 @@ def _save_remote_video(
         instance.full_clean()
         instance.save()
 
-    # Paso 2: subir fuera del bloqueo de PostgreSQL.
-    # El video no se hace público automáticamente.
+    # ---------------------------------------------------------
+    # PASO 2: SUBIR A SUPABASE FUERA DE LA TRANSACCIÓN
+    # ---------------------------------------------------------
+
     try:
+
         with open(temporary_path, 'rb') as source:
+
             adapter.upload(
                 key=key,
                 professional_profile_id=profile.pk,
                 fileobj=source,
             )
+
+        # -----------------------------------------------------
+        # PASO 3: COMPROBAR EL OBJETO REMOTO
+        # -----------------------------------------------------
 
         remote = adapter.head(
             key=key,
@@ -195,13 +306,20 @@ def _save_remote_video(
                 'El tamaño remoto no coincide con el video validado.'
             )
 
-        if remote['content_type'] != _CONTENT_TYPES[extension]:
+        if (
+            remote['content_type']
+            != _CONTENT_TYPES[extension]
+        ):
             raise ValidationError(
                 'El formato remoto no coincide con el video validado.'
             )
 
-        # Paso 3: pasar a revisión solamente si el objeto está íntegro.
+        # -----------------------------------------------------
+        # PASO 4: CAMBIAR EL ESTADO A PENDIENTE DE REVISIÓN
+        # -----------------------------------------------------
+
         with transaction.atomic():
+
             ProfessionalProfile.objects.select_for_update().get(
                 pk=profile.pk,
             )
@@ -239,27 +357,66 @@ def _save_remote_video(
 
         return current
 
+    # ---------------------------------------------------------
+    # PASO 5: MANEJAR UNA SUBIDA FALLIDA
+    # ---------------------------------------------------------
+
     except Exception as exc:
-        # Una subida fallida no debe ocupar cuota.
-        # Intentamos eliminar los objetos remotos creados parcialmente.
+
+        # Primero conservamos una referencia recuperable del archivo.
+        #
+        # La creación de la tarea y la liberación de la reserva
+        # se realizan dentro de una misma transacción.
+        #
+        # Si no se consigue registrar la tarea, el registro
+        # PROCESSING no se elimina, para evitar perder
+        # la referencia al objeto remoto.
+
         try:
-            adapter.delete(
-                key=key,
-                professional_profile_id=profile.pk,
-            )
-        except Exception:
+
+            with transaction.atomic():
+
+                task = queue_remote_video_cleanup(
+                    professional_profile_id=profile.pk,
+                    remote_key=key,
+                    reason=(
+                        ProfessionalVideoStorageCleanup
+                        .Reason.FAILED_UPLOAD
+                    ),
+                )
+
+                # Liberar la cuota del video cuya subida falló.
+                ProfessionalPortfolioVideo.objects.filter(
+                    pk=instance.pk,
+                    status=(
+                        ProfessionalPortfolioVideo.Status.PROCESSING
+                    ),
+                ).delete()
+
+                # Nunca eliminar el objeto antes de confirmar
+                # que la tarea quedó registrada en la base de datos.
+                transaction.on_commit(
+                    lambda task_id=task.pk: (
+                        _cleanup_failed_upload_after_commit(
+                            task_id
+                        )
+                    )
+                )
+
+        except Exception as cleanup_exc:
+
             logger.exception(
-                'No se pudo limpiar el objeto remoto del video %s.',
+                'No se pudo registrar la limpieza pendiente '
+                'del video %s.',
                 instance.pk,
             )
 
-        ProfessionalPortfolioVideo.objects.filter(
-            pk=instance.pk,
-            status=(
-                ProfessionalPortfolioVideo.Status.PROCESSING
-            ),
-        ).delete()
+            raise ValidationError(
+                'La carga falló y no se pudo registrar su limpieza. '
+                'Contacta al administrador antes de reintentar.'
+            ) from cleanup_exc
 
+        # Conservar los mensajes de validación esperados.
         if isinstance(exc, ValidationError):
             raise
 
@@ -283,7 +440,14 @@ def create_professional_portfolio_video(
     description='',
     rights_confirmed=False,
 ):
-    """Recibe y valida un video; el modo local sigue siendo predeterminado."""
+    """
+    Recibe y valida un video profesional.
+
+    El backend activo determina si el almacenamiento es
+    local o Supabase.
+
+    La duración y el formato se validan desde el servidor.
+    """
 
     if rights_confirmed is not True:
         raise ValidationError(
@@ -326,7 +490,9 @@ def create_professional_portfolio_video(
             'Selecciona un archivo de video válido.'
         )
 
-    extension = Path(str(uploaded_file.name)).suffix.lower()
+    extension = Path(
+        str(uploaded_file.name)
+    ).suffix.lower()
 
     if extension not in SUPPORTED_VIDEO_EXTENSIONS:
         raise ValidationError(
@@ -353,16 +519,20 @@ def create_professional_portfolio_video(
     temporary_path = None
 
     try:
-        # Windows exige cerrar el archivo antes de abrirlo con FFprobe.
+
+        # Windows exige cerrar el archivo temporal
+        # antes de abrirlo con FFprobe.
         with tempfile.NamedTemporaryFile(
             prefix='portfolio_v13201_',
             suffix=extension,
             delete=False,
         ) as temporary_file:
+
             temporary_path = temporary_file.name
             real_size = 0
 
             for chunk in uploaded_file.chunks():
+
                 real_size += len(chunk)
 
                 if real_size > quota.max_file_bytes:
@@ -382,9 +552,12 @@ def create_professional_portfolio_video(
             extension,
         )
 
-        mode = get_professional_video_storage_config().mode
+        mode = (
+            get_professional_video_storage_config().mode
+        )
 
         if mode == 'local':
+
             return _save_local_video(
                 user,
                 temporary_path=temporary_path,
@@ -404,5 +577,11 @@ def create_professional_portfolio_video(
         )
 
     finally:
-        if temporary_path and os.path.exists(temporary_path):
-            os.unlink(temporary_path)
+
+        if (
+            temporary_path
+            and os.path.exists(temporary_path)
+        ):
+            os.unlink(
+                temporary_path
+            )

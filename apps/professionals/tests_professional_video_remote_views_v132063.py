@@ -1,6 +1,18 @@
-"""V132.06.3C: vistas de Supabase con S3 simulado y sin credenciales reales.
+"""
+V132.06.5A - Pruebas de vistas de Supabase con S3 simulado.
 
-Destino: apps/professionals/tests_professional_video_remote_views_v132063.py
+Destino:
+apps/professionals/tests_professional_video_remote_views_v132063.py
+
+Verifica:
+- Privacidad del streaming.
+- Acceso autorizado.
+- Reproducción parcial mediante Range.
+- Aprobación administrativa.
+- Eliminación segura con tareas persistentes.
+- Compatibilidad con videos locales.
+
+No utiliza credenciales reales ni accede a Supabase.
 """
 
 import os
@@ -19,7 +31,9 @@ from .models import (
     ProfessionalCategory,
     ProfessionalProfile,
     ProfessionalSpecialty,
+    ProfessionalVideoStorageCleanup,
 )
+
 from .video_models_v13200 import ProfessionalPortfolioVideo
 from .video_storage_v13201 import PrivatePortfolioStorage
 
@@ -96,6 +110,7 @@ class ProfessionalVideoRemoteViewsTests(TestCase):
         self.env.start()
         self.addCleanup(self.env.stop)
 
+        # Adaptador S3 completamente simulado.
         self.adapter_patch = patch(
             'apps.professionals.video_views_v13202.'
             'SupabaseVideoS3Adapter.from_settings'
@@ -105,6 +120,12 @@ class ProfessionalVideoRemoteViewsTests(TestCase):
         self.addCleanup(self.adapter_patch.stop)
 
         self.adapter = Mock()
+
+        # El nuevo servicio de limpieza verifica el bucket.
+        self.adapter.bucket = (
+            FAKE_S3_ENV['SUPABASE_VIDEO_S3_BUCKET']
+        )
+
         self.adapter_factory.return_value = self.adapter
 
         self.adapter.head.return_value = {
@@ -116,9 +137,9 @@ class ProfessionalVideoRemoteViewsTests(TestCase):
             requested = kwargs.get('byte_range')
 
             if requested:
-                numbers = requested.removeprefix(
-                    'bytes='
-                ).split('-')
+                numbers = (
+                    requested.removeprefix('bytes=').split('-')
+                )
 
                 start = int(numbers[0])
                 end = int(numbers[1])
@@ -336,7 +357,7 @@ class ProfessionalVideoRemoteViewsTests(TestCase):
         )
 
         self.assertIsNotNone(
-            video.published_at,
+            video.published_at
         )
 
         self.adapter.head.assert_called_once()
@@ -394,14 +415,15 @@ class ProfessionalVideoRemoteViewsTests(TestCase):
 
         self.adapter.head.assert_not_called()
 
-    def test_owner_delete_removes_record_and_schedules_remote_delete(self):
+    def test_owner_delete_creates_completed_remote_cleanup_task(self):
+        """
+        Una eliminación correcta debe dejar una tarea completada.
+        """
         video = self._video()
 
         self.client.force_login(self.owner)
 
-        with self.captureOnCommitCallbacks(
-            execute=True
-        ):
+        with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(
                 reverse(
                     'professionals:portfolio_delete',
@@ -418,6 +440,23 @@ class ProfessionalVideoRemoteViewsTests(TestCase):
             ProfessionalPortfolioVideo.objects.filter(
                 pk=video.pk
             ).exists()
+        )
+
+        task = ProfessionalVideoStorageCleanup.objects.get()
+
+        self.assertEqual(
+            task.remote_key,
+            video.external_asset_id,
+        )
+
+        self.assertEqual(
+            task.status,
+            ProfessionalVideoStorageCleanup.Status.COMPLETED,
+        )
+
+        self.assertEqual(
+            task.attempts,
+            1,
         )
 
         self.adapter.delete.assert_called_once_with(
@@ -448,33 +487,65 @@ class ProfessionalVideoRemoteViewsTests(TestCase):
             ).exists()
         )
 
+        self.assertFalse(
+            ProfessionalVideoStorageCleanup.objects.exists()
+        )
+
         self.adapter.delete.assert_not_called()
 
-    def test_remote_delete_keeps_database_record_when_storage_is_unavailable(self):
+    def test_remote_delete_keeps_cleanup_task_when_storage_is_unavailable(
+        self,
+    ):
+        """
+        Si Supabase falla, el registro del video puede retirarse,
+        pero la tarea de limpieza debe permanecer pendiente.
+        """
         video = self._video()
 
-        self.adapter_factory.side_effect = (
-            ImproperlyConfigured('S3 desconectado')
+        self.adapter_factory.side_effect = ImproperlyConfigured(
+            'S3 desconectado'
         )
 
         self.client.force_login(self.owner)
 
-        response = self.client.post(
-            reverse(
-                'professionals:portfolio_delete',
-                args=[video.public_id],
-            )
-        )
+        with patch(
+            'apps.professionals.'
+            'video_storage_cleanup_service_v132065.logger'
+        ):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    reverse(
+                        'professionals:portfolio_delete',
+                        args=[video.public_id],
+                    )
+                )
 
         self.assertEqual(
             response.status_code,
             302,
         )
 
-        self.assertTrue(
+        self.assertFalse(
             ProfessionalPortfolioVideo.objects.filter(
                 pk=video.pk
             ).exists()
+        )
+
+        task = ProfessionalVideoStorageCleanup.objects.get()
+
+        self.assertEqual(
+            task.status,
+            ProfessionalVideoStorageCleanup.Status.PENDING,
+        )
+
+        self.assertEqual(
+            task.reason,
+            ProfessionalVideoStorageCleanup.Reason.USER_DELETE,
+        )
+
+        self.assertEqual(
+            task.attempts,
+            1,
         )
 
         self.adapter.delete.assert_not_called()
@@ -535,12 +606,19 @@ class ProfessionalVideoRemoteViewsTests(TestCase):
             response.content.decode(),
         )
 
-    def test_legacy_local_video_still_streams_when_remote_mode_is_configured(self):
+    def test_legacy_local_video_still_streams_when_remote_mode_is_configured(
+        self,
+    ):
+        """
+        Comprueba que los videos locales antiguos sigan accesibles
+        aunque el modo activo sea Supabase.
+        """
         with tempfile.TemporaryDirectory() as directory:
 
             with override_settings(
                 PROFESSIONAL_VIDEO_PRIVATE_ROOT=directory
             ):
+
                 field = (
                     ProfessionalPortfolioVideo
                     ._meta

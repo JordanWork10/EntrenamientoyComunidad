@@ -9,6 +9,9 @@ from django.utils import timezone
 
 from apps.locations.models import Commune
 
+# V132.09A - Historial persistente de notificaciones.
+from .notification_event_models_v13209 import NotificationEvent
+
 
 def validate_adult(value):
     """

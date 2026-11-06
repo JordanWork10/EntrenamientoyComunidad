@@ -364,7 +364,110 @@ Centro Profesional | EntrenamientoyComunidad
             </div>
         </section>
 
-        <!-- NOVEDADES PROFESIONALES -->
+        <!-- V132.09E3: NOVEDADES E HISTORIAL PROFESIONAL -->
+        <style>
+            /* Los estados de visibilidad tienen prioridad sobre la cuadrícula. */
+            [data-professional-updates] [hidden] {
+                display: none !important;
+            }
+
+            .v13209-professional-pending-controls {
+                display: flex;
+                justify-content: center;
+                margin-top: 15px;
+            }
+
+            .v13209-professional-pending-toggle,
+            .v13209-professional-history-toggle {
+                appearance: none;
+                border: 1px solid rgba(61, 211, 227, .5);
+                border-radius: 10px;
+                background: rgba(0, 191, 217, .09);
+                color: #8cebf5;
+                cursor: pointer;
+                font: inherit;
+                font-size: .86rem;
+                font-weight: 750;
+                padding: 10px 16px;
+                transition: background .18s ease, border-color .18s ease;
+            }
+
+            .v13209-professional-pending-toggle:hover,
+            .v13209-professional-history-toggle:hover {
+                background: rgba(0, 191, 217, .18);
+                border-color: #00bfd9;
+            }
+
+            .v13209-professional-history {
+                margin-top: 25px;
+                padding: 18px 19px;
+                border: 1px solid rgba(134, 166, 181, .3);
+                border-radius: 14px;
+                background: rgba(11, 28, 39, .45);
+            }
+
+            .v13209-professional-history-heading {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 14px;
+            }
+
+            .v13209-professional-history-heading span {
+                display: block;
+                color: #80cdd8;
+                font-size: .7rem;
+                font-weight: 800;
+                letter-spacing: .08em;
+            }
+
+            .v13209-professional-history-heading h3 {
+                margin: 4px 0 5px;
+                color: #f0f8fb;
+                font-size: 1.08rem;
+            }
+
+            .v13209-professional-history-heading p {
+                color: #b6cbd2;
+                font-size: .87rem;
+                line-height: 1.55;
+                margin: 0;
+            }
+
+            .v13209-professional-history-grid {
+                margin-top: 18px;
+            }
+
+            .v13209-professional-history .professional-update-card {
+                border-color: rgba(134, 166, 181, .28);
+            }
+
+            .v13209-professional-read-badge {
+                display: inline-block;
+                margin-top: 7px;
+                color: #7cd0dc;
+                font-size: .76rem;
+                font-weight: 800;
+            }
+
+            .professional-update-status-request_archived {
+                border-color: rgba(154, 171, 185, .45);
+                background: rgba(154, 171, 185, .14);
+                color: #cbd5de;
+            }
+
+            @media (max-width: 680px) {
+                .v13209-professional-history {
+                    padding: 15px 12px;
+                }
+
+                .v13209-professional-history-toggle {
+                    width: 100%;
+                }
+            }
+        </style>
+
         {% if professional_updates %}
             <section class="professional-updates-section"
                      data-professional-updates
@@ -382,7 +485,8 @@ Centro Profesional | EntrenamientoyComunidad
 
                         <p>
                             Solicitudes, cancelaciones e incidencias de tus servicios
-                            que conviene revisar.
+                            que conviene revisar. Los avisos revisados quedan
+                            disponibles en tu historial reciente.
                         </p>
                     </div>
 
@@ -417,13 +521,15 @@ Centro Profesional | EntrenamientoyComunidad
                             <div class="professional-update-card-top">
                                 <div class="professional-update-member">
                                     <div class="professional-update-avatar">
-                                        {% if update.member.profile_image %}
+                                        {% if update.member and update.member.profile_image %}
                                             <img src="{{ update.member.profile_image.url }}"
                                                  alt="Foto de {{ update.member.get_full_name|default:update.member.email }}">
-                                        {% else %}
+                                        {% elif update.member %}
                                             <span>
                                                 {{ update.member.first_name|first|upper }}{{ update.member.last_name|first|upper }}
                                             </span>
+                                        {% else %}
+                                            <span aria-label="Aviso histórico">EC</span>
                                         {% endif %}
                                     </div>
 
@@ -438,12 +544,19 @@ Centro Profesional | EntrenamientoyComunidad
 
                                         <h3>{{ update.title }}</h3>
                                         <p>{{ update.summary }}</p>
+                                        <span class="v13209-professional-read-badge"
+                                              data-professional-update-read-badge
+                                              hidden>✓ Revisada</span>
                                     </div>
                                 </div>
 
                                 {% if update.kind == 'cancelled' %}
                                     <span class="professional-update-status professional-update-status-cancelled">
                                         Cancelada
+                                    </span>
+                                {% elif update.kind == 'request_archived' %}
+                                    <span class="professional-update-status professional-update-status-request_archived">
+                                        Solicitud registrada
                                     </span>
                                 {% elif update.kind == 'incident_reported' %}
                                     <span class="professional-update-status professional-update-status-incident_reported">
@@ -469,24 +582,31 @@ Centro Profesional | EntrenamientoyComunidad
                             </div>
 
                             <div class="professional-update-facts">
-                                <div>
-                                    <span>FECHA</span>
-                                    <strong>{{ update.booking.session_date|date:"d M Y"|upper }}</strong>
-                                </div>
+                                {% if update.booking %}
+                                    <div>
+                                        <span>FECHA</span>
+                                        <strong>{{ update.booking.session_date|date:"d M Y"|upper }}</strong>
+                                    </div>
 
-                                <div>
-                                    <span>HORARIO</span>
-                                    <strong>
-                                        {{ update.booking.start_time|time:"H:i" }}
-                                        –
-                                        {{ update.booking.end_time|time:"H:i" }}
-                                    </strong>
-                                </div>
+                                    <div>
+                                        <span>HORARIO</span>
+                                        <strong>
+                                            {{ update.booking.start_time|time:"H:i" }}
+                                            –
+                                            {{ update.booking.end_time|time:"H:i" }}
+                                        </strong>
+                                    </div>
 
-                                <div>
-                                    <span>SERVICIO</span>
-                                    <strong>{{ update.booking.service_name_snapshot }}</strong>
-                                </div>
+                                    <div>
+                                        <span>SERVICIO</span>
+                                        <strong>{{ update.booking.service_name_snapshot }}</strong>
+                                    </div>
+                                {% else %}
+                                    <div>
+                                        <span>REGISTRO</span>
+                                        <strong>Reserva histórica no disponible</strong>
+                                    </div>
+                                {% endif %}
 
                                 <div>
                                     <span>CAMBIO</span>
@@ -508,18 +628,34 @@ Centro Profesional | EntrenamientoyComunidad
                                     ✓ Marcar como revisada
                                 </button>
 
-                                <a href="{% if update.link_url %}{{ update.link_url }}{% else %}{% url 'bookings:professional_detail' update.booking.id %}{% endif %}"
-                                   class="professional-update-open"
-                                   data-professional-update-open>
-                                    {% if update.link_label %}
-                                        {{ update.link_label }} →
-                                    {% else %}
-                                        Ver reserva →
+                                {% if update.booking or update.incident_id %}
+                                    {% if update.link_url %}
+                                        <a href="{{ update.link_url }}"
+                                           class="professional-update-open"
+                                           data-professional-update-open>
+                                            {{ update.link_label|default:'Ver reserva' }} →
+                                        </a>
+                                    {% elif update.booking %}
+                                        <a href="{% url 'bookings:professional_detail' update.booking.id %}"
+                                           class="professional-update-open"
+                                           data-professional-update-open>
+                                            {{ update.link_label|default:'Ver reserva' }} →
+                                        </a>
                                     {% endif %}
-                                </a>
+                                {% endif %}
                             </div>
                         </article>
                     {% endfor %}
+                </div>
+
+                <div class="v13209-professional-pending-controls">
+                    <button type="button"
+                            class="v13209-professional-pending-toggle"
+                            data-professional-updates-show-all
+                            aria-expanded="false"
+                            hidden>
+                        Ver todas las novedades pendientes
+                    </button>
                 </div>
 
                 <div class="professional-updates-empty"
@@ -534,6 +670,35 @@ Centro Profesional | EntrenamientoyComunidad
                         </p>
                     </div>
                 </div>
+
+                <section class="v13209-professional-history"
+                         data-professional-updates-history
+                         aria-label="Historial de novedades revisadas"
+                         hidden>
+                    <div class="v13209-professional-history-heading">
+                        <div>
+                            <span>HISTORIAL RECIENTE</span>
+                            <h3>Novedades revisadas</h3>
+                            <p>
+                                Aquí permanecen los avisos que marcaste como revisados.
+                                Se muestran los eventos más recientes disponibles.
+                            </p>
+                        </div>
+
+                        <button type="button"
+                                class="v13209-professional-history-toggle"
+                                data-professional-updates-history-toggle
+                                aria-expanded="false"
+                                aria-controls="v13209-professional-history-cards">
+                            Ver historial
+                        </button>
+                    </div>
+
+                    <div id="v13209-professional-history-cards"
+                         class="professional-updates-grid v13209-professional-history-grid"
+                         data-professional-updates-history-grid
+                         hidden></div>
+                </section>
             </section>
         {% endif %}
 
@@ -1489,7 +1654,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-<!-- V128: PERSISTENCIA DE NOVEDADES EN POSTGRESQL -->
+<!-- V132.09E3: NOVEDADES RECIENTES E HISTORIAL EN POSTGRESQL -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
@@ -1522,6 +1687,22 @@ document.addEventListener('DOMContentLoaded', function () {
         '[data-professional-updates-grid]'
     );
 
+    const showAllButton = section.querySelector(
+        '[data-professional-updates-show-all]'
+    );
+
+    const historySection = section.querySelector(
+        '[data-professional-updates-history]'
+    );
+
+    const historyGrid = section.querySelector(
+        '[data-professional-updates-history-grid]'
+    );
+
+    const historyToggle = section.querySelector(
+        '[data-professional-updates-history-toggle]'
+    );
+
     const emptyElement = section.querySelector(
         '[data-professional-updates-empty]'
     );
@@ -1537,6 +1718,10 @@ document.addEventListener('DOMContentLoaded', function () {
     let localKeys = new Set();
     let reviewedIds = new Set();
     let queue = Promise.resolve();
+    let showAllPending = false;
+    let historyExpanded = false;
+
+    const PREVIEW_LIMIT = 6;
 
     try {
         const values = JSON.parse(
@@ -1584,15 +1769,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function refresh() {
         let unread = 0;
+        let reviewedCount = 0;
 
         cards.forEach(function (card) {
             const key = card.dataset.professionalUpdateId;
             const reviewed = reviewedIds.has(key);
+            const reviewButton = card.querySelector(
+                '[data-professional-update-review]'
+            );
+            const readBadge = card.querySelector(
+                '[data-professional-update-read-badge]'
+            );
 
-            card.hidden = reviewed;
+            if (reviewButton) {
+                reviewButton.hidden = reviewed;
+            }
 
-            if (!reviewed) {
+            if (readBadge) {
+                readBadge.hidden = !reviewed;
+            }
+
+            card.classList.toggle('is-reviewed', reviewed);
+
+            if (reviewed) {
+                reviewedCount += 1;
+                card.hidden = false;
+
+                if (historyGrid) {
+                    historyGrid.appendChild(card);
+                }
+            } else {
+                card.hidden = !showAllPending && unread >= PREVIEW_LIMIT;
                 unread += 1;
+
+                if (gridElement) {
+                    gridElement.appendChild(card);
+                }
             }
         });
 
@@ -1612,6 +1824,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (markAllButton) {
             markAllButton.disabled = unread === 0;
+        }
+
+        if (showAllButton) {
+            showAllButton.hidden = unread <= PREVIEW_LIMIT;
+            showAllButton.setAttribute(
+                'aria-expanded',
+                String(showAllPending)
+            );
+            showAllButton.textContent = showAllPending
+                ? 'Mostrar solo las 6 más recientes'
+                : 'Ver todas las ' + unread + ' novedades pendientes';
+        }
+
+        if (historySection) {
+            historySection.hidden = reviewedCount === 0;
+        }
+
+        if (historyGrid) {
+            historyGrid.hidden = reviewedCount === 0 || !historyExpanded;
+        }
+
+        if (historyToggle) {
+            historyToggle.setAttribute(
+                'aria-expanded',
+                String(historyExpanded)
+            );
+            historyToggle.textContent = historyExpanded
+                ? 'Ocultar historial (' + reviewedCount + ')'
+                : 'Ver historial (' + reviewedCount + ')';
         }
     }
 
@@ -1730,6 +1971,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (button) {
             button.addEventListener('click', function () {
+                historyExpanded = true;
                 markLocal([key]);
                 scheduleSync();
             });
@@ -1750,6 +1992,20 @@ document.addEventListener('DOMContentLoaded', function () {
         markAllButton.addEventListener('click', function () {
             markLocal([...authorizedKeys]);
             scheduleSync();
+        });
+    }
+
+    if (showAllButton) {
+        showAllButton.addEventListener('click', function () {
+            showAllPending = !showAllPending;
+            refresh();
+        });
+    }
+
+    if (historyToggle) {
+        historyToggle.addEventListener('click', function () {
+            historyExpanded = !historyExpanded;
+            refresh();
         });
     }
 

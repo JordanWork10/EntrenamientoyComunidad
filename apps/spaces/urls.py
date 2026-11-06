@@ -2,6 +2,12 @@ from django.urls import path
 
 from . import views
 
+# V132.09F3 - Acciones de lectura de novedades.
+from .space_notification_views_v13209 import (
+    mark_space_notification_read,
+    mark_all_space_notifications_read,
+)
+
 
 app_name = 'spaces'
 
@@ -55,6 +61,26 @@ urlpatterns = [
         name='dashboard',
     ),
 
+    # ============================================
+    # V132.09F3 - NOTIFICACIONES DEL PROVEEDOR
+    # ============================================
+
+    path(
+        'centro/novedades/revisar/',
+        mark_space_notification_read,
+        name='notification_mark_read',
+    ),
+
+    path(
+        'centro/novedades/revisar-todas/',
+        mark_all_space_notifications_read,
+        name='notification_mark_all_read',
+    ),
+
+    # ============================================
+    # CALENDARIO Y RESERVAS
+    # ============================================
+
     path(
         'centro/calendario/',
         views.provider_rental_calendar,
@@ -90,6 +116,10 @@ urlpatterns = [
         views.provider_complete_space_booking,
         name='provider_complete_booking',
     ),
+
+    # ============================================
+    # GESTIÓN DE ESPACIOS
+    # ============================================
 
     path(
         'centro/espacios/crear/',
@@ -154,6 +184,10 @@ urlpatterns = [
         name='availability_exception_status',
     ),
 
+    # ============================================
+    # PERFIL Y UBICACIÓN
+    # ============================================
+
     path(
         'solicitar-perfil/',
         views.request_space_provider_profile,
@@ -167,6 +201,13 @@ urlpatterns = [
     ),
 ]
 
-from apps.payments.economic_actor_routes_v13186 import enable_external_economic_audit
 
-urlpatterns = enable_external_economic_audit(urlpatterns, app_name='spaces')
+# V131.86 - Auditoría económica externa.
+from apps.payments.economic_actor_routes_v13186 import (
+    enable_external_economic_audit
+)
+
+urlpatterns = enable_external_economic_audit(
+    urlpatterns,
+    app_name='spaces',
+)

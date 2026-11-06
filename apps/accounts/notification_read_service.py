@@ -1,6 +1,8 @@
 """
 V128 - Servicio para conservar novedades revisadas en PostgreSQL.
 
+V132.09F3 - Se incorpora el Centro de Espacios como panel independiente.
+
 No genera notificaciones nuevas ni modifica reservas, espacios o incidencias.
 La vista que lo utilice debe obtener las novedades autorizadas desde
 las fuentes reales antes de permitir marcarlas como revisadas.
@@ -18,6 +20,7 @@ VALID_SCOPES = frozenset(
     (
         NotificationReadState.Scope.MEMBER,
         NotificationReadState.Scope.PROFESSIONAL,
+        NotificationReadState.Scope.SPACE,
     )
 )
 

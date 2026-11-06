@@ -421,6 +421,11 @@ class NotificationReadState(models.Model):
             'Profesional'
         )
 
+        SPACE = (
+            'space',
+            'Proveedor de espacios'
+        )
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

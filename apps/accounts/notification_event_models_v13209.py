@@ -1,18 +1,13 @@
 """
-V132.09A - Historial persistente de notificaciones.
+V132.09A / V132.09F2 - Historial persistente de notificaciones.
 
-Destino:
-apps/accounts/notification_event_models_v13209.py
+Conserva acontecimientos destinados a los usuarios.
 
-Este modelo conserva acontecimientos destinados a los usuarios.
-
-IMPORTANTE:
 - No reemplaza NotificationReadState.
 - No modifica reservas, pagos, actividades ni incidencias.
-- No genera notificaciones automáticamente.
-- No almacena fichas clínicas ni antecedentes médicos.
-- No permite enlaces externos en las notificaciones.
-- Cada acontecimiento debe tener una clave estable.
+- No almacena antecedentes médicos.
+- Solo permite enlaces internos.
+- Cada acontecimiento posee una clave estable.
 """
 
 import re
@@ -27,11 +22,8 @@ class NotificationEvent(models.Model):
     """
     Representa una notificación persistente.
 
-    NotificationReadState continúa siendo responsable
-    de registrar cuándo fue revisada por el usuario.
-
-    El acontecimiento y su estado de lectura se mantienen
-    separados para conservar compatibilidad con V128.
+    NotificationReadState mantiene por separado el estado
+    de lectura para conservar compatibilidad con V128.
     """
 
     class Scope(models.TextChoices):
@@ -44,6 +36,11 @@ class NotificationEvent(models.Model):
         PROFESSIONAL = (
             "professional",
             "Profesional",
+        )
+
+        SPACE = (
+            "space",
+            "Proveedor de espacios",
         )
 
     class Category(models.TextChoices):

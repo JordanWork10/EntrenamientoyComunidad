@@ -1,6 +1,5 @@
-
 {% extends 'base.html' %}
-{% load clp_filters %}
+{% load clp_filters space_notifications_v13209 %}
 
 {% block title %}
 Centro de Espacios | EntrenamientoyComunidad
@@ -597,6 +596,10 @@ Centro de Espacios | EntrenamientoyComunidad
             </section>
 
         {% endif %}
+
+        <!-- V132.09F3: NOVEDADES PERSISTENTES DEL PROVEEDOR -->
+
+        {% space_notifications_panel %}
 
         <!-- SERVICIOS Y EQUIPAMIENTO -->
 

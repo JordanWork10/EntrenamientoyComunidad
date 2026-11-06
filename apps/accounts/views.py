@@ -33,6 +33,9 @@ from .forms import (
     RegisterForm,
 )
 from .models import MemberProfile, normalize_rut, validate_rut
+from .notification_feed_merge_v13209 import (
+    merge_member_notification_updates,
+)
 
 
 def register(request):
@@ -891,7 +894,13 @@ def _account_updates_for(user):
         reverse=True,
     )
 
-    return updates[:30]
+    # V132.09D2: conserva las fuentes V128 e incorpora el
+    # historial persistente autorizado del Miembro.
+    return merge_member_notification_updates(
+        user,
+        updates,
+        limit=30,
+    )
 
 
 def _activity_duration_minutes(activity):
